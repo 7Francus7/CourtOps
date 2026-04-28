@@ -20,14 +20,7 @@ export default async function DashboardPage() {
               const isSuperAdmin = session.user.role === 'SUPER_ADMIN' || session.user.role === 'GOD'
 
               if (!session.user.clubId && !isSuperAdmin) {
-                     return (
-                            <div className="min-h-screen bg-background flex items-center justify-center p-4">
-                                   <div className="text-center space-y-4">
-                                          <h1 className="text-2xl font-bold text-destructive">Error: Usuario sin club asignado</h1>
-                                          <p className="text-muted-foreground">Su cuenta no tiene un club vinculado. Contacte soporte.</p>
-                                   </div>
-                            </div>
-                     )
+                     redirect('/login')
               }
 
               // If Super Admin has no club, redirect them to God Mode as they have nothing to see here

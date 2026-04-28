@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, Store, User } from 'lucide-react'
-import { Nunito } from 'next/font/google'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -12,8 +11,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { FormField } from '@/components/ui/form-field'
 import { useFormValidation } from '@/hooks/useFormValidation'
 import { cn } from '@/lib/utils'
-
-const fontLogo = Nunito({ subsets: ['latin'], weight: ['400', '800'] })
+import { CourtOpsLogoFull, CourtOpsLogoAuto } from '@/components/ui/CourtOpsLogo'
 
 const PLANS = [
   {
@@ -59,30 +57,6 @@ const PLANS = [
   },
 ]
 
-function CourtOpsMark({ className = 'h-10 w-10' }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" className={className} aria-hidden="true">
-      <g transform="translate(5, 10)">
-        <path d="M 25 5 A 15 15 0 1 0 25 35" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-        <circle cx="32" cy="20" r="12" fill="none" stroke="#10b981" strokeWidth="6" />
-        <circle cx="32" cy="20" r="4" fill="currentColor" />
-      </g>
-    </svg>
-  )
-}
-
-function CourtOpsLogo({ inverted = false }: { inverted?: boolean }) {
-  return (
-    <span className="inline-flex items-center gap-2.5">
-      <span className={cn('flex h-9 w-9 items-center justify-center rounded-full ring-1', inverted ? 'bg-white text-zinc-900 ring-white/20' : 'bg-zinc-900 text-white ring-zinc-800 dark:bg-white dark:text-zinc-900 dark:ring-white/20')}>
-        <CourtOpsMark className="h-6 w-6" />
-      </span>
-      <span className={cn(fontLogo.className, 'text-xl font-extrabold tracking-tight', inverted ? 'text-white' : 'text-zinc-900 dark:text-white')}>
-        Court<span className="font-normal text-emerald-500">Ops</span>
-      </span>
-    </span>
-  )
-}
 
 function PlanPrice({ plan, isYearly }: { plan: (typeof PLANS)[number]; isYearly: boolean }) {
   if (plan.price === 0)
@@ -154,8 +128,8 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-white">
       <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 px-6 py-4 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" aria-label="CourtOps inicio">
-            <CourtOpsLogo />
+          <Link href="/" aria-label="CourtOps inicio" className="hover:opacity-80 transition-opacity inline-flex">
+            <CourtOpsLogoAuto className="h-8 w-auto" />
           </Link>
           <div className="flex items-center gap-5">
             <span className="hidden text-sm text-zinc-500 dark:text-zinc-400 sm:block">
@@ -300,7 +274,7 @@ export default function RegisterPage() {
                   <ArrowLeft size={13} />
                   Volver a planes
                 </button>
-                <CourtOpsLogo inverted />
+                <CourtOpsLogoFull className="h-8 w-auto" darkBg />
                 <h1 className="mt-8 text-3xl font-bold tracking-tight">Activá tu club.</h1>
                 <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                   Dejamos listo el espacio para que cargues canchas, horarios y empieces a operar.

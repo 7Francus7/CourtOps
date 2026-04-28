@@ -96,6 +96,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [registerError, setRegisterError] = useState('')
 	const [authError, setAuthError] = useState('')
 	const [bookingError, setBookingError] = useState('')
+	const [guestErrors, setGuestErrors] = useState<{ name?: string; lastname?: string; phone?: string }>({})
+
 	const [paymentError, setPaymentError] = useState('')
 	const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
 	const [isPaying, setIsPaying] = useState(false)
@@ -104,6 +106,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [matchGender, setMatchGender] = useState('Masculino')
 	const [copiedPaymentField, setCopiedPaymentField] = useState<string | null>(null)
 	const [expandedSlot, setExpandedSlot] = useState<string | null>(null)
+
+	const validatePhone = (phone: string) => {
+		const digits = phone.replace(/\D/g, '')
+		return digits.length >= 8 && digits.length <= 15
+	}
+
+	const validateName = (name: string) => name.trim().length >= 2
 
 	const goToStep = (newStep: PublicStep) => {
 		setStep(newStep)
@@ -212,6 +221,14 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const handleRegisterSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (!clientData.name || !clientData.lastname || !clientData.phone) return
+		if (!validateName(clientData.name) || !validateName(clientData.lastname)) {
+			setRegisterError('Nombre y apellido deben tener al menos 2 caracteres.')
+			return
+		}
+		if (!validatePhone(clientData.phone)) {
+			setRegisterError('Ingresá un teléfono válido (mínimo 8 dígitos).')
+			return
+		}
 		setIsSubmitting(true)
 		setRegisterError('')
 		try {
@@ -232,13 +249,26 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const handleBooking = async (e?: React.FormEvent) => {
 		if (e) e.preventDefault()
 		if (!selectedSlot) return
+
+		if (mode === 'guest') {
+			const errors: { name?: string; lastname?: string; phone?: string } = {}
+			if (!validateName(clientData.name)) errors.name = 'Ingresá tu nombre (mínimo 2 caracteres)'
+			if (!validateName(clientData.lastname)) errors.lastname = 'Ingresá tu apellido (mínimo 2 caracteres)'
+			if (!validatePhone(clientData.phone)) errors.phone = 'Ingresá un teléfono válido (mínimo 8 dígitos)'
+			if (Object.keys(errors).length > 0) {
+				setGuestErrors(errors)
+				return
+			}
+			setGuestErrors({})
+		}
+
 		setIsSubmitting(true)
 		setBookingError('')
 
 		const fullName =
 			mode === 'premium'
 				? `${clientData.name} ${clientData.lastname}`.trim()
-				: clientData.name
+				: `${clientData.name} ${clientData.lastname}`.trim()
 
 		const res = await createPublicBooking({
 			clubId: club.id,
@@ -1138,33 +1168,84 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										Tus datos
 									</p>
 									<div className="space-y-3">
-										<div className="space-y-1.5">
-											<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-												Nombre *
-											</label>
-											<input
-												type="text"
-												value={clientData.name}
-												onChange={e =>
-													setClientData(p => ({ ...p, name: e.target.value }))
-												}
-												placeholder="Tu nombre"
-												className="w-full h-12 px-4 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] rounded-2xl text-sm font-bold text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
-											/>
+										<div className="grid grid-cols-2 gap-3">
+											<div className="space-y-1.5">
+												<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+													Nombre *
+												</label>
+												<input
+													type="text"
+													value={clientData.name}
+													onChange={e => {
+														setClientData(p => ({ ...p, name: e.target.value }))
+														setGuestErrors(p => ({ ...p, name: undefined }))
+													}}
+													placeholder="Juan"
+													className={cn(
+														'w-full h-12 px-4 bg-white dark:bg-white/[0.04] border rounded-2xl text-sm font-bold text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all',
+														guestErrors.name ? 'border-red-400 dark:border-red-400' : 'border-slate-200 dark:border-white/[0.07] focus:border-primary/50'
+													)}
+												/>
+												{guestErrors.name && (
+													<p className="text-[10px] font-bold text-red-400 flex items-center gap-1 mt-1">
+														<AlertTriangle size={10} className="shrink-0" />
+														{guestErrors.name}
+													</p>
+												)}
+											</div>
+											<div className="space-y-1.5">
+												<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+													Apellido *
+												</label>
+												<input
+													type="text"
+													value={clientData.lastname}
+													onChange={e => {
+														setClientData(p => ({ ...p, lastname: e.target.value }))
+														setGuestErrors(p => ({ ...p, lastname: undefined }))
+													}}
+													placeholder="García"
+													className={cn(
+														'w-full h-12 px-4 bg-white dark:bg-white/[0.04] border rounded-2xl text-sm font-bold text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all',
+														guestErrors.lastname ? 'border-red-400 dark:border-red-400' : 'border-slate-200 dark:border-white/[0.07] focus:border-primary/50'
+													)}
+												/>
+												{guestErrors.lastname && (
+													<p className="text-[10px] font-bold text-red-400 flex items-center gap-1 mt-1">
+														<AlertTriangle size={10} className="shrink-0" />
+														{guestErrors.lastname}
+													</p>
+												)}
+											</div>
 										</div>
 										<div className="space-y-1.5">
 											<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
 												Teléfono *
 											</label>
-											<input
-												type="tel"
-												value={clientData.phone}
-												onChange={e =>
-													setClientData(p => ({ ...p, phone: e.target.value }))
-												}
-												placeholder="11 1234-5678"
-												className="w-full h-12 px-4 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] rounded-2xl text-sm font-bold text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
-											/>
+											<div className="relative">
+												<div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+													<Smartphone size={15} className="text-slate-400" />
+												</div>
+												<input
+													type="tel"
+													value={clientData.phone}
+													onChange={e => {
+														setClientData(p => ({ ...p, phone: e.target.value }))
+														setGuestErrors(p => ({ ...p, phone: undefined }))
+													}}
+													placeholder="11 1234-5678"
+													className={cn(
+														'w-full h-12 pl-11 pr-4 bg-white dark:bg-white/[0.04] border rounded-2xl text-sm font-bold text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all',
+														guestErrors.phone ? 'border-red-400 dark:border-red-400' : 'border-slate-200 dark:border-white/[0.07] focus:border-primary/50'
+													)}
+												/>
+											</div>
+											{guestErrors.phone && (
+												<p className="text-[10px] font-bold text-red-400 flex items-center gap-1 mt-1">
+													<AlertTriangle size={10} className="shrink-0" />
+													{guestErrors.phone}
+												</p>
+											)}
 										</div>
 									</div>
 								</div>
@@ -1266,7 +1347,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								disabled={
 									isSubmitting ||
 									mode === null ||
-									(mode === 'guest' && (!clientData.name.trim() || !clientData.phone.trim()))
+									(mode === 'guest' && (!clientData.name.trim() || !clientData.lastname.trim() || !clientData.phone.trim()))
 								}
 								className="w-full h-14 bg-zinc-950 dark:bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
 							>

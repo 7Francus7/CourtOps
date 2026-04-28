@@ -153,7 +153,8 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        const { data, isLoading } = useQuery({
               queryKey: ['turnero', selectedDate.toISOString()],
               queryFn: () => getTurneroData(selectedDate.toISOString()),
-              refetchInterval: 30000,
+              refetchInterval: 10000,
+              staleTime: 0,
        })
 
        // Swipe Logic removed to prevent conflict with horizontal scrolling

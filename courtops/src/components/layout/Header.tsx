@@ -1,7 +1,6 @@
 'use client'
 
 import { Bell, Search, ArrowLeft, Moon, Sun } from 'lucide-react'
-import { useEmployee } from '@/contexts/EmployeeContext'
 import { useNotifications } from '@/hooks/useNotifications'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { useState } from 'react'
@@ -9,11 +8,8 @@ import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs'
-import { useSession } from 'next-auth/react'
 
 export function Header({ title, backHref, minimal = false }: { title?: string; backHref?: string; minimal?: boolean }) {
-  const { data: session } = useSession()
-  const { activeEmployee } = useEmployee()
   const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const { theme, setTheme } = useTheme()
@@ -89,7 +85,7 @@ export function Header({ title, backHref, minimal = false }: { title?: string; b
 
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+            className="md:hidden w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
             aria-label={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
           >
             {theme === 'dark' ? <Moon size={17} /> : <Sun size={17} />}

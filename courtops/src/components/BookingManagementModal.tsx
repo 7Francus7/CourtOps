@@ -25,7 +25,6 @@ import { Haptics } from '@/lib/haptics'
 import { createPortal } from 'react-dom'
 import {
        X,
-       AlertTriangle,
        Calendar,
        Clock,
        Trophy,
@@ -40,10 +39,8 @@ import {
        Save,
        Phone,
        Mail,
-       Check,
        EyeOff,
        User,
-       Plus,
        Repeat,
        Wallet,
        RefreshCw,
@@ -419,6 +416,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const isPaid = balance <= 0
        const paymentPercent = pricing.total > 0 ? Math.min((pricing.paid / pricing.total) * 100, 100) : 100
        const durationLabel = `${schedule.duration} min`
+       const hasPhone = Boolean(client.phone?.trim())
 
        const tabs = [
               { key: 'gestion' as const, label: t('overview'), icon: Banknote, color: 'primary' },
@@ -463,12 +461,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           </div>
                                    </div>
                                    <div className="flex items-center gap-2 shrink-0">
-                                          <button
-                                                 onClick={handleWhatsApp}
-                                                 className="w-9 h-9 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center active:scale-90 transition-all"
-                                          >
-                                                 <MessageCircle size={16} />
-                                          </button>
+                                          {hasPhone && (
+                                                 <button
+                                                        onClick={handleWhatsApp}
+                                                        className="w-9 h-9 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center active:scale-90 transition-all"
+                                                 >
+                                                        <MessageCircle size={16} />
+                                                 </button>
+                                          )}
                                           <button onClick={onClose} className="w-9 h-9 bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 rounded-xl flex items-center justify-center active:scale-90 transition-all">
                                                  <X size={16} />
                                           </button>
@@ -632,134 +632,109 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </nav>
 
                                    {/* Sidebar Info & Actions */}
-                                   <div className="mt-auto p-4 space-y-4">
-                                          {/* Payment Status Mini Card */}
-                                          <div className="bg-white dark:bg-white/[0.03] rounded-xl p-4 border border-slate-200/80 dark:border-white/[0.06]">
-                                                 <div className="flex items-center justify-between mb-3">
-                                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{t('status')}</span>
-                                                        {pricing.total === 0 ? (
-                                                               <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-md">
-                                                                      {t('free')}
-                                                               </span>
-                                                        ) : (
-                                                               <span className={cn(
-                                                                      "text-[10px] font-semibold px-2 py-0.5 rounded-md",
-                                                                      isPaid
-                                                                             ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-                                                                             : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
-                                                               )}>
-                                                                      {isPaid ? t('completed_status') : t('pending_status')}
-                                                               </span>
-                                                        )}
-                                                 </div>
-
-                                                 <div className="flex items-baseline justify-between mb-3">
-                                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">{t('total')}</span>
-                                                        <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">${pricing.total.toLocaleString()}</span>
-                                                 </div>
-
-                                                 {/* Mini progress */}
-                                                 <div className="w-full bg-slate-100 dark:bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
-                                                        <motion.div
-                                                               initial={{ width: 0 }}
-                                                               animate={{ width: `${paymentPercent}%` }}
-                                                               transition={{ duration: 1, ease: "easeOut" }}
-                                                               className={cn(
-                                                                      "h-full rounded-full",
-                                                                      isPaid ? "bg-emerald-500" : "bg-amber-500"
-                                                               )}
-                                                        />
-                                                 </div>
-                                                 {!isPaid && (
-                                                        <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-2 font-medium">
-                                                               Resta: <span className="text-amber-600 dark:text-amber-400 font-semibold">${balance.toLocaleString()}</span>
-                                                        </p>
-                                                 )}
-                                          </div>
-
-                                          {/* Reminder */}
-                                          <div className="bg-white dark:bg-white/[0.03] rounded-xl p-3.5 border border-slate-200/80 dark:border-white/[0.06] flex items-center justify-between">
-                                                 <div className="flex items-center gap-2.5">
-                                                        <div className={cn(
-                                                               "w-7 h-7 rounded-lg flex items-center justify-center",
-                                                               adaptedBooking.metadata.reminderSent
-                                                                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500"
-                                                                      : "bg-slate-100 dark:bg-white/[0.04] text-slate-400 dark:text-zinc-500"
+                                   <div className="mt-auto p-4 space-y-3">
+                                          <div className="bg-white dark:bg-white/[0.03] rounded-xl p-4 border border-slate-200/80 dark:border-white/[0.06] space-y-3">
+                                                 <div className="flex items-center justify-between">
+                                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Resumen del turno</span>
+                                                        <span className={cn(
+                                                               "text-[10px] font-semibold px-2 py-0.5 rounded-md",
+                                                               isPaid
+                                                                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                                                                      : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
                                                         )}>
-                                                               {adaptedBooking.metadata.reminderSent ? <Bell size={13} /> : <BellOff size={13} />}
+                                                               {isPaid ? 'Pagado' : 'Pendiente'}
+                                                        </span>
+                                                 </div>
+                                                 <div>
+                                                        <p className="text-[13px] font-semibold text-slate-900 dark:text-white">{formattedTime}hs</p>
+                                                        <p className="text-[11px] text-slate-500 dark:text-zinc-500 mt-0.5">{durationLabel} · {schedule.courtName}</p>
+                                                 </div>
+                                                 <div className="grid grid-cols-3 gap-2">
+                                                        <div className="rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/[0.05] px-2.5 py-2">
+                                                               <p className="text-[9px] uppercase tracking-wider text-slate-400 dark:text-zinc-500">Total</p>
+                                                               <p className="mt-1 text-[11px] font-semibold text-slate-900 dark:text-white">${pricing.total.toLocaleString()}</p>
                                                         </div>
-                                                        <div>
-                                                               <span className="text-[10px] font-semibold text-slate-600 dark:text-zinc-400 block leading-tight">Recordatorio</span>
-                                                               <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">WhatsApp</span>
+                                                        <div className="rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/[0.05] px-2.5 py-2">
+                                                               <p className="text-[9px] uppercase tracking-wider text-slate-400 dark:text-zinc-500">Abonado</p>
+                                                               <p className="mt-1 text-[11px] font-semibold text-slate-900 dark:text-white">${pricing.paid.toLocaleString()}</p>
+                                                        </div>
+                                                        <div className="rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/[0.05] px-2.5 py-2">
+                                                               <p className="text-[9px] uppercase tracking-wider text-slate-400 dark:text-zinc-500">Resta</p>
+                                                               <p className="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">${balance.toLocaleString()}</p>
                                                         </div>
                                                  </div>
-                                                 {adaptedBooking.metadata.reminderSent ? (
-                                                        <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md flex items-center gap-1">
-                                                               <Check size={10} strokeWidth={3} /> Enviado
-                                                        </span>
-                                                 ) : (
-                                                        <button
-                                                               onClick={handleSendReminder}
-                                                               disabled={loading}
-                                                               className="text-[9px] font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-2.5 py-1 rounded-md flex items-center gap-1 transition-all active:scale-95"
-                                                        >
-                                                               {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageCircle size={10} />}
-                                                               Enviar
-                                                        </button>
-                                                 )}
                                           </div>
 
-                                          {/* Recurring Badge */}
-                                          {booking.recurringId && (
-                                                 <div className="bg-primary/5 dark:bg-primary/[0.06] rounded-xl p-3.5 border border-primary/10 dark:border-primary/[0.12]">
-                                                        <div className="flex items-center gap-2 mb-2.5">
-                                                               <Repeat size={12} className="text-primary" />
-                                                               <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Turno Fijo</span>
-                                                        </div>
+                                          <div className="bg-white dark:bg-white/[0.03] rounded-xl p-3.5 border border-slate-200/80 dark:border-white/[0.06] space-y-2.5">
+                                                 <p className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Acciones rápidas</p>
+                                                 <div className={cn("grid gap-2", hasPhone ? "grid-cols-2" : "grid-cols-1")}>
+                                                        {hasPhone && (
                                                         <button
-                                                               onClick={handleCancelSeries}
-                                                               disabled={loading}
-                                                               className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-[10px] font-semibold transition-all active:scale-[0.97]"
+                                                               onClick={handleWhatsApp}
+                                                               className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[11px] font-medium bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/15 transition-all"
                                                         >
-                                                               Eliminar Serie Completa
+                                                               <MessageCircle size={14} />
+                                                               WhatsApp
+                                                        </button>
+                                                        )}
+                                                        <button
+                                                        onClick={handleSendReminder}
+                                                        disabled={loading || adaptedBooking.metadata.reminderSent}
+                                                        className="w-full flex items-center justify-center gap-2.5 px-3 py-2.5 rounded-xl text-[11px] font-medium bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border border-slate-200/80 dark:border-white/[0.06] hover:text-slate-900 dark:hover:text-white transition-all disabled:opacity-60"
+                                                 >
+                                                        {adaptedBooking.metadata.reminderSent ? <Bell size={14} /> : <BellOff size={14} />}
+                                                        {adaptedBooking.metadata.reminderSent ? 'Recordatorio enviado' : 'Enviar recordatorio'}
                                                         </button>
                                                  </div>
-                                          )}
-
-                                          {/* Actions */}
-                                          <div className="space-y-1.5">
                                                  {booking.status !== 'CANCELED' && (
                                                         <button
                                                                onClick={handleNoShow}
                                                                disabled={loading}
                                                                className={cn(
-                                                                      "w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[11px] font-medium transition-all border",
+                                                                      "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[11px] font-medium transition-all border",
                                                                       booking.status === 'NO_SHOW'
                                                                              ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20"
                                                                              : "bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border-slate-200/80 dark:border-white/[0.06] hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-500/5 hover:border-amber-200 dark:hover:border-amber-500/10"
                                                                )}
                                                         >
                                                                {loading ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <EyeOff size={14} />}
-                                                               {booking.status === 'NO_SHOW' ? 'Revertir Ausencia' : 'Marcar Ausente'}
+                                                               {booking.status === 'NO_SHOW' ? 'Revertir ausencia' : 'Marcar ausente'}
                                                         </button>
                                                  )}
+                                          </div>
 
+                                          {booking.recurringId && (
+                                                 <div className="bg-primary/5 dark:bg-primary/[0.06] rounded-xl p-3.5 border border-primary/10 dark:border-primary/[0.12]">
+                                                        <div className="flex items-center gap-2 mb-2.5">
+                                                               <Repeat size={12} className="text-primary" />
+                                                               <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Turno fijo</span>
+                                                        </div>
+                                                        <button
+                                                               onClick={handleCancelSeries}
+                                                               disabled={loading}
+                                                               className="w-full py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-[10px] font-semibold transition-all active:scale-[0.97]"
+                                                        >
+                                                               Eliminar serie completa
+                                                        </button>
+                                                 </div>
+                                          )}
+
+                                          <div className="grid grid-cols-2 gap-2">
+                                                 <button
+                                                        onClick={onClose}
+                                                        className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[11px] font-medium bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border border-slate-200/80 dark:border-white/[0.06] hover:text-slate-900 dark:hover:text-white transition-all"
+                                                 >
+                                                        Cerrar
+                                                 </button>
                                                  <button
                                                         onClick={handleCancel}
                                                         disabled={loading}
-                                                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[11px] font-medium bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border border-slate-200/80 dark:border-white/[0.06] hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-500/5 hover:border-red-200 dark:hover:border-red-500/10 transition-all"
+                                                        className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[11px] font-medium bg-white dark:bg-white/[0.03] text-slate-500 dark:text-zinc-500 border border-slate-200/80 dark:border-white/[0.06] hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-500/5 hover:border-red-200 dark:hover:border-red-500/10 transition-all"
                                                  >
                                                         {loading ? <Loader2 className="animate-spin w-3.5 h-3.5" /> : <Trash2 size={14} />}
                                                         {t('cancel_booking')}
                                                  </button>
                                           </div>
-
-                                          <button
-                                                 onClick={onClose}
-                                                 className="w-full py-2.5 text-[10px] font-medium text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors uppercase tracking-wider"
-                                          >
-                                                 {t('close_window')}
-                                          </button>
                                    </div>
                             </div>
 
@@ -769,8 +744,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                             <div className="flex-1 bg-white dark:bg-zinc-950 flex flex-col min-w-0 overflow-hidden">
 
                                    {/* Desktop Header */}
-                                   <div className="hidden md:flex h-14 border-b border-slate-100 dark:border-white/[0.04] items-center justify-between px-6 bg-slate-50/50 dark:bg-white/[0.015] shrink-0">
-                                          <div className="flex items-center gap-6">
+                                   <div className="hidden md:flex h-12 border-b border-slate-100 dark:border-white/[0.04] items-center justify-between px-5 bg-slate-50/50 dark:bg-white/[0.015] shrink-0">
+                                          <div className="flex items-center gap-5 min-w-0">
                                                  <div className="flex items-center gap-2 text-slate-600 dark:text-zinc-400 text-[13px] font-medium">
                                                         <Calendar className="w-4 h-4 text-primary/70" />
                                                         <span className="capitalize">{formattedDate}</span>
@@ -780,22 +755,31 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         <span>{formattedTime}hs</span>
                                                  </div>
                                                  <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-600 bg-slate-100 dark:bg-white/[0.04] px-2 py-0.5 rounded-md">{durationLabel}</span>
+                                                 <span className="text-[11px] font-semibold text-primary truncate">{schedule.courtName}</span>
                                           </div>
 
-                                          <div className="flex gap-2">
+                                           <div className="flex items-center gap-2">
                                                  <button
                                                         onClick={handleShareMatch}
-                                                        className="flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] rounded-lg transition-all active:scale-95 border border-slate-200/80 dark:border-white/[0.06]"
+                                                         className="hidden xl:flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] rounded-lg transition-all active:scale-95 border border-slate-200/80 dark:border-white/[0.06]"
                                                  >
                                                         <Share2 size={13} /> Invitación
                                                  </button>
-                                                 <button
-                                                        onClick={handleWhatsApp}
-                                                        className="flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-all active:scale-95 border border-emerald-200/80 dark:border-emerald-500/20"
-                                                 >
-                                                        <MessageCircle size={13} /> WhatsApp
-                                                 </button>
-                                          </div>
+                                                  {hasPhone && (
+                                                         <button
+                                                         onClick={handleWhatsApp}
+                                                         className="flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-lg transition-all active:scale-95 border border-emerald-200/80 dark:border-emerald-500/20"
+                                                  >
+                                                         <MessageCircle size={13} /> WhatsApp
+                                                         </button>
+                                                  )}
+                                                  <button
+                                                         onClick={onClose}
+                                                         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 dark:text-zinc-500 bg-slate-100 dark:bg-white/[0.04] hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/[0.08] transition-all border border-slate-200/80 dark:border-white/[0.06]"
+                                                  >
+                                                         <X size={14} />
+                                                  </button>
+                                           </div>
                                    </div>
 
                                    {/* Scrollable Content */}
@@ -807,11 +791,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         className="max-w-2xl mx-auto space-y-5"
                                                  >
                                                         {/* ── Payment Status Hero ── */}
-                                                        <div className="bg-slate-50 dark:bg-white/[0.02] rounded-2xl p-6 md:p-8 border border-slate-200/60 dark:border-white/[0.04] relative overflow-hidden">
-                                                               {/* Subtle accent */}
-                                                               {isPaid && <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/5 rounded-full blur-[80px] -mr-20 -mt-20" />}
-
-                                                               <div className="flex items-center justify-between mb-6">
+                                                        <div className="bg-slate-50 dark:bg-white/[0.02] rounded-2xl p-5 md:p-6 border border-slate-200/60 dark:border-white/[0.04] space-y-4">
+                                                               <div className="flex items-center justify-between gap-3">
                                                                       <div className="flex items-center gap-2.5">
                                                                              <div className={cn(
                                                                                     "w-8 h-8 rounded-lg flex items-center justify-center",
@@ -819,7 +800,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              )}>
                                                                                     {isPaid ? <Shield size={16} /> : <CircleDollarSign size={16} />}
                                                                              </div>
-                                                                             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">{t('payment_status')}</span>
+                                                                             <div>
+                                                                                    <span className="text-xs font-semibold text-slate-500 dark:text-zinc-500 uppercase tracking-wider block">{t('payment_status')}</span>
+                                                                                    <span className="text-[11px] text-slate-400 dark:text-zinc-500">Lo importante es cuánto falta cobrar.</span>
+                                                                             </div>
                                                                       </div>
                                                                       <span className={cn(
                                                                              "text-[10px] font-semibold px-2.5 py-1 rounded-lg",
@@ -831,16 +815,29 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </span>
                                                                </div>
 
-                                                               {/* Balance Display */}
-                                                               <div className="flex items-end gap-3 mb-6 relative z-10">
-                                                                      <span className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                                                               <div className="flex items-end gap-3">
+                                                                      <span className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
                                                                              ${balance.toLocaleString()}
                                                                       </span>
-                                                                      <span className="text-sm text-slate-400 dark:text-zinc-500 font-medium mb-2">{t('remaining')}</span>
+                                                                      <span className="text-sm text-slate-400 dark:text-zinc-500 font-medium mb-1.5">por cobrar</span>
                                                                </div>
 
-                                                               {/* Progress Bar */}
-                                                               <div className="w-full bg-slate-200/80 dark:bg-white/[0.06] h-2 rounded-full overflow-hidden mb-3">
+                                                               <div className="grid grid-cols-3 gap-2">
+                                                                      <div className="rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] p-3">
+                                                                             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Total</p>
+                                                                             <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">${pricing.total.toLocaleString()}</p>
+                                                                      </div>
+                                                                      <div className="rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] p-3">
+                                                                             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Abonado</p>
+                                                                             <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">${pricing.paid.toLocaleString()}</p>
+                                                                      </div>
+                                                                      <div className="rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] p-3">
+                                                                             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Resta</p>
+                                                                             <p className="mt-1 text-sm font-bold text-amber-600 dark:text-amber-400">${balance.toLocaleString()}</p>
+                                                                      </div>
+                                                               </div>
+
+                                                               <div className="w-full bg-slate-200/80 dark:bg-white/[0.06] h-2 rounded-full overflow-hidden">
                                                                       <motion.div
                                                                              initial={{ width: 0 }}
                                                                              animate={{ width: `${paymentPercent}%` }}
@@ -850,15 +847,6 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     isPaid ? "bg-emerald-500" : paymentPercent > 50 ? "bg-amber-400" : "bg-amber-500"
                                                                              )}
                                                                       />
-                                                               </div>
-
-                                                               <div className="flex items-center justify-between text-[11px]">
-                                                                      <span className="text-slate-400 dark:text-zinc-500 font-medium">
-                                                                             Abonado: <span className="text-slate-600 dark:text-zinc-300 font-semibold">${pricing.paid.toLocaleString()}</span>
-                                                                      </span>
-                                                                      <span className="text-slate-400 dark:text-zinc-500 font-medium">
-                                                                             Total: <span className="text-slate-600 dark:text-zinc-300 font-semibold">${pricing.total.toLocaleString()}</span>
-                                                                      </span>
                                                                </div>
                                                         </div>
 
@@ -876,12 +864,12 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
 
                                                          {/* ── Open Match / Partido Abierto ── */}
                                                         <div className={cn(
-                                                               "rounded-2xl border transition-all p-5 md:p-6",
+                                                                "rounded-2xl border transition-all p-4 md:p-5",
                                                                isOpenMatch
                                                                       ? "bg-blue-50/50 dark:bg-blue-500/[0.04] border-blue-200/60 dark:border-blue-500/10"
                                                                       : "bg-slate-50 dark:bg-white/[0.02] border-slate-200/60 dark:border-white/[0.04]"
                                                         )}>
-                                                               <div className="flex items-center justify-between mb-4">
+                                                                <div className="flex items-center justify-between gap-3 mb-3">
                                                                       <div className="flex items-center gap-3">
                                                                              <div className={cn(
                                                                                     "w-9 h-9 rounded-lg flex items-center justify-center transition-colors",
@@ -891,8 +879,9 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                              )}>
                                                                                     <Zap size={16} />
                                                                              </div>
-                                                                             <div>
-                                                                                    <h3 className="text-[13px] font-semibold text-slate-800 dark:text-white">Partido Abierto</h3>
+                                                                              <div>
+                                                                                     <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Opciones del turno</p>
+                                                                                     <h3 className="text-[13px] font-semibold text-slate-800 dark:text-white">Partido abierto</h3>
                                                                                     <p className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium mt-0.5">
                                                                                            {isOpenMatch ? 'Visible en el portal público' : 'Partido privado'}
                                                                                     </p>
@@ -950,12 +939,20 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                                   </select>
                                                                                            </div>
                                                                                            <div className="col-span-2">
-                                                                                                  <button
-                                                                                                         onClick={handleToggleOpenMatch}
-                                                                                                         className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg text-xs transition-all active:scale-[0.98]"
-                                                                                                  >
-                                                                                                         {t('update_data')}
-                                                                                                  </button>
+                                                                                                   <div className="grid grid-cols-2 gap-2">
+                                                                                                          <button
+                                                                                                                 onClick={handleShareMatch}
+                                                                                                                 className="h-10 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.04] text-slate-600 dark:text-zinc-300 font-semibold text-xs transition-all hover:bg-slate-50 dark:hover:bg-white/[0.08] active:scale-[0.98]"
+                                                                                                          >
+                                                                                                                 Copiar datos
+                                                                                                          </button>
+                                                                                                          <button
+                                                                                                                 onClick={handleToggleOpenMatch}
+                                                                                                                 className="h-10 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg text-xs transition-all active:scale-[0.98]"
+                                                                                                          >
+                                                                                                                 {t('update_data')}
+                                                                                                          </button>
+                                                                                                   </div>
                                                                                            </div>
                                                                                     </div>
                                                                              </motion.div>

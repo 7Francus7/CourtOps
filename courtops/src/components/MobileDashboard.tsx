@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
@@ -97,37 +97,87 @@ export default function MobileDashboard({
 
        const [showUpgradeModal, setShowUpgradeModal] = useState(false)
        const [lockedFeatureName, setLockedFeatureName] = useState('')
+       const [isMobileViewport, setIsMobileViewport] = useState(false)
+       const isFetchingRef = useRef(false)
+       const mountedRef = useRef(false)
+
+       const MOBILE_DASHBOARD_TIMEOUT_MS = 20000
+       const MOBILE_DASHBOARD_TIMEOUT_ERROR = 'mobile-dashboard-timeout'
 
        const handleLockedClick = (featureName: string) => {
               setLockedFeatureName(featureName)
               setShowUpgradeModal(true)
        }
 
-       const fetchData = async () => {
+       const fetchData = useCallback(async () => {
+              if (!mountedRef.current || !isMobileViewport || isFetchingRef.current) {
+                     return
+              }
+
+              isFetchingRef.current = true
+              let timeoutId: ReturnType<typeof setTimeout> | null = null
+
               try {
                      setLoadError('')
                      const res = await Promise.race([
                             getMobileDashboardData(),
-                            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000)),
+                            new Promise((_, reject) => {
+                                   timeoutId = setTimeout(
+                                          () => reject(new Error(MOBILE_DASHBOARD_TIMEOUT_ERROR)),
+                                          MOBILE_DASHBOARD_TIMEOUT_MS
+                                   )
+                            }),
                      ])
-                     setData(res as unknown as MobileDashboardData)
+                     if (mountedRef.current) {
+                            setData(res as MobileDashboardData | null)
+                     }
               } catch (e) {
-                     console.error(e)
+                     if (e instanceof Error && e.message !== MOBILE_DASHBOARD_TIMEOUT_ERROR) {
+                            console.error(e)
+                     }
                      setLoadError('No pudimos actualizar el panel. Revisá la conexión o reintentá.')
               } finally {
-                     setLoading(false)
+                     if (timeoutId) {
+                            clearTimeout(timeoutId)
+                     }
+                     isFetchingRef.current = false
+                     if (mountedRef.current) {
+                            setLoading(false)
+                     }
               }
-       }
+       }, [isMobileViewport])
 
        const { theme, setTheme } = useTheme()
 
        useEffect(() => {
+              mountedRef.current = true
+
+              const mediaQuery = window.matchMedia('(max-width: 767px)')
+              const syncViewport = () => setIsMobileViewport(mediaQuery.matches)
+
+              syncViewport()
+              mediaQuery.addEventListener('change', syncViewport)
+
+              return () => {
+                     mountedRef.current = false
+                     mediaQuery.removeEventListener('change', syncViewport)
+              }
+       }, [])
+
+       useEffect(() => {
+              if (!isMobileViewport) {
+                     return
+              }
+
               fetchData()
               const interval = setInterval(() => {
-                     if (!document.hidden) fetchData()
+                     if (!document.hidden) {
+                            fetchData()
+                     }
               }, 10000)
+
               return () => clearInterval(interval)
-       }, [refreshKey])
+       }, [fetchData, isMobileViewport, refreshKey])
 
        if (loading && !data) {
               return (

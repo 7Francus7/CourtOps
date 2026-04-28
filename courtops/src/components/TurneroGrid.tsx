@@ -309,12 +309,12 @@ export default function TurneroGrid({
                             throw err
                      }
               },
-              refetchInterval: 60000, // Reduced polling since we have Pusher
+              refetchInterval: 10000,
               refetchOnWindowFocus: true,
-              staleTime: 300000, // 5 minutes: data is fresh as long as Pusher works
-              gcTime: 600000, // 10 minutes cache retention
+              staleTime: 0,
+              gcTime: 600000,
               retry: 1,
-              refetchOnMount: false // Don't refetch if we already have it in cache
+              refetchOnMount: true
        })
 
        // Log errors for debugging

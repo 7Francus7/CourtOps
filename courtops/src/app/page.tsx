@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Newsreader, Nunito, Space_Grotesk } from "next/font/google"
+import { Newsreader, Space_Grotesk } from "next/font/google"
 import {
   ArrowRight,
   Banknote,
@@ -23,10 +23,10 @@ import { ThemeToggle } from "@/components/ThemeToggle"
 import CookieConsent from "@/components/CookieConsent"
 import WhatsAppButton from "@/components/WhatsAppButton"
 import MobileNavMenu from "@/components/landing/MobileNavMenu"
+import { CourtOpsLogoAuto } from "@/components/ui/CourtOpsLogo"
 
 const fontSerif = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader" })
 const fontSans = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
-const fontLogo = Nunito({ subsets: ["latin"], weight: ["400", "800"] })
 
 export const dynamic = "force-dynamic"
 
@@ -107,28 +107,6 @@ const plans = [
   },
 ]
 
-function CourtOpsMark({ className = "h-10 w-10" }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" className={className} aria-hidden="true">
-      <g transform="translate(5, 10)">
-        <path d="M 25 5 A 15 15 0 1 0 25 35" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-        <circle cx="32" cy="20" r="12" fill="none" stroke="#00e676" strokeWidth="6" />
-        <circle cx="32" cy="20" r="4" fill="currentColor" />
-      </g>
-    </svg>
-  )
-}
-
-function CourtOpsLogo({ className = "" }: { className?: string }) {
-  return (
-    <span className={`inline-flex items-center gap-3 ${className}`} aria-label="CourtOps">
-      <CourtOpsMark className="h-11 w-11 shrink-0 text-zinc-950 dark:text-white" />
-      <span className={`${fontLogo.className} text-[1.9rem] font-extrabold leading-none tracking-[-0.03em] text-zinc-950 dark:text-white`}>
-        Court<span className="font-normal text-[#00e676]">Ops</span>
-      </span>
-    </span>
-  )
-}
 
 function BookingBoard() {
   return (
@@ -218,7 +196,7 @@ export default async function Home() {
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-zinc-950/10 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-[#07090b]/72">
         <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
           <Link href="/" className="flex items-center" aria-label="CourtOps">
-            <CourtOpsLogo />
+            <CourtOpsLogoAuto className="h-9 w-auto" />
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) => (
@@ -358,7 +336,7 @@ export default async function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
                 <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-200">Experiencia del jugador</p>
-                <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight tracking-tight md:text-5xl">
+                <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight tracking-tight text-white md:text-5xl">
                   Reservar tiene que sentirse tan simple como entrar a la cancha.
                 </h3>
               </div>
@@ -447,7 +425,7 @@ export default async function Home() {
       <footer className="border-t border-zinc-950/10 bg-white px-5 py-10 dark:border-white/10 dark:bg-[#07090b] md:px-10">
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 text-sm text-zinc-600 dark:text-zinc-500 md:flex-row md:items-center">
           <div>
-            <CourtOpsLogo />
+            <CourtOpsLogoAuto className="h-9 w-auto" />
             <p className="mt-2">Software de gestión para clubes deportivos.</p>
           </div>
           <div className="flex flex-wrap gap-6">

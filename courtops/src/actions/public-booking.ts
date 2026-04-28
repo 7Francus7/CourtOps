@@ -256,6 +256,15 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      return { success: false, error: 'Faltan datos obligatorios para crear la reserva.' }
               }
 
+              if (clientName.trim().length < 2) {
+                     return { success: false, error: 'El nombre debe tener al menos 2 caracteres.' }
+              }
+
+              const phoneDigits = clientPhone.replace(/\D/g, '')
+              if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+                     return { success: false, error: 'El teléfono ingresado no es válido.' }
+              }
+
               let clientId: number | null = null
               let guestName: string | null = null
               let guestPhone: string | null = null
@@ -375,7 +384,10 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      const { pusherServer } = await import('@/lib/pusher')
                      await pusherServer.trigger(`club-${data.clubId}`, 'booking-update', {
                             action: 'create',
-                            bookingId: booking.id
+                            bookingId: booking.id,
+                            clientName: clientName,
+                            courtName: court.name,
+                            time: timeStr
                      })
               } catch (pusherErr) {
                      console.error('[PUSHER ERROR in public-booking]', pusherErr)

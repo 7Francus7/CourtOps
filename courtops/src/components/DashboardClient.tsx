@@ -379,8 +379,6 @@ export default function DashboardClient({
                                                  <DashboardControlBar
                                                         selectedDate={selectedDate}
                                                         setSelectedDate={setSelectedDate}
-                                                        showAdvancedStats={showAdvancedStats}
-                                                        setShowAdvancedStats={setShowAdvancedStats}
                                                         handleCopyLink={handleCopyLink}
                                                         setIsCreateModalOpen={setIsCreateModalOpen}
                                                         onOpenHelp={() => setIsHelpOpen(true)}

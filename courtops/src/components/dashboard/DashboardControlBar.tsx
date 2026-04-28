@@ -1,32 +1,26 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { ChevronLeft, ChevronRight, Globe, Plus, Moon, Sun, HelpCircle, Keyboard } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Globe, Plus, HelpCircle, Keyboard } from 'lucide-react'
 import { addDays, subDays, isToday } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { nowInArg } from '@/lib/date-utils'
-import { useTheme } from 'next-themes'
 
 interface DashboardControlBarProps {
        selectedDate: Date
-       setSelectedDate: (date: Date | ((prev: Date) => Date)) => void
-       showAdvancedStats: boolean
-       setShowAdvancedStats: (show: boolean) => void
+       setSelectedDate: (_: Date | ((_: Date) => Date)) => void
        handleCopyLink: () => void
-       setIsCreateModalOpen: (open: boolean) => void
+       setIsCreateModalOpen: (_: boolean) => void
        onOpenHelp: () => void
 }
 
 export function DashboardControlBar({
        selectedDate,
        setSelectedDate,
-       showAdvancedStats,
-       setShowAdvancedStats,
        handleCopyLink,
        setIsCreateModalOpen,
        onOpenHelp
 }: DashboardControlBarProps) {
-       const { theme, setTheme } = useTheme()
        const [showShortcuts, setShowShortcuts] = useState(false)
        const shortcutsRef = useRef<HTMLDivElement>(null)
 
@@ -92,29 +86,6 @@ export function DashboardControlBar({
 
                      {/* RIGHT: Actions */}
                      <div className="flex items-center gap-2 lg:gap-5 overflow-x-auto pb-1 lg:pb-0 no-scrollbar w-full lg:w-auto justify-end">
-                            <div className="flex items-center bg-secondary/20 rounded-2xl p-1 border border-border/30">
-                                   <button
-                                          onClick={() => setTheme('light')}
-                                          className={cn(
-                                                 "p-2 rounded-xl transition-all",
-                                                 theme === 'light' ? "bg-background text-amber-500 shadow-sm" : "text-muted-foreground/40 hover:text-muted-foreground"
-                                          )}
-                                   >
-                                          <Sun size={16} strokeWidth={2.5} />
-                                   </button>
-                                   <button
-                                          onClick={() => setTheme('dark')}
-                                          className={cn(
-                                                 "p-2 rounded-xl transition-all",
-                                                 theme === 'dark' ? "bg-background text-indigo-400 shadow-sm" : "text-muted-foreground/40 hover:text-muted-foreground"
-                                          )}
-                                   >
-                                          <Moon size={16} strokeWidth={2.5} />
-                                   </button>
-                            </div>
-
-                            <div className="h-8 w-[1px] bg-border/40 mx-1 hidden lg:block" />
-
                             <button
                                    onClick={handleCopyLink}
                                    className="p-3 rounded-2xl bg-secondary/30 border border-border/40 text-muted-foreground hover:text-primary transition-all hover:scale-105 active:scale-95"

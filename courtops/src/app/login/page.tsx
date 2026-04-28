@@ -20,6 +20,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { CourtOpsLogoFull } from '@/components/ui/CourtOpsLogo'
 
 const features = [
 	{ icon: CalendarCheck, text: 'Agenda digital en tiempo real' },
@@ -166,11 +167,8 @@ export default function LoginPage() {
 
 						{/* Logo */}
 						<div className="relative z-10">
-							<Link
-								href="/"
-								className="text-xl font-black tracking-tighter text-white select-none hover:opacity-80 transition-opacity"
-							>
-								CourtOps
+							<Link href="/" className="hover:opacity-80 transition-opacity inline-block" aria-label="CourtOps">
+								<CourtOpsLogoFull className="h-8 w-auto" darkBg />
 							</Link>
 						</div>
 
@@ -237,12 +235,8 @@ export default function LoginPage() {
 					>
 						{/* Mobile logo */}
 						<div className="lg:hidden mb-10">
-							<Link
-								href="/"
-								className="text-lg font-black tracking-tighter hover:opacity-80 transition-opacity"
-								style={{ color: 'var(--co-navy)' }}
-							>
-								CourtOps
+							<Link href="/" className="hover:opacity-80 transition-opacity inline-block" aria-label="CourtOps">
+								<CourtOpsLogoFull className="h-7 w-auto" darkBg={false} />
 							</Link>
 						</div>
 
