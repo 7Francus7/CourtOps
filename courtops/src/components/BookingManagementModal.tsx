@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { format, differenceInMinutes } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -93,6 +93,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        })
 
        const [activeTab, setActiveTab] = useState<'gestion' | 'kiosco' | 'jugadores'>('gestion')
+       const scrollRef = useRef<HTMLDivElement>(null)
+       const changeTab = (tab: 'gestion' | 'kiosco' | 'jugadores') => {
+              setActiveTab(tab)
+              scrollRef.current?.scrollTo({ top: 0 })
+       }
        const [mounted, setMounted] = useState(false)
        const [splitPlayers, setSplitPlayers] = useState<{ id: string; name: string; amount: number; isPaid: boolean }[]>([])
        const [isEditingClient, setIsEditingClient] = useState(false)
@@ -480,7 +485,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    {tabs.map((tab) => (
                                           <button
                                                  key={tab.key}
-                                                 onClick={() => setActiveTab(tab.key)}
+                                                 onClick={() => changeTab(tab.key)}
                                                  className={cn(
                                                         "flex-1 py-3 text-[10px] font-semibold uppercase tracking-wider transition-all relative",
                                                         activeTab === tab.key ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-600"
@@ -608,7 +613,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                  return (
                                                         <button
                                                                key={tab.key}
-                                                               onClick={() => setActiveTab(tab.key)}
+                                                               onClick={() => changeTab(tab.key)}
                                                                className={cn(
                                                                       "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[11px] font-semibold transition-all group",
                                                                       isActive
@@ -783,7 +788,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                    </div>
 
                                    {/* Scrollable Content */}
-                                   <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar pb-24 md:pb-6">
+                                   <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar pb-24 md:pb-6">
                                           {activeTab === 'gestion' && (
                                                  <motion.div
                                                         initial={{ opacity: 0, y: 8 }}
@@ -1048,7 +1053,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         kioskItems={((booking as Record<string, unknown>).items as BookingItem[] | undefined) || []}
                                                         players={splitPlayers}
                                                         setPlayers={setSplitPlayers}
-                                                        onSave={() => handleSaveSplit(splitPlayers)}
+                                                        onSave={(p) => handleSaveSplit(p ?? splitPlayers)}
                                                         onRecalculate={handleRecalculateSplits}
                                                         loading={loading}
                                                  />

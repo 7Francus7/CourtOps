@@ -324,7 +324,6 @@ export default function DesktopKiosco({ isOpen, onClose }: Props) {
                             {showCheckout && (
                                    <CheckoutOverlay
                                           total={cartTotal}
-                                          pendingToPay={cartTotal}
                                           selectedClient={selectedClient}
                                           onClose={() => setShowCheckout(false)}
                                           onFinalize={onFinalize}

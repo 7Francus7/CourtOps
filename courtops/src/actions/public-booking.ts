@@ -265,6 +265,27 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      return { success: false, error: 'El teléfono ingresado no es válido.' }
               }
 
+              if (data.isGuest) {
+                     const noShowCount = await prisma.booking.count({
+                            where: { clubId: data.clubId, guestPhone: clientPhone, status: 'NO_SHOW' }
+                     })
+                     if (noShowCount >= 2) {
+                            return { success: false, error: 'Tu número no puede realizar nuevas reservas. Contactá al club.' }
+                     }
+
+                     const activeCount = await prisma.booking.count({
+                            where: {
+                                   clubId: data.clubId,
+                                   guestPhone: clientPhone,
+                                   status: { in: ['PENDING', 'CONFIRMED'] },
+                                   startTime: { gt: new Date() }
+                            }
+                     })
+                     if (activeCount >= 1) {
+                            return { success: false, error: 'Ya tenés una reserva activa. Cancelá la anterior para hacer una nueva.' }
+                     }
+              }
+
               let clientId: number | null = null
               let guestName: string | null = null
               let guestPhone: string | null = null
@@ -396,7 +417,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
               revalidatePath('/')
               revalidatePath(`/p/${club.slug}`)
               revalidatePath(`/${club.slug}`)
-              return { success: true, bookingId: booking.id }
+              return { success: true, bookingId: booking.id, publicToken: booking.publicToken as string }
        } catch (error: unknown) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
               return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }

@@ -257,6 +257,10 @@ model Booking {
   maxPlayers  Int     @default(4)
   description String?
 
+  // Cancellation
+  canceledAt   DateTime?
+  cancelReason String?   // CANCELLED_BY_CLIENT | CANCELLED_LATE | CANCELLED_BY_ADMIN
+
   @@unique([id, clubId], name: "id_clubId")
   @@index([clubId, startTime])
   @@index([clubId, status])

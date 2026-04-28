@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTheme } from 'next-themes'
 import {
   MapPin,
   Phone,
@@ -18,7 +19,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Share2,
-  Check
+  Check,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -54,6 +57,7 @@ const amenityIcons: Record<string, any> = {
 export default function VenueLayout({ club, activeTab, setActiveTab, children, onBack }: VenueLayoutProps) {
   const amenities = club.amenities ? club.amenities.split(',').map((a: string) => a.trim()) : []
   const [shareCopied, setShareCopied] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
 
   const handleShare = () => {
     if (navigator.share) {
@@ -73,23 +77,30 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-primary/20">
       {/* Sticky Header - Minimalist */}
-      <header className="sticky top-0 z-[60] bg-zinc-950/20 backdrop-blur-3xl px-4 h-14 flex items-center justify-between border-b border-white/[0.03]">
+      <header className="sticky top-0 z-[60] bg-white/80 dark:bg-zinc-950/20 backdrop-blur-3xl px-4 h-14 flex items-center justify-between border-b border-slate-200/60 dark:border-white/[0.03] transition-colors duration-300">
         <div className="flex items-center gap-3">
           {onBack && (
-            <button 
+            <button
               onClick={onBack}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all active:scale-95 border border-white/5"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all active:scale-95 border border-slate-200 dark:border-white/5"
             >
-              <ChevronLeft size={18} strokeWidth={2.5} className="text-white/70" />
+              <ChevronLeft size={18} strokeWidth={2.5} className="text-slate-500 dark:text-white/70" />
             </button>
           )}
-          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white/50 truncate max-w-[150px]">{club.name}</span>
+          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/50 truncate max-w-[150px]">{club.name}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 text-primary relative">
+          <button
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400"
+            aria-label="Cambiar tema"
+          >
+            {resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+          </button>
+          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-primary relative">
             {shareCopied ? <Check size={15} strokeWidth={3} className="text-primary" /> : <Share2 size={16} strokeWidth={2.5} />}
             {shareCopied && (
-              <span className="absolute -bottom-7 right-0 text-[9px] font-black text-primary uppercase tracking-wider whitespace-nowrap bg-zinc-900/90 px-2 py-0.5 rounded-md">
+              <span className="absolute -bottom-7 right-0 text-[9px] font-black text-primary uppercase tracking-wider whitespace-nowrap bg-white dark:bg-zinc-900/90 border border-slate-200 dark:border-transparent px-2 py-0.5 rounded-md shadow-sm">
                 ¡Copiado!
               </span>
             )}
@@ -295,7 +306,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
             </div>
 
             {/* Open Hours */}
-            <div className="relative overflow-hidden p-6 bg-zinc-900 rounded-[2.5rem] border border-white/5 shadow-2xl">
+            <div className="relative overflow-hidden p-6 bg-slate-800 dark:bg-zinc-900 rounded-[2.5rem] border border-slate-700 dark:border-white/5 shadow-2xl">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[50px] -mr-16 -mt-16" />
               <div className="relative z-10 space-y-4">
                 <div className="flex items-center gap-3">

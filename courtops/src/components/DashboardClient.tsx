@@ -28,7 +28,7 @@ const KioscoModal = dynamic(() => import('@/components/KioscoModal'), { ssr: fal
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { Info, X, Plus, UserPlus, DollarSign, AlertTriangle, Settings } from 'lucide-react'
+import { Info, X, Plus, AlertTriangle, Settings } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -464,30 +464,6 @@ export default function DashboardClient({
                             onManualClose={() => setShowManualTutorial(false)}
                       />
 
-                      {/* QUICK ACTIONS FLOATING BUTTON */}
-                      <div className="hidden md:flex fixed bottom-6 right-6 z-40 flex-col gap-3">
-                            <button
-                                   onClick={() => router.push('/clientes?modal=new')}
-                                   className="w-14 h-14 rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                   title="Nuevo Cliente"
-                            >
-                                   <UserPlus size={24} />
-                            </button>
-                            <button
-                                   onClick={() => router.push('/caja')}
-                                   className="w-14 h-14 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                   title="Abrir Caja"
-                            >
-                                   <DollarSign size={24} />
-                            </button>
-                            <button
-                                   onClick={() => setIsCreateModalOpen(true)}
-                                   className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                   title="Nueva Reserva"
-                            >
-                                   <Plus size={28} />
-                            </button>
-                      </div>
               </>
        )
 }

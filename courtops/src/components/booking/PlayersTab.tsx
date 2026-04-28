@@ -15,7 +15,7 @@ interface PlayersTabProps {
 	kioskItems: any[]
 	players: any[]
 	setPlayers: (players: any[]) => void
-	onSave: () => void
+	onSave: (players?: any[]) => void
 	onRecalculate?: () => void
 	loading: boolean
 }
@@ -124,15 +124,17 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
 			isPaid: false,
 			amount: 0
 		}
-		setPlayers([...players, newPlayer])
+		const newPlayers = [...players, newPlayer]
+		setPlayers(newPlayers)
 		setFocusNewPlayer(true)
+		setTimeout(() => onSave(newPlayers), 50)
 	}
 
 	const handleRemovePlayer = (index: number) => {
 		if (players[index]?.isPaid) return
 		const updated = players.filter((_, i) => i !== index)
 		setPlayers(updated)
-		setTimeout(() => onSave(), 50)
+		setTimeout(() => onSave(updated), 50)
 	}
 
 	const handleAmountChange = (index: number, newAmount: number) => {

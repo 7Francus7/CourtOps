@@ -184,7 +184,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
 							</p>
 						</div>
 					) : (
-						<div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[calc(90vh-300px)] overflow-y-auto custom-scrollbar pr-1">
+						<div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[calc(90vh-300px)] overflow-y-auto custom-scrollbar pt-2 pr-3">
 							{filteredProducts.map(product => {
 								const count = productCartCounts.get(product.id) || 0
 								const isOutOfStock = product.stock <= 0

@@ -252,7 +252,7 @@ return (
                                            onClick={() => window.open('/api/export/caja', '_blank')}
                                            className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-2 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
                                     >
-                                           <Download size={14} /> <span className="hidden sm:inline">Exportar</span>
+                                           <Download size={14} /> <span className="hidden sm:inline">Exportar Excel</span>
                                     </button>
                                     <button
                                            onClick={() => { setAmountInput(''); setShowCloseModal(true) }}

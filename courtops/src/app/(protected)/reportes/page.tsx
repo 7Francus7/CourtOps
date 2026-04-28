@@ -47,7 +47,7 @@ import {
 import { es } from 'date-fns/locale'
 import {
        BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-       PieChart, Pie, Cell, Legend, Area, AreaChart, RadialBarChart, RadialBar
+       PieChart, Pie, Cell, Legend, Area, AreaChart
 } from 'recharts'
 import { Header } from '@/components/layout/Header'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -147,7 +147,7 @@ export default function ReportsPage() {
        const isDailyRevenueEmpty = !loading && (dailyRevenue.length === 0 || dailyRevenue.every((d: { value: number }) => d.value === 0))
        const isOccupancyEmpty = !loading && (occupancyByCourt.length === 0 || occupancyByCourt.every((d: { value: number }) => d.value === 0))
 
-       const downloadCSV = () => {
+       const _downloadCSV = () => {
               const headers = ["ID", "Fecha", "Tipo", "Categoria", "Monto", "Metodo", "Descripcion"]
               const rows = transactions.map(t => {
                      const typeMap: Record<string, string> = { 'INCOME': 'INGRESO', 'EXPENSE': 'GASTO' }
@@ -171,6 +171,15 @@ export default function ReportsPage() {
               document.body.appendChild(link)
               link.click()
               document.body.removeChild(link)
+       }
+
+       const downloadExcel = () => {
+              const query = new URLSearchParams({
+                     start: start.toISOString(),
+                     end: end.toISOString(),
+              })
+
+              window.open(`/api/export/reportes?${query.toString()}`, '_blank')
        }
 
        return (
@@ -243,11 +252,11 @@ export default function ReportsPage() {
                                           </div>
 
                                           <button
-                                                 onClick={downloadCSV}
+                                                 onClick={downloadExcel}
                                                  className="flex items-center justify-center gap-3 bg-foreground text-background px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl"
                                           >
                                                  <Download size={18} strokeWidth={3} />
-                                                 <span>Exportar CSV</span>
+                                                 <span>Exportar Excel</span>
                                           </button>
                                    </div>
 

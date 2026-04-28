@@ -23,7 +23,7 @@ export default function RootProvider({ children, session }: { children: React.Re
        }))
 
        return (
-              <SessionProvider session={session}>
+              <SessionProvider session={session} refetchOnWindowFocus={false} refetchInterval={0}>
                      <PerformanceProvider>
                             <QueryClientProvider client={queryClient}>
                                    <EmployeeProvider>

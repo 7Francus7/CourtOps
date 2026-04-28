@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { format, addDays, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking } from '@/actions/public-booking'
@@ -29,7 +30,9 @@ import {
 	ChevronDown,
 	AlertTriangle,
 	Smartphone,
-	X
+	X,
+	Sun,
+	Moon
 } from 'lucide-react'
 import VenueLayout from './VenueLayout'
 
@@ -75,6 +78,7 @@ type PublicStep = number | 'register' | 'login' | 'matchmaking'
 
 export default function PublicBookingWizard({ club, initialDateStr, openMatches = [] }: Props) {
 	const today = useMemo(() => parseDateOnly(initialDateStr), [initialDateStr])
+	const { resolvedTheme, setTheme } = useTheme()
 	const defaultDuration = club.slotDuration || 90
 	const canUseOnlinePayments = Boolean(club.canUseOnlinePayments || club.hasOnlinePayments)
 
@@ -100,6 +104,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 	const [paymentError, setPaymentError] = useState('')
 	const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
+	const [cancelToken, setCancelToken] = useState<string | null>(null)
 	const [isPaying, setIsPaying] = useState(false)
 	const [createOpenMatch, setCreateOpenMatch] = useState(false)
 	const [matchLevel, setMatchLevel] = useState('6ta')
@@ -287,6 +292,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 		if (res.success && res.bookingId) {
 			setCreatedBookingId(res.bookingId)
+			if (res.publicToken) setCancelToken(res.publicToken)
 			goToStep(3)
 			import('canvas-confetti').then(mod =>
 				mod.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
@@ -356,80 +362,184 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	// ============================================
 	if (step === 3 && selectedSlot) {
 		const isGuest = mode === 'guest'
+		const playerName = `${clientData.name} ${clientData.lastname}`.trim()
+
+		const calendarHref = (() => {
+			const startDate = new Date(selectedDate)
+			const [hh, mm] = selectedSlot.time.split(':').map(Number)
+			startDate.setHours(hh, mm, 0)
+			const endDate = new Date(startDate)
+			endDate.setMinutes(endDate.getMinutes() + selectedSlot.duration)
+			const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+			const title = encodeURIComponent('Turno en ' + club.name)
+			const details = encodeURIComponent(
+				'Cancha: ' + selectedSlot.courtName + '\nPrecio: $' + selectedSlot.price + '\nReserva #' + createdBookingId
+			)
+			const loc = encodeURIComponent(club.address || club.name)
+			return (
+				'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' +
+				title + '&dates=' + fmt(startDate) + '/' + fmt(endDate) +
+				'&details=' + details + '&location=' + loc
+			)
+		})()
+
+		const handleShare = () => {
+			const dateStr = format(selectedDate, 'EEEE d/M', { locale: es })
+			const text =
+				'Reservé cancha\n\nClub: ' + club.name +
+				'\nFecha: ' + dateStr +
+				'\nHora: ' + selectedSlot.time + 'hs' +
+				'\nCancha: ' + selectedSlot.courtName +
+				'\n\n¿Jugamos?'
+			window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+		}
+
 		return (
-			<div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-800 dark:text-slate-100 font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
-				<div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
-					<div className="absolute top-[-20%] left-[20%] w-[60%] h-[40%] bg-primary/8 dark:bg-primary/5 rounded-full blur-[150px]" />
-				</div>
-				<main className="flex-1 flex flex-col w-full max-w-md mx-auto px-5 py-6 relative z-10 items-center justify-center">
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="w-full"
+			<div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
+				{/* Theme toggle — top right */}
+				<div className="fixed top-4 right-4 z-50">
+					<button
+						onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+						className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 shadow-sm transition-all"
+						aria-label="Cambiar tema"
 					>
-						{/* Ticket card */}
-						<div className="w-full rounded-3xl overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/50 mb-5">
+						{resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+					</button>
+				</div>
+				{/* Animated background blobs */}
+				<div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+					<div
+						className="absolute top-[5%] left-[5%] w-[55%] h-[45%] bg-primary/[0.06] dark:bg-primary/[0.07] rounded-full blur-[130px] animate-pulse"
+						style={{ animationDuration: '5s' }}
+					/>
+					<div
+						className="absolute bottom-[10%] right-[0%] w-[45%] h-[40%] bg-primary/[0.04] dark:bg-primary/[0.05] rounded-full blur-[100px] animate-pulse"
+						style={{ animationDuration: '7s', animationDelay: '2s' }}
+					/>
+				</div>
+
+				<main className="flex-1 flex flex-col w-full max-w-md mx-auto px-4 py-8 relative z-10 items-center justify-center">
+					<motion.div
+						initial={{ opacity: 0, y: 24 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.4, ease: 'easeOut' }}
+						className="w-full space-y-3"
+					>
+						{/* ── Ticket ── */}
+						<div className="w-full rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/60">
+
 							{/* Header */}
-							<div className="relative p-7 pb-10 bg-gradient-to-br from-primary via-primary to-primary/90 text-white text-center overflow-hidden">
-								<div className="absolute top-[-30%] right-[-20%] w-[60%] h-[120%] bg-white/[0.06] rounded-full blur-sm" />
-								<div className="absolute bottom-[-20%] left-[-15%] w-[40%] h-[80%] bg-white/[0.04] rounded-full" />
+							<div className="relative px-7 pt-7 pb-11 bg-gradient-to-br from-[#1aff6e] via-primary to-[#00b844] text-white text-center overflow-hidden">
+								{/* Decorative dots */}
+								<div className="absolute top-4 left-7 w-1.5 h-1.5 bg-white/50 rounded-full" />
+								<div className="absolute top-7 left-14 w-1 h-1 bg-white/25 rounded-full" />
+								<div className="absolute top-4 right-7 w-1.5 h-1.5 bg-white/50 rounded-full" />
+								<div className="absolute top-7 right-14 w-1 h-1 bg-white/25 rounded-full" />
+								<div className="absolute bottom-7 left-10 w-1 h-1 bg-white/30 rounded-full" />
+								<div className="absolute bottom-5 right-10 w-1.5 h-1.5 bg-white/20 rounded-full" />
+								{/* Glow orbs */}
+								<div className="absolute -top-8 -right-8 w-40 h-40 bg-white/[0.07] rounded-full blur-xl" />
+								<div className="absolute -bottom-10 -left-8 w-36 h-36 bg-black/[0.08] rounded-full" />
+
 								<div className="relative z-10 flex flex-col items-center">
+									{/* Animated check with pulse rings */}
 									<motion.div
-										initial={{ scale: 0 }}
-										animate={{ scale: 1 }}
-										transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.2 }}
-										className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-white/30"
+										initial={{ scale: 0, rotate: -90 }}
+										animate={{ scale: 1, rotate: 0 }}
+										transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.15 }}
+										className="relative mb-4"
 									>
-										<Check size={26} strokeWidth={3} />
+										<div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/40 shadow-xl shadow-black/20">
+											<Check size={30} strokeWidth={3} className="drop-shadow" />
+										</div>
+										<motion.div
+											initial={{ scale: 1, opacity: 0.7 }}
+											animate={{ scale: 2, opacity: 0 }}
+											transition={{ duration: 1.1, delay: 0.5, ease: 'easeOut' }}
+											className="absolute inset-0 rounded-full border-2 border-white/60"
+										/>
+										<motion.div
+											initial={{ scale: 1, opacity: 0.4 }}
+											animate={{ scale: 2.8, opacity: 0 }}
+											transition={{ duration: 1.5, delay: 0.65, ease: 'easeOut' }}
+											className="absolute inset-0 rounded-full border border-white/40"
+										/>
 									</motion.div>
+
 									<motion.h2
-										initial={{ opacity: 0, y: 10 }}
+										initial={{ opacity: 0, y: 8 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 0.3 }}
-										className="text-xl font-black uppercase tracking-tight mb-1"
+										className="text-2xl font-black uppercase tracking-tight drop-shadow-sm"
 									>
 										¡Turno Reservado!
 									</motion.h2>
-									<p className="text-white/70 text-[10px] font-semibold uppercase tracking-[0.15em]">
+									<motion.p
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										transition={{ delay: 0.42 }}
+										className="text-white/65 text-[11px] font-bold uppercase tracking-[0.2em] mt-1.5"
+									>
 										{club.name}
-									</p>
+									</motion.p>
 								</div>
 							</div>
 
-							{/* Tear */}
-							<div className="relative flex items-center justify-between -mt-4 px-0 z-20">
-								<div className="w-7 h-7 rounded-full bg-gray-50 dark:bg-zinc-950 -ml-3.5" />
-								<div className="flex-1 border-b-2 border-dashed border-gray-200/30 dark:border-white/[0.06] mx-1" />
-								<div className="w-7 h-7 rounded-full bg-gray-50 dark:bg-zinc-950 -mr-3.5" />
+							{/* Tear line — color matches page bg */}
+							<div className="relative flex items-center justify-between -mt-4 z-20 bg-transparent">
+								<div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-zinc-950 -ml-4 shrink-0" />
+								<div className="flex-1 border-b-2 border-dashed border-slate-300 dark:border-zinc-700/70 mx-0.5" />
+								<div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-zinc-950 -mr-4 shrink-0" />
 							</div>
 
-							{/* Body */}
-							<div className="bg-white dark:bg-zinc-900 p-6 pt-4 space-y-4">
-								<div className="flex justify-between items-start">
+							{/* Ticket body */}
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ delay: 0.28 }}
+								className="bg-white dark:bg-zinc-900 px-6 pb-6 pt-2 space-y-4"
+							>
+								{/* Date + Time */}
+								<div className="flex justify-between items-end pt-1">
 									<div>
-										<p className="text-[8px] text-gray-400 uppercase font-semibold tracking-widest mb-1">
+										<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-1.5">
 											Fecha
 										</p>
-										<p className="font-black text-base text-slate-800 dark:text-white capitalize leading-tight">
+										<p className="font-black text-lg text-slate-800 dark:text-white capitalize leading-none">
 											{format(selectedDate, 'EEEE d', { locale: es })}
+										</p>
+										<p className="text-[11px] text-slate-400 dark:text-zinc-500 font-semibold capitalize mt-0.5">
+											{format(selectedDate, 'MMMM yyyy', { locale: es })}
 										</p>
 									</div>
 									<div className="text-right">
-										<p className="text-[8px] text-gray-400 uppercase font-semibold tracking-widest mb-1">
+										<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-1.5">
 											Hora
 										</p>
-										<p className="font-black text-3xl text-primary leading-none tracking-tight">
+										<p className="font-black text-[2.6rem] text-primary leading-none tracking-tighter">
 											{selectedSlot.time}
-											<span className="text-xs ml-0.5 text-gray-400">HS</span>
+											<span className="text-sm ml-1 text-slate-400 dark:text-zinc-500 font-black">HS</span>
+										</p>
+										<p className="text-[11px] text-slate-400 dark:text-zinc-600 font-semibold mt-0.5">
+											{selectedSlot.duration} min
 										</p>
 									</div>
 								</div>
 
-								<div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-white/[0.04] rounded-xl border border-slate-100 dark:border-white/[0.04]">
-									<span className="text-[11px] font-black uppercase text-slate-700 dark:text-white tracking-wider">
-										{selectedSlot.courtName}
-									</span>
-									<span className="text-[13px] font-black text-primary">
+								{/* Divider */}
+								<div className="h-px bg-slate-100 dark:bg-zinc-800" />
+
+								{/* Court + Price */}
+								<div className="flex items-center justify-between px-4 py-3.5 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-200 dark:border-zinc-700/40">
+									<div className="flex items-center gap-2.5">
+										<div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+											<Trophy size={15} className="text-primary" />
+										</div>
+										<span className="text-sm font-black uppercase text-slate-700 dark:text-white tracking-wider">
+											{selectedSlot.courtName}
+										</span>
+									</div>
+									<span className="text-base font-black text-primary tabular-nums">
 										{new Intl.NumberFormat('es-AR', {
 											style: 'currency',
 											currency: 'ARS',
@@ -438,89 +548,84 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									</span>
 								</div>
 
+								{/* Player name row */}
+								{playerName.length > 1 && (
+									<div className="flex items-center gap-3 px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-200 dark:border-zinc-700/30">
+										<div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-700/80 flex items-center justify-center shrink-0">
+											<User size={13} className="text-slate-500 dark:text-zinc-400" />
+										</div>
+										<span className="text-sm font-bold text-slate-600 dark:text-zinc-300 flex-1 truncate">
+											{playerName}
+										</span>
+										{mode === 'premium' && (
+											<div className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20 shrink-0">
+												<Check size={9} strokeWidth={3} className="text-primary" />
+												<span className="text-[9px] font-black text-primary uppercase tracking-wider">
+													Cuenta
+												</span>
+											</div>
+										)}
+									</div>
+								)}
+
+								{/* Guest pending badge */}
 								{isGuest && (
-									<div className="flex items-center justify-center gap-2 py-3 bg-amber-50 dark:bg-amber-500/[0.08] rounded-xl border border-amber-200 dark:border-amber-500/10">
-										<Lock size={11} className="text-amber-500" />
-										<span className="text-[9px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
-											Reserva Pendiente de Confirmación
+									<div className="flex items-center justify-center gap-2 py-2.5 bg-amber-50 dark:bg-amber-500/[0.08] rounded-xl border border-amber-200 dark:border-amber-500/20">
+										<Lock size={11} className="text-amber-500 dark:text-amber-400" />
+										<span className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+											Pendiente de Confirmación
 										</span>
 									</div>
 								)}
-							</div>
+
+								{/* Booking ref */}
+								<div className="flex items-center justify-center pt-1">
+									<span className="text-[10px] font-bold text-slate-400 dark:text-zinc-700 tracking-[0.15em] uppercase">
+										# {createdBookingId} · {club.name}
+									</span>
+								</div>
+							</motion.div>
 						</div>
 
-						{/* Action buttons */}
-						<div className="grid grid-cols-2 gap-2.5 mb-3">
+						{/* ── Action buttons ── */}
+						<motion.div
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.42 }}
+							className="grid grid-cols-2 gap-2.5"
+						>
 							<a
-								href={(() => {
-									const startDate = new Date(selectedDate)
-									const [hh, mm] = selectedSlot.time.split(':').map(Number)
-									startDate.setHours(hh, mm, 0)
-									const endDate = new Date(startDate)
-									endDate.setMinutes(endDate.getMinutes() + selectedSlot.duration)
-									const fmt = (d: Date) =>
-										d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
-									const title = encodeURIComponent('Turno en ' + club.name)
-									const details = encodeURIComponent(
-										'Cancha: ' +
-										selectedSlot.courtName +
-										'\nPrecio: $' +
-										selectedSlot.price +
-										'\nReserva #' +
-										createdBookingId
-									)
-									const loc = encodeURIComponent(club.address || club.name)
-									return (
-										'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' +
-										title +
-										'&dates=' +
-										fmt(startDate) +
-										'/' +
-										fmt(endDate) +
-										'&details=' +
-										details +
-										'&location=' +
-										loc
-									)
-								})()}
+								href={calendarHref}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="flex items-center justify-center gap-2 h-12 bg-white dark:bg-white/[0.04] rounded-2xl font-bold text-[10px] uppercase tracking-widest text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/[0.06] hover:border-primary/40 hover:text-primary active:scale-[0.98] transition-all"
+								className="flex items-center justify-center gap-2 h-12 bg-white dark:bg-zinc-900 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-slate-500 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 hover:border-primary/40 hover:text-primary active:scale-[0.98] transition-all cursor-pointer"
 							>
-								<CalendarPlus size={14} className="text-primary" />
+								<CalendarPlus size={14} className="text-primary shrink-0" />
 								Calendario
 							</a>
 							<button
-								onClick={() => {
-									const dateStr = format(selectedDate, 'EEEE d/M', { locale: es })
-									const text =
-										'Reservé cancha\n\nClub: ' +
-										club.name +
-										'\nFecha: ' +
-										dateStr +
-										'\nHora: ' +
-										selectedSlot.time +
-										'hs\nCancha: ' +
-										selectedSlot.courtName +
-										'\n\n¿Jugamos?'
-									window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
-								}}
-								className="flex items-center justify-center gap-2 h-12 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all"
+								onClick={handleShare}
+								className="flex items-center justify-center gap-2 h-12 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
 							>
 								<Share2 size={14} />
 								Compartir
 							</button>
-						</div>
+						</motion.div>
 
-						{/* Payment section */}
-						<div className="space-y-2.5">
+						{/* ── Payment / Back section ── */}
+						<motion.div
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.52 }}
+							className="space-y-2.5"
+						>
 							{isGuest ? (
 								canUseOnlinePayments ? (
 									<>
 										<button
 											onClick={handlePayment}
 											disabled={isPaying}
-											className="w-full h-14 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+											className="w-full h-14 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 										>
 											{isPaying ? (
 												<Loader2 className="animate-spin" size={16} />
@@ -540,22 +645,24 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								) : (
 									<>
 										{(club.mpAlias || club.mpCvu) && (
-											<div className="space-y-2 p-4 bg-white dark:bg-white/[0.04] rounded-2xl border border-slate-100 dark:border-white/[0.04]">
-												<p className="text-[8px] text-gray-400 uppercase font-semibold tracking-widest mb-2">
+											<div className="space-y-2 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800">
+												<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-2">
 													Transferir seña
 												</p>
 												{club.mpAlias && (
 													<button
 														type="button"
 														onClick={() => copyPaymentValue('alias', club.mpAlias!)}
-														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] px-3 py-2.5 text-left"
+														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-slate-50 dark:bg-zinc-800/50 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
 													>
-														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Alias</span>
-														<span className="text-sm font-black text-slate-800 dark:text-white truncate">
+														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+															Alias
+														</span>
+														<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
 															{club.mpAlias}
 														</span>
-														<span className="text-[9px] font-black uppercase tracking-widest text-primary">
-															{copiedPaymentField === 'alias' ? 'Copiado' : 'Copiar'}
+														<span className="text-[9px] font-black uppercase tracking-widest text-primary shrink-0">
+															{copiedPaymentField === 'alias' ? 'Copiado ✓' : 'Copiar'}
 														</span>
 													</button>
 												)}
@@ -563,14 +670,16 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 													<button
 														type="button"
 														onClick={() => copyPaymentValue('cvu', club.mpCvu!)}
-														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-100 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] px-3 py-2.5 text-left"
+														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-slate-50 dark:bg-zinc-800/50 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
 													>
-														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400">CVU</span>
-														<span className="text-sm font-black text-slate-800 dark:text-white truncate">
+														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+															CVU
+														</span>
+														<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
 															{club.mpCvu}
 														</span>
-														<span className="text-[9px] font-black uppercase tracking-widest text-primary">
-															{copiedPaymentField === 'cvu' ? 'Copiado' : 'Copiar'}
+														<span className="text-[9px] font-black uppercase tracking-widest text-primary shrink-0">
+															{copiedPaymentField === 'cvu' ? 'Copiado ✓' : 'Copiar'}
 														</span>
 													</button>
 												)}
@@ -583,7 +692,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												)}`}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="w-full h-12 bg-[#25D366] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-md shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+												className="w-full h-12 bg-[#25D366] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
 											>
 												<MessageCircle size={15} />
 												Enviar comprobante por WhatsApp
@@ -594,16 +703,30 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							) : (
 								<button
 									onClick={() => goToStep(0)}
-									className="w-full h-12 bg-white dark:bg-white/[0.04] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/[0.06] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-gray-300 active:scale-[0.98] transition-all"
+									className="w-full py-3.5 bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-slate-300 dark:hover:border-zinc-600 hover:text-slate-700 dark:hover:text-zinc-200 active:scale-[0.98] transition-all cursor-pointer"
 								>
 									Volver al Inicio
 								</button>
 							)}
-						</div>
+						</motion.div>
 
-						<p className="text-center text-[10px] text-slate-400 mt-4 font-medium">
-							Reserva #{createdBookingId} · {club.name}
-						</p>
+						{/* ── Cancel link ── */}
+						{cancelToken && (
+							<motion.p
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ delay: 0.7 }}
+								className="text-center text-[10px] text-slate-400 dark:text-zinc-600 pb-2"
+							>
+								¿Necesitás cancelar?{' '}
+								<a
+									href={`/cancelar/${cancelToken}`}
+									className="text-primary font-bold underline underline-offset-2"
+								>
+									Cancelar esta reserva
+								</a>
+							</motion.p>
+						)}
 					</motion.div>
 				</main>
 			</div>
@@ -638,7 +761,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</span>
 									</div>
 								</div>
-								<div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 snap-x">
+								<div className="flex gap-3 overflow-x-auto py-2 no-scrollbar -mx-4 px-4 snap-x">
 									{days.map(date => {
 										const isSelected = isSameDay(date, selectedDate)
 										return (
@@ -648,7 +771,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												className={cn(
 													'flex flex-col items-center justify-center min-w-[68px] h-[90px] rounded-[1.75rem] transition-all duration-300 snap-center border-2',
 													isSelected
-														? 'bg-zinc-950 dark:bg-primary text-white shadow-[0_15px_30px_-10px_rgba(34,197,94,0.3)] border-transparent scale-105'
+														? 'bg-zinc-950 dark:bg-primary text-white shadow-md border-transparent scale-105'
 														: 'bg-white dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-400 dark:text-slate-500 hover:border-primary/30'
 												)}
 											>

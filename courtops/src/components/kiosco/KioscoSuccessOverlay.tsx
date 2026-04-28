@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { CheckCircle2, Receipt } from 'lucide-react'
 
 interface KioscoSuccessOverlayProps {
        onReset: () => void
@@ -10,46 +10,46 @@ interface KioscoSuccessOverlayProps {
 
 export function KioscoSuccessOverlay({ onReset }: KioscoSuccessOverlayProps) {
        return (
-              <div className="fixed inset-0 z-[150] bg-white/90 dark:bg-zinc-950/90 backdrop-blur-2xl flex flex-col items-center justify-center p-8">
+              <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
                      <motion.div
-                            initial={{ scale: 0.5, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: "spring", duration: 0.6 }}
-                            className="bg-emerald-500 rounded-full p-8 mb-8 shadow-lg border border-emerald-400"
+                            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-slate-900"
                      >
-                            <Sparkles className="w-24 h-24 text-white dark:text-black fill-white/20 dark:fill-black/20" />
-                     </motion.div>
+                            <div className="flex items-start gap-4">
+                                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
+                                          <CheckCircle2 className="h-7 w-7" />
+                                   </div>
 
-                     <motion.h2
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-800 dark:from-emerald-300 dark:to-teal-600 uppercase tracking-tighter mb-4 text-center"
-                     >
-                            ¡Venta Exitosa!
-                     </motion.h2>
+                                   <div className="min-w-0 flex-1">
+                                          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
+                                                 Cobro confirmado
+                                          </p>
+                                          <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                                                 Venta registrada
+                                          </h2>
+                                          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-zinc-400">
+                                                 El pago se guardó correctamente y el stock ya fue actualizado.
+                                          </p>
+                                   </div>
+                            </div>
 
-                     <motion.p
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="text-slate-600 dark:text-zinc-400 mb-12 text-lg font-medium text-center max-w-md"
-                     >
-                            La transacción ha sido registrada correctamente y el stock actualizado en el sistema.
-                     </motion.p>
+                            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/[0.03]">
+                                   <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-zinc-300">
+                                          <Receipt className="h-4 w-4 text-slate-400 dark:text-zinc-500" />
+                                          La venta quedó lista para continuar con una nueva operación.
+                                   </div>
+                            </div>
 
-                     <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="flex flex-col w-full max-w-sm gap-4"
-                     >
-                            <button
-                                   onClick={onReset}
-                                   className="w-full bg-slate-900 dark:bg-white text-white dark:text-black font-extrabold py-4 rounded-xl hover:bg-slate-800 dark:hover:bg-zinc-200 transition-colors uppercase tracking-widest text-sm shadow-sm"
-                            >
-                                   Nueva Venta
-                            </button>
+                            <div className="mt-6">
+                                   <button
+                                          onClick={onReset}
+                                          className="w-full rounded-2xl bg-emerald-500 px-4 py-3.5 text-sm font-bold text-white transition-colors hover:bg-emerald-600 dark:text-black"
+                                   >
+                                          Nueva venta
+                                   </button>
+                            </div>
                      </motion.div>
               </div>
        )
