@@ -565,9 +565,11 @@ export class BookingService {
 
        private static async handleCancellationSideEffects(bookingId: number, clubId: string, startTime: Date, courtId: number, bookingData: Record<string, unknown>) {
               // Notify Waiting List
+              let waitingMatches = 0
               try {
                      const waitingResult = await getMatchingWaitingUsers(startTime, startTime, courtId)
                      if (waitingResult.success && waitingResult.list.length > 0) {
+                            waitingMatches = waitingResult.list.length
                             await MessagingService.notifyWaitingList(bookingData, waitingResult.list)
                      }
               } catch (e) { console.error("Error notifying waiting list:", e) }
@@ -575,8 +577,11 @@ export class BookingService {
               // Pusher
               try {
                      await pusherServer.trigger(`club-${clubId}`, 'booking-update', {
-                            type: 'DELETE',
-                            bookingId
+                            action: 'cancel',
+                            bookingId,
+                            waitingListMatches: waitingMatches,
+                            startTime: startTime.toISOString(),
+                            courtId
                      })
               } catch (e) { console.error("Pusher Error:", e) }
        }

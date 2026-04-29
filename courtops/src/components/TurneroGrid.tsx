@@ -25,7 +25,7 @@ const PADEL_SLOT_MINUTES = 90
 // --- SUB-COMPONENTS ---
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, ArrowLeftRight, Plus, Image as ImageIcon } from 'lucide-react'
+import { Check, Clock, ArrowLeftRight, Plus, Image as ImageIcon, Users } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (_id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -249,7 +249,16 @@ export default function TurneroGrid({
        onGenerateFlyer
 }: {
        onBookingClick: (_id: number) => void,
-       onNewBooking?: (_data: { courtId?: number, time?: string, date: Date }) => void,
+       onNewBooking?: (_data: {
+              courtId?: number
+              time?: string
+              date: Date
+              clientName?: string
+              clientPhone?: string
+              clientEmail?: string
+              notes?: string
+              waitingListId?: number
+       }) => void,
        refreshKey?: number,
        date: Date,
        onDateChange: (_d: Date) => void,
@@ -265,6 +274,10 @@ export default function TurneroGrid({
 
        // UI States
        const [isWaitingListOpen, setIsWaitingListOpen] = useState(false)
+       const [waitingListFocus, setWaitingListFocus] = useState<{ preferredStartTime: string | null, preferredCourtId: number | null }>({
+              preferredStartTime: null,
+              preferredCourtId: null
+       })
        const [activeId, setActiveId] = useState<string | null>(null)
 
        const queryClient = useQueryClient()
@@ -401,9 +414,44 @@ export default function TurneroGrid({
                                                  }
                                           )
                                    } else if (payload.action === 'cancel') {
-                                          toast.info('Reserva cancelada', { position: 'top-center', duration: 3000 })
+                                          const waitingMatches = Number(payload.waitingListMatches || 0)
+                                          const startTime = typeof payload.startTime === 'string' ? payload.startTime : null
+                                          const courtId = typeof payload.courtId === 'number'
+                                                 ? payload.courtId
+                                                 : typeof payload.courtId === 'string'
+                                                        ? Number(payload.courtId)
+                                                        : null
+
+                                          if (waitingMatches > 0 && showWaitingList) {
+                                                 setWaitingListFocus({
+                                                        preferredStartTime: startTime,
+                                                        preferredCourtId: Number.isFinite(courtId) ? courtId : null
+                                                 })
+                                                 setIsWaitingListOpen(true)
+                                          }
+
+                                          toast.info('Reserva cancelada', {
+                                                 description: waitingMatches > 0
+                                                        ? `${waitingMatches} persona${waitingMatches === 1 ? '' : 's'} en lista de espera para este horario.`
+                                                        : 'Se libero el horario.',
+                                                 position: 'top-center',
+                                                 duration: 4000
+                                          })
                                    }
                             });
+
+                            channel.bind('waiting-list-update', (payload: Record<string, unknown>) => {
+                                   if (payload.action !== 'create') return
+                                   const requesterName = (payload.name as string) || 'Nueva solicitud'
+                                   const fromPublicBooking = payload.source === 'public'
+                                   toast.info(requesterName, {
+                                          description: fromPublicBooking
+                                                 ? 'Se sumo a la lista de espera desde la reserva online.'
+                                                 : 'Se agrego a la lista de espera.',
+                                          position: 'top-center',
+                                          duration: 4500,
+                                   })
+                            })
                      } catch {
                             // Silent fail for pusher
                      }
@@ -417,7 +465,7 @@ export default function TurneroGrid({
                             channel.unsubscribe();
                      }
               }
-       }, [data?.clubId, queryClient]);
+       }, [data?.clubId, queryClient, showWaitingList]);
 
        // --- TIME CLOCK ---
        useEffect(() => {
@@ -657,6 +705,21 @@ export default function TurneroGrid({
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
+                                         {showWaitingList && (
+                                                 <button
+                                                        onClick={() => {
+                                                               setWaitingListFocus({
+                                                                      preferredStartTime: null,
+                                                                      preferredCourtId: null
+                                                               })
+                                                               setIsWaitingListOpen(true)
+                                                        }}
+                                                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] text-foreground transition-all hover:border-primary/30 hover:text-primary active:scale-[0.98]"
+                                                 >
+                                                        <Users size={15} />
+                                                        Lista de espera
+                                                 </button>
+                                          )}
                                    </div>
                             )}
 
@@ -754,8 +817,18 @@ export default function TurneroGrid({
                             </div>
                             <WaitingListSidebar
                                    isOpen={showWaitingList && isWaitingListOpen}
-                                   onClose={() => setIsWaitingListOpen(false)}
+                                   onClose={() => {
+                                          setIsWaitingListOpen(false)
+                                          setWaitingListFocus({
+                                                 preferredStartTime: null,
+                                                 preferredCourtId: null
+                                          })
+                                   }}
                                    date={selectedDate}
+                                   clubId={data?.clubId}
+                                   preferredStartTime={waitingListFocus.preferredStartTime}
+                                   preferredCourtId={waitingListFocus.preferredCourtId}
+                                   onConvertToBooking={onNewBooking}
                             />
                             {/* CONFIRMATION MODAL */}
                             {pendingMove && (

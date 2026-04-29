@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -27,7 +26,13 @@ import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import HelpSheet from '@/components/onboarding/HelpSheet'
 
-export function MobileBottomNav({ club }: { club?: any }) {
+type MobileBottomNavClub = {
+  hasTournaments?: boolean
+  hasKiosco?: boolean
+  hasAdvancedReports?: boolean
+}
+
+export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
   const pathname      = usePathname()
   const searchParams  = useSearchParams()
   const router        = useRouter()
@@ -140,7 +145,10 @@ export function MobileBottomNav({ club }: { club?: any }) {
                     <p className="text-[11px] text-muted-foreground">{roleLabel}</p>
                   </div>
                   <button
-                    onClick={() => { activeEmployee ? logoutEmployee() : signOut() }}
+                    onClick={() => {
+                      if (activeEmployee) logoutEmployee()
+                      else signOut()
+                    }}
                     className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                     aria-label="Cerrar sesión"
                   >
@@ -171,7 +179,7 @@ export function MobileBottomNav({ club }: { club?: any }) {
                             onClick={() => {
                               if (item.locked) return
                               setIsMenuOpen(false)
-                              if ((item as any).isHelp) setIsHelpOpen(true)
+                              if (item.isHelp) setIsHelpOpen(true)
                               else router.push(item.href)
                             }}
                             className={cn(
@@ -216,18 +224,18 @@ export function MobileBottomNav({ club }: { club?: any }) {
 
       {/* Bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pointer-events-none"
+        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-8 pb-[max(env(safe-area-inset-bottom),0.75rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
-        <div className="pointer-events-auto bg-card/88 backdrop-blur-2xl border border-border/70 rounded-[1.7rem] shadow-[0_18px_55px_rgba(0,0,0,0.22)] max-w-lg mx-auto overflow-visible">
-          <div className="flex justify-around items-center h-[68px] px-2">
+<div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
+          <div className="flex justify-around items-center h-[66px] px-1 rounded-[2rem] border border-border bg-card/95 shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[0_20px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-xl">
             {primaryItems.map(item => {
               if (item.isFab) {
                 return (
                   <button
                     key="fab"
                     onClick={() => router.push('/dashboard?action=new_booking')}
-                    className="flex items-center justify-center w-14 h-14 -mt-8 rounded-[1.25rem] bg-gradient-to-br from-cyan-400 to-primary text-primary-foreground shadow-lg ring-4 ring-background active:scale-95 transition-transform"
+                    className="relative flex h-[52px] w-[52px] -mt-7 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_28px_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--card))] active:scale-95 transition-transform"
                     aria-label="Nueva reserva"
                   >
                     <Plus size={22} strokeWidth={2.5} />
@@ -245,13 +253,27 @@ export function MobileBottomNav({ club }: { club?: any }) {
                     if (item.isMenu) setIsMenuOpen(!isMenuOpen)
                     else if (item.href) router.push(item.href)
                   }}
-                  className={cn(
-                    'flex flex-col items-center justify-center gap-1 w-14 h-full rounded-2xl transition-colors cursor-pointer',
-                    isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground/60'
-                  )}
+                  className="relative flex h-14 w-14 flex-col items-center justify-center gap-[3px] rounded-2xl cursor-pointer"
                 >
-                  <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className={cn('text-[10px] font-bold', isActive ? 'text-primary' : 'text-muted-foreground/50')}>
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-active-pill"
+                      className="absolute inset-1 rounded-xl bg-primary/15"
+                      transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+                    />
+                  )}
+                  <item.icon
+                    size={20}
+                    strokeWidth={isActive ? 2.5 : 1.8}
+                    className={cn(
+                      'relative transition-colors duration-150',
+                      isActive ? 'text-primary' : 'text-muted-foreground/70'
+                    )}
+                  />
+                  <span className={cn(
+                    'relative text-[10px] font-semibold transition-colors duration-150',
+                    isActive ? 'text-primary' : 'text-muted-foreground/60'
+                  )}>
                     {item.label}
                   </span>
                 </button>

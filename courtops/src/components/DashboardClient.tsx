@@ -25,10 +25,11 @@ const MobileDashboard = dynamic(() => import('@/components/MobileDashboard'), { 
 const MobileTurnero = dynamic(() => import('@/components/MobileTurnero'), { ssr: false })
 const FlyerGenerator = dynamic(() => import('@/components/FlyerGenerator'), { ssr: false })
 const KioscoModal = dynamic(() => import('@/components/KioscoModal'), { ssr: false })
+const PublicBookingGrowthKit = dynamic(() => import('@/components/PublicBookingGrowthKit'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { Info, X, Plus, AlertTriangle, Settings } from 'lucide-react'
+import { Info, X, AlertTriangle, Settings } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -99,7 +100,16 @@ export default function DashboardClient({
 
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-       const [createModalProps, setCreateModalProps] = useState<{ initialDate?: Date, initialCourtId?: number, initialTime?: string } | null>(null)
+       const [createModalProps, setCreateModalProps] = useState<{
+              initialDate?: Date
+              initialCourtId?: number
+              initialTime?: string
+              initialClientName?: string
+              initialClientPhone?: string
+              initialClientEmail?: string
+              initialNotes?: string
+              initialWaitingListId?: number
+       } | null>(null)
        const [courts, setCourts] = useState<{ id: number; name: string; duration?: number }[]>([])
 
        // Flyer State
@@ -145,11 +155,25 @@ export default function DashboardClient({
               })()
        }, [])
 
-       const handleOpenNewBooking = useCallback((data: { courtId?: number, time?: string, date: Date }) => {
+       const handleOpenNewBooking = useCallback((data: {
+              courtId?: number
+              time?: string
+              date: Date
+              clientName?: string
+              clientPhone?: string
+              clientEmail?: string
+              notes?: string
+              waitingListId?: number
+       }) => {
               setCreateModalProps({
                      initialDate: data.date,
                      initialCourtId: data.courtId,
-                     initialTime: data.time
+                     initialTime: data.time,
+                     initialClientName: data.clientName,
+                     initialClientPhone: data.clientPhone,
+                     initialClientEmail: data.clientEmail,
+                     initialNotes: data.notes,
+                     initialWaitingListId: data.waitingListId
               })
               setIsCreateModalOpen(true)
        }, [])
@@ -164,7 +188,12 @@ export default function DashboardClient({
                      setCreateModalProps({
                             initialDate: bookingOrId.date as Date | undefined,
                             initialCourtId: bookingOrId.courtId as number | undefined,
-                            initialTime: bookingOrId.time as string | undefined
+                            initialTime: bookingOrId.time as string | undefined,
+                            initialClientName: bookingOrId.clientName as string | undefined,
+                            initialClientPhone: bookingOrId.clientPhone as string | undefined,
+                            initialClientEmail: bookingOrId.clientEmail as string | undefined,
+                            initialNotes: bookingOrId.notes as string | undefined,
+                            initialWaitingListId: bookingOrId.waitingListId as number | undefined
                      })
                      setIsCreateModalOpen(true)
               } else if (typeof bookingOrId === 'number') {
@@ -196,6 +225,7 @@ export default function DashboardClient({
 
        const [isHelpOpen, setIsHelpOpen] = useState(false)
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
+       const [isGrowthKitOpen, setIsGrowthKitOpen] = useState(false)
        const [showManualTutorial, setShowManualTutorial] = useState(false)
 
        const handleRestartTutorial = useCallback(() => {
@@ -270,7 +300,7 @@ export default function DashboardClient({
               <>
                      <ThemeRegistry themeColor={themeColor} />
                      {/* MOBILE LAYOUT */}
-                     <div className="md:hidden flex flex-col h-full bg-background relative">
+                     <div className="md:hidden flex flex-col h-full bg-transparent relative">
                             {/* MOBILE CONTENT */}
                             <div className="flex-1 flex flex-col min-h-0">
                                    {mobileView === 'dashboard' ? (
@@ -380,6 +410,7 @@ export default function DashboardClient({
                                                         selectedDate={selectedDate}
                                                         setSelectedDate={setSelectedDate}
                                                         handleCopyLink={handleCopyLink}
+                                                        onOpenGrowthKit={() => setIsGrowthKitOpen(true)}
                                                         setIsCreateModalOpen={setIsCreateModalOpen}
                                                         onOpenHelp={() => setIsHelpOpen(true)}
                                                  />
@@ -410,6 +441,11 @@ export default function DashboardClient({
                                    initialDate={createModalProps?.initialDate || selectedDate}
                                    initialCourtId={createModalProps?.initialCourtId}
                                    initialTime={createModalProps?.initialTime}
+                                   initialClientName={createModalProps?.initialClientName}
+                                   initialClientPhone={createModalProps?.initialClientPhone}
+                                   initialClientEmail={createModalProps?.initialClientEmail}
+                                   initialNotes={createModalProps?.initialNotes}
+                                   initialWaitingListId={createModalProps?.initialWaitingListId}
                                    courts={courts}
                             />
                      )}
@@ -454,6 +490,12 @@ export default function DashboardClient({
                                    setIsKioscoOpen(false)
                                    router.replace('/dashboard')
                             }}
+                     />
+
+                     <PublicBookingGrowthKit
+                            isOpen={isGrowthKitOpen}
+                            onClose={() => setIsGrowthKitOpen(false)}
+                            slug={slug}
                      />
 
                      {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (

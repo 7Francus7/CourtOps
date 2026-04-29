@@ -20,10 +20,14 @@ import {
        Banknote,
        CircleDot,
        Clock,
-        Moon,
-        Sun,
-        CalendarDays,
+       Moon,
+       Sun,
+       CalendarDays,
        Trophy,
+       Activity,
+       Radio,
+       Zap,
+       ArrowUpRight,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -83,6 +87,7 @@ export default function MobileDashboard({
        slug,
        onOpenBooking,
        onOpenKiosco,
+       onNavigate,
        notifications,
        unreadCount,
        onMarkAllAsRead,
@@ -205,6 +210,10 @@ export default function MobileDashboard({
        const activeCourtsCount = data?.courts?.filter(c => c.status === 'En Juego').length || 0
        const freeCourtsCount = data?.courts?.filter(c => !c.status.includes('En Juego')).length || 0
        const pending = data?.receivables || 0
+       const nextBooking = data?.timeline?.[0]
+       const nextFreeCourt = data?.courts?.find(c => c.isFree && c.proposal)
+       const occupancy = data?.endOfDay?.occupancy ?? 0
+       const liveTone = activeCourtsCount > 0 ? 'En vivo' : freeCourtsCount > 0 ? 'Disponible' : 'Completo'
 
        const handleCopyLink = () => {
               if (slug) {
@@ -216,6 +225,14 @@ export default function MobileDashboard({
 
        const handleRefresh = () => {
               setRefreshKey(prev => prev + 1)
+       }
+
+       const openCalendar = () => {
+              if (onNavigate) {
+                     onNavigate('calendar')
+              } else {
+                     window.location.href = '/dashboard?view=bookings'
+              }
        }
 
        return (
@@ -274,53 +291,100 @@ export default function MobileDashboard({
 
                             <main className="flex-1 overflow-y-auto px-5 pb-32 space-y-4 no-scrollbar relative z-10">
 
+                                   <motion.section
+                                          initial={{ opacity: 0, y: 12 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          className="rounded-[2rem] border border-border/60 bg-card/90 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.14)] backdrop-blur-xl"
+                                   >
+                                          <div className="flex items-start justify-between gap-4">
+                                                 <div className="min-w-0 flex-1">
+                                                        <div className="mb-3 flex items-center gap-2">
+                                                               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-500">
+                                                                      <Radio size={11} />
+                                                                      {liveTone}
+                                                               </span>
+                                                               <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">
+                                                                      {occupancy}% ocupacion
+                                                               </span>
+                                                        </div>
+                                                        <h2 className="text-3xl font-black leading-[0.96] text-foreground">
+                                                               {activeCourtsCount > 0
+                                                                      ? `${activeCourtsCount} cancha${activeCourtsCount === 1 ? '' : 's'} jugando`
+                                                                      : freeCourtsCount > 0
+                                                                             ? `${freeCourtsCount} cancha${freeCourtsCount === 1 ? '' : 's'} libre${freeCourtsCount === 1 ? '' : 's'}`
+                                                                             : 'Sin huecos activos'}
+                                                        </h2>
+                                                        <p className="mt-2 text-sm font-semibold leading-relaxed text-muted-foreground">
+                                                               {nextBooking
+                                                                      ? `Proximo: ${nextBooking.time} · ${nextBooking.courtName} · ${nextBooking.title}`
+                                                                      : nextFreeCourt
+                                                                             ? `Primer hueco sugerido: ${nextFreeCourt.name} ${nextFreeCourt.timeDisplay}`
+                                                                             : 'No hay turnos proximos cargados.'}
+                                                        </p>
+                                                 </div>
+
+                                                 <button
+                                                        onClick={openCalendar}
+                                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg active:scale-95"
+                                                        aria-label="Abrir turnero"
+                                                 >
+                                                        <CalendarDays size={22} strokeWidth={2.6} />
+                                                 </button>
+                                          </div>
+
+                                          <div className="mt-5 grid grid-cols-3 gap-2">
+                                                 <button
+                                                        onClick={() => onOpenBooking({ isNew: true })}
+                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl bg-primary p-3 text-left text-primary-foreground shadow-sm active:scale-[0.98]"
+                                                 >
+                                                        <Plus size={19} strokeWidth={3} />
+                                                        <span className="text-[11px] font-black uppercase tracking-wide">Reservar</span>
+                                                 </button>
+                                                 <button
+                                                        onClick={openCalendar}
+                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
+                                                 >
+                                                        <Activity size={19} className="text-blue-500" />
+                                                        <span className="text-[11px] font-black uppercase tracking-wide">Turnero</span>
+                                                 </button>
+                                                 <button
+                                                        onClick={handleCopyLink}
+                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
+                                                 >
+                                                        <Globe size={19} className="text-teal-500" />
+                                                        <span className="text-[11px] font-black uppercase tracking-wide">Link</span>
+                                                 </button>
+                                          </div>
+                                   </motion.section>
+
                                     {/* STATS ROW */}
                                     <motion.div
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
-                                           className="grid grid-cols-2 gap-3"
+                                           transition={{ delay: 0.03 }}
+                                           className="grid grid-cols-3 gap-2"
                                     >
                                            {/* Caja */}
-                                           <Link href="/caja" className="group relative col-span-2 bg-card/85 backdrop-blur-xl border border-border/60 rounded-[1.7rem] p-4 flex items-center gap-4 active:scale-[0.98] transition-transform shadow-[0_18px_45px_rgba(0,0,0,0.12)] overflow-hidden">
-                                                  <div className="absolute inset-y-0 right-0 w-28 bg-emerald-500/10 blur-2xl" />
-                                                  <div className="h-[52px] w-[52px] rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 relative">
-                                                         <Banknote size={23} />
-                                                  </div>
-                                                  <div className="min-w-0 flex-1 relative">
-                                                         <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.18em]">Caja de hoy</span>
-                                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                                         </div>
-                                                         <span className="text-2xl font-black text-foreground leading-none tracking-[-0.04em] truncate block">
-                                                                ${(data?.caja?.total ?? 0).toLocaleString()}
-                                                         </span>
-                                                  </div>
-                                                  <ChevronRight size={18} className="text-muted-foreground/40 relative" />
+                                           <Link href="/caja" className="group relative bg-card/85 backdrop-blur-xl border border-border/60 rounded-2xl p-3 active:scale-[0.98] transition-transform shadow-sm overflow-hidden">
+                                                  <Banknote size={16} className="text-emerald-500" />
+                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
+                                                  <span className="mt-1 block truncate text-base font-black text-foreground">
+                                                         ${(data?.caja?.total ?? 0).toLocaleString()}
+                                                  </span>
                                            </Link>
 
                                            {/* Canchas */}
-                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-[1.35rem] p-4 flex flex-col gap-3 shadow-sm overflow-hidden">
-                                                  <div className="flex items-center gap-2">
-                                                         <div className="p-2 rounded-xl bg-blue-500/10 shrink-0">
-                                                                <CircleDot size={15} className="text-blue-500" />
-                                                         </div>
-                                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">En juego</span>
-                                                  </div>
-                                                  <div className="flex items-baseline gap-0.5">
-                                                         <span className="text-2xl font-black text-foreground leading-none tracking-[-0.04em]">{activeCourtsCount}</span>
-                                                         <span className="text-[11px] text-muted-foreground font-black">/{totalCourts}</span>
-                                                  </div>
+                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-2xl p-3 shadow-sm overflow-hidden">
+                                                  <CircleDot size={16} className="text-blue-500" />
+                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">En juego</span>
+                                                  <span className="mt-1 block text-base font-black text-foreground">{activeCourtsCount}/{totalCourts}</span>
                                            </div>
 
                                            {/* Pendiente */}
-                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-[1.35rem] p-4 flex flex-col gap-3 shadow-sm overflow-hidden">
-                                                  <div className="flex items-center gap-2">
-                                                         <div className={cn("p-2 rounded-xl shrink-0", pending > 0 ? "bg-amber-500/10" : "bg-emerald-500/10")}>
-                                                                <Clock size={15} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
-                                                         </div>
-                                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Pendiente</span>
-                                                  </div>
-                                                  <span className={cn("text-2xl font-black leading-none tracking-[-0.04em] truncate", pending > 0 ? "text-amber-500" : "text-foreground")}>
+                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-2xl p-3 shadow-sm overflow-hidden">
+                                                  <Clock size={16} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
+                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">Pendiente</span>
+                                                  <span className={cn("mt-1 block truncate text-base font-black", pending > 0 ? "text-amber-500" : "text-foreground")}>
                                                          ${pending.toLocaleString()}
                                                   </span>
                                            </div>
@@ -422,24 +486,37 @@ export default function MobileDashboard({
                                            {/* Primary CTA */}
                                            <motion.button
                                                   whileTap={{ scale: 0.97 }}
-                                                  onClick={() => onOpenBooking({ isNew: true })}
-                                                  className="w-full relative overflow-hidden bg-gradient-to-r from-cyan-400 to-primary text-primary-foreground rounded-[1.6rem] p-4 flex items-center gap-4 shadow-sm"
+                                                  onClick={() => {
+                                                         if (nextFreeCourt?.proposal) {
+                                                                onOpenBooking({
+                                                                       isNew: true,
+                                                                       courtId: nextFreeCourt.id,
+                                                                       date: nextFreeCourt.proposal.date,
+                                                                       time: nextFreeCourt.proposal.time
+                                                                })
+                                                         } else {
+                                                                onOpenBooking({ isNew: true })
+                                                         }
+                                                  }}
+                                                  className="w-full relative overflow-hidden bg-foreground text-background rounded-[1.6rem] p-4 flex items-center gap-4 shadow-sm"
                                            >
-                                                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(255,255,255,0.32),transparent_28%)]" />
-                                                  <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 relative z-10 ring-1 ring-white/20">
-                                                         <Plus size={26} strokeWidth={3} />
+                                                  <div className="absolute inset-y-0 right-0 w-28 bg-primary/20 blur-2xl" />
+                                                  <div className="w-12 h-12 rounded-2xl bg-background/15 flex items-center justify-center shrink-0 relative z-10 ring-1 ring-background/15">
+                                                         <Zap size={24} strokeWidth={3} />
                                                   </div>
                                                   <div className="relative z-10 text-left">
-                                                         <span className="text-base font-black tracking-tight block">Nueva reserva</span>
+                                                         <span className="text-base font-black tracking-tight block">
+                                                                {nextFreeCourt ? `Reservar ${nextFreeCourt.name}` : 'Nueva reserva'}
+                                                         </span>
                                                          <span className="text-[11px] opacity-80 font-semibold">Agendá un turno rápidamente</span>
                                                   </div>
-                                                  <ChevronRight size={18} className="ml-auto relative z-10 opacity-60" />
+                                                  <ArrowUpRight size={18} className="ml-auto relative z-10 opacity-70" />
                                            </motion.button>
 
                                            {/* Quick actions grid — 3 cols */}
                                            <div className="grid grid-cols-3 gap-2.5">
                                                   {[
-                                                         { icon: CalendarDays, label: 'Turnos',    color: 'text-blue-500',   bg: 'bg-blue-500/10',   href: '/reservas' },
+                                                         { icon: CalendarDays, label: 'Turnos',    color: 'text-blue-500',   bg: 'bg-blue-500/10',   onClick: openCalendar },
                                                          { icon: Store,        label: 'Kiosco',    color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
                                                          { icon: UsersIcon,    label: 'Clientes',  color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
                                                          { icon: Trophy,       label: 'Torneos',   color: 'text-amber-500',  bg: 'bg-amber-500/10',  href: '/torneos', locked: !data?.features?.hasTournaments },

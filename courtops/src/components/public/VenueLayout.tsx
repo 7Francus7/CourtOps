@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import {
@@ -57,7 +57,12 @@ const amenityIcons: Record<string, any> = {
 export default function VenueLayout({ club, activeTab, setActiveTab, children, onBack }: VenueLayoutProps) {
   const amenities = club.amenities ? club.amenities.split(',').map((a: string) => a.trim()) : []
   const [shareCopied, setShareCopied] = useState(false)
+  const [themeMounted, setThemeMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
+
+  useEffect(() => {
+    setThemeMounted(true)
+  }, [])
 
   const handleShare = () => {
     if (navigator.share) {
@@ -95,7 +100,11 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400"
             aria-label="Cambiar tema"
           >
-            {resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+            {themeMounted ? (
+              resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />
+            ) : (
+              <div className="h-4 w-4" aria-hidden="true" />
+            )}
           </button>
           <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-primary relative">
             {shareCopied ? <Check size={15} strokeWidth={3} className="text-primary" /> : <Share2 size={16} strokeWidth={2.5} />}
@@ -109,7 +118,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
       </header>
 
       {/* Hero Section - Immersive Design */}
-      <section className="relative h-[280px] md:h-[360px] w-full overflow-hidden">
+      <section className="relative h-[220px] md:h-[320px] w-full overflow-hidden">
         {/* Main Cover Image with Overlay */}
         <div className="absolute inset-0">
           <div className="w-full h-full bg-slate-900" />
@@ -130,8 +139,8 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
         </div>
         
         {/* Hero Content Overlay */}
-        <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-4">
-          <div className="flex items-end gap-5">
+        <div className="absolute bottom-0 left-0 w-full p-5 md:p-6 flex flex-col gap-3">
+          <div className="flex items-end gap-4">
             {/* Logo - Floating Effect */}
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
@@ -139,7 +148,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
               transition={{ type: 'spring', damping: 15 }}
               className="relative shrink-0"
             >
-              <div className="w-[5.5rem] h-[5.5rem] bg-white dark:bg-zinc-900 rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
+              <div className="w-[4.5rem] h-[4.5rem] md:w-[5.5rem] md:h-[5.5rem] bg-white dark:bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
                 <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-zinc-800 flex items-center justify-center">
                   {club.logoUrl ? (
                     <>
@@ -152,24 +161,24 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                           event.currentTarget.nextElementSibling?.classList.remove('hidden')
                         }}
                       />
-                      <span className="hidden text-3xl font-black text-primary">{club.name[0]}</span>
+                      <span className="hidden text-2xl md:text-3xl font-black text-primary">{club.name[0]}</span>
                     </>
                   ) : (
-                    <span className="text-3xl font-black text-primary">{club.name[0]}</span>
+                    <span className="text-2xl md:text-3xl font-black text-primary">{club.name[0]}</span>
                   )}
                 </div>
               </div>
             </motion.div> 
 
             {/* Title & Stats */}
-            <div className="pb-2 space-y-1.5 flex-1 min-w-0">
+            <div className="pb-1 space-y-1.5 flex-1 min-w-0">
               <motion.div 
                 initial={{ x: -10, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
                 className="flex items-center gap-2"
               >
-                <h1 className="text-3xl font-black text-white tracking-tight leading-none truncate">
+                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-none truncate">
                   {club.name}
                 </h1>
                 {club.subscriptionStatus === 'ACTIVE' && (
@@ -183,7 +192,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                 initial={{ x: -10, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center gap-3"
+                className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-3"
               >
                 <div className="flex items-center gap-1 text-white/60 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
                   <MapPin size={10} className="text-primary" />
@@ -229,6 +238,21 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
       <main className="w-full max-w-md mx-auto px-4 py-6 pb-24">
         {activeTab === 'booking' ? (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="mb-5 rounded-[1.75rem] border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                    Reserva movil
+                  </p>
+                  <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                    Elegi horario, confirma y listo.
+                  </p>
+                </div>
+                <div className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
+                  3 pasos
+                </div>
+              </div>
+            </div>
             {children}
           </div>
         ) : (

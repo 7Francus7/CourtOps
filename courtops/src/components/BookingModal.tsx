@@ -1,7 +1,7 @@
 'use client'
 
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getClients } from '@/actions/clients'
@@ -13,6 +13,7 @@ import { MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, R
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getTeachers } from '@/actions/teachers'
+import { updateWaitingListStatus } from '@/actions/waitingList'
 
 type Props = {
        isOpen: boolean
@@ -21,20 +22,38 @@ type Props = {
        initialDate: Date
        initialTime?: string
        initialCourtId?: number
+       initialClientName?: string
+       initialClientPhone?: string
+       initialClientEmail?: string
+       initialNotes?: string
+       initialWaitingListId?: number
        courts: { id: number, name: string, duration?: number }[]
 }
 
 const PADEL_SLOT_MINUTES = 90
 const FALLBACK_TIME_SLOTS = ['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00', '22:30']
 
-export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts = [] }: Props) {
-       const [formData, setFormData] = useState({
-              name: '',
-              phone: '',
-              email: '',
+export default function BookingModal({
+       isOpen,
+       onClose,
+       onSuccess,
+       initialDate,
+       initialTime,
+       initialCourtId,
+       initialClientName,
+       initialClientPhone,
+       initialClientEmail,
+       initialNotes,
+       initialWaitingListId,
+       courts = []
+}: Props) {
+       const buildInitialFormData = useCallback(() => ({
+              name: initialClientName || '',
+              phone: initialClientPhone || '',
+              email: initialClientEmail || '',
               time: initialTime || '14:00',
               courtId: initialCourtId || (courts[0]?.id || 0),
-              notes: '',
+              notes: initialNotes || '',
               isMember: false,
               isRecurring: false,
               recurringEndDate: '',
@@ -42,6 +61,10 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               bookingType: 'NORMAL' as 'NORMAL' | 'CLASS' | 'MATCH',
               teacherId: '',
               skillLevel: '4.0'
+       }), [courts, initialClientEmail, initialClientName, initialClientPhone, initialCourtId, initialNotes, initialTime])
+
+       const [formData, setFormData] = useState({
+              ...buildInitialFormData()
        })
        const [teachers, setTeachers] = useState<{ id: string, name: string }[]>([])
        const [isSubmitting, setIsSubmitting] = useState(false)
@@ -94,16 +117,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               if (isOpen) {
                      setSuccessData(null)
                      setIsManualPrice(false)
-                     setShowNotes(false)
-                     setFormData(prev => ({
-                            ...prev,
-                            time: initialTime || '14:00',
-                            courtId: initialCourtId || (courts[0]?.id || 0),
-                            priceOverride: ''
-                     }))
+                     setShowNotes(Boolean(initialNotes))
+                     setFormData(buildInitialFormData())
                      setIsEditingPrice(false)
               }
-       }, [isOpen, initialTime, initialCourtId, courts])
+       }, [buildInitialFormData, initialNotes, isOpen])
 
        // Dynamic Time Slots
        const [timeOptions, setTimeOptions] = useState<string[]>([])
@@ -200,6 +218,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      const res = await apiRes.json()
 
                      if (res.success && 'booking' in res) {
+                            if (initialWaitingListId) {
+                                   try {
+                                          await updateWaitingListStatus(initialWaitingListId, 'FULFILLED')
+                                   } catch (waitingListError) {
+                                          console.error('Error fulfilling waiting list lead:', waitingListError)
+                                   }
+                            }
+
                             setSuccessData({
                                    booking: res.booking,
                                    client: res.client,
@@ -362,7 +388,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                     <button
                                                                                            key={type.id}
                                                                                            type="button"
-                                                                                           onClick={() => setFormData({ ...formData, bookingType: type.id as any })}
+                                                                                           onClick={() => setFormData({ ...formData, bookingType: type.id as 'NORMAL' | 'CLASS' | 'MATCH' })}
                                                                                            className={cn(
                                                                                                   "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all",
                                                                                                   formData.bookingType === type.id 

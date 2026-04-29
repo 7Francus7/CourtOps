@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { format, addDays, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking } from '@/actions/public-booking'
+import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking, createPublicWaitingList } from '@/actions/public-booking'
+import { trackPublicBookingEvent } from '@/actions/public-growth'
 import { createPreference } from '@/actions/mercadopago'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -73,20 +74,45 @@ function getWhatsappNumber(phone?: string | null) {
 	return phone?.replace(/\D/g, '') || ''
 }
 
+function formatArs(amount: number) {
+	return new Intl.NumberFormat('es-AR', {
+		style: 'currency',
+		currency: 'ARS',
+		maximumFractionDigits: 0
+	}).format(amount)
+}
+
 type BookingMode = 'guest' | 'premium' | null
 type PublicStep = number | 'register' | 'login' | 'matchmaking'
+type PublicAvailabilityCourt = {
+	id: number
+	name: string
+	type: string | null
+	sport: string
+	duration: number
+	price: number
+}
+
+type PublicAvailabilitySlot = {
+	time: string
+	price: number
+	courts: PublicAvailabilityCourt[]
+}
 
 export default function PublicBookingWizard({ club, initialDateStr, openMatches = [] }: Props) {
 	const today = useMemo(() => parseDateOnly(initialDateStr), [initialDateStr])
 	const { resolvedTheme, setTheme } = useTheme()
+	const searchParams = useSearchParams()
 	const defaultDuration = club.slotDuration || 90
 	const canUseOnlinePayments = Boolean(club.canUseOnlinePayments || club.hasOnlinePayments)
+	const clubWhatsappNumber = getWhatsappNumber(club.phone)
+	const [themeMounted, setThemeMounted] = useState(false)
 
 	const [layoutTab, setLayoutTab] = useState<'booking' | 'info'>('booking')
 	const [step, setStep] = useState<PublicStep>(0)
 	const [mode, setMode] = useState<BookingMode>(null)
 	const [selectedDate, setSelectedDate] = useState<Date>(today)
-	const [slots, setSlots] = useState<any[]>([])
+	const [slots, setSlots] = useState<PublicAvailabilitySlot[]>([])
 	const [loading, setLoading] = useState(true)
 	const [selectedSlot, setSelectedSlot] = useState<{
 		time: string
@@ -101,6 +127,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [authError, setAuthError] = useState('')
 	const [bookingError, setBookingError] = useState('')
 	const [guestErrors, setGuestErrors] = useState<{ name?: string; lastname?: string; phone?: string }>({})
+	const [showWaitlistForm, setShowWaitlistForm] = useState(false)
+	const [waitlistData, setWaitlistData] = useState({ name: '', phone: '', notes: '' })
+	const [waitlistErrors, setWaitlistErrors] = useState<{ name?: string; phone?: string }>({})
+	const [waitlistError, setWaitlistError] = useState('')
+	const [waitlistSuccess, setWaitlistSuccess] = useState('')
+	const [isWaitlistSubmitting, setIsWaitlistSubmitting] = useState(false)
 
 	const [paymentError, setPaymentError] = useState('')
 	const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
@@ -111,6 +143,44 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [matchGender, setMatchGender] = useState('Masculino')
 	const [copiedPaymentField, setCopiedPaymentField] = useState<string | null>(null)
 	const [expandedSlot, setExpandedSlot] = useState<string | null>(null)
+	const trackedPageViewRef = useRef(false)
+	const trackedInitialDateRef = useRef(false)
+
+	const trackingSource = useMemo(() => ({
+		source: searchParams.get('utm_source') || searchParams.get('source') || 'direct',
+		medium: searchParams.get('utm_medium') || 'public_booking',
+		campaign: searchParams.get('utm_campaign') || 'public_booking'
+	}), [searchParams])
+
+	const trackFunnelEvent = useCallback((
+		event: 'page_view' | 'date_selected' | 'slot_selected' | 'booking_created' | 'waitlist_created',
+		extra?: { dateStr?: string; timeStr?: string; courtId?: number }
+	) => {
+		trackPublicBookingEvent({
+			clubId: club.id,
+			event,
+			...trackingSource,
+			...extra
+		}).catch(console.error)
+	}, [club.id, trackingSource])
+
+	useEffect(() => {
+		setThemeMounted(true)
+	}, [])
+
+	useEffect(() => {
+		if (trackedPageViewRef.current) return
+		trackedPageViewRef.current = true
+		trackFunnelEvent('page_view', { dateStr: format(selectedDate, 'yyyy-MM-dd') })
+	}, [selectedDate, trackFunnelEvent])
+
+	useEffect(() => {
+		if (!trackedInitialDateRef.current) {
+			trackedInitialDateRef.current = true
+			return
+		}
+		trackFunnelEvent('date_selected', { dateStr: format(selectedDate, 'yyyy-MM-dd') })
+	}, [selectedDate, trackFunnelEvent])
 
 	const validatePhone = (phone: string) => {
 		const digits = phone.replace(/\D/g, '')
@@ -118,6 +188,44 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	}
 
 	const validateName = (name: string) => name.trim().length >= 2
+
+	const resetBookingDraft = () => {
+		setAuthError('')
+		setBookingError('')
+		setRegisterError('')
+		setClientData({ name: '', lastname: '', phone: '', email: '' })
+		setMode(null)
+		setCreateOpenMatch(false)
+	}
+
+	const openWaitlistForm = () => {
+		setWaitlistError('')
+		setWaitlistSuccess('')
+		setWaitlistErrors({})
+		setShowWaitlistForm(true)
+		setWaitlistData(current => ({
+			name: current.name || `${clientData.name} ${clientData.lastname}`.trim(),
+			phone: current.phone || clientData.phone,
+			notes: current.notes
+		}))
+	}
+
+	const selectCourtFromSlot = (slot: PublicAvailabilitySlot, court: PublicAvailabilityCourt) => {
+		setSelectedSlot({
+			time: slot.time,
+			courtId: court.id,
+			courtName: court.name,
+			price: court.price,
+			duration: court.duration || defaultDuration
+		})
+		trackFunnelEvent('slot_selected', {
+			dateStr: format(selectedDate, 'yyyy-MM-dd'),
+			timeStr: slot.time,
+			courtId: court.id
+		})
+		resetBookingDraft()
+		goToStep(2)
+	}
 
 	const goToStep = (newStep: PublicStep) => {
 		setStep(newStep)
@@ -132,7 +240,6 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	}
 
 	// Payment return handler
-	const searchParams = useSearchParams()
 	useEffect(() => {
 		const status = searchParams.get('status')
 		const externalRef = searchParams.get('external_reference')
@@ -155,9 +262,6 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								Math.round((new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / 60000)
 							)
 						})
-						import('canvas-confetti').then(mod =>
-							mod.default({ particleCount: 150, spread: 80, origin: { y: 0.6 } })
-						)
 					}
 				})
 				.catch(console.error)
@@ -181,12 +285,24 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		fetchSlots()
 	}, [selectedDate, club.id, step])
 
+	useEffect(() => {
+		if (step !== 0) return
+		setExpandedSlot(current => {
+			if (slots.length === 0) return null
+			if (current && slots.some(slot => slot.time === current && slot.courts.length > 1)) {
+				return current
+			}
+			const firstExpandableSlot = slots.find(slot => slot.courts.length > 1)
+			return firstExpandableSlot?.time ?? null
+		})
+	}, [slots, step])
+
 	const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today, i)), [today])
 	const availabilityDurationLabel = useMemo(() => {
 		const durations = Array.from(
 			new Set(
 				slots
-					.flatMap(slot => slot.courts?.map((court: any) => Number(court.duration || defaultDuration)) || [])
+					.flatMap(slot => slot.courts.map(court => Number(court.duration || defaultDuration)))
 					.filter(Boolean)
 			)
 		)
@@ -195,6 +311,18 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		if (durations.length > 1) return 'VARIAS DURACIONES'
 		return `${defaultDuration} MIN`
 	}, [slots, defaultDuration])
+
+	const noAvailabilityWhatsappHref = clubWhatsappNumber
+		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
+			`Hola ${club.name}. No encontre turnos para el ${format(selectedDate, 'd/M', { locale: es })}. Queria consultar disponibilidad o lista de espera.`
+		)}`
+		: null
+
+	const customScheduleWhatsappHref = clubWhatsappNumber
+		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
+			`Hola ${club.name}. Estoy viendo la reserva online para el ${format(selectedDate, 'd/M', { locale: es })} y queria consultar si tienen otro horario disponible.`
+		)}`
+		: null
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -293,10 +421,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		if (res.success && res.bookingId) {
 			setCreatedBookingId(res.bookingId)
 			if (res.publicToken) setCancelToken(res.publicToken)
+			trackFunnelEvent('booking_created', {
+				dateStr: format(selectedDate, 'yyyy-MM-dd'),
+				timeStr: selectedSlot.time,
+				courtId: selectedSlot.courtId
+			})
 			goToStep(3)
-			import('canvas-confetti').then(mod =>
-				mod.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
-			)
 		} else {
 			setBookingError(res.error || 'Error al crear la reserva. Intentá de nuevo.')
 		}
@@ -314,6 +444,48 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		} else {
 			setPaymentError('No se pudo iniciar el pago. Intentá de nuevo.')
 		}
+	}
+
+	const handleJoinWaitlist = async (e: React.FormEvent) => {
+		e.preventDefault()
+
+		const errors: { name?: string; phone?: string } = {}
+		if (!validateName(waitlistData.name)) {
+			errors.name = 'IngresÃ¡ tu nombre completo'
+		}
+		if (!validatePhone(waitlistData.phone)) {
+			errors.phone = 'IngresÃ¡ un telÃ©fono vÃ¡lido'
+		}
+		if (Object.keys(errors).length > 0) {
+			setWaitlistErrors(errors)
+			return
+		}
+
+		setWaitlistErrors({})
+		setWaitlistError('')
+		setWaitlistSuccess('')
+		setIsWaitlistSubmitting(true)
+
+		const result = await createPublicWaitingList({
+			clubId: club.id,
+			dateStr: format(selectedDate, 'yyyy-MM-dd'),
+			clientName: waitlistData.name,
+			clientPhone: waitlistData.phone,
+			notes: waitlistData.notes
+		})
+
+		setIsWaitlistSubmitting(false)
+
+		if (result.success) {
+			trackFunnelEvent('waitlist_created', {
+				dateStr: format(selectedDate, 'yyyy-MM-dd')
+			})
+			setWaitlistSuccess('Te anotamos en la lista de espera. Si se libera un turno, el club puede contactarte.')
+			setShowWaitlistForm(false)
+			return
+		}
+
+		setWaitlistError(result.error || 'No se pudo guardar tu solicitud.')
 	}
 
 	const copyPaymentValue = async (label: string, value: string) => {
@@ -341,11 +513,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 					</p>
 					<p className="text-[11px] text-slate-400 dark:text-slate-500 font-bold capitalize">
 						{format(selectedDate, 'EEE d MMM', { locale: es })} · {selectedSlot.time}hs ·{' '}
-						{new Intl.NumberFormat('es-AR', {
-							style: 'currency',
-							currency: 'ARS',
-							maximumFractionDigits: 0
-						}).format(selectedSlot.price)}
+						{formatArs(selectedSlot.price)}
 					</p>
 				</div>
 				<button
@@ -360,6 +528,27 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	// ============================================
 	// STEP 3 — SUCCESS
 	// ============================================
+	const StickyActionBar = ({
+		children,
+		tone = 'default'
+	}: {
+		children: React.ReactNode
+		tone?: 'default' | 'subtle'
+	}) => (
+		<div className="sticky bottom-0 z-20 -mx-1 pt-4">
+			<div
+				className={cn(
+					'rounded-[1.75rem] border px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur-xl',
+					tone === 'default'
+						? 'border-slate-200/80 bg-white/95 dark:border-white/[0.08] dark:bg-zinc-950/92'
+						: 'border-slate-200/70 bg-slate-50/95 dark:border-white/[0.06] dark:bg-zinc-900/92'
+				)}
+			>
+				{children}
+			</div>
+		</div>
+	)
+
 	if (step === 3 && selectedSlot) {
 		const isGuest = mode === 'guest'
 		const playerName = `${clientData.name} ${clientData.lastname}`.trim()
@@ -403,7 +592,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 						className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 shadow-sm transition-all"
 						aria-label="Cambiar tema"
 					>
-						{resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+						{themeMounted ? (
+							resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />
+						) : (
+							<div className="h-4 w-4" aria-hidden="true" />
+						)}
 					</button>
 				</div>
 				{/* Animated background blobs */}
@@ -540,11 +733,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</span>
 									</div>
 									<span className="text-base font-black text-primary tabular-nums">
-										{new Intl.NumberFormat('es-AR', {
-											style: 'currency',
-											currency: 'ARS',
-											maximumFractionDigits: 0
-										}).format(selectedSlot.price)}
+										{formatArs(selectedSlot.price)}
 									</span>
 								</div>
 
@@ -833,13 +1022,20 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									) : slots.length > 0 ? (
 										slots.map((slot, idx) => {
 											const isExpanded = expandedSlot === slot.time
+											const hasSingleCourt = slot.courts.length === 1
 											return (
 												<div key={slot.time} className="space-y-3">
 													<motion.button
 														initial={{ opacity: 0, x: -10 }}
 														animate={{ opacity: 1, x: 0 }}
 														transition={{ delay: idx * 0.04 }}
-														onClick={() => setExpandedSlot(isExpanded ? null : slot.time)}
+														onClick={() => {
+															if (hasSingleCourt) {
+																selectCourtFromSlot(slot, slot.courts[0])
+																return
+															}
+															setExpandedSlot(isExpanded ? null : slot.time)
+														}}
 														className={cn(
 															'w-full flex items-center justify-between p-5 bg-white dark:bg-zinc-900/40 border transition-all duration-500 group overflow-hidden relative',
 															isExpanded
@@ -847,7 +1043,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																: 'border-slate-100 dark:border-white/[0.05] rounded-[1.75rem] hover:border-primary/30'
 														)}
 													>
-														{isExpanded && (
+														{isExpanded && !hasSingleCourt && (
 															<div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
 														)}
 														<div className="flex items-center gap-5 relative z-10">
@@ -875,10 +1071,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																</p>
 																<div className="flex items-center gap-1.5 mt-1.5">
 																	<span className="text-[9px] font-black text-primary uppercase tracking-[0.15em] bg-primary/10 px-2 py-0.5 rounded-md">
-																		Desde ${slot.price}
+																		{hasSingleCourt ? formatArs(slot.courts[0].price) : `Desde $${slot.price}`}
 																	</span>
 																	<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-																		{slot.courts.length} cancha{slot.courts.length !== 1 ? 's' : ''}
+																		{hasSingleCourt ? `${slot.courts[0].name} listo para reservar` : `${slot.courts.length} cancha${slot.courts.length !== 1 ? 's' : ''}`}
 																	</span>
 																</div>
 															</div>
@@ -890,12 +1086,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																'rotate-180 bg-primary/10 text-primary border-primary/20'
 															)}
 														>
-															<ChevronDown size={18} strokeWidth={3} />
+															{hasSingleCourt ? <ArrowRight size={18} strokeWidth={3} /> : <ChevronDown size={18} strokeWidth={3} />}
 														</div>
 													</motion.button>
 
 													<AnimatePresence>
-														{isExpanded && (
+														{isExpanded && !hasSingleCourt && (
 															<motion.div
 																initial={{ height: 0, opacity: 0, y: -10 }}
 																animate={{ height: 'auto', opacity: 1, y: 0 }}
@@ -903,27 +1099,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																transition={{ duration: 0.3, ease: 'circOut' }}
 																className="grid grid-cols-1 gap-2.5 pt-1.5 pb-4 px-3"
 															>
-																{slot.courts.map((court: any) => (
+																{slot.courts.map(court => (
 																	<motion.button
 																		initial={{ opacity: 0, scale: 0.95 }}
 																		animate={{ opacity: 1, scale: 1 }}
 																		key={court.id}
-																		onClick={() => {
-																			setSelectedSlot({
-																				time: slot.time,
-																				courtId: court.id,
-																				courtName: court.name,
-																				price: court.price,
-																				duration: court.duration || defaultDuration
-																			})
-																			setAuthError('')
-																			setBookingError('')
-																			setRegisterError('')
-																			setClientData({ name: '', lastname: '', phone: '', email: '' })
-																			setMode(null)
-																			setCreateOpenMatch(false)
-																			goToStep(2)
-																		}}
+																		onClick={() => selectCourtFromSlot(slot, court)}
 																		className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-[1.5rem] hover:bg-zinc-950 dark:hover:bg-primary hover:text-white transition-all duration-300 group/court shadow-sm active:scale-[0.98]"
 																	>
 																		<div className="flex items-center gap-4">
@@ -941,7 +1122,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																		</div>
 																		<div className="text-right">
 																			<p className="text-[18px] font-black tracking-tighter">
-																				${court.price}
+																				{formatArs(court.price)}
 																			</p>
 																			<ArrowRight
 																				size={14}
@@ -957,7 +1138,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 											)
 										})
 									) : (
-										<div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[3rem] opacity-60">
+										<div className="flex flex-col items-center justify-center py-12 px-6 bg-white dark:bg-white/[0.02] border-2 border-dashed border-slate-100 dark:border-white/5 rounded-[3rem]">
 											<div className="w-20 h-20 rounded-[2.5rem] bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-6">
 												<Calendar
 													size={40}
@@ -965,13 +1146,193 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 													className="text-slate-300 dark:text-zinc-600"
 												/>
 											</div>
-											<p className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">
+											<p className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400 text-center">
 												Sin turnos disponibles
 											</p>
+											<p className="mt-3 max-w-[280px] text-center text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+												Probá con otra fecha o escribile al club para consultar disponibilidad manual o lista de espera.
+											</p>
+											<div className="mt-6 flex w-full flex-col gap-3">
+												<button
+													type="button"
+													onClick={openWaitlistForm}
+													className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-lg transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+												>
+													Sumarme a lista de espera
+													<ChevronRight size={15} />
+												</button>
+												{noAvailabilityWhatsappHref && (
+													<a
+														href={noAvailabilityWhatsappHref}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-lg shadow-[#25D366]/20 transition-all active:scale-[0.98]"
+													>
+														<MessageCircle size={15} />
+														Consultar por WhatsApp
+													</a>
+												)}
+												<button
+													type="button"
+													onClick={() => setLayoutTab('info')}
+													className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-[11px] font-black uppercase tracking-[0.15em] text-slate-600 transition-all active:scale-[0.98] dark:border-white/[0.06] dark:bg-white/[0.03] dark:text-slate-300"
+												>
+													Ver datos del club
+													<ChevronRight size={15} />
+												</button>
+											</div>
 										</div>
 									)}
 								</div>
 							</div>
+
+							{slots.length > 0 && customScheduleWhatsappHref && (
+								<div className="rounded-[2rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
+									<div className="flex items-start gap-3">
+										<div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+											<MessageCircle size={18} />
+										</div>
+										<div className="min-w-0 flex-1">
+											<p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+												No ves tu horario
+											</p>
+											<p className="mt-1 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+												Si buscás otra franja o querés sumarte a una lista de espera, podés escribirle directo al club.
+											</p>
+											<div className="mt-4 flex flex-col gap-2 sm:flex-row">
+												<button
+													type="button"
+													onClick={openWaitlistForm}
+													className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-[11px] font-black uppercase tracking-[0.15em] text-white transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+												>
+													Sumarme a lista de espera
+													<ChevronRight size={14} />
+												</button>
+												<a
+													href={customScheduleWhatsappHref}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 text-[11px] font-black uppercase tracking-[0.15em] text-slate-600 transition-all active:scale-[0.98] dark:border-white/[0.06] dark:text-slate-300"
+												>
+													Pedir otro horario
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
+
+							{waitlistSuccess && (
+								<div className="rounded-[2rem] border border-primary/20 bg-primary/5 p-4">
+									<p className="text-sm font-bold leading-relaxed text-primary">
+										{waitlistSuccess}
+									</p>
+								</div>
+							)}
+
+							{showWaitlistForm && (
+								<motion.form
+									initial={{ opacity: 0, y: 12 }}
+									animate={{ opacity: 1, y: 0 }}
+									onSubmit={handleJoinWaitlist}
+									className="space-y-4 rounded-[2rem] border border-slate-200/80 bg-white/95 p-5 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
+								>
+									<div className="flex items-start justify-between gap-3">
+										<div>
+											<p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+												Lista de espera
+											</p>
+											<h4 className="mt-1 text-lg font-black tracking-tight text-slate-800 dark:text-white">
+												Si se libera un turno, el club te puede avisar
+											</h4>
+											<p className="mt-1 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+												Fecha: {format(selectedDate, 'EEEE d MMMM', { locale: es })}
+											</p>
+										</div>
+										<button
+											type="button"
+											onClick={() => setShowWaitlistForm(false)}
+											className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-all active:scale-95 dark:bg-white/[0.05] dark:text-slate-300"
+										>
+											<X size={16} />
+										</button>
+									</div>
+
+									<div className="space-y-1.5">
+										<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+											Nombre
+										</label>
+										<input
+											type="text"
+											value={waitlistData.name}
+											onChange={e => {
+												setWaitlistData(current => ({ ...current, name: e.target.value }))
+												setWaitlistErrors(current => ({ ...current, name: undefined }))
+											}}
+											placeholder="Tu nombre"
+											className={cn(
+												'w-full h-12 rounded-2xl border bg-white px-4 text-sm font-bold text-slate-800 outline-none transition-all dark:bg-white/[0.04] dark:text-white',
+												waitlistErrors.name ? 'border-red-400' : 'border-slate-200 focus:border-primary/50 dark:border-white/[0.07]'
+											)}
+										/>
+										{waitlistErrors.name && (
+											<p className="text-[10px] font-bold text-red-400">{waitlistErrors.name}</p>
+										)}
+									</div>
+
+									<div className="space-y-1.5">
+										<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+											TelÃ©fono
+										</label>
+										<input
+											type="tel"
+											value={waitlistData.phone}
+											onChange={e => {
+												setWaitlistData(current => ({ ...current, phone: e.target.value }))
+												setWaitlistErrors(current => ({ ...current, phone: undefined }))
+											}}
+											placeholder="11 1234-5678"
+											className={cn(
+												'w-full h-12 rounded-2xl border bg-white px-4 text-sm font-bold text-slate-800 outline-none transition-all dark:bg-white/[0.04] dark:text-white',
+												waitlistErrors.phone ? 'border-red-400' : 'border-slate-200 focus:border-primary/50 dark:border-white/[0.07]'
+											)}
+										/>
+										{waitlistErrors.phone && (
+											<p className="text-[10px] font-bold text-red-400">{waitlistErrors.phone}</p>
+										)}
+									</div>
+
+									<div className="space-y-1.5">
+										<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+											Comentario
+											<span className="ml-1 normal-case font-medium text-slate-300 dark:text-slate-500">(opcional)</span>
+										</label>
+										<textarea
+											value={waitlistData.notes}
+											onChange={e => setWaitlistData(current => ({ ...current, notes: e.target.value }))}
+											placeholder="Ej: desde las 19 hs, cualquier cancha"
+											rows={3}
+											className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none transition-all focus:border-primary/50 dark:border-white/[0.07] dark:bg-white/[0.04] dark:text-slate-200"
+										/>
+									</div>
+
+									{waitlistError && (
+										<div className="rounded-2xl border border-red-200 bg-red-50 p-3 dark:border-red-500/20 dark:bg-red-500/10">
+											<p className="text-[11px] font-bold text-red-500">{waitlistError}</p>
+										</div>
+									)}
+
+									<StickyActionBar tone="subtle">
+										<button
+											type="submit"
+											disabled={isWaitlistSubmitting}
+											className="w-full h-12 rounded-2xl bg-slate-950 text-[11px] font-black uppercase tracking-[0.15em] text-white transition-all active:scale-[0.98] disabled:opacity-50 dark:bg-primary dark:text-primary-foreground"
+										>
+											{isWaitlistSubmitting ? 'Guardando...' : 'Unirme a la lista de espera'}
+										</button>
+									</StickyActionBar>
+								</motion.form>
+							)}
 
 							{/* Open matches CTA */}
 							{openMatches.length > 0 && (
@@ -1062,7 +1423,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										<Loader2 size={18} className="animate-spin" />
 									) : (
 										<>
-											Buscar mi cuenta
+											Continuar con mi telefono
 											<ArrowRight size={16} />
 										</>
 									)}
@@ -1077,16 +1438,21 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								<div className="h-px flex-1 bg-slate-200 dark:bg-white/[0.05]" />
 							</div>
 
-							<button
-								onClick={() => {
-									setMode('guest')
-									setClientData({ name: '', lastname: '', phone: '', email: '' })
-									goToStep(1)
-								}}
-								className="w-full h-12 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-2xl font-bold text-sm text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/[0.1] active:scale-[0.98] transition-all"
-							>
-								Reservar sin cuenta
-							</button>
+							<StickyActionBar tone="subtle">
+								<p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center mb-3">
+									Si queres resolverlo mas rapido, podes reservar como invitado.
+								</p>
+								<button
+									onClick={() => {
+										setMode('guest')
+										setClientData({ name: '', lastname: '', phone: '', email: '' })
+										goToStep(1)
+									}}
+									className="w-full h-12 bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-white/[0.1] active:scale-[0.98] transition-all"
+								>
+									Reservar sin cuenta
+								</button>
+							</StickyActionBar>
 						</motion.div>
 					)}
 
@@ -1183,22 +1549,24 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									</div>
 								)}
 
-								<button
-									type="submit"
-									disabled={
-										!clientData.name || !clientData.lastname || !clientData.phone || isSubmitting
-									}
-									className="w-full h-14 bg-zinc-950 dark:bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20 mt-2"
-								>
-									{isSubmitting ? (
-										<Loader2 size={18} className="animate-spin" />
-									) : (
-										<>
-											Continuar
-											<ArrowRight size={16} />
-										</>
-									)}
-								</button>
+								<StickyActionBar>
+									<button
+										type="submit"
+										disabled={
+											!clientData.name || !clientData.lastname || !clientData.phone || isSubmitting
+										}
+										className="w-full h-14 bg-zinc-950 dark:bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-[0.1em] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+									>
+										{isSubmitting ? (
+											<Loader2 size={18} className="animate-spin" />
+										) : (
+											<>
+												Continuar
+												<ArrowRight size={16} />
+											</>
+										)}
+									</button>
+								</StickyActionBar>
 							</form>
 						</motion.div>
 					)}
@@ -1236,11 +1604,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												Total
 											</p>
 											<p className="text-3xl font-black text-primary tracking-tight leading-none">
-												{new Intl.NumberFormat('es-AR', {
-													style: 'currency',
-													currency: 'ARS',
-													maximumFractionDigits: 0
-												}).format(selectedSlot.price)}
+												{formatArs(selectedSlot.price)}
 											</p>
 										</div>
 									</div>

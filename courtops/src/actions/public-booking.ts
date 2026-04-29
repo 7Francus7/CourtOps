@@ -243,6 +243,15 @@ type PublicBookingInput = {
        guestPhone?: string
 }
 
+type PublicWaitingListInput = {
+       clubId: string
+       dateStr: string
+       clientName: string
+       clientPhone: string
+       notes?: string
+       courtId?: number
+}
+
 export async function createPublicBooking(data: PublicBookingInput) {
        try {
               await enforceActiveSubscription(data.clubId)
@@ -442,4 +451,97 @@ export async function getPublicBooking(bookingId: number, clubId: string) {
               }
        })
        return booking
+}
+
+export async function createPublicWaitingList(data: PublicWaitingListInput) {
+       try {
+              await enforceActiveSubscription(data.clubId)
+
+              const clientName = data.clientName.trim()
+              const clientPhone = data.clientPhone.trim()
+              const notes = data.notes?.trim()
+
+              if (!data.dateStr || !clientName || !clientPhone) {
+                     return { success: false, error: 'Faltan datos para unirte a la lista de espera.' }
+              }
+
+              if (clientName.length < 2) {
+                     return { success: false, error: 'El nombre debe tener al menos 2 caracteres.' }
+              }
+
+              const phoneDigits = clientPhone.replace(/\D/g, '')
+              if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+                     return { success: false, error: 'El telÃ©fono ingresado no es vÃ¡lido.' }
+              }
+
+              const [y, m, d] = data.dateStr.split('-').map(Number)
+              const waitingDate = createArgDate(y, m - 1, d, 0, 0)
+
+              if (Number.isNaN(waitingDate.getTime())) {
+                     return { success: false, error: 'La fecha seleccionada no es vÃ¡lida.' }
+              }
+
+              const club = await prisma.club.findUnique({
+                     where: { id: data.clubId },
+                     select: { slug: true }
+              })
+
+              if (!club) {
+                     return { success: false, error: 'Club no encontrado.' }
+              }
+
+              let clientId: number | undefined
+              const existingClient = await prisma.client.findFirst({
+                     where: { clubId: data.clubId, phone: clientPhone }
+              })
+
+              if (existingClient) {
+                     clientId = existingClient.id
+              }
+
+              const duplicateEntry = await prisma.waitingList.findFirst({
+                     where: {
+                            clubId: data.clubId,
+                            phone: clientPhone,
+                            date: waitingDate,
+                            status: 'PENDING'
+                     }
+              })
+
+              if (duplicateEntry) {
+                     return { success: false, error: 'Ya estÃ¡s anotado en la lista de espera para esta fecha.' }
+              }
+
+              await prisma.waitingList.create({
+                     data: {
+                            clubId: data.clubId,
+                            date: waitingDate,
+                            courtId: data.courtId,
+                            clientId,
+                            name: clientName,
+                            phone: clientPhone,
+                            notes: notes || undefined
+                     }
+              })
+
+              try {
+                     const { pusherServer } = await import('@/lib/pusher')
+                     await pusherServer.trigger(`club-${data.clubId}`, 'waiting-list-update', {
+                            action: 'create',
+                            dateStr: waitingDate.toISOString(),
+                            name: clientName,
+                            source: 'public'
+                     })
+              } catch (pusherErr) {
+                     console.error('[PUSHER ERROR in public-waiting-list]', pusherErr)
+              }
+
+              revalidatePath(`/p/${club.slug}`)
+              revalidatePath(`/${club.slug}`)
+
+              return { success: true }
+       } catch (error: unknown) {
+              console.error('ERROR CREATING PUBLIC WAITING LIST:', error)
+              return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
+       }
 }

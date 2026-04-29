@@ -69,6 +69,55 @@ function getThemeStyle(themeColor?: string | null) {
        `
 }
 
+function getPublicOrigin() {
+       return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://courtops.app'
+}
+
+function getClubJsonLd(club: Record<string, unknown>, slug: string) {
+       const publicUrl = `${getPublicOrigin().replace(/\/$/, '')}/p/${slug}`
+       const amenities = typeof club.amenities === 'string'
+              ? club.amenities.split(',').map(item => item.trim()).filter(Boolean)
+              : []
+       const sameAs = [
+              club.socialInstagram,
+              club.socialFacebook,
+              club.socialTwitter,
+              club.socialTiktok
+       ].filter(Boolean)
+
+       return {
+              '@context': 'https://schema.org',
+              '@type': ['SportsActivityLocation', 'LocalBusiness'],
+              name: club.name,
+              url: publicUrl,
+              image: club.coverUrl || club.logoUrl || undefined,
+              logo: club.logoUrl || undefined,
+              telephone: club.phone || undefined,
+              address: club.address || undefined,
+              sameAs,
+              amenityFeature: amenities.map(name => ({
+                     '@type': 'LocationFeatureSpecification',
+                     name,
+                     value: true
+              })),
+              potentialAction: {
+                     '@type': 'ReserveAction',
+                     target: {
+                            '@type': 'EntryPoint',
+                            urlTemplate: publicUrl,
+                            actionPlatform: [
+                                   'https://schema.org/DesktopWebPlatform',
+                                   'https://schema.org/MobileWebPlatform'
+                            ]
+                     },
+                     result: {
+                            '@type': 'Reservation',
+                            name: `Reserva en ${club.name}`
+                     }
+              }
+       }
+}
+
 export default async function PublicClubPage({ slug }: { slug: string }) {
        const club = await getPublicClubBySlug(slug)
 
@@ -79,10 +128,15 @@ export default async function PublicClubPage({ slug }: { slug: string }) {
        const openMatches = await getOpenMatches(slug)
        const themeStyle = getThemeStyle(club.themeColor)
        const today = format(nowInArg(), 'yyyy-MM-dd')
+       const clubJsonLd = getClubJsonLd(club, slug)
 
        return (
               <>
                      {themeStyle && <style dangerouslySetInnerHTML={{ __html: themeStyle }} />}
+                     <script
+                            type="application/ld+json"
+                            dangerouslySetInnerHTML={{ __html: JSON.stringify(clubJsonLd) }}
+                     />
                      <Suspense
                             fallback={
                                    <div className="min-h-screen bg-background flex items-center justify-center text-foreground font-bold">

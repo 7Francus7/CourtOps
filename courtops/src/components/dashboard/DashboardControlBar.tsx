@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ChevronLeft, ChevronRight, Globe, Plus, HelpCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Globe, Plus, HelpCircle, QrCode } from 'lucide-react'
 import { addDays, subDays, isToday } from 'date-fns'
 import { nowInArg } from '@/lib/date-utils'
 
@@ -9,6 +9,7 @@ interface DashboardControlBarProps {
        selectedDate: Date
        setSelectedDate: (_: Date | ((_: Date) => Date)) => void
        handleCopyLink: () => void
+       onOpenGrowthKit: () => void
        setIsCreateModalOpen: (_: boolean) => void
        onOpenHelp: () => void
 }
@@ -17,6 +18,7 @@ export function DashboardControlBar({
        selectedDate,
        setSelectedDate,
        handleCopyLink,
+       onOpenGrowthKit,
        setIsCreateModalOpen,
        onOpenHelp
 }: DashboardControlBarProps) {
@@ -78,6 +80,15 @@ export function DashboardControlBar({
                             >
                                    <Globe size={16} strokeWidth={2.5} />
                                    <span className="hidden sm:inline text-[11px] font-black uppercase tracking-[0.15em]">Link Público</span>
+                            </button>
+
+                            <button
+                                   onClick={onOpenGrowthKit}
+                                   className="relative group overflow-hidden flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-background border border-border/40 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all hover:scale-[1.03] active:scale-[0.97]"
+                                   title="QR y canales de reserva publica"
+                            >
+                                   <QrCode size={16} strokeWidth={2.5} />
+                                   <span className="hidden sm:inline text-[11px] font-black uppercase tracking-[0.15em]">QR / Canales</span>
                             </button>
 
                             <button

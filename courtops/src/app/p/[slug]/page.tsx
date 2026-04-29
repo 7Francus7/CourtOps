@@ -15,6 +15,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
        return {
               title: `Reservar en ${club?.name || 'CourtOps'}`,
               description: club?.description || `Sistema de reservas online de ${club?.name || 'tu club'}.`,
+              alternates: {
+                     canonical: `/p/${slug}`,
+              },
               openGraph: {
                      title: `Reservar en ${club?.name || 'CourtOps'}`,
                      description: club?.description || `Sistema de reservas online de ${club?.name || 'tu club'}.`,

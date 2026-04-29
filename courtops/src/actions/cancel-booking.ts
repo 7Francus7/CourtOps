@@ -65,11 +65,49 @@ export async function cancelPublicBooking(publicToken: string) {
 		}
 	}).catch(console.error)
 
+	let waitingListMatches = 0
+	try {
+		const startOfDay = new Date(booking.startTime)
+		startOfDay.setHours(0, 0, 0, 0)
+		const nextDay = new Date(startOfDay)
+		nextDay.setDate(nextDay.getDate() + 1)
+
+		waitingListMatches = await prisma.waitingList.count({
+			where: {
+				clubId: booking.clubId,
+				status: 'PENDING',
+				date: {
+					gte: startOfDay,
+					lt: nextDay
+				},
+				AND: [
+					{
+						OR: [
+							{ startTime: null },
+							{ startTime: booking.startTime }
+						]
+					},
+					{
+						OR: [
+							{ courtId: null },
+							{ courtId: booking.courtId }
+						]
+					}
+				]
+			}
+		})
+	} catch (error) {
+		console.error('[PUBLIC CANCEL WAITING LIST]', error)
+	}
+
 	try {
 		const { pusherServer } = await import('@/lib/pusher')
 		await pusherServer.trigger(`club-${booking.clubId}`, 'booking-update', {
 			action: 'cancel',
-			bookingId: booking.id
+			bookingId: booking.id,
+			waitingListMatches,
+			startTime: booking.startTime.toISOString(),
+			courtId: booking.courtId
 		})
 	} catch {}
 

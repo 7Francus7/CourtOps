@@ -4,6 +4,22 @@ import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getCurrentClubId } from '@/lib/tenant'
 
+async function triggerWaitingListUpdate(payload: {
+       clubId: string
+       action: 'create' | 'delete' | 'fulfilled' | 'status'
+       dateStr: string
+       name?: string
+       source?: 'internal' | 'public'
+       status?: string
+}) {
+       try {
+              const { pusherServer } = await import('@/lib/pusher')
+              await pusherServer.trigger(`club-${payload.clubId}`, 'waiting-list-update', payload)
+       } catch (error) {
+              console.error('[PUSHER ERROR in waiting-list]', error)
+       }
+}
+
 export async function addToWaitingList(data: {
        date: Date,
        startTime?: Date,
@@ -35,6 +51,14 @@ export async function addToWaitingList(data: {
                             notes: data.notes,
                             clientId
                      }
+              })
+
+              await triggerWaitingListUpdate({
+                     clubId,
+                     action: 'create',
+                     dateStr: data.date.toISOString(),
+                     name: data.clientName,
+                     source: 'internal'
               })
 
               revalidatePath('/')
@@ -70,10 +94,61 @@ export async function getWaitingList(dateStr: string) {
                      orderBy: { createdAt: 'asc' }
               })
 
-              return { success: true, list }
+              const [contacted, noResponse, fulfilled] = await Promise.all([
+                     prisma.waitingList.count({
+                            where: {
+                                   clubId,
+                                   date: {
+                                          gte: startOfDay,
+                                          lte: endOfDay
+                                   },
+                                   status: 'CONTACTED'
+                            }
+                     }),
+                     prisma.waitingList.count({
+                            where: {
+                                   clubId,
+                                   date: {
+                                          gte: startOfDay,
+                                          lte: endOfDay
+                                   },
+                                   status: 'NO_RESPONSE'
+                            }
+                     }),
+                     prisma.waitingList.count({
+                            where: {
+                                   clubId,
+                                   date: {
+                                          gte: startOfDay,
+                                          lte: endOfDay
+                                   },
+                                   status: 'FULFILLED'
+                            }
+                     })
+              ])
+
+              return {
+                     success: true,
+                     list,
+                     summary: {
+                            pending: list.length,
+                            contacted,
+                            noResponse,
+                            fulfilled
+                     }
+              }
        } catch (error) {
               console.error(error)
-              return { success: false, list: [] }
+              return {
+                     success: false,
+                     list: [],
+                     summary: {
+                            pending: 0,
+                            contacted: 0,
+                            noResponse: 0,
+                            fulfilled: 0
+                     }
+              }
        }
 }
 
@@ -96,11 +171,55 @@ export async function resolveWaitingList(id: number, action: 'DELETE' | 'FULFILL
                             data: { status: 'FULFILLED' }
                      })
               }
+
+              await triggerWaitingListUpdate({
+                     clubId,
+                     action: action === 'DELETE' ? 'delete' : 'fulfilled',
+                     dateStr: entry.date.toISOString(),
+                     name: entry.name,
+                     source: 'internal'
+              })
+
               revalidatePath('/')
               return { success: true }
        } catch (e) {
               console.error("Error resolving waiting list:", e)
               return { success: false, error: 'Error al procesar' }
+       }
+}
+
+export async function updateWaitingListStatus(
+       id: number,
+       status: 'PENDING' | 'CONTACTED' | 'NO_RESPONSE' | 'FULFILLED'
+) {
+       try {
+              const clubId = await getCurrentClubId()
+
+              const entry = await prisma.waitingList.findFirst({
+                     where: { id, clubId }
+              })
+
+              if (!entry) return { success: false, error: 'No autorizado' }
+
+              await prisma.waitingList.update({
+                     where: { id },
+                     data: { status }
+              })
+
+              await triggerWaitingListUpdate({
+                     clubId,
+                     action: status === 'FULFILLED' ? 'fulfilled' : 'status',
+                     dateStr: entry.date.toISOString(),
+                     name: entry.name,
+                     source: 'internal',
+                     status
+              })
+
+              revalidatePath('/')
+              return { success: true }
+       } catch (error) {
+              console.error('Error updating waiting list status:', error)
+              return { success: false, error: 'Error al actualizar el estado' }
        }
 }
 
