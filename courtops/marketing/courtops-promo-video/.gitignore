@@ -1,0 +1,4 @@
+node_modules/
+audio/*.wav
+renders/frames/
+renders/check-*.png

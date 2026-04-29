@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CourtOps Promo Video</title>
+    <style>
+      :root {
+        --bg: #07100d;
+        --surface: #101a17;
+        --surface-2: #17231f;
+        --fg: #f7fff9;
+        --muted: #9fb3aa;
+        --accent: #00e676;
+        --blue: #29b6f6;
+        --warn: #ff6b6b;
+        --line: rgba(247, 255, 249, 0.11);
+        --shadow: rgba(0, 230, 118, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: Inter, Aptos, "Segoe UI", Arial, sans-serif;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+      }
+
+      #video {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          radial-gradient(circle at 22% 9%, rgba(0, 230, 118, 0.23), transparent 24%),
+          radial-gradient(circle at 82% 78%, rgba(41, 182, 246, 0.17), transparent 28%),
+          linear-gradient(160deg, #06100c 0%, #0a1713 48%, #030605 100%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        opacity: 0.36;
+        background-image:
+          linear-gradient(rgba(247, 255, 249, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(247, 255, 249, 0.055) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: radial-gradient(circle at 50% 42%, #000 0%, transparent 72%);
+        z-index: 0;
+      }
+
+      .glow {
+        position: absolute;
+        width: 740px;
+        height: 740px;
+        border-radius: 999px;
+        filter: blur(70px);
+        opacity: 0.28;
+        z-index: 0;
+      }
+
+      .glow-a {
+        left: -280px;
+        top: -160px;
+        background: rgba(0, 230, 118, 0.72);
+      }
+
+      .glow-b {
+        right: -340px;
+        bottom: 120px;
+        background: rgba(41, 182, 246, 0.55);
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .scene-content {
+        width: 100%;
+        height: 100%;
+        padding: 116px 72px 150px;
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+      }
+
+      .eyebrow {
+        width: max-content;
+        max-width: 100%;
+        padding: 14px 22px;
+        border: 1px solid rgba(0, 230, 118, 0.38);
+        border-radius: 999px;
+        color: var(--accent);
+        background: rgba(0, 230, 118, 0.08);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      .headline {
+        font-size: 92px;
+        line-height: 0.94;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-wrap: balance;
+      }
+
+      .headline.small {
+        font-size: 76px;
+        line-height: 1.02;
+      }
+
+      .subline {
+        color: var(--muted);
+        font-size: 34px;
+        line-height: 1.24;
+        font-weight: 500;
+      }
+
+      .logo-lockup {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .logo-mark {
+        position: relative;
+        width: 104px;
+        height: 104px;
+        border-radius: 26px;
+        background: #111;
+        box-shadow: 0 0 52px rgba(0, 230, 118, 0.28);
+      }
+
+      .logo-mark::before {
+        content: "";
+        position: absolute;
+        left: 26px;
+        top: 22px;
+        width: 46px;
+        height: 58px;
+        border: 13px solid #fff;
+        border-right: 0;
+        border-radius: 50px 0 0 50px;
+      }
+
+      .logo-mark::after {
+        content: "";
+        position: absolute;
+        left: 47px;
+        top: 28px;
+        width: 46px;
+        height: 46px;
+        border: 13px solid var(--accent);
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 10px #111;
+      }
+
+      .brand {
+        font-size: 60px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .brand span {
+        color: var(--accent);
+      }
+
+      .paper-stage {
+        position: relative;
+        flex: 1;
+        min-height: 850px;
+      }
+
+      .paper {
+        position: absolute;
+        width: 420px;
+        min-height: 260px;
+        padding: 30px;
+        border-radius: 10px;
+        color: #18201d;
+        background: #f3efe2;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+        font-size: 30px;
+        font-weight: 800;
+        transform-origin: 50% 50%;
+      }
+
+      .paper::before {
+        content: "";
+        position: absolute;
+        inset: 70px 28px auto;
+        height: 2px;
+        background: repeating-linear-gradient(90deg, rgba(24, 32, 29, 0.22), rgba(24, 32, 29, 0.22) 34px, transparent 34px, transparent 50px);
+        box-shadow: 0 48px 0 rgba(24, 32, 29, 0.18), 0 96px 0 rgba(24, 32, 29, 0.18), 0 144px 0 rgba(24, 32, 29, 0.18);
+      }
+
+      .paper.one {
+        left: 24px;
+        top: 80px;
+        transform: rotate(-8deg);
+      }
+
+      .paper.two {
+        right: 18px;
+        top: 240px;
+        transform: rotate(7deg);
+      }
+
+      .paper.three {
+        left: 130px;
+        top: 465px;
+        transform: rotate(-3deg);
+      }
+
+      .scribble {
+        position: absolute;
+        color: var(--warn);
+        font-size: 68px;
+        font-weight: 900;
+        left: 405px;
+        top: 318px;
+        transform: rotate(-12deg);
+      }
+
+      .owner {
+        position: absolute;
+        left: 74px;
+        bottom: 56px;
+        width: 780px;
+        padding: 32px;
+        border-radius: 28px;
+        background: rgba(255, 107, 107, 0.13);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .avatar {
+        width: 92px;
+        height: 92px;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle at 50% 35%, #f8c7a1 0 22px, transparent 23px),
+          linear-gradient(#23302b 52%, #ff6b6b 53%);
+      }
+
+      .owner strong {
+        display: block;
+        font-size: 32px;
+      }
+
+      .owner span {
+        display: block;
+        color: #ffc4c4;
+        font-size: 26px;
+        margin-top: 8px;
+      }
+
+      .problem-stack {
+        flex: 1;
+        display: grid;
+        gap: 22px;
+        align-content: center;
+      }
+
+      .problem-card {
+        position: relative;
+        display: grid;
+        grid-template-columns: 70px 1fr auto;
+        align-items: center;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.055);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+      }
+
+      .problem-card .icon {
+        display: grid;
+        place-items: center;
+        width: 70px;
+        height: 70px;
+        border-radius: 22px;
+        color: var(--warn);
+        background: rgba(255, 107, 107, 0.13);
+        font-size: 44px;
+        font-weight: 900;
+      }
+
+      .problem-card strong {
+        display: block;
+        font-size: 46px;
+      }
+
+      .problem-card span {
+        color: var(--muted);
+        font-size: 27px;
+      }
+
+      .stamp {
+        color: var(--warn);
+        font-family: "Cascadia Mono", "JetBrains Mono", monospace;
+        font-size: 28px;
+        font-weight: 900;
+        border: 2px solid rgba(255, 107, 107, 0.5);
+        padding: 10px 14px;
+        transform: rotate(-8deg);
+      }
+
+      .dashboard {
+        position: relative;
+        flex: 1;
+        border-radius: 38px;
+        overflow: hidden;
+        background: rgba(16, 26, 23, 0.92);
+        border: 1px solid rgba(247, 255, 249, 0.1);
+        box-shadow: 0 32px 110px rgba(0, 0, 0, 0.42), 0 0 80px var(--shadow);
+      }
+
+      .dash-top {
+        height: 88px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .traffic {
+        display: flex;
+        gap: 12px;
+      }
+
+      .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--accent);
+        opacity: 0.85;
+      }
+
+      .dash-grid {
+        height: calc(100% - 88px);
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        grid-template-rows: 1fr 0.86fr;
+        gap: 22px;
+        padding: 28px;
+      }
+
+      .ui-panel {
+        padding: 26px;
+        border-radius: 26px;
+        background: rgba(247, 255, 249, 0.055);
+        border: 1px solid rgba(247, 255, 249, 0.09);
+      }
+
+      .ui-panel h3 {
+        margin: 0 0 20px;
+        font-size: 28px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .slots {
+        display: grid;
+        gap: 14px;
+      }
+
+      .slot {
+        height: 58px;
+        border-radius: 18px;
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        align-items: center;
+        gap: 14px;
+        padding: 0 18px;
+        background: rgba(0, 230, 118, 0.11);
+        border: 1px solid rgba(0, 230, 118, 0.16);
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .slot span {
+        font-family: "Cascadia Mono", monospace;
+        color: var(--accent);
+      }
+
+      .chart {
+        height: 245px;
+        display: flex;
+        align-items: end;
+        gap: 14px;
+      }
+
+      .bar {
+        flex: 1;
+        border-radius: 14px 14px 6px 6px;
+        background: linear-gradient(180deg, var(--blue), var(--accent));
+      }
+
+      .customer-row {
+        height: 54px;
+        display: grid;
+        grid-template-columns: 46px 1fr 90px;
+        align-items: center;
+        gap: 12px;
+        font-size: 21px;
+      }
+
+      .mini-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--accent), var(--blue));
+      }
+
+      .tag {
+        justify-self: end;
+        color: var(--accent);
+        font-family: "Cascadia Mono", monospace;
+        font-size: 18px;
+      }
+
+      .tournament {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .match {
+        height: 74px;
+        border-radius: 18px;
+        padding: 14px;
+        background: rgba(41, 182, 246, 0.1);
+        border: 1px solid rgba(41, 182, 246, 0.18);
+        font-size: 20px;
+        font-weight: 800;
+      }
+
+      .device-stage {
+        flex: 1;
+        position: relative;
+      }
+
+      .laptop {
+        position: absolute;
+        left: 10px;
+        top: 210px;
+        width: 860px;
+        height: 550px;
+        border-radius: 34px;
+        padding: 24px;
+        background: #0d1512;
+        border: 1px solid rgba(247, 255, 249, 0.14);
+        box-shadow: 0 32px 120px rgba(0, 0, 0, 0.42);
+      }
+
+      .laptop::after {
+        content: "";
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: -42px;
+        height: 40px;
+        border-radius: 0 0 28px 28px;
+        background: #141f1b;
+      }
+
+      .screen {
+        width: 100%;
+        height: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        background: linear-gradient(145deg, #0f1a16, #08100d);
+        border: 1px solid var(--line);
+      }
+
+      .phone {
+        position: absolute;
+        right: 26px;
+        top: 30px;
+        width: 318px;
+        height: 650px;
+        padding: 18px;
+        border-radius: 52px;
+        background: #050807;
+        border: 1px solid rgba(247, 255, 249, 0.2);
+        box-shadow: 0 34px 110px rgba(0, 0, 0, 0.56), 0 0 68px rgba(0, 230, 118, 0.18);
+      }
+
+      .phone-screen {
+        height: 100%;
+        border-radius: 38px;
+        overflow: hidden;
+        background: #0e1814;
+        border: 1px solid var(--line);
+        padding: 26px 20px;
+      }
+
+      .phone-title {
+        font-size: 23px;
+        font-weight: 900;
+        margin-bottom: 20px;
+      }
+
+      .reserve-card {
+        border-radius: 24px;
+        padding: 20px;
+        background: rgba(0, 230, 118, 0.12);
+        border: 1px solid rgba(0, 230, 118, 0.26);
+      }
+
+      .reserve-card strong {
+        display: block;
+        font-size: 46px;
+        color: var(--accent);
+        font-family: "Cascadia Mono", monospace;
+      }
+
+      .reserve-card span {
+        display: block;
+        margin-top: 8px;
+        font-size: 22px;
+      }
+
+      .benefit-strip {
+        position: absolute;
+        left: 32px;
+        right: 32px;
+        bottom: 74px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .benefit {
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        align-items: center;
+        gap: 18px;
+        padding: 24px;
+        border-radius: 26px;
+        background: rgba(247, 255, 249, 0.07);
+        border: 1px solid rgba(247, 255, 249, 0.1);
+        font-size: 35px;
+        font-weight: 900;
+      }
+
+      .benefit .check {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        color: #06100c;
+        background: var(--accent);
+        font-size: 40px;
+      }
+
+      .impact-grid {
+        flex: 1;
+        display: grid;
+        align-content: center;
+        gap: 28px;
+      }
+
+      .impact-card {
+        padding: 44px 42px;
+        border-radius: 32px;
+        background: rgba(247, 255, 249, 0.07);
+        border: 1px solid rgba(247, 255, 249, 0.12);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 26px;
+      }
+
+      .impact-card strong {
+        font-size: 54px;
+      }
+
+      .impact-card span {
+        color: var(--accent);
+        font-size: 58px;
+        font-weight: 900;
+        font-family: "Cascadia Mono", monospace;
+      }
+
+      .cta-wrap {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 46px;
+      }
+
+      .cta-card {
+        width: 100%;
+        padding: 46px;
+        border-radius: 38px;
+        background: rgba(247, 255, 249, 0.07);
+        border: 1px solid rgba(0, 230, 118, 0.25);
+        box-shadow: 0 0 92px rgba(0, 230, 118, 0.16);
+      }
+
+      .cta-button {
+        width: max-content;
+        margin-top: 34px;
+        padding: 24px 34px;
+        border-radius: 999px;
+        color: #06100c;
+        background: var(--accent);
+        font-size: 31px;
+        font-weight: 900;
+      }
+
+      .caption {
+        position: absolute;
+        left: 58px;
+        right: 58px;
+        bottom: 76px;
+        z-index: 6;
+        min-height: 104px;
+        display: grid;
+        place-items: center;
+        padding: 22px 28px;
+        border-radius: 30px;
+        background: rgba(5, 8, 7, 0.72);
+        border: 1px solid rgba(247, 255, 249, 0.12);
+        backdrop-filter: blur(18px);
+        text-align: center;
+        font-size: 34px;
+        line-height: 1.14;
+        font-weight: 850;
+        text-wrap: balance;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.36);
+      }
+
+      .caption b {
+        color: var(--accent);
+      }
+
+      .progress {
+        position: absolute;
+        left: 50px;
+        right: 50px;
+        bottom: 32px;
+        z-index: 7;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(247, 255, 249, 0.12);
+      }
+
+      .progress i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), var(--blue));
+      }
+
+      .wipe {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        background: linear-gradient(135deg, var(--accent), var(--blue));
+        transform: translateX(-110%);
+      }
+
+      .mono {
+        font-family: "Cascadia Mono", "JetBrains Mono", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="video">
+      <div class="grid"></div>
+      <div class="glow glow-a"></div>
+      <div class="glow glow-b"></div>
+
+      <section id="scene-hook" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">Club en modo caos</div>
+          <h1 class="headline">¿Tu club sigue así?</h1>
+          <div class="paper-stage">
+            <div class="paper one">Cancha 2<br />19:00<br />¿Confirmó?</div>
+            <div class="paper two">Pagó seña<br />No aparece<br />Reprogramar</div>
+            <div class="paper three">WhatsApp<br />Turnos cruzados<br />Caja pendiente</div>
+            <div class="scribble">ERROR</div>
+            <div class="owner">
+              <div class="avatar"></div>
+              <div>
+                <strong>Dueño resolviendo todo a mano</strong>
+                <span>turnos, pagos, clientes y reclamos al mismo tiempo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-problem" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">El problema</div>
+          <h2 class="headline small">Cuando no hay sistema, el negocio pierde control.</h2>
+          <div class="problem-stack">
+            <div class="problem-card">
+              <div class="icon">!</div>
+              <div><strong>Desorden</strong><span>Turnos superpuestos y cambios sin seguimiento.</span></div>
+              <div class="stamp">SIN CONTROL</div>
+            </div>
+            <div class="problem-card">
+              <div class="icon">-</div>
+              <div><strong>Pérdidas</strong><span>Clientes que se caen y pagos que se olvidan.</span></div>
+              <div class="stamp">PLATA</div>
+            </div>
+            <div class="problem-card">
+              <div class="icon">?</div>
+              <div><strong>Cero visibilidad</strong><span>No sabés qué cancha, cliente o turno rinde más.</span></div>
+              <div class="stamp">DATOS</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-solution" class="scene">
+        <div class="scene-content">
+          <div class="logo-lockup">
+            <div class="logo-mark"></div>
+            <div class="brand">Court<span>Ops</span></div>
+          </div>
+          <h2 class="headline small">Todo tu club, en un solo sistema.</h2>
+          <div class="dashboard">
+            <div class="dash-top">
+              <div class="traffic"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+              <div class="mono" style="font-size: 24px; color: var(--accent)">dashboard.club/courtops</div>
+            </div>
+            <div class="dash-grid">
+              <div class="ui-panel">
+                <h3>Agenda digital</h3>
+                <div class="slots">
+                  <div class="slot"><span>18:00</span> Cancha 1 · Marcos</div>
+                  <div class="slot"><span>19:30</span> Cancha 3 · Torneo</div>
+                  <div class="slot"><span>21:00</span> Cancha 2 · Reserva web</div>
+                </div>
+              </div>
+              <div class="ui-panel">
+                <h3>Reportes</h3>
+                <div class="chart"><i class="bar" style="height: 32%"></i><i class="bar" style="height: 58%"></i><i class="bar" style="height: 46%"></i><i class="bar" style="height: 78%"></i><i class="bar" style="height: 92%"></i></div>
+              </div>
+              <div class="ui-panel">
+                <h3>Clientes</h3>
+                <div class="customer-row"><i class="mini-avatar"></i> Laura Pereyra <b class="tag">VIP</b></div>
+                <div class="customer-row"><i class="mini-avatar"></i> Nico Torres <b class="tag">Plan</b></div>
+                <div class="customer-row"><i class="mini-avatar"></i> Equipo 4ta <b class="tag">Activo</b></div>
+              </div>
+              <div class="ui-panel">
+                <h3>Torneos</h3>
+                <div class="tournament"><div class="match">Semifinal A<br />21:00</div><div class="match">Semifinal B<br />22:00</div><div class="match">Final<br />Sábado</div><div class="match">Inscripciones<br />Online</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-benefits" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">Operación inteligente</div>
+          <h2 class="headline small">Reservas, clientes y reportes funcionando juntos.</h2>
+          <div class="device-stage">
+            <div class="laptop">
+              <div class="screen">
+                <div class="dash-grid" style="height: 100%; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr">
+                  <div class="ui-panel"><h3>Ocupación</h3><div class="chart"><i class="bar" style="height: 55%"></i><i class="bar" style="height: 68%"></i><i class="bar" style="height: 84%"></i><i class="bar" style="height: 91%"></i></div></div>
+                  <div class="ui-panel"><h3>Caja del día</h3><div class="headline small mono" style="font-size: 48px; color: var(--accent)">$ 428K</div><p class="subline" style="font-size: 24px; margin-top: 16px">Pagos, señas y kiosco sincronizados.</p></div>
+                  <div class="ui-panel"><h3>Automatización</h3><div class="slot"><span>QR</span> Check-in</div><div class="slot" style="margin-top: 14px"><span>WA</span> Recordatorios</div></div>
+                  <div class="ui-panel"><h3>Crecimiento</h3><div class="headline small mono" style="font-size: 48px; color: var(--blue)">+31%</div><p class="subline" style="font-size: 24px; margin-top: 16px">más reservas online.</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-title">Nueva reserva</div>
+                <div class="reserve-card"><strong>19:30</strong><span>Cancha 2 confirmada</span></div>
+                <div class="customer-row" style="margin-top: 24px"><i class="mini-avatar"></i> Cliente activo <b class="tag">OK</b></div>
+                <div class="customer-row"><i class="mini-avatar"></i> Pago recibido <b class="tag">$</b></div>
+                <div class="customer-row"><i class="mini-avatar"></i> Recordatorio <b class="tag">WA</b></div>
+              </div>
+            </div>
+            <div class="benefit-strip">
+              <div class="benefit"><span class="check">✓</span><span>Reservas en segundos</span></div>
+              <div class="benefit"><span class="check">✓</span><span>Gestión de clientes</span></div>
+              <div class="benefit"><span class="check">✓</span><span>Reportes automáticos</span></div>
+              <div class="benefit"><span class="check">✓</span><span>Todo organizado</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-impact" class="scene">
+        <div class="scene-content">
+          <div class="eyebrow">Impacto real</div>
+          <h2 class="headline">Menos fricción. Más negocio.</h2>
+          <div class="impact-grid">
+            <div class="impact-card"><strong>Menos errores</strong><span>-80%</span></div>
+            <div class="impact-card"><strong>Más control</strong><span>24/7</span></div>
+            <div class="impact-card"><strong>Más ingresos</strong><span>+</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-cta" class="scene">
+        <div class="scene-content">
+          <div class="cta-wrap">
+            <div class="logo-lockup">
+              <div class="logo-mark"></div>
+              <div class="brand">Court<span>Ops</span></div>
+            </div>
+            <div class="cta-card">
+              <h2 class="headline small">Digitalizá tu club hoy.</h2>
+              <p class="subline" style="margin-top: 22px">Agenda, clientes, pagos, torneos y reportes en una plataforma simple.</p>
+              <div class="cta-button">Escribime y te muestro cómo funciona</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="wipe" class="wipe"></div>
+      <div id="caption" class="caption"></div>
+      <div class="progress"><i id="progress"></i></div>
+    </main>
+
+    <script>
+      const DURATION = 42;
+      const SCENES = [
+        ["scene-hook", 0, 3],
+        ["scene-problem", 3, 8],
+        ["scene-solution", 8, 15],
+        ["scene-benefits", 15, 30],
+        ["scene-impact", 30, 38],
+        ["scene-cta", 38, 42]
+      ];
+
+      const CAPTIONS = [
+        [0.25, 3.0, "¿Tu club todavía se maneja así?"],
+        [3.2, 8.0, "Turnos desordenados, clientes que se pierden, y cero control."],
+        [8.25, 15.0, "Con <b>CourtOps</b> gestionás todo tu club desde un solo lugar."],
+        [15.2, 21.0, "Reservas rápidas, control total de clientes."],
+        [21.0, 30.0, "Reportes claros y más tiempo para hacer crecer tu negocio."],
+        [30.2, 38.0, "Menos errores. Más control. Más ingresos."],
+        [38.2, 42.0, "Digitalizá tu club hoy con <b>CourtOps</b>"]
+      ];
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+      const clamp = (v, min = 0, max = 1) => Math.max(min, Math.min(max, v));
+      const lerp = (a, b, p) => a + (b - a) * p;
+      const easeOut = (p) => 1 - Math.pow(1 - clamp(p), 3);
+      const easeIn = (p) => Math.pow(clamp(p), 3);
+      const easeInOut = (p) => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+
+      function setStyle(el, props) {
+        Object.assign(el.style, props);
+      }
+
+      function inOut(t, start, end, enter = 0.35, exit = 0.28) {
+        const on = easeOut((t - start) / enter);
+        const off = easeIn((end - t) / exit);
+        return clamp(Math.min(on, off));
+      }
+
+      function updateScene(scene, t) {
+        const [id, start, end] = scene;
+        const el = document.getElementById(id);
+        const p = clamp((t - start) / (end - start));
+        const visible = t >= start - 0.3 && t <= end + 0.3;
+        const opacity = visible ? inOut(t, start, end, 0.55, 0.42) : 0;
+        setStyle(el, {
+          opacity,
+          transform: `translateY(${lerp(42, 0, easeOut(p))}px) scale(${lerp(0.985, 1, easeOut(p))})`
+        });
+      }
+
+      function stagger(selector, t, sceneStart, gap, fromY = 34) {
+        $$(selector).forEach((el, index) => {
+          const p = easeOut((t - sceneStart - index * gap) / 0.48);
+          setStyle(el, {
+            opacity: clamp(p),
+            transform: `translateY(${lerp(fromY, 0, p)}px) scale(${lerp(0.96, 1, p)})`
+          });
+        });
+      }
+
+      function updateSpecials(t) {
+        const grid = $(".grid");
+        setStyle(grid, {
+          transform: `translate(${Math.sin(t * 0.32) * 18}px, ${Math.cos(t * 0.21) * 14}px)`,
+          opacity: 0.28 + Math.sin(t * 0.7) * 0.04
+        });
+        setStyle($(".glow-a"), { transform: `scale(${1 + Math.sin(t * 0.55) * 0.05}) translateY(${Math.sin(t * 0.4) * 26}px)` });
+        setStyle($(".glow-b"), { transform: `scale(${1 + Math.cos(t * 0.48) * 0.06}) translateX(${Math.cos(t * 0.35) * 22}px)` });
+
+        stagger("#scene-hook .eyebrow, #scene-hook .headline, #scene-hook .paper, #scene-hook .scribble, #scene-hook .owner", t, 0.08, 0.16, 52);
+        $$("#scene-hook .paper").forEach((el, i) => {
+          const base = [-8, 7, -3][i];
+          const shake = t < 3 ? Math.sin(t * 20 + i) * 3 : 0;
+          el.style.transform += ` rotate(${base + shake}deg)`;
+        });
+
+        stagger("#scene-problem .eyebrow, #scene-problem .headline, #scene-problem .problem-card", t, 3.05, 0.18, 48);
+        $$("#scene-problem .stamp").forEach((el, i) => {
+          const p = easeOut((t - 3.55 - i * 0.35) / 0.22);
+          setStyle(el, { opacity: clamp(p), transform: `rotate(-8deg) scale(${lerp(1.25, 1, p)})` });
+        });
+
+        stagger("#scene-solution .logo-lockup, #scene-solution .headline, #scene-solution .dashboard", t, 8.1, 0.22, 58);
+        stagger("#scene-solution .ui-panel", t, 9.05, 0.13, 38);
+        $$("#scene-solution .bar").forEach((el, i) => {
+          const target = [32, 58, 46, 78, 92][i];
+          const p = easeOut((t - 10.15 - i * 0.08) / 0.5);
+          el.style.height = `${target * clamp(p)}%`;
+        });
+
+        stagger("#scene-benefits .eyebrow, #scene-benefits .headline, #scene-benefits .laptop, #scene-benefits .phone", t, 15.1, 0.18, 48);
+        $$(".benefit").forEach((el, i) => {
+          const start = 16.2 + i * 2.6;
+          const p = easeOut((t - start) / 0.45);
+          const pulse = t > start && t < start + 1.7 ? 1 + Math.sin((t - start) * 8) * 0.018 : 1;
+          setStyle(el, {
+            opacity: clamp(p),
+            transform: `translateX(${lerp(-50, 0, p)}px) scale(${pulse})`
+          });
+        });
+        setStyle($(".phone"), {
+          transform: `translateY(${Math.sin(t * 1.2) * 8}px)`
+        });
+        setStyle($(".laptop"), {
+          transform: `translateY(${Math.cos(t * 0.9) * 6}px)`
+        });
+
+        stagger("#scene-impact .eyebrow, #scene-impact .headline, #scene-impact .impact-card", t, 30.05, 0.2, 52);
+        $$("#scene-impact .impact-card span").forEach((el, i) => {
+          const p = easeOut((t - 31.1 - i * 0.7) / 0.6);
+          setStyle(el, { opacity: clamp(p), transform: `scale(${lerp(0.72, 1, p)})` });
+        });
+
+        stagger("#scene-cta .logo-lockup, #scene-cta .cta-card", t, 38.05, 0.26, 56);
+        const buttonPulse = 1 + Math.max(0, Math.sin((t - 39.3) * Math.PI * 2)) * 0.028;
+        setStyle($(".cta-button"), { transform: `scale(${buttonPulse})` });
+
+        const wipeTimes = [2.92, 7.85, 14.88, 29.86, 37.86];
+        let wipeX = -110;
+        for (const wt of wipeTimes) {
+          const p = (t - wt) / 0.52;
+          if (p >= 0 && p <= 1) {
+            wipeX = lerp(-110, 110, easeInOut(p));
+          }
+        }
+        setStyle($("#wipe"), { transform: `translateX(${wipeX}%) skewX(-7deg)` });
+      }
+
+      function updateCaption(t) {
+        const active = CAPTIONS.find(([start, end]) => t >= start && t < end);
+        const el = $("#caption");
+        if (!active) {
+          setStyle(el, { opacity: 0, transform: "translateY(18px) scale(0.98)" });
+          return;
+        }
+        const [start, end, html] = active;
+        el.innerHTML = html;
+        const opacity = inOut(t, start, end, 0.18, 0.18);
+        setStyle(el, {
+          opacity,
+          transform: `translateY(${lerp(18, 0, easeOut((t - start) / 0.2))}px) scale(${lerp(0.98, 1, opacity)})`
+        });
+      }
+
+      window.setCourtOpsTime = function setCourtOpsTime(t) {
+        t = clamp(t, 0, DURATION);
+        SCENES.forEach((scene) => updateScene(scene, t));
+        updateSpecials(t);
+        updateCaption(t);
+        $("#progress").style.width = `${(t / DURATION) * 100}%`;
+      };
+
+      const renderMode = new URLSearchParams(location.search).has("render");
+      if (renderMode) {
+        window.setCourtOpsTime(0);
+      } else {
+        const started = performance.now();
+        function loop(now) {
+          const t = ((now - started) / 1000) % DURATION;
+          window.setCourtOpsTime(t);
+          requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+      }
+    </script>
+  </body>
+</html>
