@@ -206,7 +206,102 @@ export default function SubscriptionManager({
 				</div>
 			)}
 
-			<div className="border border-border rounded-2xl overflow-hidden">
+			{/* MOBILE: cards apiladas */}
+			<div className="md:hidden space-y-3">
+				{sortedPlans.map((plan) => {
+					const isCurrent = currentPlan?.id === plan.id && isActive
+					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
+					const price = getPrice(plan)
+					const isUpgrade = currentPlan ? plan.price > currentPlan.price : true
+
+					return (
+						<div
+							key={plan.id}
+							className={cn(
+								"rounded-2xl border p-4 transition-colors",
+								isCurrent
+									? "border-emerald-500/40 bg-emerald-500/5"
+									: "border-border bg-card"
+							)}
+						>
+							{/* Header row: icon + name + badge */}
+							<div className="flex items-center justify-between mb-3">
+								<div className="flex items-center gap-3">
+									<div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white", colors.bg)}>
+										{PLAN_ICONS[plan.name] || <Zap className="w-5 h-5" />}
+									</div>
+									<div>
+										<div className="flex items-center gap-2 flex-wrap">
+											<span className="font-bold text-foreground">{plan.name}</span>
+											{isCurrent && (
+												<span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+													Actual
+												</span>
+											)}
+										</div>
+										<span className="text-xs text-muted-foreground">{plan.features.length} características</span>
+									</div>
+								</div>
+								<span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-lg shrink-0">
+									{billingCycle === 'monthly' ? 'Mensual' : 'Anual'}
+								</span>
+							</div>
+
+							{/* Price row */}
+							<div className="mb-3">
+								<div className="flex items-baseline gap-1">
+									<span className="text-2xl font-black text-foreground tabular-nums">{formatPrice(price)}</span>
+									<span className="text-sm text-muted-foreground">{billingCycle === 'yearly' ? '/año' : '/mes'}</span>
+								</div>
+								{(plan.setupFee ?? 0) > 0 && (
+									<p className="text-[11px] text-muted-foreground mt-0.5">
+										+ {formatPrice(plan.setupFee ?? 0)} licencia única al inicio
+									</p>
+								)}
+								{billingCycle === 'yearly' && (
+									<p className="text-[11px] text-emerald-500 font-medium mt-0.5">
+										equivale a {formatPrice(Math.round(plan.price * 0.8))}/mes
+									</p>
+								)}
+							</div>
+
+							{/* Action button */}
+							{isCurrent ? (
+								<div className="flex items-center gap-2 text-emerald-500 font-semibold text-sm">
+									<CheckCircle2 className="w-4 h-4 shrink-0" />
+									Plan activo
+								</div>
+							) : currentPlan ? (
+								<button
+									onClick={() => openPlanModal(plan, isUpgrade ? 'upgrade' : 'downgrade')}
+									disabled={!!loadingId}
+									className={cn(
+										"w-full py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2",
+										isUpgrade
+											? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+											: "bg-muted text-muted-foreground hover:bg-muted/80"
+									)}
+								>
+									{isUpgrade ? 'Mejorar plan' : 'Cambiar plan'}
+									<ChevronRight className="w-4 h-4" />
+								</button>
+							) : (
+								<button
+									onClick={() => openPlanModal(plan, 'new')}
+									disabled={!!loadingId}
+									className="w-full py-2.5 rounded-xl text-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+								>
+									Comenzar
+									<ChevronRight className="w-4 h-4" />
+								</button>
+							)}
+						</div>
+					)
+				})}
+			</div>
+
+			{/* DESKTOP: tabla con grid */}
+			<div className="hidden md:block border border-border rounded-2xl overflow-hidden">
 				<div className="grid grid-cols-4 bg-muted/50 p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">
 					<div>Plan</div>
 					<div className="text-center">Precio</div>
@@ -305,9 +400,9 @@ export default function SubscriptionManager({
 				})}
 			</div>
 
-			<div className="border border-border rounded-2xl p-6">
+			<div className="border border-border rounded-2xl p-4 md:p-6">
 				<h3 className="text-lg font-bold mb-4">Características por plan</h3>
-				<div className="grid md:grid-cols-3 gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
 					{sortedPlans.map((plan) => {
 						const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
 						const isCurrent = currentPlan?.id === plan.id && isActive
@@ -338,9 +433,9 @@ export default function SubscriptionManager({
 			</div>
 
 			{currentPlan && isActive && (
-				<div className="border border-border rounded-2xl p-6">
+				<div className="border border-border rounded-2xl p-4 md:p-6">
 					<h3 className="text-lg font-bold mb-4">Tu suscripción</h3>
-					<div className="grid md:grid-cols-3 gap-6">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
 						<div className="flex items-start gap-3">
 							<div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
 								<CreditCard className="w-5 h-5 text-primary" />
@@ -379,7 +474,7 @@ export default function SubscriptionManager({
 						</div>
 					</div>
 
-					<div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
+					<div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 						<p className="text-sm text-muted-foreground">
 							¿Necesitas ayuda? <a href="mailto:soporte@courtops.com" className="text-primary hover:underline">Contactá soporte</a>
 						</p>

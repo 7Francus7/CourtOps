@@ -10,10 +10,10 @@ export default async function SuscripcionPage() {
               <div className="flex flex-col h-full bg-background transition-colors duration-300">
                      <Header title="Suscripción" backHref="/dashboard" />
                      <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto overflow-x-hidden">
-                            <div className="max-w-5xl xl:max-w-6xl mx-auto space-y-10 pb-20">
+                            <div className="max-w-5xl xl:max-w-6xl mx-auto space-y-6 md:space-y-10 pb-24 md:pb-20">
                                    <div className="flex flex-col gap-1">
-                                          <h2 className="text-2xl font-bold text-foreground">Planes y Facturación</h2>
-                                          <p className="text-muted-foreground">Gestiona tu plan de CourtOps y métodos de pago.</p>
+                                          <h2 className="text-xl md:text-2xl font-bold text-foreground">Planes y Facturación</h2>
+                                          <p className="text-sm text-muted-foreground">Gestiona tu plan de CourtOps y métodos de pago.</p>
                                    </div>
 
                                    <SubscriptionManager
