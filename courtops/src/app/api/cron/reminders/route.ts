@@ -78,9 +78,9 @@ export async function GET(request: Request) {
                                    await MessagingService.sendWhatsApp(phone, message)
                             }
 
-                            // 3. Mark as sent
+                            // 3. Mark as sent — scoped to the booking's own club
                             await prisma.booking.update({
-                                   where: { id: booking.id },
+                                   where: { id_clubId: { id: booking.id, clubId: booking.clubId } },
                                    data: { reminderSent: true }
                             })
 

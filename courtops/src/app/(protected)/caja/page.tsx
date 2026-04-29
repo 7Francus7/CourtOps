@@ -194,7 +194,7 @@ export default function CashRegisterPage() {
 
                             <button
                                    onClick={() => { setAmountInput(''); setShowOpenModal(true) }}
-                                   className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all overflow-hidden shadow-[0_0_40px_rgba(var(--primary-rgb),0.3)] flex items-center gap-3"
+                                   className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all overflow-hidden shadow-sm flex items-center gap-3"
                             >
                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                                    <Unlock size={18} className="group-hover:rotate-12 transition-transform" /> ABRIR CAJA REGISTRADORA
@@ -237,7 +237,7 @@ export default function CashRegisterPage() {
        const summary = status!.summary!
        const register = status!.register!
 return (
-               <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 pt-4 md:pt-8 px-3 md:px-4">
+               <div className="max-w-7xl mx-auto space-y-4 md:space-y-8 pt-3 md:pt-8 px-3 md:px-4 pb-24 md:pb-8">
                       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                              <div>
                                     <h1 className="text-xl sm:text-2xl font-black flex items-center gap-2">
@@ -252,7 +252,7 @@ return (
                                            onClick={() => window.open('/api/export/caja', '_blank')}
                                            className="bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white px-3 py-2 sm:py-2 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
                                     >
-                                           <Download size={14} /> <span className="hidden sm:inline">Exportar</span>
+                                           <Download size={14} /> <span className="hidden sm:inline">Exportar Excel</span>
                                     </button>
                                     <button
                                            onClick={() => { setAmountInput(''); setShowCloseModal(true) }}
@@ -267,18 +267,18 @@ return (
                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                             {/* CAJA PRINCIPAL - HERO CARD */}
-                            <div className="md:col-span-4 bg-gradient-to-br from-emerald-500/10 via-emerald-100/5 to-transparent dark:from-emerald-900/20 dark:to-background border border-emerald-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-emerald-900/5 dark:shadow-emerald-900/10 backdrop-blur-md transition-all hover:border-emerald-500/30 group">
+                            <div className="md:col-span-4 bg-gradient-to-br from-emerald-500/10 via-emerald-100/5 to-transparent dark:from-emerald-900/20 dark:to-background border border-emerald-500/20 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-emerald-900/5 dark:shadow-emerald-900/10 backdrop-blur-md transition-all hover:border-emerald-500/30 group">
                                    <div className="z-10">
-                                          <div className="flex items-center gap-3 mb-2">
+                                          <div className="flex items-center gap-3 mb-1 md:mb-2">
                                                  <div className="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-500 shadow-inner group-hover:scale-110 transition-transform">
                                                         <DollarSign size={20} strokeWidth={2.5} />
                                                  </div>
                                                  <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Efectivo en Caja</span>
                                           </div>
-                                          <h2 className="text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-4">
+                                          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-2 md:mt-4">
                                                  ${summary.currentCash.toLocaleString()}
                                           </h2>
-                                          <p className="text-xs text-muted-foreground mt-3 font-medium flex items-center gap-2">
+                                          <p className="text-xs text-muted-foreground mt-2 md:mt-3 font-medium flex items-center gap-2">
                                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                  Dinero físico disponible
                                           </p>
@@ -287,18 +287,18 @@ return (
                             </div>
 
                             {/* DIGITAL INCOME - HERO CARD */}
-                            <div className="md:col-span-4 bg-gradient-to-br from-blue-500/10 via-blue-100/5 to-transparent dark:from-blue-900/20 dark:to-background border border-blue-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-blue-900/5 dark:shadow-blue-900/10 backdrop-blur-md transition-all hover:border-blue-500/30 group">
+                            <div className="md:col-span-4 bg-gradient-to-br from-blue-500/10 via-blue-100/5 to-transparent dark:from-blue-900/20 dark:to-background border border-blue-500/20 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-blue-900/5 dark:shadow-blue-900/10 backdrop-blur-md transition-all hover:border-blue-500/30 group">
                                    <div className="z-10">
-                                          <div className="flex items-center gap-3 mb-2">
+                                          <div className="flex items-center gap-3 mb-1 md:mb-2">
                                                  <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500 shadow-inner group-hover:scale-110 transition-transform">
                                                         <RefreshCw size={20} strokeWidth={2.5} />
                                                  </div>
                                                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">Ingresos Digitales</span>
                                           </div>
-                                          <h2 className="text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-4">
+                                          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-2 md:mt-4">
                                                  ${summary.incomeDigital?.toLocaleString() || '0'}
                                           </h2>
-                                          <p className="text-xs text-muted-foreground mt-3 font-medium flex items-center gap-2">
+                                          <p className="text-xs text-muted-foreground mt-2 md:mt-3 font-medium flex items-center gap-2">
                                                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                                                  Transferencias y MercadoPago
                                           </p>
@@ -307,18 +307,18 @@ return (
                             </div>
 
                             {/* TOTAL DAILY REVENUE - HERO CARD */}
-                            <div className="md:col-span-4 bg-gradient-to-br from-purple-500/10 via-purple-100/5 to-transparent dark:from-purple-900/20 dark:to-background border border-purple-500/20 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-purple-900/5 dark:shadow-purple-900/10 backdrop-blur-md transition-all hover:border-purple-500/30 group">
+                            <div className="md:col-span-4 bg-gradient-to-br from-purple-500/10 via-purple-100/5 to-transparent dark:from-purple-900/20 dark:to-background border border-purple-500/20 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-2xl shadow-purple-900/5 dark:shadow-purple-900/10 backdrop-blur-md transition-all hover:border-purple-500/30 group">
                                    <div className="z-10">
-                                          <div className="flex items-center gap-3 mb-2">
+                                          <div className="flex items-center gap-3 mb-1 md:mb-2">
                                                  <div className="p-2.5 bg-purple-500/10 rounded-xl text-purple-500 shadow-inner group-hover:scale-110 transition-transform">
                                                         <BarChart3 size={20} strokeWidth={2.5} />
                                                  </div>
                                                  <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-[0.2em]">Total Bruto Hoy</span>
                                           </div>
-                                          <h2 className="text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-4">
+                                          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter mt-2 md:mt-4">
                                                  ${(summary.currentCash + summary.incomeDigital).toLocaleString()}
                                           </h2>
-                                          <p className="text-xs text-muted-foreground mt-3 font-medium flex items-center gap-2">
+                                          <p className="text-xs text-muted-foreground mt-2 md:mt-3 font-medium flex items-center gap-2">
                                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
                                                  Suma de todos los medios
                                           </p>
@@ -327,7 +327,7 @@ return (
                             </div>
 
                             {/* RESUMEN - STATS CARD */}
-                            <div className="md:col-span-5 bg-card/40 backdrop-blur-xl border border-border/50 p-6 lg:p-8 rounded-3xl flex flex-col justify-center gap-6 shadow-xl shadow-black/5 dark:shadow-black/20 hover:bg-card/60 transition-colors">
+                            <div className="md:col-span-5 bg-card/40 backdrop-blur-xl border border-border/50 p-4 md:p-6 lg:p-8 rounded-2xl md:rounded-3xl flex flex-col justify-center gap-4 md:gap-6 shadow-xl shadow-black/5 dark:shadow-black/20 hover:bg-card/60 transition-colors">
                                    <div className="grid grid-cols-2 gap-4">
                                           <div className="p-4 rounded-2xl bg-background/50 border border-border/40 shadow-sm relative overflow-hidden group">
                                                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -369,21 +369,21 @@ return (
                             </div>
 
                             {/* ACCIONES - ACTION BUTTONS */}
-                            <div className="md:col-span-3 flex flex-col gap-4">
+                            <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-1 gap-3">
                                    <button
                                           onClick={() => { setShowMoveModal('INCOME'); setAmountInput(''); setDescInput('') }}
-                                          className="flex-1 rounded-3xl bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white shadow-xl shadow-emerald-500/20 dark:shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 flex flex-col items-center justify-center gap-2 p-4 group relative overflow-hidden"
+                                          className="rounded-2xl md:rounded-3xl bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white shadow-xl shadow-emerald-500/20 dark:shadow-emerald-900/30 transition-all hover:scale-[1.02] active:scale-95 flex flex-col items-center justify-center gap-2 p-4 min-h-[80px] md:flex-1 group relative overflow-hidden"
                                    >
                                           <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                          <PlusCircle size={28} className="group-hover:rotate-90 transition-transform duration-500 opacity-90" />
-                                          <span className="font-black text-[11px] uppercase tracking-widest relative z-10">Ingreso Manual</span>
+                                          <PlusCircle size={24} className="group-hover:rotate-90 transition-transform duration-500 opacity-90" />
+                                          <span className="font-black text-[10px] uppercase tracking-widest relative z-10">Ingreso</span>
                                    </button>
                                    <button
                                           onClick={() => { setShowMoveModal('EXPENSE'); setAmountInput(''); setDescInput('') }}
-                                          className="flex-[0.8] rounded-3xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-red-500/30 hover:bg-red-500/5 text-muted-foreground hover:text-red-500 transition-all flex flex-col items-center justify-center gap-1 p-3 group shadow-sm hover:shadow-md"
+                                          className="rounded-2xl md:rounded-3xl bg-card/40 backdrop-blur-md border border-border/50 hover:border-red-500/30 hover:bg-red-500/5 text-muted-foreground hover:text-red-500 transition-all flex flex-col items-center justify-center gap-2 p-4 min-h-[80px] group shadow-sm hover:shadow-md"
                                    >
-                                          <MinusCircle size={22} className="group-hover:-rotate-12 transition-transform opacity-70 group-hover:opacity-100" />
-                                          <span className="font-bold text-[10px] uppercase tracking-wider">Registrar Gasto</span>
+                                          <MinusCircle size={24} className="group-hover:-rotate-12 transition-transform opacity-70 group-hover:opacity-100" />
+                                          <span className="font-bold text-[10px] uppercase tracking-wider">Gasto</span>
                                    </button>
                             </div>
                      </div>

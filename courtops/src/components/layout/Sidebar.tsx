@@ -19,12 +19,15 @@ import {
   LogOut,
   ShieldCheck,
   Lock,
+  Moon,
+  Sun,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
 import { UpgradeModal } from './UpgradeModal'
 import { createPortal } from 'react-dom'
+import { useTheme } from 'next-themes'
 
 const NAV_SECTIONS = [
   {
@@ -54,12 +57,16 @@ const NAV_SECTIONS = [
   },
 ]
 
+type SidebarIcon = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+
 export function Sidebar({ club }: { club?: any }) {
   const pathname      = usePathname()
   const searchParams  = useSearchParams()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { activeEmployee, logoutEmployee } = useEmployee()
   const { data: session } = useSession()
+  const { theme, resolvedTheme, setTheme } = useTheme()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [lockedFeatureName, setLockedFeatureName] = useState('')
 
@@ -74,7 +81,11 @@ export function Sidebar({ club }: { club?: any }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const isActive = (href: string, featureKey?: string) => {
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const isActive = (href: string) => {
     if (href === '/dashboard') return (pathname === '/' || pathname === '/dashboard') && !isBookingsView
     if (href === '?modal=kiosco') return searchParams.get('modal') === 'kiosco'
     if (href === '/reservas') return pathname.startsWith('/reservas') || isBookingsView
@@ -85,6 +96,10 @@ export function Sidebar({ club }: { club?: any }) {
     if (!featureKey) return false
     return !club?.[featureKey]
   }
+
+  const activeTheme = isMounted ? (resolvedTheme ?? theme ?? 'dark') : 'dark'
+  const themeLabel = activeTheme === 'dark' ? 'Modo claro' : 'Modo oscuro'
+  const ThemeIcon = activeTheme === 'dark' ? Moon : Sun
 
   return (
     <>
@@ -98,7 +113,7 @@ export function Sidebar({ club }: { club?: any }) {
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-label={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
-          className="absolute -right-3 top-8 z-50 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all shadow-sm"
+          className="absolute -right-3 top-[76px] z-50 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all shadow-sm"
         >
           {isCollapsed
             ? <ChevronRight size={12} strokeWidth={2.5} />
@@ -166,7 +181,14 @@ export function Sidebar({ club }: { club?: any }) {
         </nav>
 
         {/* ── User profile ── */}
-        <div className="shrink-0 border-t border-border p-3">
+        <div className="shrink-0 border-t border-border p-3 space-y-2">
+          <SidebarActionButton
+            icon={ThemeIcon}
+            label={themeLabel}
+            isCollapsed={isCollapsed}
+            onClick={() => setTheme(activeTheme === 'dark' ? 'light' : 'dark')}
+          />
+
           <div className={cn(
             'flex items-center gap-2.5 rounded-xl p-2 hover:bg-accent transition-colors cursor-default',
             isCollapsed && 'justify-center'
@@ -209,7 +231,7 @@ export function Sidebar({ club }: { club?: any }) {
 
 interface NavItemProps {
   href: string
-  icon: any
+  icon: SidebarIcon
   label: string
   active?: boolean
   locked?: boolean
@@ -283,6 +305,59 @@ function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, onLocke
   return (
     <div className="relative px-1">
       <Link href={href}>{inner}</Link>
+      {tooltip}
+    </div>
+  )
+}
+
+interface SidebarActionButtonProps {
+  icon: SidebarIcon
+  label: string
+  isCollapsed: boolean
+  onClick: () => void
+}
+
+function SidebarActionButton({ icon: Icon, label, isCollapsed, onClick }: SidebarActionButtonProps) {
+  const [showTip, setShowTip] = useState(false)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const ref = useRef<HTMLButtonElement>(null)
+
+  const handleMouseEnter = () => {
+    if (isCollapsed && ref.current) {
+      const r = ref.current.getBoundingClientRect()
+      setPos({ top: r.top + r.height / 2, left: r.right + 10 })
+    }
+    setShowTip(true)
+  }
+
+  const tooltip = showTip && isCollapsed && typeof window !== 'undefined' && createPortal(
+    <div
+      style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
+      className="fixed z-[9999] bg-foreground text-background px-2.5 py-1.5 rounded-lg text-xs font-medium shadow-lg pointer-events-none whitespace-nowrap"
+    >
+      {label}
+    </div>,
+    document.body
+  )
+
+  return (
+    <div className="relative px-1">
+      <button
+        ref={ref}
+        type="button"
+        onClick={onClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={() => setShowTip(false)}
+        className={cn(
+          'flex w-full items-center gap-3 rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground',
+          isCollapsed ? 'justify-center w-10 h-10 mx-auto' : 'h-9 px-3'
+        )}
+        aria-label={label}
+        title={label}
+      >
+        <Icon size={16} strokeWidth={2} />
+        {!isCollapsed && <span className="text-sm font-medium truncate">{label}</span>}
+      </button>
       {tooltip}
     </div>
   )

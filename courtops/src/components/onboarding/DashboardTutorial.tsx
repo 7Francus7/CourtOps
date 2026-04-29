@@ -168,7 +168,7 @@ export default function DashboardTutorial({ manualOpen, onManualClose }: Dashboa
                                                         {TUTORIAL_STEPS.map((_, i) => (
                                                                <div
                                                                       key={i}
-                                                                      className={`h-1.5 rounded-full transition-all duration-300 ${i === currentStep ? 'w-8 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'w-2 bg-white/10'
+                                                                      className={`h-1.5 rounded-full transition-all duration-300 ${i === currentStep ? 'w-8 bg-amber-500' : 'w-2 bg-white/10'
                                                                              }`}
                                                                />
                                                         ))}

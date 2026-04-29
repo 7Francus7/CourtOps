@@ -30,11 +30,11 @@ export default function CookieConsent() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ y: 80, opacity: 0 }}
+          initial={{ y: -32, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 80, opacity: 0 }}
+          exit={{ y: -32, opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-          className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:bottom-6 md:max-w-[380px] z-[100]"
+          className="fixed top-4 left-4 right-4 md:top-auto md:left-6 md:right-auto md:bottom-6 md:max-w-[380px] z-[100]"
         >
           <div
             className="relative rounded-2xl overflow-hidden"

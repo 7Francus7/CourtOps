@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import NotificationsSheet from './NotificationsSheet'
 import { MobileBookingTimeline } from './MobileBookingTimeline'
 import Link from 'next/link'
@@ -13,7 +13,6 @@ import {
        Store,
        ChevronRight,
        Globe,
-       Copy,
        Lock,
        AlertTriangle,
        MessageCircle,
@@ -21,10 +20,14 @@ import {
        Banknote,
        CircleDot,
        Clock,
-        Moon,
-        Sun,
-        CalendarDays,
+       Moon,
+       Sun,
+       CalendarDays,
        Trophy,
+       Activity,
+       Radio,
+       Zap,
+       ArrowUpRight,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -34,8 +37,6 @@ import { getMobileDashboardData } from '@/actions/dashboard_mobile'
 import { cn } from '@/lib/utils'
 
 import { NotificationItem } from '@/actions/notifications'
-import { useEmployee } from '@/contexts/EmployeeContext'
-
 import MovementModal from './dashboard/MovementModal'
 import { UpgradeModal } from './layout/UpgradeModal'
 
@@ -86,6 +87,7 @@ export default function MobileDashboard({
        slug,
        onOpenBooking,
        onOpenKiosco,
+       onNavigate,
        notifications,
        unreadCount,
        onMarkAllAsRead,
@@ -93,39 +95,94 @@ export default function MobileDashboard({
 }: MobileDashboardProps) {
        const [data, setData] = useState<MobileDashboardData | null>(null)
        const [loading, setLoading] = useState(true)
+       const [loadError, setLoadError] = useState('')
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
 
        const [showUpgradeModal, setShowUpgradeModal] = useState(false)
        const [lockedFeatureName, setLockedFeatureName] = useState('')
+       const [isMobileViewport, setIsMobileViewport] = useState(false)
+       const isFetchingRef = useRef(false)
+       const mountedRef = useRef(false)
+
+       const MOBILE_DASHBOARD_TIMEOUT_MS = 20000
+       const MOBILE_DASHBOARD_TIMEOUT_ERROR = 'mobile-dashboard-timeout'
 
        const handleLockedClick = (featureName: string) => {
               setLockedFeatureName(featureName)
               setShowUpgradeModal(true)
        }
 
-       const fetchData = async () => {
-              try {
-                     const res = await getMobileDashboardData()
-                     setData(res as unknown as MobileDashboardData)
-              } catch (e) {
-                     console.error(e)
-              } finally {
-                     setLoading(false)
+       const fetchData = useCallback(async () => {
+              if (!mountedRef.current || !isMobileViewport || isFetchingRef.current) {
+                     return
               }
-       }
 
-       const { activeEmployee } = useEmployee()
+              isFetchingRef.current = true
+              let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+              try {
+                     setLoadError('')
+                     const res = await Promise.race([
+                            getMobileDashboardData(),
+                            new Promise((_, reject) => {
+                                   timeoutId = setTimeout(
+                                          () => reject(new Error(MOBILE_DASHBOARD_TIMEOUT_ERROR)),
+                                          MOBILE_DASHBOARD_TIMEOUT_MS
+                                   )
+                            }),
+                     ])
+                     if (mountedRef.current) {
+                            setData(res as MobileDashboardData | null)
+                     }
+              } catch (e) {
+                     if (e instanceof Error && e.message !== MOBILE_DASHBOARD_TIMEOUT_ERROR) {
+                            console.error(e)
+                     }
+                     setLoadError('No pudimos actualizar el panel. Revisá la conexión o reintentá.')
+              } finally {
+                     if (timeoutId) {
+                            clearTimeout(timeoutId)
+                     }
+                     isFetchingRef.current = false
+                     if (mountedRef.current) {
+                            setLoading(false)
+                     }
+              }
+       }, [isMobileViewport])
+
        const { theme, setTheme } = useTheme()
 
        useEffect(() => {
+              mountedRef.current = true
+
+              const mediaQuery = window.matchMedia('(max-width: 767px)')
+              const syncViewport = () => setIsMobileViewport(mediaQuery.matches)
+
+              syncViewport()
+              mediaQuery.addEventListener('change', syncViewport)
+
+              return () => {
+                     mountedRef.current = false
+                     mediaQuery.removeEventListener('change', syncViewport)
+              }
+       }, [])
+
+       useEffect(() => {
+              if (!isMobileViewport) {
+                     return
+              }
+
               fetchData()
               const interval = setInterval(() => {
-                     if (!document.hidden) fetchData()
+                     if (!document.hidden) {
+                            fetchData()
+                     }
               }, 10000)
+
               return () => clearInterval(interval)
-       }, [refreshKey])
+       }, [fetchData, isMobileViewport, refreshKey])
 
        if (loading && !data) {
               return (
@@ -151,8 +208,12 @@ export default function MobileDashboard({
        const today = new Date()
        const totalCourts = data?.courts?.length || 0
        const activeCourtsCount = data?.courts?.filter(c => c.status === 'En Juego').length || 0
-       const alertCount = data?.alerts?.length || 0
+       const freeCourtsCount = data?.courts?.filter(c => !c.status.includes('En Juego')).length || 0
        const pending = data?.receivables || 0
+       const nextBooking = data?.timeline?.[0]
+       const nextFreeCourt = data?.courts?.find(c => c.isFree && c.proposal)
+       const occupancy = data?.endOfDay?.occupancy ?? 0
+       const liveTone = activeCourtsCount > 0 ? 'En vivo' : freeCourtsCount > 0 ? 'Disponible' : 'Completo'
 
        const handleCopyLink = () => {
               if (slug) {
@@ -166,15 +227,24 @@ export default function MobileDashboard({
               setRefreshKey(prev => prev + 1)
        }
 
+       const openCalendar = () => {
+              if (onNavigate) {
+                     onNavigate('calendar')
+              } else {
+                     window.location.href = '/dashboard?view=bookings'
+              }
+       }
+
        return (
               <>
-                     <div className="bg-background text-foreground h-full flex flex-col relative overflow-x-hidden">
+                     <div className="bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_34%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted)/0.35))] text-foreground h-full flex flex-col relative overflow-x-hidden">
+                            <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-primary/10 to-transparent" />
 
                             {/* HEADER */}
-                            <header className="px-5 pt-[max(env(safe-area-inset-top),2rem)] pb-3 shrink-0 z-20">
+                            <header className="px-5 pt-[max(env(safe-area-inset-top),1.4rem)] pb-4 shrink-0 z-20">
                                    <div className="flex justify-between items-center gap-3">
                                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                 <div className="w-11 h-11 bg-primary rounded-[0.875rem] flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20 overflow-hidden">
+                                                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-cyan-400 rounded-[1.15rem] flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden ring-1 ring-white/20">
                                                         {logoUrl ? (
                                                                <>
                                                                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -191,22 +261,22 @@ export default function MobileDashboard({
                                                         )}
                                                  </div>
                                                  <div className="min-w-0">
-                                                        <p className="text-[10px] font-semibold text-muted-foreground capitalize mb-0.5">
+                                                        <p className="text-[10px] font-bold text-muted-foreground capitalize mb-0.5">
                                                                {format(today, "EEEE d 'de' MMMM", { locale: es })}
                                                         </p>
-                                                        <h1 className="text-xl font-black text-foreground tracking-tight truncate">{clubName}</h1>
+                                                        <h1 className="text-2xl font-black text-foreground tracking-[-0.04em] truncate">{clubName}</h1>
                                                  </div>
                                           </div>
                                           <div className="flex items-center gap-2 shrink-0">
                                                  <button
                                                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                                        className="w-10 h-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground active:scale-90 transition-transform"
+                                                        className="w-11 h-11 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 flex items-center justify-center text-muted-foreground active:scale-90 transition-transform shadow-sm"
                                                  >
                                                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                                                  </button>
                                                  <button
                                                         onClick={() => setIsNotificationsOpen(true)}
-                                                        className="w-10 h-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center relative active:scale-90 transition-transform"
+                                                        className="w-11 h-11 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 flex items-center justify-center relative active:scale-90 transition-transform shadow-sm"
                                                  >
                                                         {unreadCount > 0 && (
                                                                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white">
@@ -219,54 +289,125 @@ export default function MobileDashboard({
                                    </div>
                             </header>
 
-                            <main className="flex-1 overflow-y-auto px-5 pb-28 space-y-5 no-scrollbar">
+                            <main className="flex-1 overflow-y-auto px-5 pb-32 space-y-4 no-scrollbar relative z-10">
+
+                                   <motion.section
+                                          initial={{ opacity: 0, y: 12 }}
+                                          animate={{ opacity: 1, y: 0 }}
+                                          className="rounded-[2rem] border border-border/60 bg-card/90 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.14)] backdrop-blur-xl"
+                                   >
+                                          <div className="flex items-start justify-between gap-4">
+                                                 <div className="min-w-0 flex-1">
+                                                        <div className="mb-3 flex items-center gap-2">
+                                                               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-500">
+                                                                      <Radio size={11} />
+                                                                      {liveTone}
+                                                               </span>
+                                                               <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">
+                                                                      {occupancy}% ocupacion
+                                                               </span>
+                                                        </div>
+                                                        <h2 className="text-3xl font-black leading-[0.96] text-foreground">
+                                                               {activeCourtsCount > 0
+                                                                      ? `${activeCourtsCount} cancha${activeCourtsCount === 1 ? '' : 's'} jugando`
+                                                                      : freeCourtsCount > 0
+                                                                             ? `${freeCourtsCount} cancha${freeCourtsCount === 1 ? '' : 's'} libre${freeCourtsCount === 1 ? '' : 's'}`
+                                                                             : 'Sin huecos activos'}
+                                                        </h2>
+                                                        <p className="mt-2 text-sm font-semibold leading-relaxed text-muted-foreground">
+                                                               {nextBooking
+                                                                      ? `Proximo: ${nextBooking.time} · ${nextBooking.courtName} · ${nextBooking.title}`
+                                                                      : nextFreeCourt
+                                                                             ? `Primer hueco sugerido: ${nextFreeCourt.name} ${nextFreeCourt.timeDisplay}`
+                                                                             : 'No hay turnos proximos cargados.'}
+                                                        </p>
+                                                 </div>
+
+                                                 <button
+                                                        onClick={openCalendar}
+                                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg active:scale-95"
+                                                        aria-label="Abrir turnero"
+                                                 >
+                                                        <CalendarDays size={22} strokeWidth={2.6} />
+                                                 </button>
+                                          </div>
+
+                                          <div className="mt-5 grid grid-cols-3 gap-2">
+                                                 <button
+                                                        onClick={() => onOpenBooking({ isNew: true })}
+                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl bg-primary p-3 text-left text-primary-foreground shadow-sm active:scale-[0.98]"
+                                                 >
+                                                        <Plus size={19} strokeWidth={3} />
+                                                        <span className="text-[11px] font-black uppercase tracking-wide">Reservar</span>
+                                                 </button>
+                                                 <button
+                                                        onClick={openCalendar}
+                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
+                                                 >
+                                                        <Activity size={19} className="text-blue-500" />
+                                                        <span className="text-[11px] font-black uppercase tracking-wide">Turnero</span>
+                                                 </button>
+                                                 <button
+                                                        onClick={handleCopyLink}
+                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
+                                                 >
+                                                        <Globe size={19} className="text-teal-500" />
+                                                        <span className="text-[11px] font-black uppercase tracking-wide">Link</span>
+                                                 </button>
+                                          </div>
+                                   </motion.section>
 
                                     {/* STATS ROW */}
                                     <motion.div
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
-                                           className="grid grid-cols-3 gap-3"
+                                           transition={{ delay: 0.03 }}
+                                           className="grid grid-cols-3 gap-2"
                                     >
                                            {/* Caja */}
-                                           <Link href="/caja" className="group relative bg-card border border-border/50 rounded-2xl p-4 flex flex-col gap-2 active:scale-95 transition-transform shadow-sm overflow-hidden">
-                                                  <div className="flex items-center gap-1.5">
-                                                         <div className="p-1.5 rounded-lg bg-emerald-500/10 shrink-0">
-                                                                <Banknote size={13} className="text-emerald-500" />
-                                                         </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
-                                                  </div>
-                                                  <span className="text-base font-black text-foreground leading-none truncate">
+                                           <Link href="/caja" className="group relative bg-card/85 backdrop-blur-xl border border-border/60 rounded-2xl p-3 active:scale-[0.98] transition-transform shadow-sm overflow-hidden">
+                                                  <Banknote size={16} className="text-emerald-500" />
+                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
+                                                  <span className="mt-1 block truncate text-base font-black text-foreground">
                                                          ${(data?.caja?.total ?? 0).toLocaleString()}
                                                   </span>
                                            </Link>
 
                                            {/* Canchas */}
-                                           <div className="group relative bg-card border border-border/50 rounded-2xl p-4 flex flex-col gap-2 shadow-sm overflow-hidden">
-                                                  <div className="flex items-center gap-1.5">
-                                                         <div className="p-1.5 rounded-lg bg-blue-500/10 shrink-0">
-                                                                <CircleDot size={13} className="text-blue-500" />
-                                                         </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Turnos</span>
-                                                  </div>
-                                                  <div className="flex items-baseline gap-0.5">
-                                                         <span className="text-base font-black text-foreground leading-none">{activeCourtsCount}</span>
-                                                         <span className="text-[11px] text-muted-foreground font-black">/{totalCourts}</span>
-                                                  </div>
+                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-2xl p-3 shadow-sm overflow-hidden">
+                                                  <CircleDot size={16} className="text-blue-500" />
+                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">En juego</span>
+                                                  <span className="mt-1 block text-base font-black text-foreground">{activeCourtsCount}/{totalCourts}</span>
                                            </div>
 
                                            {/* Pendiente */}
-                                           <div className="group relative bg-card border border-border/50 rounded-2xl p-4 flex flex-col gap-2 shadow-sm overflow-hidden">
-                                                  <div className="flex items-center gap-1.5">
-                                                         <div className={cn("p-1.5 rounded-lg shrink-0", pending > 0 ? "bg-amber-500/10" : "bg-emerald-500/10")}>
-                                                                <Clock size={13} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
-                                                         </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Pend.</span>
-                                                  </div>
-                                                  <span className={cn("text-base font-black leading-none truncate", pending > 0 ? "text-amber-500" : "text-foreground")}>
+                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-2xl p-3 shadow-sm overflow-hidden">
+                                                  <Clock size={16} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
+                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">Pendiente</span>
+                                                  <span className={cn("mt-1 block truncate text-base font-black", pending > 0 ? "text-amber-500" : "text-foreground")}>
                                                          ${pending.toLocaleString()}
                                                   </span>
                                            </div>
                                     </motion.div>
+
+                                    {loadError && (
+                                           <motion.div
+                                                  initial={{ opacity: 0, y: 8 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  className="rounded-[1.35rem] border border-amber-500/20 bg-amber-500/10 px-4 py-3 flex items-center justify-between gap-3"
+                                           >
+                                                  <div className="min-w-0">
+                                                         <p className="text-xs font-black text-amber-500">Panel sin actualizar</p>
+                                                         <p className="text-[11px] text-muted-foreground truncate">{loadError}</p>
+                                                  </div>
+                                                  <button
+                                                         onClick={handleRefresh}
+                                                         className="shrink-0 rounded-full bg-amber-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white active:scale-95"
+                                                  >
+                                                         Reintentar
+                                                  </button>
+                                           </motion.div>
+                                    )}
 
                                     {/* COURTS STATUS */}
                                     {data?.courts && data.courts.length > 0 && (
@@ -274,9 +415,12 @@ export default function MobileDashboard({
                                                   initial={{ opacity: 0, y: 12 }}
                                                   animate={{ opacity: 1, y: 0 }}
                                                   transition={{ delay: 0.05 }}
-                                                  className="bg-card border border-border/50 rounded-2xl p-4 shadow-sm overflow-hidden"
+                                                  className="bg-card/85 backdrop-blur-xl border border-border/60 rounded-[1.7rem] p-4 shadow-sm overflow-hidden"
                                            >
-                                                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-3">Estado de Canchas</p>
+                                                  <div className="flex items-center justify-between mb-3">
+                                                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.18em]">Estado de canchas</p>
+                                                         <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">{freeCourtsCount} libres</span>
+                                                  </div>
                                                   <div className="flex flex-col gap-2">
                                                          {data.courts.map((court) => {
                                                                 const isPlaying = court.status.includes('En Juego')
@@ -293,10 +437,10 @@ export default function MobileDashboard({
                                                                                      }
                                                                               }}
                                                                               className={cn(
-                                                                                     "w-full px-4 py-3 rounded-xl text-left border transition-all flex items-center gap-3 active:scale-[0.98]",
+                                                                                     "w-full px-4 py-3.5 rounded-2xl text-left border transition-all flex items-center gap-3 active:scale-[0.98]",
                                                                                      isPlaying
-                                                                                            ? "bg-blue-500/8 border-blue-500/20"
-                                                                                            : "bg-muted/30 border-border/40 hover:bg-muted/50"
+                                                                                            ? "bg-blue-500/10 border-blue-500/20"
+                                                                                            : "bg-background/55 border-border/45 hover:bg-muted/50"
                                                                               )}
                                                                        >
                                                                               <div className={cn(
@@ -342,24 +486,37 @@ export default function MobileDashboard({
                                            {/* Primary CTA */}
                                            <motion.button
                                                   whileTap={{ scale: 0.97 }}
-                                                  onClick={() => onOpenBooking({ isNew: true })}
-                                                  className="w-full relative overflow-hidden bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-4 shadow-lg shadow-primary/25 active:shadow-primary/40"
+                                                  onClick={() => {
+                                                         if (nextFreeCourt?.proposal) {
+                                                                onOpenBooking({
+                                                                       isNew: true,
+                                                                       courtId: nextFreeCourt.id,
+                                                                       date: nextFreeCourt.proposal.date,
+                                                                       time: nextFreeCourt.proposal.time
+                                                                })
+                                                         } else {
+                                                                onOpenBooking({ isNew: true })
+                                                         }
+                                                  }}
+                                                  className="w-full relative overflow-hidden bg-foreground text-background rounded-[1.6rem] p-4 flex items-center gap-4 shadow-sm"
                                            >
-                                                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
-                                                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0 relative z-10">
-                                                         <Plus size={26} strokeWidth={3} />
+                                                  <div className="absolute inset-y-0 right-0 w-28 bg-primary/20 blur-2xl" />
+                                                  <div className="w-12 h-12 rounded-2xl bg-background/15 flex items-center justify-center shrink-0 relative z-10 ring-1 ring-background/15">
+                                                         <Zap size={24} strokeWidth={3} />
                                                   </div>
                                                   <div className="relative z-10 text-left">
-                                                         <span className="text-sm font-black tracking-tight block">Nueva Reserva</span>
-                                                         <span className="text-[10px] opacity-70 font-semibold">Agendá un turno rápidamente</span>
+                                                         <span className="text-base font-black tracking-tight block">
+                                                                {nextFreeCourt ? `Reservar ${nextFreeCourt.name}` : 'Nueva reserva'}
+                                                         </span>
+                                                         <span className="text-[11px] opacity-80 font-semibold">Agendá un turno rápidamente</span>
                                                   </div>
-                                                  <ChevronRight size={18} className="ml-auto relative z-10 opacity-60" />
+                                                  <ArrowUpRight size={18} className="ml-auto relative z-10 opacity-70" />
                                            </motion.button>
 
                                            {/* Quick actions grid — 3 cols */}
                                            <div className="grid grid-cols-3 gap-2.5">
                                                   {[
-                                                         { icon: CalendarDays, label: 'Turnos',    color: 'text-blue-500',   bg: 'bg-blue-500/10',   href: '/reservas' },
+                                                         { icon: CalendarDays, label: 'Turnos',    color: 'text-blue-500',   bg: 'bg-blue-500/10',   onClick: openCalendar },
                                                          { icon: Store,        label: 'Kiosco',    color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
                                                          { icon: UsersIcon,    label: 'Clientes',  color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
                                                          { icon: Trophy,       label: 'Torneos',   color: 'text-amber-500',  bg: 'bg-amber-500/10',  href: '/torneos', locked: !data?.features?.hasTournaments },
@@ -375,7 +532,7 @@ export default function MobileDashboard({
                                                                        else if (item.href) window.location.href = item.href
                                                                 }}
                                                                 className={cn(
-                                                                       "flex flex-col items-center gap-2.5 py-4 px-2 rounded-2xl bg-card border border-border/50 shadow-sm active:scale-95 transition-transform relative",
+                                                                       "flex flex-col items-center gap-2.5 py-4 px-2 rounded-[1.35rem] bg-card/80 backdrop-blur-xl border border-border/60 shadow-sm active:scale-95 transition-transform relative",
                                                                        item.locked && "opacity-50"
                                                                 )}
                                                          >

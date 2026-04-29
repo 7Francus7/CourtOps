@@ -17,7 +17,7 @@ async function main() {
                      name: 'Alfa Padel',
                      slug: 'alfa-padel',
                      openTime: '08:00',
-                     closeTime: '01:00', // Extend to 01:00 AM
+                     closeTime: '01:00',
                      slotDuration: 90,
                      courts: {
                             create: [
@@ -108,19 +108,47 @@ async function main() {
        // 5. Platform Plans
        const plans = [
               {
-                     name: 'Inicial',
+                     name: 'Arranque',
                      price: 45000,
-                     features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V']),
+                     setupFee: 100000,
+                     features: JSON.stringify([
+                            'Hasta 2 canchas de padel',
+                            'Hasta 3 empleados en el sistema',
+                            'Reservas online (link público)',
+                            'Turnero digital en tiempo real',
+                            'Caja diaria (apertura y cierre)',
+                            'QR Check-in',
+                            'Soporte por email L-V'
+                     ]),
               },
               {
-                     name: 'Profesional',
-                     price: 85000,
-                     features: JSON.stringify(['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7']),
+                     name: 'Élite',
+                     price: 89000,
+                     setupFee: 100000,
+                     features: JSON.stringify([
+                            'Hasta 8 canchas de padel',
+                            'Hasta 10 empleados en el sistema',
+                            'Todo lo del plan Arranque',
+                            'Kiosco / Punto de venta con stock',
+                            'Pagos online con MercadoPago',
+                            'Notificaciones WhatsApp automáticas',
+                            'Gestión de torneos y brackets',
+                            'Waivers digitales (firma electrónica)',
+                            'Reportes financieros avanzados',
+                            'Soporte prioritario WhatsApp 24/7'
+                     ]),
               },
               {
-                     name: 'Empresarial',
-                     price: 150000,
-                     features: JSON.stringify(['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado']),
+                     name: 'VIP',
+                     price: 129000,
+                     setupFee: 100000,
+                     features: JSON.stringify([
+                            'Canchas ilimitadas',
+                            'Usuarios ilimitados',
+                            'Todo lo del plan Élite',
+                            'Dominio personalizado (ej: tuclub.com)',
+                            'Gestor de cuenta dedicado'
+                     ]),
               }
        ]
 
@@ -129,11 +157,13 @@ async function main() {
                      where: { name: plan.name },
                      update: {
                             price: plan.price,
+                            setupFee: plan.setupFee,
                             features: plan.features
                      },
                      create: {
                             name: plan.name,
                             price: plan.price,
+                            setupFee: plan.setupFee,
                             features: plan.features
                      }
               })

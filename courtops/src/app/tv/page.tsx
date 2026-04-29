@@ -125,7 +125,7 @@ export default function TvModePage() {
                                    </div>
                                    <div>
                                           <h1 className="text-5xl font-black tracking-tighter uppercase leading-none">
-                                                 ALFA<span className="text-emerald-500">PADEL</span>
+                                                 {data?.clubName ?? ''}
                                           </h1>
                                           <div className="flex items-center gap-3 mt-2">
                                                  <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-lg flex items-center gap-2">
@@ -337,7 +337,7 @@ export default function TvModePage() {
                                    >
                                           <div className="flex items-center gap-4">
                                                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                                                 <span className="text-2xl font-black uppercase tracking-widest">Bienvenidos a Alfa Padel Club</span>
+                                                 <span className="text-2xl font-black uppercase tracking-widest">Bienvenidos a {data?.clubName ?? ''}</span>
                                           </div>
                                           <div className="flex items-center gap-4">
                                                  <Zap className="text-yellow-400" />
@@ -350,7 +350,7 @@ export default function TvModePage() {
                                           {/* Loop items */}
                                           <div className="flex items-center gap-4">
                                                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                                                 <span className="text-2xl font-black uppercase tracking-widest">Bienvenidos a Alfa Padel Club</span>
+                                                 <span className="text-2xl font-black uppercase tracking-widest">Bienvenidos a {data?.clubName ?? ''}</span>
                                           </div>
                                           <div className="flex items-center gap-4">
                                                  <Zap className="text-yellow-400" />

@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getTurneroData } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { TurneroBooking, TurneroCourt } from '@/types/booking'
-import { ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, ArrowLeft, CalendarClock, CircleDot } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getBookingFinancialStatus } from '@/lib/booking-utils'
@@ -46,6 +46,8 @@ import { Haptics } from '@/lib/haptics'
 function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
+
+const PADEL_SLOT_MINUTES = 90
 
 // Sub-components for better performance
 const BookingCard = React.memo(({ booking, courtName, onBookingClick }: { booking: TurneroBooking, courtName: string, onBookingClick: (_id: number | Record<string, unknown>) => void }) => {
@@ -151,7 +153,8 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        const { data, isLoading } = useQuery({
               queryKey: ['turnero', selectedDate.toISOString()],
               queryFn: () => getTurneroData(selectedDate.toISOString()),
-              refetchInterval: 30000,
+              refetchInterval: 10000,
+              staleTime: 0,
        })
 
        // Swipe Logic removed to prevent conflict with horizontal scrolling
@@ -178,8 +181,28 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                  position: 'top-center',
                                                  duration: 5000,
                                           })
+                                   } else if (payload?.action === 'cancel') {
+                                          const waitingMatches = Number(payload.waitingListMatches || 0)
+                                          toast.info('Reserva cancelada', {
+                                                 description: waitingMatches > 0
+                                                        ? `${waitingMatches} persona${waitingMatches === 1 ? '' : 's'} esperando este horario`
+                                                        : 'Se libero el horario',
+                                                 position: 'top-center',
+                                                 duration: 4000,
+                                          })
                                    }
                             });
+
+                            channel.bind('waiting-list-update', (payload: Record<string, unknown>) => {
+                                   if (payload?.action !== 'create') return
+                                   toast.info((payload.name as string) || 'Nueva solicitud', {
+                                          description: payload.source === 'public'
+                                                 ? 'Lista de espera desde la reserva online'
+                                                 : 'Nueva persona en lista de espera',
+                                          position: 'top-center',
+                                          duration: 4000,
+                                   })
+                            })
                      } catch (error) {
                             console.error("Mobile Pusher Error:", error);
                      }
@@ -196,7 +219,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        }, [data?.clubId, queryClient]);
 
        // Derived State
-       const courts = data?.courts || []
+       const courts = useMemo(() => data?.courts || [], [data?.courts])
        const bookings = useMemo(() => {
               if (!data?.bookings) return []
               return data.bookings.filter((b: TurneroBooking) => isSameDay(new Date(b.startTime), selectedDate))
@@ -212,7 +235,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        }, [bookings])
 
        const TIME_SLOTS = useMemo(() => {
-              const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: 90 }
+              const config = data?.config || { openTime: '14:00', closeTime: '00:30', slotDuration: PADEL_SLOT_MINUTES }
               const slots: Date[] = []
               const [openH, openM] = config.openTime.split(':').map(Number)
               const [closeH, closeM] = config.closeTime.split(':').map(Number)
@@ -221,10 +244,29 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
               if (endLimit <= cur) endLimit = addDays(endLimit, 1)
               while (cur < endLimit) {
                      slots.push(cur)
-                     cur = addMinutes(cur, config.slotDuration)
+                     cur = addMinutes(cur, PADEL_SLOT_MINUTES)
               }
               return slots
        }, [selectedDate, data?.config])
+
+       const firstAvailableSlot = useMemo(() => {
+              for (const slot of TIME_SLOTS) {
+                     const timeLabel = timeKey(slot)
+                     for (const court of courts) {
+                            if (!bookingsByCourtAndTime.has(`${court.id}-${timeLabel}`)) {
+                                   return {
+                                          courtId: court.id,
+                                          courtName: court.name,
+                                          time: timeLabel
+                                   }
+                            }
+                     }
+              }
+
+              return null
+       }, [TIME_SLOTS, bookingsByCourtAndTime, courts])
+
+       const availableSlotsCount = Math.max(0, (TIME_SLOTS.length * courts.length) - bookings.length)
 
        // Clock
        useEffect(() => {
@@ -235,10 +277,6 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
 
        return (
               <div className="flex flex-col h-full bg-background relative overflow-hidden font-sans transition-colors duration-300">
-                     {/* Ambient Background - Subtle */}
-                     <div className="fixed top-[-20%] right-[-20%] w-[400px] h-[400px] bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-                     <div className="fixed bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-emerald-500/20 dark:bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-
                      {/* MODERN HEADER */}
                      <div className="flex flex-col border-b border-border bg-background/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
                             <div className="flex items-center justify-between px-4 py-3">
@@ -275,6 +313,49 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                    </div>
 
                                    <div className="w-9" /> {/* Spacer */}
+                            </div>
+
+                            <div className="px-4 pb-4">
+                                   <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
+                                          <div className="grid grid-cols-3 gap-2">
+                                                 <div>
+                                                        <div className="flex items-center gap-1.5 text-blue-500">
+                                                               <CircleDot size={13} />
+                                                               <span className="text-[9px] font-black uppercase tracking-widest">Reservas</span>
+                                                        </div>
+                                                        <p className="mt-1 text-xl font-black text-foreground">{bookings.length}</p>
+                                                 </div>
+                                                 <div>
+                                                        <div className="flex items-center gap-1.5 text-emerald-500">
+                                                               <Plus size={13} />
+                                                               <span className="text-[9px] font-black uppercase tracking-widest">Libres</span>
+                                                        </div>
+                                                        <p className="mt-1 text-xl font-black text-foreground">{availableSlotsCount}</p>
+                                                 </div>
+                                                 <button
+                                                        type="button"
+                                                        disabled={!firstAvailableSlot}
+                                                        onClick={() => {
+                                                               if (!firstAvailableSlot) return
+                                                               onBookingClick({
+                                                                      isNew: true,
+                                                                      date: selectedDate,
+                                                                      courtId: firstAvailableSlot.courtId,
+                                                                      time: firstAvailableSlot.time
+                                                               })
+                                                        }}
+                                                        className="rounded-xl bg-foreground px-2 py-2 text-left text-background disabled:opacity-40"
+                                                 >
+                                                        <div className="flex items-center gap-1.5">
+                                                               <CalendarClock size={13} />
+                                                               <span className="text-[9px] font-black uppercase tracking-widest">Primer hueco</span>
+                                                        </div>
+                                                        <p className="mt-1 truncate text-sm font-black">
+                                                               {firstAvailableSlot ? `${firstAvailableSlot.time} ${firstAvailableSlot.courtName}` : 'Sin huecos'}
+                                                        </p>
+                                                 </button>
+                                          </div>
+                                   </div>
                             </div>
                      </div>
 
@@ -322,7 +403,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                                                     <div className={cn(
                                                                                            "text-xs font-black px-3 py-1 rounded-full transition-all duration-300 tracking-wider border",
                                                                                            isCurrentHour
-                                                                                                  ? "bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-500/30 scale-105"
+                                                                                                  ? "bg-emerald-500 text-white border-emerald-600 shadow-sm scale-105"
                                                                                                   : "bg-card text-muted-foreground border-border"
                                                                                     )}>
                                                                                            {timeLabel}

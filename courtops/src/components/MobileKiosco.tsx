@@ -10,14 +10,12 @@ import {
        ChevronLeft,
        Plus,
        Minus,
-       Zap,
        User,
-       CreditCard,
-       Banknote,
        Sparkles,
        Trash2
 } from 'lucide-react'
 import { useKiosk } from '@/hooks/useKiosk'
+import { CheckoutOverlay } from './kiosco/CheckoutOverlay'
 import { KioscoSuccessOverlay } from './kiosco/KioscoSuccessOverlay'
 
 type Props = {
@@ -54,13 +52,14 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
        } = useKiosk()
 
        const [showCart, setShowCart] = useState(false)
+       const [showCheckout, setShowCheckout] = useState(false)
        const [showSuccess, setShowSuccess] = useState(false)
-       const [selectedMethod, setSelectedMethod] = useState<'CASH' | 'TRANSFER' | 'ACCOUNT'>('CASH')
 
-       const onFinalize = async () => {
-              const success = await handleFinalizeSale([{ method: selectedMethod, amount: cartTotal }])
+       const onFinalize = async (payments: { method: string; amount: number }[]) => {
+              const success = await handleFinalizeSale(payments)
               if (success) {
                      setShowSuccess(true)
+                     setShowCheckout(false)
                      setShowCart(false)
               }
        }
@@ -262,29 +261,16 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                                                  </div>
 
                                                  <div className="shrink-0 pt-6 border-t border-slate-200 dark:border-white/10 space-y-4">
-                                                        <div className="flex gap-2">
-                                                               <button onClick={() => setSelectedMethod('CASH')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'CASH' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500")}>
-                                                                      <Banknote size={18} /> EFECTIVO
-                                                               </button>
-                                                               <button onClick={() => setSelectedMethod('TRANSFER')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'TRANSFER' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500")}>
-                                                                      <CreditCard size={18} /> TRANSFERENCIA
-                                                               </button>
-                                                               {allowCredit && (
-                                                                      <button disabled={!selectedClient} onClick={() => setSelectedMethod('ACCOUNT')} className={cn("flex-1 p-3 rounded-xl border text-[10px] font-black flex flex-col items-center gap-1.5 transition-all uppercase tracking-widest", selectedMethod === 'ACCOUNT' ? "bg-emerald-500 border-emerald-400 text-white dark:text-black" : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-400 dark:text-zinc-500", !selectedClient && "opacity-30")}>
-                                                                             <Zap size={18} /> A CUENTA
-                                                                      </button>
-                                                               )}
-                                                        </div>
                                                         <div className="flex items-center justify-between px-2">
                                                                <span className="text-sm font-bold text-slate-500 dark:text-zinc-400">TOTAL</span>
                                                                <span className="text-2xl font-black">${cartTotal.toLocaleString()}</span>
                                                         </div>
                                                         <button
-                                                               onClick={onFinalize}
+                                                               onClick={() => setShowCheckout(true)}
                                                                disabled={processing}
                                                                className="w-full bg-emerald-500 text-white dark:text-black font-black text-lg py-4 rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
                                                         >
-                                                               {processing ? <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" /> : 'FINALIZAR VENTA'}
+                                                               {processing ? <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" /> : 'IR AL COBRO'}
                                                         </button>
                                                  </div>
                                           </motion.div>
@@ -294,6 +280,19 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
 
                      {/* Success Overlay */}
                      {showSuccess && <KioscoSuccessOverlay onReset={() => { setShowSuccess(false); setCart([]); }} />}
+
+                     <AnimatePresence>
+                            {showCheckout && (
+                                   <CheckoutOverlay
+                                          total={cartTotal}
+                                          selectedClient={selectedClient}
+                                          onClose={() => setShowCheckout(false)}
+                                          onFinalize={onFinalize}
+                                          processing={processing}
+                                          allowCredit={allowCredit}
+                                   />
+                            )}
+                     </AnimatePresence>
 
                      {/* Client Dropdown Modal Layer */}
                      <AnimatePresence>

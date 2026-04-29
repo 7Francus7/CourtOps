@@ -5,49 +5,63 @@ import Link from 'next/link'
 
 const planes = [
   {
-    id: 'basico',
-    nombre: 'Básico',
-    subtitulo: 'Para canchas en consolidación.',
+    id: 'arranque',
+    nombre: 'Arranque',
+    subtitulo: 'Para clubes que quieren ordenar reservas y operar prolijos desde el día uno.',
     precio: 45000,
     precioAnual: 36000,
+    licencia: 100000,
     funciones: [
-      'Gestión de hasta 4 pistas',
-      'Reservas y Grilla Visiva Ilimitada',
-      'Control de Caja Básico',
+      'Hasta 2 canchas de padel',
+      'Hasta 3 empleados en el sistema',
+      'Reservas online (link público)',
+      'Turnero digital en tiempo real',
+      'Caja diaria (apertura y cierre)',
+      'QR Check-in',
+      'Soporte por email L-V',
     ],
-    cta: 'Inicializar Básico',
-    url: '/register?plan=basico',
+    cta: 'Empezar Arranque',
+    url: '/register?plan=arranque',
     destacado: false,
   },
   {
     id: 'elite',
     nombre: 'Élite',
-    subtitulo: 'Dominio operacional total.',
-    precio: 85000,
-    precioAnual: 68000,
+    subtitulo: 'Para clubes en crecimiento que quieren vender, cobrar y automatizar más.',
+    precio: 89000,
+    precioAnual: 71200,
+    licencia: 100000,
     funciones: [
-      'Pistas Ilimitadas y Torneos',
-      'POS de Extrema Densidad (Kiosco)',
-      'Recordatorios Bot WhatsApp',
-      'Cobros Online Integrados',
+      'Hasta 8 canchas de padel',
+      'Hasta 10 empleados en el sistema',
+      'Todo lo del plan Arranque',
+      'Kiosco / Punto de venta con stock',
+      'Pagos online con MercadoPago',
+      'Notificaciones WhatsApp automáticas',
+      'Gestión de torneos y brackets',
+      'Waivers digitales (firma electrónica)',
+      'Reportes financieros avanzados',
+      'Soporte prioritario WhatsApp 24/7',
     ],
-    cta: 'Seleccionar Élite',
+    cta: 'Elegir Élite',
     url: '/register?plan=elite',
     destacado: true,
   },
   {
-    id: 'pro',
-    nombre: 'Pro',
-    subtitulo: 'Control dictatorial multi-sucursal.',
-    precio: 150000,
-    precioAnual: 120000,
+    id: 'vip',
+    nombre: 'VIP',
+    subtitulo: 'Para complejos que necesitan flexibilidad total y atención dedicada.',
+    precio: 129000,
+    precioAnual: 103200,
+    licencia: 100000,
     funciones: [
-      'Despliegue Multi-Instalación',
-      'Módulo de Instructores/Academias',
-      'Marca Blanca Premium',
-      'Soporte Táctico 24/7',
+      'Canchas ilimitadas',
+      'Usuarios ilimitados',
+      'Todo lo del plan Élite',
+      'Dominio personalizado (ej: tuclub.com)',
+      'Gestor de cuenta dedicado',
     ],
-    cta: 'Solicitar Reunión',
+    cta: 'Solicitar reunión',
     url: 'mailto:ventas@courtops.net',
     destacado: false,
   },
@@ -61,10 +75,9 @@ export default function PricingKinetic() {
   return (
     <section id="pricing" className="py-16 md:py-32 px-6 md:px-12 max-w-[1400px] mx-auto">
       <div className="text-center mb-16">
-        <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter">Planes de Mando</h2>
-        <p className="text-xl text-zinc-600 dark:text-zinc-500 italic font-serif mb-8">Inversión calculada en tu soberanía operativa.</p>
-        
-        {/* Toggle Facturación */}
+        <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter">Planes simples</h2>
+        <p className="text-xl text-zinc-600 dark:text-zinc-500 italic font-serif mb-8">Empezá con prueba gratis y escalá cuando el club lo necesite.</p>
+
         <div className="inline-flex items-center p-1 rounded-full bg-zinc-100 dark:bg-[#19191c] border border-zinc-200 dark:border-zinc-800">
           <button
             onClick={() => setEsAnual(false)}
@@ -74,7 +87,7 @@ export default function PricingKinetic() {
                 : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
             }`}
           >
-            Ataque Mensual
+            Mensual
           </button>
           <button
             onClick={() => setEsAnual(true)}
@@ -84,7 +97,7 @@ export default function PricingKinetic() {
                 : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
             }`}
           >
-            Planta Anual 
+            Anual
             <span className="text-xs text-green-600 dark:text-[#72ff70] font-black uppercase tracking-widest">(Ahorra 20%)</span>
           </button>
         </div>
@@ -94,7 +107,7 @@ export default function PricingKinetic() {
         {planes.map((plan) => (
           <div
             key={plan.id}
-            className={`rounded-3xl p-7 md:p-10 flex flex-col h-full transition-all duration-300 ${plan.id === 'pro' ? 'md:col-start-1 lg:col-start-auto' : ''} ${
+            className={`rounded-3xl p-7 md:p-10 flex flex-col h-full transition-all duration-300 ${plan.id === 'vip' ? 'md:col-start-1 lg:col-start-auto' : ''} ${
               plan.destacado
                 ? 'bg-zinc-900 dark:bg-[#262528] border-2 border-green-500 dark:border-[#72ff70] lg:-translate-y-4 shadow-2xl z-10 relative'
                 : 'bg-white dark:bg-[#1f1f22] border border-zinc-200 dark:border-zinc-800/50 shadow-lg'
@@ -105,32 +118,35 @@ export default function PricingKinetic() {
                 Recomendado
               </div>
             )}
-            
+
             <h3 className={`text-3xl font-bold mb-3 ${plan.destacado ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
               {plan.nombre}
             </h3>
             <p className={`text-base mb-10 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
               {plan.subtitulo}
             </p>
-            
+
             <div className={`text-5xl font-bold mb-10 tracking-tighter flex items-end gap-2 ${plan.destacado ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
               <div className="relative">
                  ${fmt(esAnual ? plan.precioAnual : plan.precio)}
               </div>
               <span className={`text-xl font-normal mb-1 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>/mes</span>
             </div>
-            
+            <p className={`text-sm -mt-6 mb-8 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
+              + ${fmt(plan.licencia)} licencia única al inicio
+            </p>
+
             <ul className={`space-y-5 mb-14 flex-grow ${plan.destacado ? 'text-white' : ''}`}>
               {plan.funciones.map((f, i) => (
                 <li key={i} className={`flex items-start gap-4 text-lg ${plan.destacado ? '' : 'text-zinc-700 dark:text-zinc-300'}`}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`mt-1 flex-shrink-0 ${plan.destacado ? 'text-green-400 dark:text-[#72ff70]' : 'text-green-600 dark:text-[#72ff70]'}`}>
                     <polyline points="20 6 9 17 4 12"/>
-                  </svg> 
+                  </svg>
                   <span className="leading-tight">{f}</span>
                 </li>
               ))}
             </ul>
-            
+
             <Link
               href={plan.url}
               className={`w-full py-5 block text-center rounded-xl font-bold text-lg transition-all ${
@@ -141,7 +157,7 @@ export default function PricingKinetic() {
             >
               {plan.cta}
             </Link>
-            {plan.id !== 'pro' && (
+            {plan.id !== 'vip' && (
               <p className={`text-center text-sm mt-4 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
                 7 días de prueba gratuita · Sin tarjeta de crédito
               </p>

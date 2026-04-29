@@ -21,30 +21,38 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               redirect('/login')
        }
 
+       const isSuperAdmin = session.user?.role === 'SUPER_ADMIN' || session.user?.role === 'GOD'
+
+       if (!session.user?.clubId) {
+              if (isSuperAdmin) {
+                     redirect('/god-mode')
+              }
+
+              redirect('/login')
+       }
+
        let club = null
        try {
-              if (session.user?.clubId) {
-                     club = await prisma.club.findUnique({
-                            where: { id: session.user.clubId },
-                            select: {
-                                   themeColor: true,
-                                   name: true,
-                                   logoUrl: true,
-                                   subscriptionStatus: true,
-                                   nextBillingDate: true,
-                                   plan: true,
-                                   mpPreapprovalId: true,
-                                   // Feature Flags
-                                   hasKiosco: true,
-                                   hasTournaments: true,
-                                   hasAdvancedReports: true,
-                                   hasOnlinePayments: true,
-                                   hasCustomDomain: true,
-                                   hasWhatsApp: true,
-                                   hasWaivers: true
-                            }
-                     })
-              }
+              club = await prisma.club.findUnique({
+                     where: { id: session.user.clubId },
+                     select: {
+                            themeColor: true,
+                            name: true,
+                            logoUrl: true,
+                            subscriptionStatus: true,
+                            nextBillingDate: true,
+                            plan: true,
+                            mpPreapprovalId: true,
+                            // Feature Flags
+                            hasKiosco: true,
+                            hasTournaments: true,
+                            hasAdvancedReports: true,
+                            hasOnlinePayments: true,
+                            hasCustomDomain: true,
+                            hasWhatsApp: true,
+                            hasWaivers: true
+                     }
+              })
        } catch (e) {
               console.error("[CRITICAL] ProtectedLayout Prisma Error:", e)
               // We intentionally don't throw - allow shell render
@@ -65,22 +73,24 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        )
 
        return (
-              <AppShell club={serializedClub}>
+              <div className="flex flex-col h-screen overflow-hidden">
                      <ThemeRegistry themeColor={serializedClub?.themeColor} />
-                     <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar pb-28 md:pb-0">
-                            <TrialBanner
-                                   subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
-                                   nextBillingDate={serializedClub?.nextBillingDate || null}
-                                   plan={serializedClub?.plan || 'PRO'}
-                            />
-                            <SystemAlerts />
-                            <TrialExpiredGuard isTrialExpired={isTrialExpired}>
-                                   {children}
-                            </TrialExpiredGuard>
-                     </div>
-                     <GlobalModals />
-                     <AiAssistant />
-                     <CommandPalette />
-              </AppShell>
+                     <TrialBanner
+                            subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
+                            nextBillingDate={serializedClub?.nextBillingDate || null}
+                            plan={serializedClub?.plan || 'PRO'}
+                     />
+                     <AppShell club={serializedClub}>
+                            <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar pb-28 md:pb-0">
+                                   <SystemAlerts />
+                                   <TrialExpiredGuard isTrialExpired={isTrialExpired}>
+                                          {children}
+                                   </TrialExpiredGuard>
+                            </div>
+                            <GlobalModals />
+                            <AiAssistant />
+                            <CommandPalette />
+                     </AppShell>
+              </div>
        )
 }

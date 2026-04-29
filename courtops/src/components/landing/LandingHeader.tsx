@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, ChevronRight } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { CourtOpsLogoFull } from '@/components/ui/CourtOpsLogo'
 
 const NAV_LINKS = [
   { href: '#features', label: 'Funciones', active: true },
@@ -33,12 +34,8 @@ export default function LandingHeader() {
       <div className="flex justify-between items-center max-w-7xl mx-auto px-6 md:px-8 h-20">
 
         {/* Logo */}
-        <Link
-          href="/"
-          className="text-xl font-black tracking-tighter select-none"
-          style={{ color: 'var(--co-navy)' }}
-        >
-          CourtOps
+        <Link href="/" className="hover:opacity-80 transition-opacity inline-block" aria-label="CourtOps">
+          <CourtOpsLogoFull className="h-8 w-auto" darkBg />
         </Link>
 
         {/* Desktop nav */}

@@ -232,7 +232,7 @@ export default async function GodModePage() {
 				<div className="lg:col-span-8 space-y-4">
 					<div className="flex items-center justify-between">
 						<h2 className="text-xs font-black text-white uppercase tracking-[0.15em] flex items-center gap-2.5">
-							<span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" />
+							<span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
 							Clubes ({clubs.length})
 						</h2>
 						<span className="text-[9px] font-bold text-slate-600 bg-white/[0.03] border border-white/[0.06] px-3 py-1 rounded-full uppercase tracking-widest">

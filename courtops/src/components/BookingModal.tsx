@@ -1,7 +1,7 @@
 'use client'
 
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getClients } from '@/actions/clients'
@@ -9,10 +9,11 @@ import { getBookingPriceEstimate } from '@/actions/getBookingPrice'
 import { getClubSettings } from '@/actions/dashboard'
 import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
-import { MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, DollarSign, CheckCircle2, X, ChevronDown, Ban, PiggyBank, Receipt, Sparkles, CalendarDays, MapPin, Search } from 'lucide-react'
+import { MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, DollarSign, CheckCircle2, X, ChevronDown, Sparkles, CalendarDays, MapPin, Search } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getTeachers } from '@/actions/teachers'
+import { updateWaitingListStatus } from '@/actions/waitingList'
 
 type Props = {
        isOpen: boolean
@@ -21,27 +22,49 @@ type Props = {
        initialDate: Date
        initialTime?: string
        initialCourtId?: number
+       initialClientName?: string
+       initialClientPhone?: string
+       initialClientEmail?: string
+       initialNotes?: string
+       initialWaitingListId?: number
        courts: { id: number, name: string, duration?: number }[]
 }
 
-export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, initialTime, initialCourtId, courts = [] }: Props) {
-       const [formData, setFormData] = useState({
-              name: '',
-              phone: '',
-              email: '',
+const PADEL_SLOT_MINUTES = 90
+const FALLBACK_TIME_SLOTS = ['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00', '22:30']
+
+export default function BookingModal({
+       isOpen,
+       onClose,
+       onSuccess,
+       initialDate,
+       initialTime,
+       initialCourtId,
+       initialClientName,
+       initialClientPhone,
+       initialClientEmail,
+       initialNotes,
+       initialWaitingListId,
+       courts = []
+}: Props) {
+       const buildInitialFormData = useCallback(() => ({
+              name: initialClientName || '',
+              phone: initialClientPhone || '',
+              email: initialClientEmail || '',
               time: initialTime || '14:00',
               courtId: initialCourtId || (courts[0]?.id || 0),
-              notes: '',
+              notes: initialNotes || '',
               isMember: false,
               isRecurring: false,
               recurringEndDate: '',
-              paymentType: 'none' as 'none' | 'full' | 'partial' | 'split',
-              depositAmount: '',
-              payments: [] as { method: string, amount: number }[],
               priceOverride: '',
               bookingType: 'NORMAL' as 'NORMAL' | 'CLASS' | 'MATCH',
               teacherId: '',
               skillLevel: '4.0'
+       }), [courts, initialClientEmail, initialClientName, initialClientPhone, initialCourtId, initialNotes, initialTime])
+
+       const [formData, setFormData] = useState({
+              ...buildInitialFormData()
        })
        const [teachers, setTeachers] = useState<{ id: string, name: string }[]>([])
        const [isSubmitting, setIsSubmitting] = useState(false)
@@ -94,18 +117,11 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               if (isOpen) {
                      setSuccessData(null)
                      setIsManualPrice(false)
-                     setShowNotes(false)
-                     setFormData(prev => ({
-                            ...prev,
-                            time: initialTime || '14:00',
-                            courtId: initialCourtId || (courts[0]?.id || 0),
-                            paymentType: 'none',
-                            depositAmount: '',
-                            priceOverride: ''
-                     }))
+                     setShowNotes(Boolean(initialNotes))
+                     setFormData(buildInitialFormData())
                      setIsEditingPrice(false)
               }
-       }, [isOpen, initialTime, initialCourtId, courts])
+       }, [buildInitialFormData, initialNotes, isOpen])
 
        // Dynamic Time Slots
        const [timeOptions, setTimeOptions] = useState<string[]>([])
@@ -116,9 +132,8 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                             const settings = await getClubSettings()
                             if (settings) {
                                    const { openTime, closeTime, slotDuration } = settings
-
-                                   const selectedCourt = courts.find(c => c.id === formData.courtId)
-                                   const courtDuration = selectedCourt?.duration || slotDuration || 90
+                                   const selectedCourt = courts.find(c => c.id === Number(formData.courtId))
+                                   const courtDuration = Number(slotDuration || selectedCourt?.duration || PADEL_SLOT_MINUTES)
 
                                    const slots: string[] = []
                                    const [openH, openM] = (openTime || '08:00').split(':').map(Number)
@@ -136,11 +151,29 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                           slots.push(timeStr)
                                           current.setMinutes(current.getMinutes() + courtDuration)
                                    }
-                                   setTimeOptions(slots)
+
+                                   const normalizedSlots = slots.length > 0 ? slots : FALLBACK_TIME_SLOTS
+                                   setTimeOptions(normalizedSlots)
+                                   setFormData(prev => ({
+                                          ...prev,
+                                          time: normalizedSlots.includes(prev.time)
+                                                 ? prev.time
+                                                 : normalizedSlots[0]
+                                   }))
+                            } else {
+                                   setTimeOptions(FALLBACK_TIME_SLOTS)
+                                   setFormData(prev => ({
+                                          ...prev,
+                                          time: FALLBACK_TIME_SLOTS.includes(prev.time) ? prev.time : FALLBACK_TIME_SLOTS[0]
+                                   }))
                             }
                      } catch (e) {
-                            console.error("Error loading time settings", e)
-                            setTimeOptions(['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00', '22:30'])
+                             console.error("Error loading time settings", e)
+                             setTimeOptions(FALLBACK_TIME_SLOTS)
+                             setFormData(prev => ({
+                                    ...prev,
+                                    time: FALLBACK_TIME_SLOTS.includes(prev.time) ? prev.time : FALLBACK_TIME_SLOTS[0]
+                             }))
                      }
               }
               const loadTeachers = async () => {
@@ -161,23 +194,17 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      const startDate = new Date(initialDate)
                      startDate.setHours(hours, minutes, 0, 0)
 
-                     let paymentStatus: 'UNPAID' | 'PAID' | 'PARTIAL' = 'UNPAID'
-                     if (formData.paymentType === 'full') paymentStatus = 'PAID'
-                     if (formData.paymentType === 'partial') paymentStatus = 'PARTIAL'
-
-                     const payload = {
-                            clientName: formData.name,
-                            clientPhone: formData.phone,
-                            clientEmail: formData.email || undefined,
-                            courtId: Number(formData.courtId),
-                            startTime: startDate,
-                            paymentStatus: paymentStatus,
-                            advancePaymentAmount: formData.paymentType === 'partial' ? Number(formData.depositAmount) : undefined,
-                            notes: formData.notes,
-                            isMember: formData.isMember,
-                            recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
-                            payments: formData.paymentType === 'split' ? formData.payments : undefined,
-                            totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined,
+                      const payload = {
+                             clientName: formData.name,
+                             clientPhone: formData.phone,
+                             clientEmail: formData.email || undefined,
+                             courtId: Number(formData.courtId),
+                             startTime: startDate,
+                             paymentStatus: 'UNPAID' as const,
+                             notes: formData.notes,
+                             isMember: formData.isMember,
+                             recurringEndDate: formData.isRecurring && formData.recurringEndDate ? new Date(formData.recurringEndDate) : undefined,
+                             totalPrice: formData.priceOverride ? Number(formData.priceOverride) : undefined,
                             bookingType: formData.bookingType,
                             teacherId: formData.bookingType === 'CLASS' ? formData.teacherId : undefined,
                             skillLevel: formData.bookingType === 'MATCH' ? Number(formData.skillLevel) : undefined
@@ -191,6 +218,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                      const res = await apiRes.json()
 
                      if (res.success && 'booking' in res) {
+                            if (initialWaitingListId) {
+                                   try {
+                                          await updateWaitingListStatus(initialWaitingListId, 'FULFILLED')
+                                   } catch (waitingListError) {
+                                          console.error('Error fulfilling waiting list lead:', waitingListError)
+                                   }
+                            }
+
                             setSuccessData({
                                    booking: res.booking,
                                    client: res.client,
@@ -243,7 +278,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                    animate={{ scale: 1, opacity: 1 }}
                                    className="bg-card border border-border w-full max-w-sm rounded-3xl shadow-2xl p-8 flex flex-col items-center text-center"
                             >
-                                   <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                                   <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 mb-6">
                                           <CheckCircle2 size={40} className="stroke-[3px]" />
                                    </div>
 
@@ -287,9 +322,9 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
               <AnimatePresence>
                      {isOpen && (
                             <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 pb-[env(safe-area-inset-bottom)]">
-                                   {/* Backdrop */}
-                                   <motion.div
-                                          initial={{ opacity: 0 }}
+                                    {/* Backdrop */}
+                                    <motion.div
+                                           initial={{ opacity: 0 }}
                                           animate={{ opacity: 1 }}
                                           exit={{ opacity: 0 }}
                                           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -353,7 +388,7 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                                     <button
                                                                                            key={type.id}
                                                                                            type="button"
-                                                                                           onClick={() => setFormData({ ...formData, bookingType: type.id as any })}
+                                                                                           onClick={() => setFormData({ ...formData, bookingType: type.id as 'NORMAL' | 'CLASS' | 'MATCH' })}
                                                                                            className={cn(
                                                                                                   "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all",
                                                                                                   formData.bookingType === type.id 
@@ -541,25 +576,25 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
                                                                       </AnimatePresence>
 
                                                                       {/* Time + Court Row */}
-                                                                      <div className="grid grid-cols-2 gap-3">
-                                                                             <div className="space-y-2">
-                                                                                    <label className="text-[11px] font-bold text-muted-foreground ml-1 uppercase tracking-wider">Horario</label>
-                                                                                    <div className="relative">
-                                                                                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                                                                  <Clock size={14} className="text-primary" />
-                                                                                           </div>
-                                                                                           <select
-                                                                                                  className="block w-full pl-11 pr-10 py-3.5 text-sm font-bold bg-muted/40 border border-border/60 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none text-foreground appearance-none transition-all"
-                                                                                                  value={formData.time}
-                                                                                                  onChange={e => setFormData({ ...formData, time: e.target.value })}
-                                                                                           >
-                                                                                                  {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
-                                                                                           </select>
-                                                                                           <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                                                                                    </div>
-                                                                             </div>
-                                                                             <div className="space-y-2">
-                                                                                    <label className="text-[11px] font-bold text-muted-foreground ml-1 uppercase tracking-wider">Cancha</label>
+                                                                       <div className="grid grid-cols-2 gap-3">
+                                                                              <div className="space-y-2">
+                                                                                     <label className="text-[11px] font-bold text-muted-foreground ml-1 uppercase tracking-wider">Horario</label>
+                                                                                     <div className="relative">
+                                                                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                                                                   <Clock size={14} className="text-primary" />
+                                                                                            </div>
+                                                                                            <select
+                                                                                                   className="block w-full pl-11 pr-10 py-3.5 text-sm font-bold bg-muted/40 border border-border/60 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/50 outline-none text-foreground appearance-none transition-all"
+                                                                                                   value={formData.time}
+                                                                                                   onChange={e => setFormData({ ...formData, time: e.target.value })}
+                                                                                            >
+                                                                                                   {timeOptions.map(t => <option key={t} value={t}>{t} Hs</option>)}
+                                                                                            </select>
+                                                                                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                                                                                     </div>
+                                                                              </div>
+                                                                              <div className="space-y-2">
+                                                                                     <label className="text-[11px] font-bold text-muted-foreground ml-1 uppercase tracking-wider">Cancha</label>
                                                                                     <div className="relative">
                                                                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                                                                                   <MapPin size={14} className="text-primary" />
@@ -714,63 +749,14 @@ export default function BookingModal({ isOpen, onClose, onSuccess, initialDate, 
 
                                                                              <div className="h-px bg-border" />
 
-                                                                             {/* Payment Method */}
-                                                                             <div className="space-y-3">
-                                                                                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Pago</p>
-                                                                                    <div className="grid grid-cols-3 gap-2">
-                                                                                           {[
-                                                                                                  { id: "none", label: "Impago", icon: Ban, activeColor: "text-red-500", activeBg: "bg-red-500/10", activeBorder: "border-red-500/25" },
-                                                                                                  { id: "partial", label: "Seña", icon: PiggyBank, activeColor: "text-amber-500", activeBg: "bg-amber-500/10", activeBorder: "border-amber-500/25" },
-                                                                                                  { id: "full", label: "Pagado", icon: Receipt, activeColor: "text-emerald-500", activeBg: "bg-emerald-500/10", activeBorder: "border-emerald-500/25" }
-                                                                                           ].map((method) => {
-                                                                                                  const isSelected = formData.paymentType === method.id
-                                                                                                  return (
-                                                                                                         <button
-                                                                                                                key={method.id}
-                                                                                                                type="button"
-                                                                                                                onClick={() => setFormData({ ...formData, paymentType: method.id as 'none' | 'full' | 'partial' | 'split' })}
-                                                                                                                className={cn(
-                                                                                                                       "relative p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2",
-                                                                                                                       isSelected
-                                                                                                                              ? `${method.activeBg} ${method.activeBorder} ${method.activeColor} shadow-sm`
-                                                                                                                              : "bg-transparent border-border/40 text-muted-foreground hover:border-border hover:bg-muted/30"
-                                                                                                                )}
-                                                                                                         >
-                                                                                                                <method.icon size={20} strokeWidth={isSelected ? 2.5 : 1.5} />
-                                                                                                                <span className="text-[10px] font-bold uppercase tracking-wide">
-                                                                                                                       {method.label}
-                                                                                                                </span>
-                                                                                                         </button>
-                                                                                                  )
-                                                                                           })}
-                                                                                    </div>
+                                                                             <div className="rounded-xl border border-amber-500/15 bg-amber-500/5 p-4 space-y-2">
+                                                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                                                                           Cobro pendiente
+                                                                                    </p>
+                                                                                    <p className="text-xs leading-relaxed text-muted-foreground">
+                                                                                           Este formulario solo crea la reserva. El cobro se registra después desde la ventana de pagos o gestión del turno.
+                                                                                    </p>
                                                                              </div>
-
-                                                                             {/* Deposit Amount */}
-                                                                             <AnimatePresence>
-                                                                                    {formData.paymentType === 'partial' && (
-                                                                                           <motion.div
-                                                                                                  initial={{ opacity: 0, height: 0 }}
-                                                                                                  animate={{ opacity: 1, height: 'auto' }}
-                                                                                                  exit={{ opacity: 0, height: 0 }}
-                                                                                                  className="overflow-hidden"
-                                                                                           >
-                                                                                                  <div className="p-4 bg-amber-500/5 border border-amber-500/15 rounded-xl space-y-2">
-                                                                                                         <label className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Monto de seña</label>
-                                                                                                         <div className="relative">
-                                                                                                                <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
-                                                                                                                <input
-                                                                                                                       type="number"
-                                                                                                                       value={formData.depositAmount}
-                                                                                                                       onChange={e => setFormData({ ...formData, depositAmount: e.target.value })}
-                                                                                                                       placeholder="0"
-                                                                                                                       className="w-full bg-background border border-amber-500/20 rounded-lg pl-9 pr-4 py-2.5 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-amber-500/20"
-                                                                                                                />
-                                                                                                         </div>
-                                                                                                  </div>
-                                                                                           </motion.div>
-                                                                                    )}
-                                                                             </AnimatePresence>
                                                                       </div>
 
                                                                       {/* WhatsApp Info */}

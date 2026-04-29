@@ -57,7 +57,7 @@ export function InstallPrompt() {
               <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-500">
                      <div className="bg-[#18181B] border border-white/10 rounded-xl p-4 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-md bg-opacity-90 max-w-md">
                             <div className="flex items-center gap-3">
-                                   <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                                   <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white shrink-0 shadow-sm">
                                           <Download size={20} />
                                    </div>
                                    <div>

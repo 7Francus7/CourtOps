@@ -176,4 +176,12 @@ export const authOptions: NextAuthOptions = {
        },
        secret: process.env.NEXTAUTH_SECRET,
        debug: process.env.NODE_ENV === 'development',
+       logger: {
+              error(code, ...message) {
+                     if (code === 'JWT_SESSION_ERROR') return
+                     console.error(code, ...message)
+              },
+              warn(code) { console.warn(code) },
+              debug(code, ...message) { console.debug(code, ...message) },
+       },
 }

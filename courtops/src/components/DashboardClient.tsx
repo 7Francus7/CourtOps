@@ -24,10 +24,12 @@ const TurneroGrid = dynamic(() => import('@/components/TurneroGrid'), { ssr: fal
 const MobileDashboard = dynamic(() => import('@/components/MobileDashboard'), { ssr: false })
 const MobileTurnero = dynamic(() => import('@/components/MobileTurnero'), { ssr: false })
 const FlyerGenerator = dynamic(() => import('@/components/FlyerGenerator'), { ssr: false })
+const KioscoModal = dynamic(() => import('@/components/KioscoModal'), { ssr: false })
+const PublicBookingGrowthKit = dynamic(() => import('@/components/PublicBookingGrowthKit'), { ssr: false })
 
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
-import { Info, X, Plus, UserPlus, DollarSign, Calendar, AlertTriangle, Clock, Settings } from 'lucide-react'
+import { Info, X, AlertTriangle, Settings } from 'lucide-react'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -36,6 +38,7 @@ export default function DashboardClient({
 	clubName,
 	logoUrl,
 	slug,
+	features,
 	themeColor,
 	showOnboarding = false,
 	activeNotification,
@@ -92,11 +95,21 @@ export default function DashboardClient({
               if (modal === 'help') {
                      setIsHelpOpen(true)
               }
-       }, [searchParams])
+              setIsKioscoOpen(modal === 'kiosco' && !!features?.hasKiosco)
+       }, [searchParams, features?.hasKiosco])
 
        // Creation State
        const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-       const [createModalProps, setCreateModalProps] = useState<{ initialDate?: Date, initialCourtId?: number, initialTime?: string } | null>(null)
+       const [createModalProps, setCreateModalProps] = useState<{
+              initialDate?: Date
+              initialCourtId?: number
+              initialTime?: string
+              initialClientName?: string
+              initialClientPhone?: string
+              initialClientEmail?: string
+              initialNotes?: string
+              initialWaitingListId?: number
+       } | null>(null)
        const [courts, setCourts] = useState<{ id: number; name: string; duration?: number }[]>([])
 
        // Flyer State
@@ -112,31 +125,55 @@ export default function DashboardClient({
        const router = useRouter()
        const queryClient = useQueryClient()
 
+       const [isMounted, setIsMounted] = useState(false)
        const [initialLoading, setInitialLoading] = useState(true)
+
+       useEffect(() => {
+              setIsMounted(true)
+       }, [])
 
        // Load Courts for Global Creation Modal via API endpoint (client-side)
        useEffect(() => {
               ; (async () => {
+                     const controller = new AbortController()
+                     const timeout = setTimeout(() => controller.abort(), 6000)
                      try {
                             setInitialLoading(true)
-                            const res = await fetch('/api/dashboard/courts')
+                            const res = await fetch('/api/dashboard/courts', { signal: controller.signal })
                             if (!res.ok) throw new Error('Failed to load courts')
                             const data = await res.json()
                             setCourts(data || [])
                      } catch (err) {
-                            console.error('Error loading courts:', err)
+                            if (!(err instanceof DOMException && err.name === 'AbortError')) {
+                                   console.error('Error loading courts:', err)
+                            }
                             setCourts([])
                      } finally {
+                            clearTimeout(timeout)
                             setInitialLoading(false)
                      }
               })()
        }, [])
 
-       const handleOpenNewBooking = useCallback((data: { courtId?: number, time?: string, date: Date }) => {
+       const handleOpenNewBooking = useCallback((data: {
+              courtId?: number
+              time?: string
+              date: Date
+              clientName?: string
+              clientPhone?: string
+              clientEmail?: string
+              notes?: string
+              waitingListId?: number
+       }) => {
               setCreateModalProps({
                      initialDate: data.date,
                      initialCourtId: data.courtId,
-                     initialTime: data.time
+                     initialTime: data.time,
+                     initialClientName: data.clientName,
+                     initialClientPhone: data.clientPhone,
+                     initialClientEmail: data.clientEmail,
+                     initialNotes: data.notes,
+                     initialWaitingListId: data.waitingListId
               })
               setIsCreateModalOpen(true)
        }, [])
@@ -151,7 +188,12 @@ export default function DashboardClient({
                      setCreateModalProps({
                             initialDate: bookingOrId.date as Date | undefined,
                             initialCourtId: bookingOrId.courtId as number | undefined,
-                            initialTime: bookingOrId.time as string | undefined
+                            initialTime: bookingOrId.time as string | undefined,
+                            initialClientName: bookingOrId.clientName as string | undefined,
+                            initialClientPhone: bookingOrId.clientPhone as string | undefined,
+                            initialClientEmail: bookingOrId.clientEmail as string | undefined,
+                            initialNotes: bookingOrId.notes as string | undefined,
+                            initialWaitingListId: bookingOrId.waitingListId as number | undefined
                      })
                      setIsCreateModalOpen(true)
               } else if (typeof bookingOrId === 'number') {
@@ -182,6 +224,8 @@ export default function DashboardClient({
        }, [slug])
 
        const [isHelpOpen, setIsHelpOpen] = useState(false)
+       const [isKioscoOpen, setIsKioscoOpen] = useState(false)
+       const [isGrowthKitOpen, setIsGrowthKitOpen] = useState(false)
        const [showManualTutorial, setShowManualTutorial] = useState(false)
 
        const handleRestartTutorial = useCallback(() => {
@@ -240,7 +284,9 @@ export default function DashboardClient({
               return () => window.removeEventListener('keydown', handleKeyDown)
        }, [router, handleCopyLink])
 
-       if (initialLoading) return (
+       const shouldShowInitialSkeleton = initialLoading && (!isMounted || window.innerWidth >= 768)
+
+       if (shouldShowInitialSkeleton) return (
               <div className="h-screen w-full bg-background p-6 lg:p-8 overflow-hidden flex flex-col gap-6">
                      <header className="flex justify-between items-center mb-2">
                             <div className="h-10 w-48 bg-white/5 rounded-xl animate-pulse" />
@@ -254,7 +300,7 @@ export default function DashboardClient({
               <>
                      <ThemeRegistry themeColor={themeColor} />
                      {/* MOBILE LAYOUT */}
-                     <div className="md:hidden flex flex-col h-full bg-background relative">
+                     <div className="md:hidden flex flex-col h-full bg-transparent relative">
                             {/* MOBILE CONTENT */}
                             <div className="flex-1 flex flex-col min-h-0">
                                    {mobileView === 'dashboard' ? (
@@ -293,27 +339,15 @@ export default function DashboardClient({
 {/* DESKTOP LAYOUT */}
                       <div className="hidden md:flex h-full bg-background text-foreground font-sans flex-col w-full overflow-hidden">
                              {/* ALERTS BANNER */}
-                             {(alerts?.trialExpiring || alerts?.noCourts) && (
-                                    <div className="w-full px-6 py-3 flex items-center justify-between text-xs bg-amber-950/50 border-b border-amber-900/30 z-50">
-                                           <div className="flex items-center gap-3">
-                                                  <div className="p-1.5 rounded-md bg-amber-500/10">
-                                                         <AlertTriangle size={14} className="text-amber-400" />
-                                                  </div>
-                                                  <div className="flex items-center gap-4">
-                                                         {alerts?.trialExpiring && (
-                                                                <span className="flex items-center gap-2 text-amber-100">
-                                                                       <Clock size={14} />
-                                                                       <span className="font-medium">Tu prueba gratis expira pronto. <button onClick={() => router.push('/dashboard/suscripcion')} className="underline hover:text-white">Renovar ahora</button></span>
-                                                                </span>
-                                                         )}
-                                                         {alerts?.noCourts && (
-                                                                <span className="flex items-center gap-2 text-amber-100">
-                                                                       <Settings size={14} />
-                                                                       <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/setup')} className="underline hover:text-white">Completar setup</button></span>
-                                                                </span>
-                                                         )}
-                                                  </div>
+                             {alerts?.noCourts && (
+                                    <div className="w-full px-6 py-3 flex items-center gap-3 text-xs bg-amber-950/50 border-b border-amber-900/30 z-50">
+                                           <div className="p-1.5 rounded-md bg-amber-500/10">
+                                                  <AlertTriangle size={14} className="text-amber-400" />
                                            </div>
+                                           <span className="flex items-center gap-2 text-amber-100">
+                                                  <Settings size={14} />
+                                                  <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/setup')} className="underline hover:text-white">Completar setup</button></span>
+                                           </span>
                                     </div>
                              )}
 
@@ -375,9 +409,8 @@ export default function DashboardClient({
                                                  <DashboardControlBar
                                                         selectedDate={selectedDate}
                                                         setSelectedDate={setSelectedDate}
-                                                        showAdvancedStats={showAdvancedStats}
-                                                        setShowAdvancedStats={setShowAdvancedStats}
                                                         handleCopyLink={handleCopyLink}
+                                                        onOpenGrowthKit={() => setIsGrowthKitOpen(true)}
                                                         setIsCreateModalOpen={setIsCreateModalOpen}
                                                         onOpenHelp={() => setIsHelpOpen(true)}
                                                  />
@@ -408,6 +441,11 @@ export default function DashboardClient({
                                    initialDate={createModalProps?.initialDate || selectedDate}
                                    initialCourtId={createModalProps?.initialCourtId}
                                    initialTime={createModalProps?.initialTime}
+                                   initialClientName={createModalProps?.initialClientName}
+                                   initialClientPhone={createModalProps?.initialClientPhone}
+                                   initialClientEmail={createModalProps?.initialClientEmail}
+                                   initialNotes={createModalProps?.initialNotes}
+                                   initialWaitingListId={createModalProps?.initialWaitingListId}
                                    courts={courts}
                             />
                      )}
@@ -446,6 +484,20 @@ export default function DashboardClient({
                             onRestartTutorial={handleRestartTutorial}
                      />
 
+                     <KioscoModal
+                            isOpen={isKioscoOpen}
+                            onClose={() => {
+                                   setIsKioscoOpen(false)
+                                   router.replace('/dashboard')
+                            }}
+                     />
+
+                     <PublicBookingGrowthKit
+                            isOpen={isGrowthKitOpen}
+                            onClose={() => setIsGrowthKitOpen(false)}
+                            slug={slug}
+                     />
+
                      {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (
                             <OnboardingWizard clubName={clubName} slug={slug} />
                      )}
@@ -454,30 +506,6 @@ export default function DashboardClient({
                             onManualClose={() => setShowManualTutorial(false)}
                       />
 
-                      {/* QUICK ACTIONS FLOATING BUTTON */}
-                      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-                            <button
-                                   onClick={() => router.push('/clientes?modal=new')}
-                                   className="w-14 h-14 rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                   title="Nuevo Cliente"
-                            >
-                                   <UserPlus size={24} />
-                            </button>
-                            <button
-                                   onClick={() => router.push('/caja')}
-                                   className="w-14 h-14 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                   title="Abrir Caja"
-                            >
-                                   <DollarSign size={24} />
-                            </button>
-                            <button
-                                   onClick={() => setIsCreateModalOpen(true)}
-                                   className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                                   title="Nueva Reserva"
-                            >
-                                   <Plus size={28} />
-                            </button>
-                      </div>
               </>
        )
 }

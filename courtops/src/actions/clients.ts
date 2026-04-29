@@ -182,6 +182,39 @@ export const deleteClient = createSafeAction(async ({ clubId }, clientId: number
        return { success: true }
 })
 
+export const bulkImportClients = createSafeAction(async ({ clubId }, rows: { name: string; phone: string; email?: string; category?: string; notes?: string }[]) => {
+       let imported = 0
+       let skipped = 0
+       const errors: string[] = []
+
+       for (const row of rows) {
+              if (!row.name?.trim() || !row.phone?.trim()) {
+                     skipped++
+                     continue
+              }
+              try {
+                     const existing = await prisma.client.findFirst({ where: { clubId, phone: row.phone.trim(), deletedAt: null } })
+                     if (existing) { skipped++; continue }
+                     await prisma.client.create({
+                            data: {
+                                   clubId,
+                                   name: row.name.trim(),
+                                   phone: row.phone.trim(),
+                                   email: row.email?.trim() || undefined,
+                                   category: row.category?.trim() || undefined,
+                                   notes: row.notes?.trim() || undefined,
+                            }
+                     })
+                     imported++
+              } catch {
+                     errors.push(row.name)
+              }
+       }
+
+       revalidatePath('/clientes')
+       return { imported, skipped, errors }
+})
+
 export const createClientPayment = createSafeAction(async ({ clubId }, clientId: number, amount: number, method: string, description: string) => {
        const register = await getOrCreateTodayCashRegister(clubId)
 

@@ -40,14 +40,8 @@ export async function getOpenMatches(clubSlug: string): Promise<OpenMatch[]> {
        })
 
        return JSON.parse(JSON.stringify(matches.map(match => {
-              // Logic to calculate missing players
-              // Creator counts as 1.
-              // Joined players count as 1 each.
               const currentPlayersCount = 1 + match.players.length
               const missing = Math.max(0, match.maxPlayers - currentPlayersCount)
-
-              // Price per person
-              // Assuming equal split
               const pricePerPerson = match.price / match.maxPlayers
 
               return {
@@ -66,12 +60,37 @@ export async function getOpenMatches(clubSlug: string): Promise<OpenMatch[]> {
 }
 
 export async function joinOpenMatch(bookingId: number, name: string, phone: string) {
+       const cleanName = name.trim()
+       const cleanPhone = phone.replace(/\D/g, '')
+
+       if (cleanName.length < 2 || cleanPhone.length < 8) {
+              throw new Error("Completá nombre y teléfono correctamente")
+       }
+
        const booking = await prisma.booking.findUnique({
               where: { id: bookingId },
-              include: { players: true }
+              include: {
+                     players: true,
+                     client: { select: { phone: true } },
+                     club: { select: { slug: true } }
+              }
        })
 
        if (!booking) throw new Error("Partido no encontrado")
+
+       // Guard: only bookings explicitly marked as open matches can be joined
+       if (!booking.isOpenMatch) {
+              throw new Error("Este partido no está abierto para unirse")
+       }
+
+       // Guard: cannot join cancelled or past bookings
+       if (booking.status === 'CANCELED' || booking.status === 'CANCELLED') {
+              throw new Error("No se puede unir a un partido cancelado")
+       }
+
+       if (booking.startTime <= new Date()) {
+              throw new Error("No se puede unir a un partido que ya comenzó")
+       }
 
        const currentPlayersCount = 1 + booking.players.length
 
@@ -79,17 +98,34 @@ export async function joinOpenMatch(bookingId: number, name: string, phone: stri
               throw new Error("El partido está completo.")
        }
 
-       // Add player
+       const ownerPhone = booking.guestPhone || booking.client?.phone || ''
+       if (ownerPhone.replace(/\D/g, '') === cleanPhone || booking.players.some(player => player.phone?.replace(/\D/g, '') === cleanPhone)) {
+              throw new Error("Ese teléfono ya está anotado en el partido.")
+       }
+
        await prisma.bookingPlayer.create({
               data: {
                      bookingId,
-                     name,
-                     phone,
-                     amount: booking.price / booking.maxPlayers, // Auto set amount
-                     isPaid: false, // Default unpaid
+                     name: cleanName,
+                     phone: cleanPhone,
+                     amount: booking.price / booking.maxPlayers,
+                     isPaid: false,
               }
        })
 
        revalidatePath('/')
+       revalidatePath(`/p/${booking.club.slug}`)
+       revalidatePath(`/${booking.club.slug}`)
+
+       try {
+              const { pusherServer } = await import('@/lib/pusher')
+              await pusherServer.trigger(`club-${booking.clubId}`, 'booking-update', {
+                     action: 'join-open-match',
+                     bookingId: booking.id
+              })
+       } catch (pusherErr) {
+              console.error('[PUSHER ERROR in open-matches]', pusherErr)
+       }
+
        return { success: true }
 }

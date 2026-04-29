@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { CourtOpsLogoFull } from '@/components/ui/CourtOpsLogo'
 
 const links = {
   Producto: [
@@ -31,11 +32,8 @@ export default function LandingFooter() {
 
           {/* Marca */}
           <div className="mb-12 md:mb-0">
-            <div
-              className="text-lg font-black mb-6 tracking-tighter"
-              style={{ color: 'var(--co-green)' }}
-            >
-              CourtOps
+            <div className="mb-6">
+              <CourtOpsLogoFull className="h-8 w-auto" darkBg />
             </div>
             <p
               className="text-sm leading-relaxed max-w-xs"

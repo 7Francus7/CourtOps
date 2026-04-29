@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, ChevronRight, Store, ArrowLeft, Loader2 } from 'lucide-react'
+import { ChevronRight, Store, ArrowLeft, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { completeSetup, SetupData } from '@/actions/setup'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ export function SetupWizard({ initialData }: { initialData: any }) {
        const [formData, setFormData] = useState<SetupData>({
               clubName: initialData.clubName || '',
               courtCount: 2,
-              courtSurface: 'Grass',
+              courtSurface: 'Césped Sintético',
               openTime: initialData.openTime || '14:00',
               closeTime: initialData.closeTime || '00:30',
               basePrice: 10000
@@ -24,28 +24,27 @@ export function SetupWizard({ initialData }: { initialData: any }) {
        const steps = [
               {
                      title: "Bienvenido",
-                     desc: "Configuremos tu club en segundos.",
+                     desc: "Configuremos tu club de padel en segundos.",
                      icon: Store
               },
               {
                      title: "Tu Club",
-                     desc: "¿Cómo se llama y a qué hora abres?",
+                     desc: "¿Cómo se llama y en qué horario recibe turnos de padel?",
                      icon: Store
               },
               {
                      title: "Canchas",
-                     desc: "¿Cuántas tienes y de qué tipo?",
+                     desc: "¿Cuántas canchas de padel tienes?",
                      icon: Store
               },
               {
                      title: "Precios",
-                     desc: "¿Cuánto cuesta el turno base?",
+                     desc: "¿Cuánto cuesta el turno base de 90 minutos?",
                      icon: Store
               }
        ]
 
        const handleNext = async () => {
-              // Validation
               if (step === 1) {
                      if (!formData.clubName.trim()) return alert("Por favor ingresa el nombre del club")
                      if (!formData.openTime || !formData.closeTime) return alert("Por favor define los horarios")
@@ -84,18 +83,16 @@ export function SetupWizard({ initialData }: { initialData: any }) {
 
        return (
               <div className="fixed inset-0 z-50 bg-[#09090b] text-white flex items-center justify-center p-4">
-                     {/* Background Glow */}
                      <div className="absolute inset-0 bg-gradient-to-tr from-brand-green/5 via-transparent to-brand-blue/5 pointer-events-none" />
 
                      <div className="w-full max-w-lg relative">
-                            {/* Progress Bar */}
                             <div className="flex gap-2 mb-8">
-                                   {steps.map((s, i) => (
+                                   {steps.map((_, i) => (
                                           <div
                                                  key={i}
                                                  className={cn(
                                                         "h-1 flex-1 rounded-full transition-all duration-500",
-                                                        i <= step ? "bg-brand-green shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-white/10"
+                                                        i <= step ? "bg-brand-green" : "bg-white/10"
                                                  )}
                                           />
                                    ))}
@@ -117,17 +114,15 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                  <p className="text-zinc-400">{steps[step].desc}</p>
                                           </div>
 
-                                          {/* STEP 0: WELCOME */}
                                           {step === 0 && (
                                                  <div className="space-y-4">
                                                         <div className="p-4 bg-brand-green/10 border border-brand-green/20 rounded-xl text-brand-green text-sm flex gap-3 items-start">
                                                                <Store className="shrink-0 mt-0.5" size={18} />
-                                                               <p>CourtOps te ayuda a automatizar reservas, caja y clientes. Solo necesitamos unos datos básicos para empezar.</p>
+                                                               <p>CourtOps te ayuda a automatizar reservas, caja y clientes de padel. Solo necesitamos unos datos básicos para empezar.</p>
                                                         </div>
                                                  </div>
                                           )}
 
-                                          {/* STEP 1: CLUB INFO */}
                                           {step === 1 && (
                                                  <div className="space-y-4">
                                                         <div className="space-y-2">
@@ -136,7 +131,7 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                                       value={formData.clubName}
                                                                       onChange={e => setFormData({ ...formData, clubName: e.target.value })}
                                                                       className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-brand-green focus:outline-none transition-colors"
-                                                                      placeholder="Ej. Padel Club Central"
+                                                                      placeholder="Ej. Club de Padel Central"
                                                                       autoFocus
                                                                />
                                                         </div>
@@ -163,7 +158,6 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                  </div>
                                           )}
 
-                                          {/* STEP 2: COURTS */}
                                           {step === 2 && (
                                                  <div className="space-y-6">
                                                         <div className="space-y-2">
@@ -176,7 +170,7 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                                                     className={cn(
                                                                                            "w-10 h-10 rounded-lg font-bold transition-all",
                                                                                            formData.courtCount === num
-                                                                                                  ? "bg-brand-green text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-110"
+                                                                                                  ? "bg-brand-green text-black shadow-sm scale-110"
                                                                                                   : "bg-white/5 hover:bg-white/10 text-zinc-400"
                                                                                     )}
                                                                              >
@@ -186,9 +180,9 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                                </div>
                                                         </div>
                                                         <div className="space-y-2">
-                                                               <label className="text-xs uppercase font-bold text-zinc-500">Superficie</label>
+                                                               <label className="text-xs uppercase font-bold text-zinc-500">Superficie de padel</label>
                                                                <div className="grid grid-cols-2 gap-2">
-                                                                      {['Césped Sintético', 'Cemento', 'Alfombra'].map(s => (
+                                                                      {['Césped Sintético', 'Mondo', 'Hormigón', 'Panorámica'].map(s => (
                                                                              <button
                                                                                     key={s}
                                                                                     onClick={() => setFormData({ ...formData, courtSurface: s })}
@@ -203,11 +197,13 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                                              </button>
                                                                       ))}
                                                                </div>
+                                                               <p className="text-xs text-zinc-500">
+                                                                      Todas las canchas se crearán como padel y la agenda quedará configurada en turnos fijos de 90 minutos.
+                                                               </p>
                                                         </div>
                                                  </div>
                                           )}
 
-                                          {/* STEP 3: PRICE */}
                                           {step === 3 && (
                                                  <div className="space-y-4">
                                                         <div className="space-y-2">
@@ -224,13 +220,12 @@ export function SetupWizard({ initialData }: { initialData: any }) {
                                                                       />
                                                                </div>
                                                                <p className="text-xs text-zinc-500">
-                                                                      * Este será el precio por defecto. Luego podrás crear reglas avanzadas (días, horarios, miembros) en Configuración.
+                                                                      * Este será el precio por defecto del turno de padel. Luego podrás crear reglas avanzadas por día, horario y cancha.
                                                                </p>
                                                         </div>
                                                  </div>
                                           )}
 
-                                          {/* ACTIONS */}
                                           <div className="flex justify-between pt-4 border-t border-white/5">
                                                  {step > 0 ? (
                                                         <button

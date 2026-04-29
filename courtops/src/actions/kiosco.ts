@@ -7,10 +7,8 @@ import { getOrCreateTodayCashRegister } from '@/lib/tenant'
 
 export const getProducts = createSafeAction(async ({ clubId }) => {
        return await prisma.product.findMany({
-              where: {
-                     clubId,
-                     isActive: true
-              },
+              where: { clubId, isActive: true },
+              orderBy: [{ category: 'asc' }, { name: 'asc' }],
        })
 })
 

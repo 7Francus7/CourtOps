@@ -21,8 +21,9 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      const noSessionResponse: TurneroResponse = {
                             bookings: [],
                             courts: [],
-                            config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
+                            config: { openTime: '09:00', closeTime: '00:00', slotDuration: 90 },
                             clubId: '',
+                            clubName: '',
                             success: false,
                             error: 'No session'
                      }
@@ -50,7 +51,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
 
               const club = await prisma.club.findUnique({
                      where: { id: clubId },
-                     select: { openTime: true, closeTime: true, slotDuration: true, timezone: true }
+                     select: { name: true, openTime: true, closeTime: true, slotDuration: true, timezone: true }
               }).catch(() => null)
 
               // Fetch bookings (non-critical, can fail)
@@ -86,6 +87,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                      courts,
                      config,
                      clubId,
+                     clubName: club?.name ?? '',
                      success: true
               }
 
@@ -102,8 +104,9 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
               const errorResponse: TurneroResponse = {
                      bookings: [],
                      courts: [],
-                     config: { openTime: '09:00', closeTime: '00:00', slotDuration: 60 },
+                     config: { openTime: '09:00', closeTime: '00:00', slotDuration: 90 },
                      clubId: '',
+                     clubName: '',
                      success: false,
                      error: errorMessage
               }

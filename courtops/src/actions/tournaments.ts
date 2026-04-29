@@ -101,7 +101,7 @@ export async function deleteTournament(id: string) {
               if (!existing) return { success: false, error: "No autorizado" }
 
               await prisma.tournament.delete({
-                     where: { id }
+                     where: { id_clubId: { id, clubId: session.user.clubId } }
               })
               revalidatePath('/torneos')
               return { success: true }
@@ -122,7 +122,7 @@ export async function updateTournament(id: string, data: { name?: string, status
               if (!existing) return { success: false, error: "No autorizado" }
 
               await prisma.tournament.update({
-                     where: { id },
+                     where: { id_clubId: { id, clubId: session.user.clubId } },
                      data
               })
               revalidatePath('/torneos')

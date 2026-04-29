@@ -81,7 +81,7 @@ export default function PlanManager({ plans }: { plans: Plan[] }) {
 
 			<div className="mt-5 pt-4 border-t border-white/[0.04] flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(34,197,94,0.5)] animate-pulse" />
+					<span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
 					<span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Live DB</span>
 				</div>
 				<button

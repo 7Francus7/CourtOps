@@ -6,6 +6,8 @@ import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
 
+const PADEL_SLOT_MINUTES = 90
+
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
               where: { slug },
@@ -23,6 +25,7 @@ export async function getPublicClubBySlug(slug: string) {
                      cancelHours: true,
                      themeColor: true,
                      hasOnlinePayments: true,
+                     mpAccessToken: true,
                      mpPublicKey: true,
                      mpAlias: true,
                      mpCvu: true,
@@ -40,7 +43,14 @@ export async function getPublicClubBySlug(slug: string) {
                      }
               }
        })
-       return JSON.parse(JSON.stringify(club))
+
+       if (!club) return null
+
+       const { mpAccessToken, ...publicClub } = club
+       return JSON.parse(JSON.stringify({
+              ...publicClub,
+              canUseOnlinePayments: Boolean(mpAccessToken)
+       }))
 }
 
 export async function getPublicClient(clubId: string, identifier: string) {
@@ -62,18 +72,33 @@ export async function getPublicClient(clubId: string, identifier: string) {
        return client
 }
 
+function getPublicDateParts(dateInput: Date | string) {
+       if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+              const [year, month, day] = dateInput.split('-').map(Number)
+              return { year, month: month - 1, day }
+       }
+
+       const parsed = dateInput instanceof Date ? dateInput : new Date(dateInput)
+       if (Number.isNaN(parsed.getTime())) {
+              throw new Error('Fecha inválida')
+       }
+
+       const argDate = fromUTC(parsed)
+       return {
+              year: argDate.getUTCFullYear(),
+              month: argDate.getUTCMonth(),
+              day: argDate.getUTCDate()
+       }
+}
+
 export async function getPublicAvailability(clubId: string, dateInput: Date | string, durationMinutes?: number) {
-       const date = new Date(dateInput)
+       const { year: targetYear, month: targetMonth, day: targetDay } = getPublicDateParts(dateInput)
        // Use a wider padded range to fetch bookings from DB, 
        // to avoid skipped bookings on cross-timezone boundaries (e.g., night shifts matching next UTC day). 
        // The exact overlap check down below handles the precise filtering.
-       const start = new Date(date)
-       start.setDate(start.getDate() - 1)
-       start.setHours(0, 0, 0, 0)
-
-       const end = new Date(date)
-       end.setDate(end.getDate() + 2)
-       end.setHours(23, 59, 59, 999)
+       const start = addDays(createArgDate(targetYear, targetMonth, targetDay, 0, 0), -1)
+       const end = addDays(createArgDate(targetYear, targetMonth, targetDay, 23, 59), 2)
+       end.setSeconds(59, 999)
 
        // 1. Get Club Settings
        const club = await prisma.club.findUnique({
@@ -117,17 +142,10 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               timeZone: 'America/Argentina/Buenos_Aires'
        })
 
-       // Extract correct Argentina Date components to build the slots range
-       const argDate = fromUTC(date)
-       const targetYear = argDate.getUTCFullYear()
-       const targetMonth = argDate.getUTCMonth()
-       const targetDay = argDate.getUTCDate()
-
        // Iterate EACH COURT individually
        for (const court of courts) {
-              const courtDefaultDuration = (court as { duration?: number }).duration || club.slotDuration || 90
-              const courtDuration = durationMinutes || courtDefaultDuration
-              const sport = (court as { sport?: string }).sport || 'PADEL'
+              const courtDuration = durationMinutes || PADEL_SLOT_MINUTES
+              const sport = 'PADEL'
 
               // Start time for this court
               let currentTime = createArgDate(targetYear, targetMonth, targetDay, openH, openM)
@@ -206,22 +224,76 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        }))
 }
 
-export async function createPublicBooking(data: {
+type PublicBookingInput = {
        clubId: string
        courtId: number
-       dateStr: string // YYYY-MM-DD
-       timeStr: string // HH:mm
-       clientName: string
-       clientPhone: string
+       dateStr?: string // YYYY-MM-DD
+       timeStr?: string // HH:mm
+       clientName?: string
+       clientPhone?: string
        email?: string
        isGuest?: boolean
        isOpenMatch?: boolean
        matchLevel?: string
        matchGender?: string
        durationMinutes?: number
-}) {
+       date?: string
+       time?: string
+       guestName?: string
+       guestPhone?: string
+}
+
+type PublicWaitingListInput = {
+       clubId: string
+       dateStr: string
+       clientName: string
+       clientPhone: string
+       notes?: string
+       courtId?: number
+}
+
+export async function createPublicBooking(data: PublicBookingInput) {
        try {
               await enforceActiveSubscription(data.clubId)
+
+              const dateStr = data.dateStr ?? data.date
+              const timeStr = data.timeStr ?? data.time
+              const clientName = data.clientName ?? data.guestName
+              const clientPhone = data.clientPhone ?? data.guestPhone
+
+              if (!dateStr || !timeStr || !clientName || !clientPhone) {
+                     return { success: false, error: 'Faltan datos obligatorios para crear la reserva.' }
+              }
+
+              if (clientName.trim().length < 2) {
+                     return { success: false, error: 'El nombre debe tener al menos 2 caracteres.' }
+              }
+
+              const phoneDigits = clientPhone.replace(/\D/g, '')
+              if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+                     return { success: false, error: 'El teléfono ingresado no es válido.' }
+              }
+
+              if (data.isGuest) {
+                     const noShowCount = await prisma.booking.count({
+                            where: { clubId: data.clubId, guestPhone: clientPhone, status: 'NO_SHOW' }
+                     })
+                     if (noShowCount >= 2) {
+                            return { success: false, error: 'Tu número no puede realizar nuevas reservas. Contactá al club.' }
+                     }
+
+                     const activeCount = await prisma.booking.count({
+                            where: {
+                                   clubId: data.clubId,
+                                   guestPhone: clientPhone,
+                                   status: { in: ['PENDING', 'CONFIRMED'] },
+                                   startTime: { gt: new Date() }
+                            }
+                     })
+                     if (activeCount >= 1) {
+                            return { success: false, error: 'Ya tenés una reserva activa. Cancelá la anterior para hacer una nueva.' }
+                     }
+              }
 
               let clientId: number | null = null
               let guestName: string | null = null
@@ -229,20 +301,20 @@ export async function createPublicBooking(data: {
 
               if (data.isGuest) {
                      // GUEST MODE: Do not create client, store info in booking
-                     guestName = data.clientName
-                     guestPhone = data.clientPhone
+                     guestName = clientName
+                     guestPhone = clientPhone
               } else {
                      // PREMIUM MODE: Find or Create Client
                      let client = await prisma.client.findFirst({
-                            where: { clubId: data.clubId, phone: data.clientPhone }
+                            where: { clubId: data.clubId, phone: clientPhone }
                      })
 
                      if (!client) {
                             client = await prisma.client.create({
                                    data: {
                                           clubId: data.clubId,
-                                          name: data.clientName,
-                                          phone: data.clientPhone,
+                                          name: clientName,
+                                          phone: clientPhone,
                                           email: data.email
                                    }
                             })
@@ -259,27 +331,27 @@ export async function createPublicBooking(data: {
               // 2. Fetch Settings
               const club = await prisma.club.findUnique({
                      where: { id: data.clubId },
-                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true }
+                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true, slug: true }
               })
               if (!club) return { success: false, error: 'Club not found' }
 
               // 2b. Fetch Court and Verify Ownership
               const court = await prisma.court.findFirst({
-                     where: { id: data.courtId, clubId: data.clubId }
+                     where: { id: data.courtId, clubId: data.clubId, isActive: true }
               })
 
               if (!court) {
                      return { success: false, error: 'La cancha seleccionada no es válida para este club.' }
               }
 
-              const courtDuration = court.duration || club.slotDuration || 90
+              const courtDuration = PADEL_SLOT_MINUTES
 
 
               // 3. Dates & Price - Robust Parsing
               // Split date: YYYY, MM, DD
-              const [y, m, d] = data.dateStr.split('-').map(Number)
+              const [y, m, d] = dateStr.split('-').map(Number)
               // Split time: HH, mm
-              const [hh, mm] = data.timeStr.split(':').map(Number)
+              const [hh, mm] = timeStr.split(':').map(Number)
 
               const duration = data.durationMinutes || courtDuration
 
@@ -297,6 +369,7 @@ export async function createPublicBooking(data: {
               // 4. Check Availability (Prevent Double Booking)
               const existingBooking = await prisma.booking.findFirst({
                      where: {
+                            clubId: data.clubId,
                             courtId: data.courtId,
                             status: { not: 'CANCELED' },
                             OR: [
@@ -313,6 +386,8 @@ export async function createPublicBooking(data: {
               }
 
               // 5. Create Booking
+              // publicToken enables the client to cancel their own booking via the
+              // public cancel-public route without requiring authentication.
               const booking = await prisma.booking.create({
                      data: {
                             clubId: data.clubId,
@@ -326,6 +401,7 @@ export async function createPublicBooking(data: {
                             status: data.isGuest ? 'PENDING' : 'CONFIRMED',
                             paymentStatus: 'UNPAID',
                             paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT',
+                            publicToken: crypto.randomUUID(),
 
                             // Open Match Fields
                             isOpenMatch: data.isOpenMatch || false,
@@ -338,15 +414,19 @@ export async function createPublicBooking(data: {
                      const { pusherServer } = await import('@/lib/pusher')
                      await pusherServer.trigger(`club-${data.clubId}`, 'booking-update', {
                             action: 'create',
-                            bookingId: booking.id
+                            bookingId: booking.id,
+                            clientName: clientName,
+                            courtName: court.name,
+                            time: timeStr
                      })
               } catch (pusherErr) {
                      console.error('[PUSHER ERROR in public-booking]', pusherErr)
               }
 
               revalidatePath('/')
-              revalidatePath(`/p/${data.clubId}`) // Revalidate specific public page too
-              return { success: true, bookingId: booking.id }
+              revalidatePath(`/p/${club.slug}`)
+              revalidatePath(`/${club.slug}`)
+              return { success: true, bookingId: booking.id, publicToken: booking.publicToken as string }
        } catch (error: unknown) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
               return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
@@ -371,4 +451,97 @@ export async function getPublicBooking(bookingId: number, clubId: string) {
               }
        })
        return booking
+}
+
+export async function createPublicWaitingList(data: PublicWaitingListInput) {
+       try {
+              await enforceActiveSubscription(data.clubId)
+
+              const clientName = data.clientName.trim()
+              const clientPhone = data.clientPhone.trim()
+              const notes = data.notes?.trim()
+
+              if (!data.dateStr || !clientName || !clientPhone) {
+                     return { success: false, error: 'Faltan datos para unirte a la lista de espera.' }
+              }
+
+              if (clientName.length < 2) {
+                     return { success: false, error: 'El nombre debe tener al menos 2 caracteres.' }
+              }
+
+              const phoneDigits = clientPhone.replace(/\D/g, '')
+              if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+                     return { success: false, error: 'El telÃ©fono ingresado no es vÃ¡lido.' }
+              }
+
+              const [y, m, d] = data.dateStr.split('-').map(Number)
+              const waitingDate = createArgDate(y, m - 1, d, 0, 0)
+
+              if (Number.isNaN(waitingDate.getTime())) {
+                     return { success: false, error: 'La fecha seleccionada no es vÃ¡lida.' }
+              }
+
+              const club = await prisma.club.findUnique({
+                     where: { id: data.clubId },
+                     select: { slug: true }
+              })
+
+              if (!club) {
+                     return { success: false, error: 'Club no encontrado.' }
+              }
+
+              let clientId: number | undefined
+              const existingClient = await prisma.client.findFirst({
+                     where: { clubId: data.clubId, phone: clientPhone }
+              })
+
+              if (existingClient) {
+                     clientId = existingClient.id
+              }
+
+              const duplicateEntry = await prisma.waitingList.findFirst({
+                     where: {
+                            clubId: data.clubId,
+                            phone: clientPhone,
+                            date: waitingDate,
+                            status: 'PENDING'
+                     }
+              })
+
+              if (duplicateEntry) {
+                     return { success: false, error: 'Ya estÃ¡s anotado en la lista de espera para esta fecha.' }
+              }
+
+              await prisma.waitingList.create({
+                     data: {
+                            clubId: data.clubId,
+                            date: waitingDate,
+                            courtId: data.courtId,
+                            clientId,
+                            name: clientName,
+                            phone: clientPhone,
+                            notes: notes || undefined
+                     }
+              })
+
+              try {
+                     const { pusherServer } = await import('@/lib/pusher')
+                     await pusherServer.trigger(`club-${data.clubId}`, 'waiting-list-update', {
+                            action: 'create',
+                            dateStr: waitingDate.toISOString(),
+                            name: clientName,
+                            source: 'public'
+                     })
+              } catch (pusherErr) {
+                     console.error('[PUSHER ERROR in public-waiting-list]', pusherErr)
+              }
+
+              revalidatePath(`/p/${club.slug}`)
+              revalidatePath(`/${club.slug}`)
+
+              return { success: true }
+       } catch (error: unknown) {
+              console.error('ERROR CREATING PUBLIC WAITING LIST:', error)
+              return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
+       }
 }

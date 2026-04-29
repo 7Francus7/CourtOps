@@ -14,7 +14,7 @@ export default async function EmergencyDashboard() {
        }
 
        if (!session.user.clubId) {
-              return <div className="p-8">Error: Usuario sin club asignado</div>
+              redirect('/login')
        }
 
        try {

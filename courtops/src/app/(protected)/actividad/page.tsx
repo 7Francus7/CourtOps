@@ -40,8 +40,8 @@ export default async function ActivityPage() {
                                           </div>
                                    </div>
 
-                                   {/* Logs Table */}
-                                   <div className="bg-[var(--bg-card)] rounded-3xl border border-white/5 overflow-hidden shadow-xl">
+                                   {/* Logs Table — Desktop */}
+                                   <div className="hidden md:block bg-[var(--bg-card)] rounded-3xl border border-white/5 overflow-hidden shadow-xl">
                                           <div className="overflow-x-auto">
                                                  <table className="w-full text-left">
                                                         <thead>
@@ -112,6 +112,52 @@ export default async function ActivityPage() {
                                                         </tbody>
                                                  </table>
                                           </div>
+                                   </div>
+
+                                   {/* Logs Cards — Mobile */}
+                                   <div className="md:hidden space-y-3">
+                                          {logs.length === 0 ? (
+                                                 <div className="py-12 text-center text-slate-500 text-sm">
+                                                        No hay actividad registrada aún.
+                                                 </div>
+                                          ) : (
+                                                 logs.map((log) => (
+                                                        <div key={log.id} className="bg-[var(--bg-card)] border border-white/5 rounded-2xl p-4 space-y-3">
+                                                               <div className="flex items-center justify-between gap-2">
+                                                                      <div className="flex items-center gap-2.5 min-w-0">
+                                                                             <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center text-[11px] font-black shrink-0">
+                                                                                    {log.user?.name.charAt(0) ?? 'S'}
+                                                                             </div>
+                                                                             <div className="min-w-0">
+                                                                                    <p className="text-xs font-bold text-white truncate">{log.user?.name ?? 'Sistema'}</p>
+                                                                                    <p className="text-[10px] text-slate-500">{format(log.createdAt, "d MMM, HH:mm", { locale: es })}</p>
+                                                                             </div>
+                                                                      </div>
+                                                                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0
+                                                                             ${log.action === 'CREATE' ? 'bg-brand-green/10 text-brand-green' : ''}
+                                                                             ${log.action === 'UPDATE' ? 'bg-amber-500/10 text-amber-500' : ''}
+                                                                             ${log.action === 'DELETE' ? 'bg-red-500/10 text-red-500' : ''}
+                                                                             ${log.action === 'LOGIN' ? 'bg-blue-500/10 text-blue-500' : ''}`}>
+                                                                             {log.action === 'CREATE' ? 'Creación' : log.action === 'UPDATE' ? 'Edición' : log.action === 'DELETE' ? 'Eliminación' : 'Acceso'}
+                                                                      </span>
+                                                               </div>
+                                                               <div className="flex items-center justify-between text-xs">
+                                                                      <div className="flex items-center gap-1.5 text-slate-400">
+                                                                             {log.entity === 'BOOKING' && <Calendar className="w-3 h-3" />}
+                                                                             {log.entity === 'CLIENT' && <User className="w-3 h-3" />}
+                                                                             {log.entity === 'SETTINGS' && <ShieldCheck className="w-3 h-3" />}
+                                                                             <span className="font-bold uppercase tracking-wider">{log.entity}</span>
+                                                                      </div>
+                                                                      <span className="text-slate-600 text-[10px] font-mono">#{String(log.id ?? '').slice(-6).toUpperCase()}</span>
+                                                               </div>
+                                                               {log.details && (
+                                                                      <div className="text-[10px] font-mono leading-relaxed p-2.5 bg-white/5 rounded-xl text-slate-400 max-h-12 overflow-hidden line-clamp-2">
+                                                                             {log.details}
+                                                                      </div>
+                                                               )}
+                                                        </div>
+                                                 ))
+                                          )}
                                    </div>
                             </div>
                      </div>

@@ -3,6 +3,7 @@ import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 import crypto from 'crypto'
 import { getPlanFeatures } from '@/lib/plan-features'
+import { sendSubscriptionPaymentEmail } from '@/lib/email'
 
 /**
  * Verify MercadoPago webhook signature (HMAC-SHA256).
@@ -226,8 +227,24 @@ export async function POST(request: Request) {
                                                   data: updateData
                                            })
 
-                                           console.log(`✅ Plan ${changeType || 'subscription'} processed for club ${refClubId}: ${plan.name}`)
-                                           return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
+                                           const isNew = !changeType || changeType === 'upgrade'
+                                          prisma.user.findFirst({ where: { role: 'GOD' } })
+                                                 .then(godUser => {
+                                                        const notifyEmail = godUser?.email || process.env.MASTER_ADMIN_EMAIL
+                                                        if (notifyEmail) {
+                                                               sendSubscriptionPaymentEmail(
+                                                                      notifyEmail,
+                                                                      club.name,
+                                                                      plan.name,
+                                                                      paymentInfo.transaction_amount ?? 0,
+                                                                      isNew ? 'new' : 'renewal'
+                                                               ).catch(e => console.error('[EMAIL] Subscription notify failed:', e))
+                                                        }
+                                                 })
+                                                 .catch(e => console.error('[EMAIL] GOD user lookup failed:', e))
+
+                                          console.log(`✅ Plan ${changeType || 'subscription'} processed for club ${refClubId}: ${plan.name}`)
+                                          return NextResponse.json({ status: 'ok', msg: 'saas subscription processed' })
                                     }
                              }
                              return NextResponse.json({ status: 'ignored', reason: 'unknown platform payment ref' })
@@ -333,16 +350,35 @@ export async function POST(request: Request) {
                      }
 
                      // NORMAL BOOKING PAYMENT
-                     const bookingId = Number(externalRef)
+                     // external_reference formats (club-level webhook, not SaaS platform):
+                     //   New (2026-04-26+): "clubId:bookingId"  — direct compound-key lookup
+                     //   Legacy:            "<numeric bookingId>" — bare id (backward compat)
+                     let bookingId: number
+                     let bookingClubId: string | null = null
+
+                     if (externalRef.includes(':') && !externalRef.includes('___')) {
+                            const colonIdx = externalRef.indexOf(':')
+                            bookingClubId = externalRef.slice(0, colonIdx)
+                            bookingId = Number(externalRef.slice(colonIdx + 1))
+                     } else {
+                            bookingId = Number(externalRef)
+                     }
+
                      if (bookingId && !isNaN(bookingId)) {
 
                             const transactionAmount = paymentInfo.transaction_amount || 0
 
-                            // Check if Booking exists
-                            const booking = await prisma.booking.findUnique({
-                                   where: { id: bookingId },
-                                   include: { transactions: true, items: true }
-                            })
+                            // Fetch booking: use compound key when clubId is embedded in the ref,
+                            // fall back to bare-id for legacy preferences already in flight.
+                            const booking = bookingClubId
+                                   ? await prisma.booking.findUnique({
+                                          where: { id_clubId: { id: bookingId, clubId: bookingClubId } },
+                                          include: { transactions: true, items: true }
+                                     })
+                                   : await prisma.booking.findUnique({
+                                          where: { id: bookingId },
+                                          include: { transactions: true, items: true }
+                                     })
 
                             if (!booking) {
                                    return NextResponse.json({ status: 'ok', msg: 'booking not found' })
@@ -376,7 +412,7 @@ export async function POST(request: Request) {
 
                                    await prisma.$transaction([
                                           prisma.booking.update({
-                                                 where: { id: bookingId },
+                                                 where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
                                                  data: {
                                                         status: 'CONFIRMED',
                                                         paymentStatus: newPaymentStatus,
@@ -398,14 +434,30 @@ export async function POST(request: Request) {
                      }
               } else if (paymentInfo.status === 'refunded' || paymentInfo.status === 'charged_back') {
                      // HANDLE REFUNDS OR CHARGEBACKS
-                     const bookingId = Number(externalRef)
-                     if (bookingId && !isNaN(bookingId) && clubId) {
+                     let refBookingId: number
+                     let refBookingClubId: string | null = null
+
+                     if (externalRef.includes(':') && !externalRef.includes('___')) {
+                            const colonIdx = externalRef.indexOf(':')
+                            refBookingClubId = externalRef.slice(0, colonIdx)
+                            refBookingId = Number(externalRef.slice(colonIdx + 1))
+                     } else {
+                            refBookingId = Number(externalRef)
+                     }
+
+                     if (refBookingId && !isNaN(refBookingId) && (refBookingClubId || clubId)) {
+                            const bookingId = refBookingId
                             const transactionAmount = paymentInfo.transaction_amount || 0
 
-                            const booking = await prisma.booking.findUnique({
-                                   where: { id: bookingId },
-                                   include: { transactions: true, items: true }
-                            })
+                            const booking = refBookingClubId
+                                   ? await prisma.booking.findUnique({
+                                          where: { id_clubId: { id: bookingId, clubId: refBookingClubId } },
+                                          include: { transactions: true, items: true }
+                                     })
+                                   : await prisma.booking.findUnique({
+                                          where: { id: bookingId },
+                                          include: { transactions: true, items: true }
+                                     })
 
                             if (booking) {
                                    const refundDescription = `Reembolso/Contracargo MP #${data.id} - Reserva #${bookingId}`
@@ -429,7 +481,7 @@ export async function POST(request: Request) {
 
                                           await prisma.$transaction([
                                                  prisma.booking.update({
-                                                        where: { id: bookingId },
+                                                        where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
                                                         data: { paymentStatus: newPaymentStatus }
                                                  }),
                                                  prisma.transaction.create({

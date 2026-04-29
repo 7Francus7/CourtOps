@@ -20,10 +20,12 @@ function timeKey(d: Date) {
        return format(d, 'HH:mm')
 }
 
+const PADEL_SLOT_MINUTES = 90
+
 // --- SUB-COMPONENTS ---
 
 // --- SUB-COMPONENTS ---
-import { Check, Clock, ArrowLeftRight, Plus, CalendarDays, Image as ImageIcon } from 'lucide-react'
+import { Check, Clock, ArrowLeftRight, Plus, Image as ImageIcon, Users } from 'lucide-react'
 
 const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking, onClick, style: propStyle }: { booking: TurneroBooking, onClick: (_id: number) => void, style?: React.CSSProperties }) {
        const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -50,20 +52,17 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
        let containerClass = "bg-card border-border"
        let statusText = "CONFIRMADO"
        let statusColor = "bg-muted text-muted-foreground"
-       let glowColor = "rgba(0,0,0,0.05)"
        let accentColor = "text-muted-foreground"
 
        if (isPaid) {
               containerClass = "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
               statusText = "PAGADO"
               statusColor = "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
-              glowColor = "rgba(16,185,129,0.2)"
               accentColor = "text-emerald-600 dark:text-emerald-400"
        } else if (paid > 0) {
               containerClass = "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20 hover:bg-blue-100 dark:hover:bg-blue-500/20"
               statusText = `SEÑA ${Math.round((paid / total) * 100)}%`
               statusColor = "bg-blue-500/20 text-blue-700 dark:text-blue-400"
-              glowColor = "rgba(59,130,246,0.2)"
               accentColor = "text-blue-600 dark:text-blue-400"
        } else {
               containerClass = "bg-card border-border hover:bg-muted/50 dark:hover:bg-white/5 shadow-sm"
@@ -152,8 +151,6 @@ const DraggableBookingCard = React.memo(function DraggableBookingCard({ booking,
                             </div>
                      )}
 
-                     {/* Ambient Glow */}
-                     <div className="absolute top-0 right-0 w-16 h-16 blur-2xl rounded-full opacity-30 -mr-8 -mt-8" style={{ backgroundColor: glowColor }} />
               </div>
        )
 }, (prev, next) => {
@@ -180,17 +177,17 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                             }
                      }}
                      className={cn(
-                            "group p-1 border-r relative h-full min-h-[80px] transition-all duration-200",
+                            "group p-1 border-r relative h-full min-h-[96px] transition-all duration-200",
                             isHourSlot ? "border-b border-border/60" : "border-b border-border/25",
                             isCurrent ? "bg-emerald-500/5 overflow-hidden" : isHourSlot ? "bg-white/[0.018] dark:bg-white/[0.018]" : "bg-transparent",
-                            isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40 shadow-[inset_0_0_30px_rgba(16,185,129,0.15)]",
+                            isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40",
                             isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
                             !children && !isDragActive && "cursor-pointer hover:bg-muted/50 dark:hover:bg-white/[0.04]"
                      )}
               >
                      {/* "Now" Indicator Line */}
                      {isCurrent && (
-                            <div className="absolute top-0 left-0 w-0.5 h-full bg-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.5)] z-0" />
+                            <div className="absolute top-0 left-0 w-0.5 h-full bg-emerald-500/50 z-0" />
                      )}
 
                      {/* Drop target indicator when hovering */}
@@ -206,7 +203,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                      {!children && !isOver && !isDragActive && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none gap-2">
                                    <div 
-                                       className="w-8 h-8 rounded-xl bg-primary shadow-lg shadow-primary/20 flex items-center justify-center cursor-pointer pointer-events-auto transform hover:scale-110 active:scale-95 transition-all"
+                                       className="w-8 h-8 rounded-xl bg-primary shadow-sm flex items-center justify-center cursor-pointer pointer-events-auto transform hover:scale-110 active:scale-95 transition-all"
                                        onClick={(e) => {
                                            e.stopPropagation();
                                            if (onSlotClick) onSlotClick(id);
@@ -252,7 +249,16 @@ export default function TurneroGrid({
        onGenerateFlyer
 }: {
        onBookingClick: (_id: number) => void,
-       onNewBooking?: (_data: { courtId?: number, time?: string, date: Date }) => void,
+       onNewBooking?: (_data: {
+              courtId?: number
+              time?: string
+              date: Date
+              clientName?: string
+              clientPhone?: string
+              clientEmail?: string
+              notes?: string
+              waitingListId?: number
+       }) => void,
        refreshKey?: number,
        date: Date,
        onDateChange: (_d: Date) => void,
@@ -268,6 +274,10 @@ export default function TurneroGrid({
 
        // UI States
        const [isWaitingListOpen, setIsWaitingListOpen] = useState(false)
+       const [waitingListFocus, setWaitingListFocus] = useState<{ preferredStartTime: string | null, preferredCourtId: number | null }>({
+              preferredStartTime: null,
+              preferredCourtId: null
+       })
        const [activeId, setActiveId] = useState<string | null>(null)
 
        const queryClient = useQueryClient()
@@ -312,12 +322,12 @@ export default function TurneroGrid({
                             throw err
                      }
               },
-              refetchInterval: 60000, // Reduced polling since we have Pusher
+              refetchInterval: 10000,
               refetchOnWindowFocus: true,
-              staleTime: 300000, // 5 minutes: data is fresh as long as Pusher works
-              gcTime: 600000, // 10 minutes cache retention
+              staleTime: 0,
+              gcTime: 600000,
               retry: 1,
-              refetchOnMount: false // Don't refetch if we already have it in cache
+              refetchOnMount: true
        })
 
        // Log errors for debugging
@@ -404,9 +414,44 @@ export default function TurneroGrid({
                                                  }
                                           )
                                    } else if (payload.action === 'cancel') {
-                                          toast.info('Reserva cancelada', { position: 'top-center', duration: 3000 })
+                                          const waitingMatches = Number(payload.waitingListMatches || 0)
+                                          const startTime = typeof payload.startTime === 'string' ? payload.startTime : null
+                                          const courtId = typeof payload.courtId === 'number'
+                                                 ? payload.courtId
+                                                 : typeof payload.courtId === 'string'
+                                                        ? Number(payload.courtId)
+                                                        : null
+
+                                          if (waitingMatches > 0 && showWaitingList) {
+                                                 setWaitingListFocus({
+                                                        preferredStartTime: startTime,
+                                                        preferredCourtId: Number.isFinite(courtId) ? courtId : null
+                                                 })
+                                                 setIsWaitingListOpen(true)
+                                          }
+
+                                          toast.info('Reserva cancelada', {
+                                                 description: waitingMatches > 0
+                                                        ? `${waitingMatches} persona${waitingMatches === 1 ? '' : 's'} en lista de espera para este horario.`
+                                                        : 'Se libero el horario.',
+                                                 position: 'top-center',
+                                                 duration: 4000
+                                          })
                                    }
                             });
+
+                            channel.bind('waiting-list-update', (payload: Record<string, unknown>) => {
+                                   if (payload.action !== 'create') return
+                                   const requesterName = (payload.name as string) || 'Nueva solicitud'
+                                   const fromPublicBooking = payload.source === 'public'
+                                   toast.info(requesterName, {
+                                          description: fromPublicBooking
+                                                 ? 'Se sumo a la lista de espera desde la reserva online.'
+                                                 : 'Se agrego a la lista de espera.',
+                                          position: 'top-center',
+                                          duration: 4500,
+                                   })
+                            })
                      } catch {
                             // Silent fail for pusher
                      }
@@ -420,7 +465,7 @@ export default function TurneroGrid({
                             channel.unsubscribe();
                      }
               }
-       }, [data?.clubId, queryClient]);
+       }, [data?.clubId, queryClient, showWaitingList]);
 
        // --- TIME CLOCK ---
        useEffect(() => {
@@ -430,7 +475,7 @@ export default function TurneroGrid({
        }, [])
 
        // --- MEMOS ---
-       const GRID_STEP = 30 // Fixed 30-minute granularity for mixed durations
+       const GRID_STEP = PADEL_SLOT_MINUTES
 
        // --- MEMOS ---
 
@@ -452,7 +497,7 @@ export default function TurneroGrid({
                      cur = addMinutes(cur, GRID_STEP)
               }
               return slots
-       }, [selectedDate, safeConfig])
+       }, [selectedDate, safeConfig, GRID_STEP])
 
        const { bookingsByCourtAndTime, occupiedSlots } = useMemo(() => {
               const map = new Map<string, TurneroBooking>()
@@ -477,7 +522,7 @@ export default function TurneroGrid({
                      }
               }
               return { bookingsByCourtAndTime: map, occupiedSlots: occupied }
-       }, [bookings])
+       }, [bookings, GRID_STEP])
 
 
        // --- MUTATIONS ---
@@ -660,6 +705,21 @@ export default function TurneroGrid({
                                                         <span className="material-icons-round">chevron_right</span>
                                                  </button>
                                           </div>
+                                         {showWaitingList && (
+                                                 <button
+                                                        onClick={() => {
+                                                               setWaitingListFocus({
+                                                                      preferredStartTime: null,
+                                                                      preferredCourtId: null
+                                                               })
+                                                               setIsWaitingListOpen(true)
+                                                        }}
+                                                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] text-foreground transition-all hover:border-primary/30 hover:text-primary active:scale-[0.98]"
+                                                 >
+                                                        <Users size={15} />
+                                                        Lista de espera
+                                                 </button>
+                                          )}
                                    </div>
                             )}
 
@@ -678,12 +738,15 @@ export default function TurneroGrid({
                                                  </div>
                                                  {/* Court Headers */}
                                                  {courts.map((court: TurneroCourt, idx: number) => (
-                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-r border-border p-2 text-center flex flex-col justify-center h-[44px]", idx === courts.length - 1 && "border-r-0")}>
+                                                        <div key={court.id} className={cn("sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-r border-border px-2 py-1.5 text-center flex flex-col justify-center h-[52px]", idx === courts.length - 1 && "border-r-0")}>
                                                                <span className="font-extrabold text-foreground/80 text-xs tracking-wider capitalize truncate">{court.name}</span>
+                                                               <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">
+                                                                      Padel · {court.duration || GRID_STEP} min
+                                                               </span>
                                                         </div>
                                                  ))}
                                           </div>
-                                          {TIME_SLOTS.map((slotStart, slotIndex) => {
+                                          {TIME_SLOTS.map((slotStart) => {
                                                  const label = timeKey(slotStart)
                                                  const isHour = slotStart.getMinutes() === 0
                                                  let isCurrent = false
@@ -696,7 +759,7 @@ export default function TurneroGrid({
                                                         <div key={label} className="contents group/time-row">
                                                                {/* Time Column */}
                                                                <div className={cn(
-                                                                      "sticky left-0 z-10 border-r border-b bg-background h-[80px]",
+                                                                      "sticky left-0 z-10 border-r border-b bg-background h-[96px]",
                                                                       "relative flex items-center justify-center",
                                                                       isHour ? "border-border/60" : "border-border/25",
                                                                       isCurrent ? "text-emerald-500" : isHour ? "text-foreground/55" : "text-muted-foreground/30",
@@ -706,7 +769,7 @@ export default function TurneroGrid({
                                                                              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-border/50 rounded-l-full" />
                                                                       )}
                                                                       {isCurrent && (
-                                                                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-emerald-500/70 rounded-l-full shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+                                                                             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-emerald-500/70 rounded-l-full" />
                                                                       )}
                                                                       <span className={cn(
                                                                              isHour ? "text-[11px] font-bold" : "text-[9px] font-medium"
@@ -754,8 +817,18 @@ export default function TurneroGrid({
                             </div>
                             <WaitingListSidebar
                                    isOpen={showWaitingList && isWaitingListOpen}
-                                   onClose={() => setIsWaitingListOpen(false)}
+                                   onClose={() => {
+                                          setIsWaitingListOpen(false)
+                                          setWaitingListFocus({
+                                                 preferredStartTime: null,
+                                                 preferredCourtId: null
+                                          })
+                                   }}
                                    date={selectedDate}
+                                   clubId={data?.clubId}
+                                   preferredStartTime={waitingListFocus.preferredStartTime}
+                                   preferredCourtId={waitingListFocus.preferredCourtId}
+                                   onConvertToBooking={onNewBooking}
                             />
                             {/* CONFIRMATION MODAL */}
                             {pendingMove && (

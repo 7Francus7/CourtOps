@@ -6,29 +6,49 @@ import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } f
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
 
-function formatCurrency(amount: number) {
-	return new Intl.NumberFormat('es-AR', {
-		style: 'currency',
-		currency: 'ARS',
-		maximumFractionDigits: 0
-	}).format(amount)
-}
-
 const DEFAULT_PLANS = [
 	{
 		name: 'Arranque',
 		price: 45000,
-		features: JSON.stringify(['Hasta 2 Canchas', 'Turnero Digital', 'Caja & Cobros', 'QR Check-in', 'Soporte por Email']),
+		setupFee: 100000,
+		features: JSON.stringify([
+			'Hasta 2 canchas de padel',
+			'Hasta 3 empleados en el sistema',
+			'Reservas online (link público)',
+			'Turnero digital en tiempo real',
+			'Caja diaria (apertura y cierre)',
+			'QR Check-in',
+			'Soporte por email L-V'
+		]),
 	},
 	{
 		name: 'Élite',
-		price: 85000,
-		features: JSON.stringify(['Hasta 8 Canchas', 'Kiosco / POS', 'WhatsApp Automático', 'Torneos', 'Firma Digital', 'Reportes Avanzados', 'Soporte Prioritario 24/7']),
+		price: 89000,
+		setupFee: 100000,
+		features: JSON.stringify([
+			'Hasta 8 canchas de padel',
+			'Hasta 10 empleados en el sistema',
+			'Todo lo del plan Arranque',
+			'Kiosco / Punto de venta con stock',
+			'Pagos online con MercadoPago',
+			'Notificaciones WhatsApp automáticas',
+			'Gestión de torneos y brackets',
+			'Waivers digitales (firma electrónica)',
+			'Reportes financieros avanzados',
+			'Soporte prioritario WhatsApp 24/7'
+		]),
 	},
 	{
 		name: 'VIP',
-		price: 150000,
-		features: JSON.stringify(['Canchas Ilimitadas', 'Multi-Sede', 'API / Webhooks', 'Marca Blanca', 'Account Manager']),
+		price: 129000,
+		setupFee: 100000,
+		features: JSON.stringify([
+			'Canchas ilimitadas',
+			'Usuarios ilimitados',
+			'Todo lo del plan Élite',
+			'Dominio personalizado (ej: tuclub.com)',
+			'Gestor de cuenta dedicado'
+		]),
 	}
 ]
 
@@ -40,10 +60,10 @@ export async function getSubscriptionDetails() {
 	for (const p of DEFAULT_PLANS) {
 		const existing = existingPlans.find(ep => ep.name === p.name)
 		if (existing) {
-			if (existing.price !== p.price || existing.features !== p.features) {
+			if (existing.price !== p.price || existing.features !== p.features || existing.setupFee !== p.setupFee) {
 				await prisma.platformPlan.update({
 					where: { id: existing.id },
-					data: { price: p.price, features: p.features }
+					data: { price: p.price, setupFee: p.setupFee, features: p.features }
 				})
 			}
 		} else {
@@ -65,6 +85,10 @@ export async function getSubscriptionDetails() {
 
 	const allPlans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
 
+	const pendingPlan = club.pendingPlanId
+		? allPlans.find(p => p.id === club.pendingPlanId) ?? null
+		: null
+
 	const isDev = process.env.NODE_ENV === 'development'
 	const hasToken = !!process.env.MP_ACCESS_TOKEN
 
@@ -74,8 +98,17 @@ export async function getSubscriptionDetails() {
 		nextBillingDate: club.nextBillingDate,
 		availablePlans: allPlans.map(p => ({
 			...p,
+			setupFee: p.setupFee ?? 0,
 			features: JSON.parse(p.features) as string[]
 		})),
+		pendingPlan: pendingPlan
+			? {
+				...pendingPlan,
+				setupFee: pendingPlan.setupFee ?? 0,
+				features: JSON.parse(pendingPlan.features) as string[]
+			}
+			: null,
+		pendingBillingCycle: club.pendingBillingCycle as 'monthly' | 'yearly' | null,
 		isConfigured: hasToken || isDev,
 		isDevMode: isDev && !hasToken,
 	}
@@ -98,7 +131,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 	const frequencyType = 'months'
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(plan.price * 0.8)
+		price = Math.round(plan.price * 12 * 0.8)
 		frequency = 12
 	}
 
@@ -192,15 +225,31 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	if (!newPlan) throw new Error("Plan no válido")
 
 	if (currentPlan?.id === newPlan.id) {
-		return { success: false, error: "Ya tienes este plan" }
+		return { success: false, error: "Ya tenés este plan" }
 	}
 
 	const isUpgrade = newPlan.price > (currentPlan?.price || 0)
 
-	if (!process.env.MP_ACCESS_TOKEN) {
-		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:${isUpgrade ? 'upgrade' : 'downgrade'}`
+	if (!isUpgrade) {
+		await prisma.club.update({
+			where: { id: clubId },
+			data: {
+				pendingPlanId: planId,
+				pendingBillingCycle: billingCycle,
+			}
+		})
+		revalidatePath('/dashboard/suscripcion')
+		return {
+			success: true,
+			pending: true,
+			message: `Tu plan cambiará a ${newPlan.name} cuando venza el período actual. No se reembolsa la diferencia.`
+		}
+	}
 
+	const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+	if (!process.env.MP_ACCESS_TOKEN) {
+		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:upgrade`
 		return {
 			success: true,
 			init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
@@ -222,7 +271,7 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	let frequency = 1
 
 	if (billingCycle === 'yearly') {
-		price = Math.round(newPlan.price * 0.8)
+		price = Math.round(newPlan.price * 12 * 0.8)
 		frequency = 12
 	}
 
@@ -231,12 +280,22 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 		newPlan.name,
 		price,
 		payerEmail,
-		`${clubId}:${planId}:${billingCycle}:${isUpgrade ? 'upgrade' : 'downgrade'}`,
+		`${clubId}:${planId}:${billingCycle}:upgrade`,
 		frequency,
 		'months'
 	)
 
 	return result
+}
+
+export async function cancelPendingDowngrade() {
+	const clubId = await getCurrentClubId()
+	await prisma.club.update({
+		where: { id: clubId },
+		data: { pendingPlanId: null, pendingBillingCycle: null }
+	})
+	revalidatePath('/dashboard/suscripcion')
+	return { success: true }
 }
 
 export async function handleSubscriptionSuccess(preapprovalId: string) {

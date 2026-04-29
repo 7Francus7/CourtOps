@@ -105,7 +105,7 @@ export default function GodModeTutorial() {
                                    animate={{ opacity: 1, scale: 1 }}
                                    exit={{ opacity: 0, scale: 0.95 }}
                                    transition={{ type: "spring", bounce: 0.4 }}
-                                   className="bg-black border border-amber-500/30 rounded-[2rem] w-full max-w-2xl shadow-[0_0_150px_rgba(245,158,11,0.2)] overflow-hidden relative"
+                                   className="bg-black border border-amber-500/30 rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-hidden relative"
                             >
                                    {/* Background effects */}
                                    <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
@@ -123,7 +123,7 @@ export default function GodModeTutorial() {
                                                         className={`relative z-10 p-8 rounded-3xl bg-black border border-white/10 ${step.color} shadow-2xl group`}
                                                  >
                                                         <div className={`absolute inset-0 ${step.color.replace('text-', 'bg-')}/20 blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-700`} />
-                                                        <Icon size={80} strokeWidth={1} className="relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                                                        <Icon size={80} strokeWidth={1} className="relative z-10" />
                                                  </motion.div>
                                           </div>
 
@@ -181,7 +181,7 @@ export default function GodModeTutorial() {
                                                                )}
                                                                <button
                                                                       onClick={nextStep}
-                                                                      className="flex-1 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] active:scale-95 group"
+                                                                      className="flex-1 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 group"
                                                                >
                                                                       {currentStep === GOD_MODE_STEPS.length - 1 ? 'Iniciar Consola' : 'Continuar'}
                                                                       <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />

@@ -21,6 +21,8 @@ export default async function SuscripcionPage() {
                                           subscriptionStatus={data.subscriptionStatus}
                                           nextBillingDate={data.nextBillingDate ? data.nextBillingDate.toISOString() : null}
                                           availablePlans={data.availablePlans}
+                                          pendingPlan={data.pendingPlan}
+                                          pendingBillingCycle={data.pendingBillingCycle}
                                           isConfigured={data.isConfigured}
                                           isDevMode={data.isDevMode}
                                    />

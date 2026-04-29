@@ -97,7 +97,7 @@ export async function updatePlatformPlan(formData: FormData) {
        const id = formData.get('id') as string
        const price = Number(formData.get('price'))
 
-       if (!id || isNaN(price) || price <= 0) return { success: false, error: 'Datos inválidos — precio debe ser mayor a 0' }
+       if (!id || isNaN(price) || price <= 0) return { success: false, error: 'Datos inválidos - precio debe ser mayor a 0' }
 
        try {
               await prisma.platformPlan.update({
@@ -449,7 +449,7 @@ export async function seedClubData(clubId: string) {
               for (let i = 0; i < 20; i++) {
                      const randomCourt = courts[Math.floor(Math.random() * courts.length)]
                      const randomClient = clients[Math.floor(Math.random() * clients.length)]
-                     const date = new Date(now.getTime() - (i + 1) * 24 * 60 * 60 * 1000) // Days back
+                     const date = new Date(now.getTime() - (i + 1) * 24 * 60 * 60 * 1000)
                      date.setHours(10 + Math.floor(Math.random() * 10), 0, 0, 0)
 
                      bookingsData.push({
@@ -469,7 +469,7 @@ export async function seedClubData(clubId: string) {
               for (let i = 0; i < 10; i++) {
                      const randomCourt = courts[Math.floor(Math.random() * courts.length)]
                      const randomClient = clients[Math.floor(Math.random() * clients.length)]
-                     const date = new Date(now.getTime() + (i + 1) * 24 * 60 * 60 * 1000) // Days forward
+                     const date = new Date(now.getTime() + (i + 1) * 24 * 60 * 60 * 1000)
                      date.setHours(10 + Math.floor(Math.random() * 10), 0, 0, 0)
 
                      bookingsData.push({
@@ -571,8 +571,6 @@ export async function deactivateSystemNotification(id: string) {
 
 export async function getActiveSystemNotification() {
        try {
-              // Get the most recent active notification
-              // Optionally check for expiration if you use expiresAt
               return await prisma.systemNotification.findFirst({
                      where: { isActive: true },
                      orderBy: { createdAt: 'desc' }
@@ -585,38 +583,18 @@ export async function getActiveSystemNotification() {
 export async function cleanClubData(clubId: string) {
        if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
        try {
-              // 1. Delete Bookings (Operational)
-              // We delete bookings first. Note that transactions might refer to bookings.
-              // We will delete CashRegisters which cascade deletes Transactions, so logic holds.
-              // But to be safe, delete bookings first, assuming Transactions on Booking will SetNull or we delete them via CashRegister.
-
               const deleteBookings = prisma.booking.deleteMany({ where: { clubId } })
               const deleteWaiting = prisma.waitingList.deleteMany({ where: { clubId } })
-
-              // 2. Delete Cash Registers (Cascades to Transactions)
               const deleteCash = prisma.cashRegister.deleteMany({ where: { clubId } })
-
-              // 3. Delete Tournaments
               const deleteTournaments = prisma.tournament.deleteMany({ where: { clubId } })
-
-              // 4. Delete Clients (Must be after bookings/transactions are cleared)
               const deleteClients = prisma.client.deleteMany({ where: { clubId } })
-
-              // 5. Delete Audit Logs
               const deleteAudit = prisma.auditLog.deleteMany({ where: { clubId } })
 
-              // Execute in transaction
               await prisma.$transaction([
                      deleteBookings,
                      deleteWaiting,
                      deleteCash,
                      deleteTournaments,
-                     // deleteClients, // Careful with clients if they are linked to other things not cleaned. 
-                     // Logic: Bookings linked to Client. Transactions linked to Client.
-                     // If we deleted Bookings and Cash(Transactions), Client should be free unless linked to something else like TournamentTeam?
-                     // TournamentTeam -> player1 Client. Tournament -> deleted. 
-                     // Tournament deletion cascades to Categories -> Teams. So Teams deleted. 
-                     // So Clients should be safe to delete.
                      deleteClients,
                      deleteAudit
               ])
@@ -637,35 +615,63 @@ export async function seedOfficialPlans() {
 			{
 				name: 'Arranque',
 				price: 45000,
-				features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
+				setupFee: 100000,
+				features: [
+					'Hasta 2 canchas de padel',
+					'Hasta 3 empleados en el sistema',
+					'Reservas online (link público)',
+					'Turnero digital en tiempo real',
+					'Caja diaria (apertura y cierre)',
+					'QR Check-in',
+					'Soporte por email L-V'
+				],
 			},
 			{
 				name: 'Élite',
-				price: 85000,
-				features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
+				price: 89000,
+				setupFee: 100000,
+				features: [
+					'Hasta 8 canchas de padel',
+					'Hasta 10 empleados en el sistema',
+					'Todo lo del plan Arranque',
+					'Kiosco / Punto de venta con stock',
+					'Pagos online con MercadoPago',
+					'Notificaciones WhatsApp automáticas',
+					'Gestión de torneos y brackets',
+					'Waivers digitales (firma electrónica)',
+					'Reportes financieros avanzados',
+					'Soporte prioritario WhatsApp 24/7'
+				],
 			},
 			{
 				name: 'VIP',
-				price: 150000,
-				features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
+				price: 129000,
+				setupFee: 100000,
+				features: [
+					'Canchas ilimitadas',
+					'Usuarios ilimitados',
+					'Todo lo del plan Élite',
+					'Dominio personalizado (ej: tuclub.com)',
+					'Gestor de cuenta dedicado'
+				],
 			}
 		]
 
               for (const p of plans) {
-                     // Upsert based on name
                      const existing = await prisma.platformPlan.findFirst({ where: { name: p.name } })
                      const featuresPayload = JSON.stringify(p.features)
 
                      if (existing) {
                             await prisma.platformPlan.update({
                                    where: { id: existing.id },
-                                   data: { price: p.price, features: featuresPayload }
+                                   data: { price: p.price, setupFee: p.setupFee, features: featuresPayload }
                             })
                      } else {
                             await prisma.platformPlan.create({
                                    data: {
                                           name: p.name,
                                           price: p.price,
+                                          setupFee: p.setupFee,
                                           features: featuresPayload
                                    }
                             })

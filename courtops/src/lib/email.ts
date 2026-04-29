@@ -222,3 +222,65 @@ export const sendBookingReminderEmail = async (
     return { success: false, error: err };
   }
 };
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+
+export const sendSubscriptionPaymentEmail = async (
+  toEmail: string,
+  clubName: string,
+  planName: string,
+  amount: number,
+  type: 'new' | 'renewal'
+) => {
+  const subject = type === 'new'
+    ? `Nueva suscripción: ${clubName} — ${planName}`
+    : `Renovación automática: ${clubName} — ${planName}`;
+
+  const body = type === 'new'
+    ? `El club <strong>${clubName}</strong> activó el plan <strong>${planName}</strong> por <strong>${fmt(amount)}</strong>.`
+    : `El club <strong>${clubName}</strong> renovó automáticamente su plan <strong>${planName}</strong> por <strong>${fmt(amount)}</strong>.`;
+
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[EMAIL SIM] Subscription payment:', { toEmail, subject, clubName, planName, amount });
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: [toEmail],
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #030712; color: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b;">
+          <div style="background: #020617; padding: 28px 24px; border-bottom: 1px solid #1e293b; text-align: center;">
+            <h1 style="margin:0; font-size:22px; color:#fff;">COURT<span style="color:#10b981;">OPS</span></h1>
+            <p style="margin:8px 0 0; color:#94a3b8; font-size:13px;">Notificación de pago</p>
+          </div>
+          <div style="padding: 32px 24px;">
+            <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0 0 20px;">${body}</p>
+            <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:16px 20px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#94a3b8; font-size:13px;">Club</span>
+                <span style="color:#fff; font-size:13px; font-weight:bold;">${clubName}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#94a3b8; font-size:13px;">Plan</span>
+                <span style="color:#fff; font-size:13px; font-weight:bold;">${planName}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; border-top:1px solid #1e293b; padding-top:12px; margin-top:4px;">
+                <span style="color:#94a3b8; font-size:13px;">Monto cobrado</span>
+                <span style="color:#10b981; font-size:16px; font-weight:bold;">${fmt(amount)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+    });
+    if (error) return { success: false, error };
+    return { success: true, data };
+  } catch (err) {
+    console.error('Exception sending subscription payment email:', err);
+    return { success: false, error: err };
+  }
+};

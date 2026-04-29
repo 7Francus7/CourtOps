@@ -61,10 +61,10 @@ export function MobileBookingTimeline({ bookings, onOpenBooking }: { bookings: T
                                           <div className={cn(
                                                  "relative z-10 flex items-center justify-center w-4 h-4 mt-5 rounded-full border ring-8 ring-background transition-all duration-500",
                                                  isNext
-                                                        ? "bg-primary border-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)] scale-110"
+                                                        ? "bg-primary border-primary scale-110"
                                                         : "bg-muted border-border group-hover:bg-primary/50 group-hover:border-primary/50"
                                           )}>
-                                                 {isNext && <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-50" />}
+                                                 {isNext && <div className="absolute inset-0 bg-primary rounded-full opacity-50" />}
                                           </div>
 
                                           {/* Unified Card Design */}

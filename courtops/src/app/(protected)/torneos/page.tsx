@@ -68,28 +68,29 @@ export default function TournamentsPage() {
        }
 
        return (
-              <div className="p-4 md:p-8 space-y-4 md:space-y-8 max-w-7xl mx-auto min-h-screen overflow-x-hidden pb-32">
+              <div className="p-4 md:p-8 space-y-4 md:space-y-8 max-w-7xl mx-auto min-h-screen overflow-x-hidden pb-24 md:pb-12">
 
                      {/* HEADER SECTION */}
-                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div>
-                                   <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
-                                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent pb-1">
+                     <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                                   <h1 className="text-2xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-2 md:gap-3">
+                                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent pb-1 truncate">
                                                  {t('tournaments')}
                                           </span>
-                                          <Trophy className="text-yellow-500 fill-yellow-500/20 w-8 h-8 md:w-10 md:h-10" />
+                                          <Trophy className="text-yellow-500 fill-yellow-500/20 w-7 h-7 md:w-10 md:h-10 shrink-0" />
                                    </h1>
-                                   <p className="text-muted-foreground mt-2 font-medium max-w-2xl text-balance">
+                                   <p className="text-muted-foreground mt-1 font-medium text-sm md:text-base hidden sm:block">
                                           {t('tournaments_subtitle')}
                                    </p>
                             </div>
                             <Link
                                    href="/torneos/nuevo"
-                                   className="group relative inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-black uppercase tracking-wider text-sm rounded-xl overflow-hidden transition-all hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95"
+                                   className="group relative inline-flex items-center gap-1.5 px-4 py-2.5 md:px-6 md:py-3 bg-primary text-primary-foreground font-black uppercase tracking-wider text-xs md:text-sm rounded-xl overflow-hidden transition-all hover:brightness-110 shadow-lg shadow-primary/20 active:scale-95 shrink-0"
                             >
                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                   <Plus size={18} className="relative z-10" />
-                                   <span className="relative z-10">{t('create_tournament')}</span>
+                                   <Plus size={16} className="relative z-10" />
+                                   <span className="relative z-10 hidden sm:inline">{t('create_tournament')}</span>
+                                   <span className="relative z-10 sm:hidden">Nuevo</span>
                             </Link>
                      </div>
 
@@ -209,10 +210,10 @@ function TournamentCard({ tournament, t }: { tournament: TournamentRecord, t: (_
               >
                      <Link
                             href={`/torneos/${tournament.id}`}
-                            className="block group bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-[var(--primary)]/50 transition-all shadow-sm hover:shadow-xl h-full flex flex-col"
+                            className="block group bg-card border border-border/60 rounded-2xl md:rounded-3xl overflow-hidden hover:border-[var(--primary)]/50 transition-all shadow-sm hover:shadow-xl h-full flex flex-col"
                      >
                             {/* Card Header Image/Pattern */}
-                            <div className="h-32 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+                            <div className="h-24 md:h-32 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
                                    {/* Internal Geometric Pattern using CSS */}
                                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
 
@@ -227,7 +228,7 @@ function TournamentCard({ tournament, t }: { tournament: TournamentRecord, t: (_
                             </div>
 
                             {/* Card Content */}
-                            <div className="p-6 flex-1 flex flex-col relative">
+                            <div className="p-4 md:p-6 flex-1 flex flex-col relative">
                                    <div className="mb-4">
                                           <h3 className="text-xl font-black text-foreground mb-1 group-hover:text-[var(--primary)] transition-colors line-clamp-1">
                                                  {tournament.name}

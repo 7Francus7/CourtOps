@@ -26,6 +26,7 @@ export async function completeSetup(data: SetupData) {
                             name: data.clubName,
                             openTime: data.openTime,
                             closeTime: data.closeTime,
+                            slotDuration: 90,
                             // If we added setupCompleted to schema, we'd set it here.
                             // For now, relies on courts > 0 logic
                      }

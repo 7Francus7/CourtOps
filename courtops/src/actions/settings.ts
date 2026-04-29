@@ -75,6 +75,7 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        socialFacebook?: string
        socialTwitter?: string
        socialTiktok?: string
+       hasOnlinePayments?: boolean
 }) => {
        // Encrypt sensitive token if provided (skip masked values from getSettings)
        if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {
@@ -82,6 +83,7 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
                      delete data.mpAccessToken
               } else {
                      data.mpAccessToken = encrypt(data.mpAccessToken)
+                     data.hasOnlinePayments = true
               }
        }
 
@@ -103,8 +105,8 @@ export const upsertCourt = createSafeAction(async ({ clubId }, data: { id?: numb
                             name: data.name,
                             surface: data.surface,
                             isIndoor: data.isIndoor,
-                            sport: data.sport,
-                            duration: data.duration
+                            sport: 'PADEL',
+                            duration: 90
                      }
               })
        } else {
@@ -124,8 +126,8 @@ export const upsertCourt = createSafeAction(async ({ clubId }, data: { id?: numb
                             name: data.name,
                             surface: data.surface,
                             isIndoor: data.isIndoor || false,
-                            sport: data.sport || 'PADEL',
-                            duration: data.duration || 90
+                            sport: 'PADEL',
+                            duration: 90
                      }
               })
        }

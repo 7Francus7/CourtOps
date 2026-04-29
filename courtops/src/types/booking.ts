@@ -228,6 +228,7 @@ export interface TurneroResponse {
               slotDuration: number
        }
        clubId: string
+       clubName: string
        success: boolean
        error?: string
 }

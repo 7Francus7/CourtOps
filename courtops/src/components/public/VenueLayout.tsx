@@ -1,26 +1,27 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  MapPin, 
-  Phone, 
-  Instagram, 
-  Facebook, 
-  Twitter, 
-  Wifi, 
-  Utensils, 
-  Car, 
-  ShoppingBag, 
+import { useTheme } from 'next-themes'
+import {
+  MapPin,
+  Phone,
+  Instagram,
+  Facebook,
+  Wifi,
+  Utensils,
+  Car,
+  ShoppingBag,
   DoorOpen,
-  Calendar,
   Info,
   Clock,
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
   Share2,
-  Check
+  Check,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -55,50 +56,81 @@ const amenityIcons: Record<string, any> = {
 
 export default function VenueLayout({ club, activeTab, setActiveTab, children, onBack }: VenueLayoutProps) {
   const amenities = club.amenities ? club.amenities.split(',').map((a: string) => a.trim()) : []
+  const [shareCopied, setShareCopied] = useState(false)
+  const [themeMounted, setThemeMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+
+  useEffect(() => {
+    setThemeMounted(true)
+  }, [])
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: club.name,
-        text: `Mirá este club en CourtOps: ${club.name}`,
+        text: `Reservá en ${club.name}`,
         url: window.location.href,
-      })
+      }).catch(() => {})
     } else {
-      navigator.clipboard.writeText(window.location.href)
-      alert('Link copiado al portapapeles')
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+      })
     }
   }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-primary/20">
       {/* Sticky Header - Minimalist */}
-      <header className="sticky top-0 z-[60] bg-zinc-950/20 backdrop-blur-3xl px-4 h-14 flex items-center justify-between border-b border-white/[0.03]">
+      <header className="sticky top-0 z-[60] bg-white/80 dark:bg-zinc-950/20 backdrop-blur-3xl px-4 h-14 flex items-center justify-between border-b border-slate-200/60 dark:border-white/[0.03] transition-colors duration-300">
         <div className="flex items-center gap-3">
           {onBack && (
-            <button 
+            <button
               onClick={onBack}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all active:scale-95 border border-white/5"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all active:scale-95 border border-slate-200 dark:border-white/5"
             >
-              <ChevronLeft size={18} strokeWidth={2.5} className="text-white/70" />
+              <ChevronLeft size={18} strokeWidth={2.5} className="text-slate-500 dark:text-white/70" />
             </button>
           )}
-          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white/50 truncate max-w-[150px]">{club.name}</span>
+          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/50 truncate max-w-[150px]">{club.name}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 text-primary">
-            <Share2 size={16} strokeWidth={2.5} />
+          <button
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400"
+            aria-label="Cambiar tema"
+          >
+            {themeMounted ? (
+              resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />
+            ) : (
+              <div className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-primary relative">
+            {shareCopied ? <Check size={15} strokeWidth={3} className="text-primary" /> : <Share2 size={16} strokeWidth={2.5} />}
+            {shareCopied && (
+              <span className="absolute -bottom-7 right-0 text-[9px] font-black text-primary uppercase tracking-wider whitespace-nowrap bg-white dark:bg-zinc-900/90 border border-slate-200 dark:border-transparent px-2 py-0.5 rounded-md shadow-sm">
+                ¡Copiado!
+              </span>
+            )}
           </button>
         </div>
       </header>
 
       {/* Hero Section - Immersive Design */}
-      <section className="relative h-[280px] md:h-[360px] w-full overflow-hidden">
+      <section className="relative h-[220px] md:h-[320px] w-full overflow-hidden">
         {/* Main Cover Image with Overlay */}
         <div className="absolute inset-0">
-          {club.coverUrl ? (
-            <img src={club.coverUrl} alt={club.name} className="w-full h-full object-cover scale-105" />
-          ) : (
-            <div className="w-full h-full bg-slate-900" />
+          <div className="w-full h-full bg-slate-900" />
+          {club.coverUrl && (
+            <img
+              src={club.coverUrl}
+              alt={club.name}
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none'
+              }}
+            />
           )}
           {/* Multi-layered gradient for depth */}
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
@@ -107,8 +139,8 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
         </div>
         
         {/* Hero Content Overlay */}
-        <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-4">
-          <div className="flex items-end gap-5">
+        <div className="absolute bottom-0 left-0 w-full p-5 md:p-6 flex flex-col gap-3">
+          <div className="flex items-end gap-4">
             {/* Logo - Floating Effect */}
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
@@ -116,26 +148,37 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
               transition={{ type: 'spring', damping: 15 }}
               className="relative shrink-0"
             >
-              <div className="w-22 h-22 bg-white dark:bg-zinc-900 rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
+              <div className="w-[4.5rem] h-[4.5rem] md:w-[5.5rem] md:h-[5.5rem] bg-white dark:bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
                 <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-zinc-800 flex items-center justify-center">
                   {club.logoUrl ? (
-                    <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
+                    <>
+                      <img
+                        src={club.logoUrl}
+                        alt={club.name}
+                        className="w-full h-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.style.display = 'none'
+                          event.currentTarget.nextElementSibling?.classList.remove('hidden')
+                        }}
+                      />
+                      <span className="hidden text-2xl md:text-3xl font-black text-primary">{club.name[0]}</span>
+                    </>
                   ) : (
-                    <span className="text-3xl font-black text-primary">{club.name[0]}</span>
+                    <span className="text-2xl md:text-3xl font-black text-primary">{club.name[0]}</span>
                   )}
                 </div>
               </div>
             </motion.div> 
 
             {/* Title & Stats */}
-            <div className="pb-2 space-y-1.5 flex-1 min-w-0">
+            <div className="pb-1 space-y-1.5 flex-1 min-w-0">
               <motion.div 
                 initial={{ x: -10, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
                 className="flex items-center gap-2"
               >
-                <h1 className="text-3xl font-black text-white tracking-tight leading-none truncate">
+                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-none truncate">
                   {club.name}
                 </h1>
                 {club.subscriptionStatus === 'ACTIVE' && (
@@ -149,7 +192,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                 initial={{ x: -10, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center gap-3"
+                className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-3"
               >
                 <div className="flex items-center gap-1 text-white/60 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
                   <MapPin size={10} className="text-primary" />
@@ -195,6 +238,21 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
       <main className="w-full max-w-md mx-auto px-4 py-6 pb-24">
         {activeTab === 'booking' ? (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="mb-5 rounded-[1.75rem] border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                    Reserva movil
+                  </p>
+                  <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                    Elegi horario, confirma y listo.
+                  </p>
+                </div>
+                <div className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
+                  3 pasos
+                </div>
+              </div>
+            </div>
             {children}
           </div>
         ) : (
@@ -272,7 +330,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
             </div>
 
             {/* Open Hours */}
-            <div className="relative overflow-hidden p-6 bg-zinc-900 rounded-[2.5rem] border border-white/5 shadow-2xl">
+            <div className="relative overflow-hidden p-6 bg-slate-800 dark:bg-zinc-900 rounded-[2.5rem] border border-slate-700 dark:border-white/5 shadow-2xl">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[50px] -mr-16 -mt-16" />
               <div className="relative z-10 space-y-4">
                 <div className="flex items-center gap-3">
