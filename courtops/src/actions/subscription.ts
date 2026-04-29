@@ -2,79 +2,33 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } from './mercadopago'
+import { createSubscriptionPreference, createSetupFeePreference, cancelSubscriptionMP, getPlatformPayment, getSubscription } from './mercadopago'
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
+import { syncOfficialPlatformPlans } from '@/lib/platform-plans'
 
-const DEFAULT_PLANS = [
-	{
-		name: 'Arranque',
-		price: 45000,
-		setupFee: 100000,
-		features: JSON.stringify([
-			'Hasta 2 canchas de padel',
-			'Hasta 3 empleados en el sistema',
-			'Reservas online (link público)',
-			'Turnero digital en tiempo real',
-			'Caja diaria (apertura y cierre)',
-			'QR Check-in',
-			'Soporte por email L-V'
-		]),
-	},
-	{
-		name: 'Élite',
-		price: 89000,
-		setupFee: 100000,
-		features: JSON.stringify([
-			'Hasta 8 canchas de padel',
-			'Hasta 10 empleados en el sistema',
-			'Todo lo del plan Arranque',
-			'Kiosco / Punto de venta con stock',
-			'Pagos online con MercadoPago',
-			'Notificaciones WhatsApp automáticas',
-			'Gestión de torneos y brackets',
-			'Waivers digitales (firma electrónica)',
-			'Reportes financieros avanzados',
-			'Soporte prioritario WhatsApp 24/7'
-		]),
-	},
-	{
-		name: 'VIP',
-		price: 129000,
-		setupFee: 100000,
-		features: JSON.stringify([
-			'Canchas ilimitadas',
-			'Usuarios ilimitados',
-			'Todo lo del plan Élite',
-			'Dominio personalizado (ej: tuclub.com)',
-			'Gestor de cuenta dedicado'
-		]),
+function hasPaidSetupFee(club: { setupFeePaidAt?: Date | null; setupFeePaymentId?: string | null; mpPreapprovalId?: string | null }) {
+	return Boolean(club.setupFeePaidAt || club.setupFeePaymentId || club.mpPreapprovalId)
+}
+
+function getPlanBilling(planPrice: number, billingCycle: 'monthly' | 'yearly') {
+	if (billingCycle === 'yearly') {
+		return { price: Math.round(planPrice * 12 * 0.8), frequency: 12, frequencyType: 'months' }
 	}
-]
+
+	return { price: planPrice, frequency: 1, frequencyType: 'months' }
+}
+
+function getFirstRecurringStartDate(setupFeePaidAt?: Date | null) {
+	const startDate = new Date(setupFeePaidAt || Date.now())
+	startDate.setDate(startDate.getDate() + 30)
+	return startDate
+}
 
 export async function getSubscriptionDetails() {
 	const clubId = await getCurrentClubId()
 
-	const existingPlans = await prisma.platformPlan.findMany()
-
-	for (const p of DEFAULT_PLANS) {
-		const existing = existingPlans.find(ep => ep.name === p.name)
-		if (existing) {
-			if (existing.price !== p.price || existing.features !== p.features || existing.setupFee !== p.setupFee) {
-				await prisma.platformPlan.update({
-					where: { id: existing.id },
-					data: { price: p.price, setupFee: p.setupFee, features: p.features }
-				})
-			}
-		} else {
-			await prisma.platformPlan.create({ data: p })
-		}
-	}
-
-	const planNames = DEFAULT_PLANS.map(p => p.name)
-	await prisma.platformPlan.deleteMany({
-		where: { name: { notIn: planNames } }
-	})
+	await syncOfficialPlatformPlans(prisma)
 
 	const club = await prisma.club.findUnique({
 		where: { id: clubId },
@@ -96,6 +50,7 @@ export async function getSubscriptionDetails() {
 		currentPlan: club.platformPlan,
 		subscriptionStatus: club.subscriptionStatus,
 		nextBillingDate: club.nextBillingDate,
+		setupFeePaidAt: club.setupFeePaidAt,
 		availablePlans: allPlans.map(p => ({
 			...p,
 			setupFee: p.setupFee ?? 0,
@@ -126,16 +81,24 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 	const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
 	if (!plan) throw new Error("Plan no válido")
 
-	let price = plan.price
-	let frequency = 1
-	const frequencyType = 'months'
+	const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
 
-	if (billingCycle === 'yearly') {
-		price = Math.round(plan.price * 12 * 0.8)
-		frequency = 12
-	}
+	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+	const payerEmail = adminUser?.email || 'admin@courtops.com'
+	const setupFee = plan.setupFee ?? 0
+	const shouldChargeSetupFee = setupFee > 0 && !hasPaidSetupFee(club)
 
 	if (!process.env.MP_ACCESS_TOKEN) {
+		if (shouldChargeSetupFee) {
+			await prisma.club.update({
+				where: { id: clubId },
+				data: {
+					setupFeePaidAt: new Date(),
+					setupFeePaymentId: `DEV_SETUP_${clubId}:${planId}:${billingCycle}`,
+				},
+			})
+		}
+
 		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 		const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
 
@@ -145,8 +108,15 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 		}
 	}
 
-	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
-	const payerEmail = adminUser?.email || 'admin@courtops.com'
+	if (shouldChargeSetupFee) {
+		return createSetupFeePreference(
+			clubId,
+			plan.name,
+			setupFee,
+			payerEmail,
+			`SETUP:${clubId}:${planId}:${billingCycle}`
+		)
+	}
 
 	if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
 		try {
@@ -163,10 +133,64 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 		payerEmail,
 		`${clubId}:${planId}:${billingCycle}`,
 		frequency,
-		frequencyType
+		frequencyType,
+		!club.mpPreapprovalId && hasPaidSetupFee(club) ? getFirstRecurringStartDate(club.setupFeePaidAt) : undefined
 	)
 
 	return result
+}
+
+export async function handleSetupFeeSuccess(paymentId: string) {
+	const clubId = await getCurrentClubId()
+
+	if (!paymentId) throw new Error("No se pudo verificar el pago inicial")
+
+	const payment = await getPlatformPayment(paymentId)
+	if (!payment) throw new Error("No se pudo verificar el pago inicial")
+
+	if (payment.status !== 'approved') {
+		throw new Error("El pago inicial todavÃ­a no fue aprobado")
+	}
+
+	const [kind, refClubId, refPlanId, cycle = 'monthly'] = (payment.external_reference || '').split(':')
+
+	if (kind !== 'SETUP' || refClubId !== clubId || !refPlanId) {
+		throw new Error("La referencia del pago inicial no coincide con tu club")
+	}
+
+	const billingCycle = cycle === 'yearly' ? 'yearly' : 'monthly'
+	const club = await prisma.club.findUnique({
+		where: { id: clubId },
+		include: { users: true }
+	})
+	const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+
+	if (!club || !plan) throw new Error("No se pudo preparar la suscripciÃ³n")
+
+	if (!hasPaidSetupFee(club)) {
+		await prisma.club.update({
+			where: { id: clubId },
+			data: {
+				setupFeePaidAt: new Date(),
+				setupFeePaymentId: String(payment.id),
+			}
+		})
+	}
+
+	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+	const payerEmail = adminUser?.email || 'admin@courtops.com'
+	const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
+
+	return createSubscriptionPreference(
+		clubId,
+		plan.name,
+		price,
+		payerEmail,
+		`${clubId}:${refPlanId}:${billingCycle}`,
+		frequency,
+		frequencyType,
+		getFirstRecurringStartDate(new Date())
+	)
 }
 
 export async function cancelSubscription() {
@@ -221,8 +245,13 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	if (!club) throw new Error("Club no encontrado")
 
 	const currentPlan = club.platformPlan
+	const isActive = club.subscriptionStatus?.toLowerCase() === 'authorized' || club.subscriptionStatus?.toLowerCase() === 'active'
 	const newPlan = await prisma.platformPlan.findUnique({ where: { id: planId } })
 	if (!newPlan) throw new Error("Plan no válido")
+
+	if (!isActive) {
+		return initiateSubscription(planId, billingCycle)
+	}
 
 	if (currentPlan?.id === newPlan.id) {
 		return { success: false, error: "Ya tenés este plan" }

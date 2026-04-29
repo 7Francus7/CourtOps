@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 
 async function assertWaiversEnabled(clubId: string) {
   const club = await prisma.club.findUnique({ where: { id: clubId }, select: { hasWaivers: true } })
-  if (!club?.hasWaivers) throw new Error('Tu plan no incluye Firma Digital. Actualizá a Plan Élite.')
+  if (!club?.hasWaivers) throw new Error('Tu plan no incluye Firma Digital. Actualizá a Plan Pro.')
 }
 
 export async function createWaiver(data: { title: string; content: string; isRequired: boolean }) {

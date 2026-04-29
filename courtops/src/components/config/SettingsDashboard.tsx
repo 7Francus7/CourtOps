@@ -1127,7 +1127,7 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                <Lock size={28} className="text-amber-500" />
                                                         </div>
                                                         <h3 className="text-lg font-bold text-foreground">Firma Digital no incluida en tu plan</h3>
-                                                        <p className="text-sm text-muted-foreground max-w-xs">Actualizá a Plan Élite para crear waivers digitales y requerir firma a tus clientes.</p>
+                                                        <p className="text-sm text-muted-foreground max-w-xs">Actualizá a Plan Pro para crear waivers digitales y requerir firma a tus clientes.</p>
                                                  </div>
                                           )
                             )}

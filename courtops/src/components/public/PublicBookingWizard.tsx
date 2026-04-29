@@ -298,6 +298,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	}, [slots, step])
 
 	const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today, i)), [today])
+	const firstBookableSlot = useMemo(() => {
+		const slot = slots.find(item => item.courts.length > 0)
+		const court = slot?.courts[0]
+		return slot && court ? { slot, court } : null
+	}, [slots])
 	const availabilityDurationLabel = useMemo(() => {
 		const durations = Array.from(
 			new Set(
@@ -312,15 +317,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		return `${defaultDuration} MIN`
 	}, [slots, defaultDuration])
 
+	const bookingStepIndex = useMemo(() => {
+		if (step === 3) return 4
+		if (step === 1) return 3
+		if (step === 2 || step === 'register' || step === 'login') return 2
+		return 1
+	}, [step])
+
 	const noAvailabilityWhatsappHref = clubWhatsappNumber
 		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
-			`Hola ${club.name}. No encontre turnos para el ${format(selectedDate, 'd/M', { locale: es })}. Queria consultar disponibilidad o lista de espera.`
+			`Hola ${club.name}. Estoy intentando reservar para el ${format(selectedDate, 'd/M', { locale: es })} y no veo horarios disponibles. ¿Me pueden avisar si se libera una cancha o sumarme a lista de espera?`
 		)}`
 		: null
 
 	const customScheduleWhatsappHref = clubWhatsappNumber
 		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
-			`Hola ${club.name}. Estoy viendo la reserva online para el ${format(selectedDate, 'd/M', { locale: es })} y queria consultar si tienen otro horario disponible.`
+			`Hola ${club.name}. Estoy viendo la reserva online para el ${format(selectedDate, 'd/M', { locale: es })} y quería consultar si tienen otro horario disponible.`
 		)}`
 		: null
 
@@ -480,7 +492,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			trackFunnelEvent('waitlist_created', {
 				dateStr: format(selectedDate, 'yyyy-MM-dd')
 			})
-			setWaitlistSuccess('Te anotamos en la lista de espera. Si se libera un turno, el club puede contactarte.')
+			setWaitlistSuccess('Listo. Te anotamos en la lista de espera y el club puede contactarte si se libera un horario.')
 			setShowWaitlistForm(false)
 			return
 		}
@@ -548,6 +560,62 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			</div>
 		</div>
 	)
+
+	const BookingProgress = () => {
+		const steps = [
+			{ label: 'Horario', icon: Calendar },
+			{ label: 'Datos', icon: Smartphone },
+			{ label: 'Confirmar', icon: ShieldCheck }
+		]
+
+		return (
+			<div className="mb-6 rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-3 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
+				<div className="flex items-center justify-between gap-2">
+					{steps.map((item, index) => {
+						const position = index + 1
+						const isCurrent = bookingStepIndex === position
+						const isComplete = bookingStepIndex > position
+						const Icon = item.icon
+
+						return (
+							<div key={item.label} className="flex flex-1 items-center">
+								<div className="flex flex-1 flex-col items-center gap-1.5">
+									<div
+										className={cn(
+											'flex h-9 w-9 items-center justify-center rounded-2xl border transition-all',
+											isComplete
+												? 'border-primary bg-primary text-primary-foreground'
+												: isCurrent
+													? 'border-primary/30 bg-primary/10 text-primary'
+													: 'border-slate-200 bg-slate-50 text-slate-400 dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-slate-500'
+										)}
+									>
+										{isComplete ? <Check size={15} strokeWidth={3} /> : <Icon size={15} strokeWidth={2.5} />}
+									</div>
+									<span
+										className={cn(
+											'text-[9px] font-black uppercase tracking-[0.12em]',
+											isCurrent || isComplete ? 'text-slate-800 dark:text-white' : 'text-slate-400'
+										)}
+									>
+										{item.label}
+									</span>
+								</div>
+								{index < steps.length - 1 && (
+									<div
+										className={cn(
+											'mx-1 h-px w-full max-w-8',
+											bookingStepIndex > position ? 'bg-primary' : 'bg-slate-200 dark:bg-white/[0.07]'
+										)}
+									/>
+								)}
+							</div>
+						)
+					})}
+				</div>
+			</div>
+		)
+	}
 
 	if (step === 3 && selectedSlot) {
 		const isGuest = mode === 'guest'
@@ -934,9 +1002,72 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		>
 			{layoutTab === 'booking' && (
 				<div>
+					{step !== 'matchmaking' && <BookingProgress />}
 					{/* ── STEP 0: Date & Slot Selection ── */}
 					{step === 0 && (
 						<div className="space-y-8">
+							<div className="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-slate-950 p-5 text-white shadow-[0_22px_50px_rgba(15,23,42,0.22)] dark:border-white/[0.08]">
+								<div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/30 blur-3xl" />
+								<div className="absolute -bottom-14 left-6 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
+								<div className="relative z-10 space-y-4">
+									<div className="flex items-start justify-between gap-4">
+										<div>
+											<p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
+												Reserva express
+											</p>
+											<h2 className="mt-1 text-2xl font-black tracking-tight">
+												{loading
+													? 'Buscando el mejor turno'
+													: firstBookableSlot
+														? `${slots.length} horarios disponibles`
+														: 'Sin turnos online por ahora'}
+											</h2>
+											<p className="mt-2 max-w-[18rem] text-sm font-semibold leading-relaxed text-white/60">
+												{firstBookableSlot
+													? `Primer turno: ${firstBookableSlot.slot.time} hs en ${firstBookableSlot.court.name}.`
+													: 'Elegí otro día o dejá tus datos para que el club te avise si se libera una cancha.'}
+											</p>
+										</div>
+										<div className="rounded-2xl bg-white/10 px-3 py-2 text-right backdrop-blur">
+											<p className="text-[9px] font-black uppercase tracking-widest text-white/40">
+												Día
+											</p>
+											<p className="text-lg font-black capitalize leading-none">
+												{format(selectedDate, 'd MMM', { locale: es })}
+											</p>
+										</div>
+									</div>
+
+									{loading ? (
+										<button
+											type="button"
+											disabled
+											className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white/10 text-[11px] font-black uppercase tracking-[0.16em] text-white/60"
+										>
+											<Loader2 size={15} className="animate-spin" />
+											Consultando disponibilidad
+										</button>
+									) : firstBookableSlot ? (
+										<button
+											type="button"
+											onClick={() => selectCourtFromSlot(firstBookableSlot.slot, firstBookableSlot.court)}
+											className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[11px] font-black uppercase tracking-[0.16em] text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+										>
+											Reservar {firstBookableSlot.slot.time} hs
+											<ArrowRight size={15} strokeWidth={3} />
+										</button>
+									) : (
+										<button
+											type="button"
+											onClick={openWaitlistForm}
+											className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white text-[11px] font-black uppercase tracking-[0.16em] text-slate-950 transition-all active:scale-[0.98]"
+										>
+											Sumarme a lista de espera
+											<ChevronRight size={15} strokeWidth={3} />
+										</button>
+									)}
+								</div>
+							</div>
 							{/* Calendar */}
 							<div className="space-y-4">
 								<div className="flex items-center justify-between px-1">
@@ -996,7 +1127,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							<div className="space-y-5">
 								<div className="flex items-center justify-between px-1">
 									<h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-										Seleccioná un Horario
+										Elegí tu horario
 									</h3>
 									<div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-white/5 rounded-full border border-slate-200/60 dark:border-white/5">
 										<Clock size={10} className="text-slate-400" />
@@ -1147,10 +1278,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												/>
 											</div>
 											<p className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400 text-center">
-												Sin turnos disponibles
+												No hay horarios online para esta fecha
 											</p>
 											<p className="mt-3 max-w-[280px] text-center text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
-												Probá con otra fecha o escribile al club para consultar disponibilidad manual o lista de espera.
+												Probá con otro día, dejá tus datos en lista de espera o consultá por WhatsApp si buscás una franja puntual.
 											</p>
 											<div className="mt-6 flex w-full flex-col gap-3">
 												<button
@@ -1194,10 +1325,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</div>
 										<div className="min-w-0 flex-1">
 											<p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-												No ves tu horario
+												¿No ves el horario que buscás?
 											</p>
 											<p className="mt-1 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
-												Si buscás otra franja o querés sumarte a una lista de espera, podés escribirle directo al club.
+												Podés dejar tus datos en lista de espera o escribirle al club para consultar una franja especial.
 											</p>
 											<div className="mt-4 flex flex-col gap-2 sm:flex-row">
 												<button
@@ -1214,7 +1345,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 													rel="noopener noreferrer"
 													className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 text-[11px] font-black uppercase tracking-[0.15em] text-slate-600 transition-all active:scale-[0.98] dark:border-white/[0.06] dark:text-slate-300"
 												>
-													Pedir otro horario
+													Consultar por WhatsApp
 												</a>
 											</div>
 										</div>

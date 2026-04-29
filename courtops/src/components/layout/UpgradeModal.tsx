@@ -12,7 +12,7 @@ interface UpgradeModalProps {
        requiredPlan?: string
 }
 
-export function UpgradeModal({ isOpen, onClose, featureName, requiredPlan = 'Profesional' }: UpgradeModalProps) {
+export function UpgradeModal({ isOpen, onClose, featureName, requiredPlan = 'Pro' }: UpgradeModalProps) {
        if (!isOpen) return null
 
        return (

@@ -10,8 +10,8 @@ import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import {
-       ArrowLeft, Edit, MoreVertical, MessageCircle, Phone, TrendingUp,
-       Activity, CalendarX, Receipt, ShoppingBag, CalendarPlus, Wallet,
+       ArrowLeft, Edit, MessageCircle, Phone, TrendingUp,
+       Activity, CalendarX, Receipt, ShoppingBag, Wallet,
        ChevronLeft, Plus, Globe, Gift, Copy, Share2, Check,
        CheckCircle2, StickyNote, Save, LayoutDashboard, Users, Trophy, Settings, Crown, Trash2, RefreshCw
 } from 'lucide-react'
@@ -544,22 +544,6 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                    </div>
                             </main>
 
-                            {/* Mobile Bottom Nav */}
-                            <nav className="fixed bottom-0 left-0 right-0 bg-[#0A0E17]/90 backdrop-blur-xl border-t border-white/5 px-6 pb-6 pt-3 z-50">
-                                   <div className="flex items-center justify-between">
-                                          <NavItem icon={Globe} label="Inicio" href="/" />
-                                          <NavItem icon={Activity} label="Clientes" href="/clientes" active />
-
-                                          <div className="relative -top-6">
-                                                 <button onClick={() => setIsPaymentModalOpen(true)} className="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-blue-600/40 active:scale-95 transition-transform">
-                                                        <Plus size={32} />
-                                                 </button>
-                                          </div>
-
-                                          <NavItem icon={CalendarPlus} label="Pistas" href="/" />
-                                          <NavItem icon={MoreVertical} label="Ajustes" href="/" />
-                                   </div>
-                            </nav>
                      </div>
 
                      {/* Payment Modal */}
@@ -605,19 +589,6 @@ function KPICard({ icon: Icon, label, value, trend, trendUp, color = 'text-blue-
                      <p className="text-2xl font-black text-white">{value}</p>
                      <p className="text-[10px] font-bold text-slate-500 uppercase">{label}</p>
               </div>
-       )
-}
-
-function NavItem({ icon: Icon, label, href, active }: { icon: React.ElementType, label: string, href: string, active?: boolean }) {
-       const router = useRouter()
-       return (
-              <button
-                     onClick={() => router.push(href)}
-                     className={cn("flex flex-col items-center gap-1", active ? "text-blue-500" : "text-slate-500")}
-              >
-                     <Icon size={24} strokeWidth={active ? 2.5 : 2} />
-                     <span className="text-[10px] font-bold">{label}</span>
-              </button>
        )
 }
 

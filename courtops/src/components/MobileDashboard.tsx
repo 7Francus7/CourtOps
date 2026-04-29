@@ -237,7 +237,8 @@ export default function MobileDashboard({
 
        return (
               <>
-                     <div className="bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_34%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted)/0.35))] text-foreground h-full flex flex-col relative overflow-x-hidden">
+                     <div className="text-foreground h-full flex flex-col relative overflow-x-hidden bg-background">
+                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_34%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted)/0.35))]" />
                             <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-primary/10 to-transparent" />
 
                             {/* HEADER */}
@@ -289,7 +290,7 @@ export default function MobileDashboard({
                                    </div>
                             </header>
 
-                            <main className="flex-1 overflow-y-auto px-5 pb-32 space-y-4 no-scrollbar relative z-10">
+                            <main className="flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+8.5rem)] space-y-4 no-scrollbar relative z-10">
 
                                    <motion.section
                                           initial={{ opacity: 0, y: 12 }}

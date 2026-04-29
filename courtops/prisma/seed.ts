@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { hash } from 'bcryptjs'
+import { syncOfficialPlatformPlans } from '../src/lib/platform-plans'
 
 const prisma = new PrismaClient()
 
@@ -106,68 +107,7 @@ async function main() {
        })
 
        // 5. Platform Plans
-       const plans = [
-              {
-                     name: 'Arranque',
-                     price: 45000,
-                     setupFee: 100000,
-                     features: JSON.stringify([
-                            'Hasta 2 canchas de padel',
-                            'Hasta 3 empleados en el sistema',
-                            'Reservas online (link público)',
-                            'Turnero digital en tiempo real',
-                            'Caja diaria (apertura y cierre)',
-                            'QR Check-in',
-                            'Soporte por email L-V'
-                     ]),
-              },
-              {
-                     name: 'Élite',
-                     price: 89000,
-                     setupFee: 100000,
-                     features: JSON.stringify([
-                            'Hasta 8 canchas de padel',
-                            'Hasta 10 empleados en el sistema',
-                            'Todo lo del plan Arranque',
-                            'Kiosco / Punto de venta con stock',
-                            'Pagos online con MercadoPago',
-                            'Notificaciones WhatsApp automáticas',
-                            'Gestión de torneos y brackets',
-                            'Waivers digitales (firma electrónica)',
-                            'Reportes financieros avanzados',
-                            'Soporte prioritario WhatsApp 24/7'
-                     ]),
-              },
-              {
-                     name: 'VIP',
-                     price: 129000,
-                     setupFee: 100000,
-                     features: JSON.stringify([
-                            'Canchas ilimitadas',
-                            'Usuarios ilimitados',
-                            'Todo lo del plan Élite',
-                            'Dominio personalizado (ej: tuclub.com)',
-                            'Gestor de cuenta dedicado'
-                     ]),
-              }
-       ]
-
-       for (const plan of plans) {
-              await prisma.platformPlan.upsert({
-                     where: { name: plan.name },
-                     update: {
-                            price: plan.price,
-                            setupFee: plan.setupFee,
-                            features: plan.features
-                     },
-                     create: {
-                            name: plan.name,
-                            price: plan.price,
-                            setupFee: plan.setupFee,
-                            features: plan.features
-                     }
-              })
-       }
+       await syncOfficialPlatformPlans(prisma)
 
        console.log('Seeding finished successfully.')
 }

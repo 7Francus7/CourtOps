@@ -25,20 +25,22 @@ const PLANS = [
     cta: 'Comenzar gratis',
   },
   {
-    id: 'Arranque',
-    name: 'Arranque',
+    id: 'Base',
+    name: 'Base',
     eyebrow: 'Base',
     price: 45000,
+    setupFee: 150000,
     period: '/mes',
     description: 'Para ordenar agenda y caja sin complejidad.',
     features: ['Hasta 2 canchas', 'Turnero digital', 'Caja básica'],
     cta: 'Seleccionar',
   },
   {
-    id: 'Élite',
-    name: 'Élite',
+    id: 'Pro',
+    name: 'Pro',
     eyebrow: 'Recomendado',
-    price: 85000,
+    price: 79000,
+    setupFee: 150000,
     period: '/mes',
     description: 'Para clubes con alto movimiento, POS, torneos y métricas.',
     features: ['Hasta 8 canchas', 'POS / kiosco full', 'Gestión de torneos', 'Analítica avanzada'],
@@ -46,10 +48,11 @@ const PLANS = [
     featured: true,
   },
   {
-    id: 'VIP',
-    name: 'VIP',
+    id: 'Max',
+    name: 'Max',
     eyebrow: 'Escala',
-    price: 150000,
+    price: 119000,
+    setupFee: 150000,
     period: '/mes',
     description: 'Para complejos grandes con varias sedes e integraciones.',
     features: ['Canchas ilimitadas', 'Multi-sede central', 'API / webhooks', 'Ejecutivo dedicado'],
@@ -160,7 +163,7 @@ export default function RegisterPage() {
                 </p>
                 <h1 className="text-5xl font-bold tracking-tight md:text-6xl">Elegí tu plan</h1>
                 <p className="mx-auto mt-5 max-w-md text-base text-zinc-500 dark:text-zinc-400">
-                  Empezá simple. Cambiá de plan cuando tu club lo necesite.
+                  En planes pagos, el alta es de $150.000 e incluye el primer mes bonificado. Después se cobra la mensualidad.
                 </p>
 
                 <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-white p-1 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/60">
@@ -225,6 +228,11 @@ export default function RegisterPage() {
                     <div className="mt-6">
                       <PlanPrice plan={plan} isYearly={isYearly} />
                     </div>
+                    {typeof plan.setupFee === 'number' && (
+                      <p className={cn('mt-2 text-xs font-medium', plan.featured ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-400')}>
+                        + ${new Intl.NumberFormat('es-AR').format(plan.setupFee)} de alta. Primer mes incluido.
+                      </p>
+                    )}
 
                     <p className={cn('mt-4 text-sm leading-relaxed', plan.featured ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-400')}>
                       {plan.description}
@@ -285,6 +293,11 @@ export default function RegisterPage() {
                     <span className="text-xl font-semibold">{selectedPlanData?.name}</span>
                     {selectedPlanData && <PlanPrice plan={selectedPlanData} isYearly={isYearly} />}
                   </div>
+                  {selectedPlanData && typeof selectedPlanData.setupFee === 'number' && (
+                    <p className="mt-3 text-xs leading-relaxed text-zinc-400">
+                      Alta de ${new Intl.NumberFormat('es-AR').format(selectedPlanData.setupFee)} con el primer mes bonificado.
+                    </p>
+                  )}
                 </div>
               </aside>
 

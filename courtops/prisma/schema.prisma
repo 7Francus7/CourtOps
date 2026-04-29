@@ -58,6 +58,8 @@ model Club {
 
   // Platform Subscription
   mpPreapprovalId     String? // ID de la suscripción en MercadoPago (SaaS)
+  setupFeePaidAt      DateTime?
+  setupFeePaymentId   String?
   platformPlanId      String?
   platformPlan        PlatformPlan? @relation(fields: [platformPlanId], references: [id])
   pendingPlanId       String?  // Plan pendiente en caso de downgrade (se aplica al vencer el período)
@@ -499,11 +501,12 @@ model Tournament {
 }
 
 model TournamentCategory {
-  id           String  @id @default(uuid())
-  tournamentId String
-  name         String // e.g., "7ma Categoría"
-  gender       String? // MALE, FEMALE, MIXED
-  price        Float
+  id             String  @id @default(uuid())
+  tournamentId   String
+  name           String // e.g., "7ma Categoría"
+  gender         String? // MALE, FEMALE, MIXED
+  price          Float
+  teamsToAdvance Int?    @default(1) // teams advancing per group to knockout
 
   teams   TournamentTeam[]
   matches TournamentMatch[]
@@ -570,10 +573,11 @@ model TournamentMatch {
   startTime DateTime?
   endTime   DateTime?
 
-  homeScore String? // "6-4 6-2"
-  awayScore String?
-  winnerId  String?
-  status    String  @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+  homeScore  String? // "6-4 6-2"
+  awayScore  String?
+  winnerId   String?
+  status     String  @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+  matchOrder Int?    // bracket position for knockout phase
 
   category TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   court    Court?             @relation(fields: [courtId], references: [id])

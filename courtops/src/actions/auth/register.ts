@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/db'
 import bcrypt from 'bcryptjs'
+import { getPlanFeatures } from '@/lib/plan-features'
 
 export async function registerClub(formData: FormData) {
 	try {
@@ -9,7 +10,7 @@ export async function registerClub(formData: FormData) {
 		const email = formData.get('email') as string
 		const password = formData.get('password') as string
 		const userName = formData.get('userName') as string
-		const plan = formData.get('plan') as string
+		const plan = (formData.get('plan') as string)?.replace(/_ANUAL$/, '')
 
 		if (!clubName || !email || !password || !userName) {
 			return { success: false, error: 'Faltan campos requeridos.' }
@@ -54,30 +55,16 @@ export async function registerClub(formData: FormData) {
 
 			if (platformPlan) {
 				platformPlanId = platformPlan.id
-				const name = platformPlan.name.toLowerCase()
-				const isElite = name.includes('élite') || name.includes('elite') || name.includes('profesional') || name.includes('pro')
-				const isVip = name.includes('vip') || name.includes('empresarial') || name.includes('enterprise')
-
-				if (isElite) {
-					maxCourts = 8
-					maxUsers = 10
-					hasKiosco = true
-					hasOnlinePayments = true
-					hasAdvancedReports = true
-					hasTournaments = true
-					hasWhatsApp = true
-					hasWaivers = true
-				} else if (isVip) {
-					maxCourts = 99
-					maxUsers = 99
-					hasKiosco = true
-					hasOnlinePayments = true
-					hasAdvancedReports = true
-					hasTournaments = true
-					hasWhatsApp = true
-					hasWaivers = true
-					hasCustomDomain = true
-				}
+				const features = getPlanFeatures(platformPlan.name)
+				maxCourts = features.maxCourts
+				maxUsers = features.maxUsers
+				hasKiosco = features.hasKiosco
+				hasOnlinePayments = features.hasOnlinePayments
+				hasAdvancedReports = features.hasAdvancedReports
+				hasTournaments = features.hasTournaments
+				hasWhatsApp = features.hasWhatsApp
+				hasWaivers = features.hasWaivers
+				hasCustomDomain = features.hasCustomDomain
 			}
 		}
 

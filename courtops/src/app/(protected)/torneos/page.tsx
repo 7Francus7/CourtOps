@@ -9,7 +9,8 @@ import {
        Users,
        ChevronRight,
        Swords,
-       Search
+       Search,
+       GitBranch
 } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
@@ -183,13 +184,19 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode, label:
        )
 }
 
-function TournamentCard({ tournament, t }: { tournament: TournamentRecord, t: (_key: string) => string }) {
-       const statusColors = {
-              DRAFT: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
-              ACTIVE: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-              COMPLETED: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-       }
+const STATUS_GRADIENT: Record<string, string> = {
+       DRAFT: 'from-amber-950 via-yellow-900/60 to-slate-900',
+       ACTIVE: 'from-emerald-950 via-emerald-900/60 to-slate-900',
+       COMPLETED: 'from-blue-950 via-blue-900/60 to-slate-900',
+}
 
+const STATUS_BADGE: Record<string, string> = {
+       DRAFT: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/25',
+       ACTIVE: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+       COMPLETED: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
+}
+
+function TournamentCard({ tournament, t }: { tournament: TournamentRecord, t: (_key: string) => string }) {
        const getStatusLabel = (status: string) => {
               switch (status) {
                      case 'DRAFT': return t('draft')
@@ -199,73 +206,80 @@ function TournamentCard({ tournament, t }: { tournament: TournamentRecord, t: (_
               }
        }
 
+       const gradient = STATUS_GRADIENT[tournament.status] || STATUS_GRADIENT.DRAFT
+       const badge = STATUS_BADGE[tournament.status] || STATUS_BADGE.DRAFT
+       const hasMatches = (tournament._count?.matches || 0) > 0
+
        return (
               <motion.div
                      layout
-                     initial={{ opacity: 0, scale: 0.95 }}
-                     animate={{ opacity: 1, scale: 1 }}
+                     initial={{ opacity: 0, y: 16 }}
+                     animate={{ opacity: 1, y: 0 }}
                      exit={{ opacity: 0, scale: 0.95 }}
                      whileHover={{ y: -4 }}
                      transition={{ duration: 0.2 }}
               >
                      <Link
                             href={`/torneos/${tournament.id}`}
-                            className="block group bg-card border border-border/60 rounded-2xl md:rounded-3xl overflow-hidden hover:border-[var(--primary)]/50 transition-all shadow-sm hover:shadow-xl h-full flex flex-col"
+                            className="block group bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-[var(--primary)]/40 transition-all shadow-sm hover:shadow-2xl h-full flex flex-col"
                      >
-                            {/* Card Header Image/Pattern */}
-                            <div className="h-24 md:h-32 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-                                   {/* Internal Geometric Pattern using CSS */}
-                                   <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                            {/* Card Header */}
+                            <div className={cn("h-36 bg-gradient-to-br relative overflow-hidden", gradient)}>
+                                   <div className="absolute inset-0 opacity-[0.07]"
+                                          style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
+                                   {/* Decorative circles */}
+                                   <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/5 group-hover:scale-110 transition-transform duration-700" />
+                                   <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-white/5" />
 
-                                   <div className="absolute top-4 right-4">
-                                          <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md", statusColors[tournament.status as keyof typeof statusColors] || '')}>
+                                   <div className="absolute top-4 right-4 flex items-center gap-2">
+                                          {tournament.status === 'ACTIVE' && (
+                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                          )}
+                                          <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md", badge)}>
                                                  {getStatusLabel(tournament.status)}
                                           </span>
                                    </div>
-                                   <div className="absolute -bottom-6 -left-6 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-500">
-                                          <Trophy size={120} />
+
+                                   <div className="absolute bottom-4 left-5">
+                                          <h3 className="text-xl font-black text-white drop-shadow-md line-clamp-1 group-hover:text-white/90 transition-colors">
+                                                 {tournament.name}
+                                          </h3>
+                                          <div className="flex items-center gap-1.5 text-white/60 text-xs font-medium mt-1">
+                                                 <Calendar size={11} />
+                                                 {format(new Date(tournament.startDate as string | Date), "d 'de' MMMM yyyy", { locale: es })}
+                                          </div>
+                                   </div>
+
+                                   <div className="absolute top-4 left-5">
+                                          <Trophy size={20} className="text-white/20 group-hover:text-white/30 transition-colors" />
                                    </div>
                             </div>
 
-                            {/* Card Content */}
-                            <div className="p-4 md:p-6 flex-1 flex flex-col relative">
-                                   <div className="mb-4">
-                                          <h3 className="text-xl font-black text-foreground mb-1 group-hover:text-[var(--primary)] transition-colors line-clamp-1">
-                                                 {tournament.name}
-                                          </h3>
-                                          <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                                                 <Calendar size={12} />
-                                                 {format(new Date(tournament.startDate as string | Date), "EEEE d 'de' MMMM", { locale: es })}
+                            {/* Stats Row */}
+                            <div className="grid grid-cols-3 divide-x divide-border/50 border-b border-border/50">
+                                   {[
+                                          { val: tournament._count?.categories || 0, label: t('categories') },
+                                          { val: tournament._count?.teams || 0, label: t('teams') },
+                                          { val: tournament._count?.matches || 0, label: t('matches') },
+                                   ].map(({ val, label }) => (
+                                          <div key={label} className="py-3 text-center">
+                                                 <span className="block text-base font-black text-foreground">{val}</span>
+                                                 <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">{label}</span>
                                           </div>
-                                   </div>
+                                   ))}
+                            </div>
 
-                                   <div className="grid grid-cols-3 gap-2 py-4 border-t border-border/50 mt-auto">
-                                          <div className="text-center group/stat">
-                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{String(tournament._count?.categories || 0)}</span>
-                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('categories')}</span>
-                                          </div>
-                                          <div className="text-center border-l border-border/50 group/stat">
-                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{String(tournament._count?.teams || 0)}</span>
-                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('teams')}</span>
-                                          </div>
-                                          <div className="text-center border-l border-border/50 group/stat">
-                                                 <span className="block text-lg font-black text-foreground group-hover/stat:text-[var(--primary)] transition-colors">{String(tournament._count?.matches || 0)}</span>
-                                                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-wider">{t('matches')}</span>
-                                          </div>
+                            {/* Footer */}
+                            <div className="px-5 py-3 flex items-center justify-between">
+                                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          {hasMatches ? (
+                                                 <><GitBranch size={13} className="text-[var(--primary)]" /><span className="font-bold text-[var(--primary)]">Fixture activo</span></>
+                                          ) : (
+                                                 <><Swords size={13} /><span className="font-medium">Sin fixture</span></>
+                                          )}
                                    </div>
-
-                                   <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
-                                          <div className="flex -space-x-1 overflow-hidden pl-1">
-                                                 {/* Avatars Removed for cleaner look */}
-                                                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                        <Swords size={14} />
-                                                        <span className="font-bold">Ver Fixture</span>
-                                                 </div>
-                                          </div>
-                                          <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground group-hover:text-[var(--primary)] transition-colors uppercase tracking-wider">
-                                                 {t('manage_tournament')}
-                                                 <ChevronRight size={14} />
-                                          </div>
+                                   <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground group-hover:text-[var(--primary)] transition-colors">
+                                          {t('manage_tournament')} <ChevronRight size={13} />
                                    </div>
                             </div>
                      </Link>

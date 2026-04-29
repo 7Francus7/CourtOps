@@ -9,7 +9,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
+import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, generateKnockoutPhase, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import BracketView, { hasEliminationMatches } from '@/components/tournaments/BracketView'
@@ -446,6 +446,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
        const confirmAction = useConfirmation()
        const [generating, setGenerating] = useState<string | null>(null)
        const [zonesInput, setZonesInput] = useState<{ [key: string]: number }>({})
+       const [advanceInput, setAdvanceInput] = useState<{ [key: string]: number }>({})
        const [activeCategoryTab, setActiveCategoryTab] = useState<string | null>(null)
 
        const [editingMatch, setEditingMatch] = useState<any>(null)
@@ -466,14 +467,32 @@ function MatchesTab({ tournament }: { tournament: any }) {
        const handleGenerate = async (categoryId: string) => {
               if (generating) return
               const zones = zonesInput[categoryId] || 1
+              const advance = advanceInput[categoryId] || 1
 
               setGenerating(categoryId)
               try {
-                     const res = await generateFixture(categoryId, zones)
+                     const res = await generateFixture(categoryId, zones, advance)
                      if (res.success) {
                             toast.success(t('fixture_generated_success'))
                      } else {
                             toast.error(res.error || t('error_generating'))
+                     }
+              } catch {
+                     toast.error(t('error_unexpected'))
+              } finally {
+                     setGenerating(null)
+              }
+       }
+
+       const handleGenerateKnockout = async (categoryId: string) => {
+              if (generating) return
+              setGenerating(categoryId + '_knockout')
+              try {
+                     const res = await generateKnockoutPhase(categoryId)
+                     if (res.success) {
+                            toast.success('Fase eliminatoria generada')
+                     } else {
+                            toast.error(res.error || 'Error al generar la eliminatoria')
                      }
               } catch {
                      toast.error(t('error_unexpected'))
@@ -567,6 +586,10 @@ function MatchesTab({ tournament }: { tournament: any }) {
                             const hasFixture = catMatches.length > 0
                             const teamCount = cat.teams.length
                             const groups = cat.groups || []
+                            const groupMatches = catMatches.filter((m: any) => m.round === 'Fase de Grupos')
+                            const knockoutMatches = catMatches.filter((m: any) => m.round !== 'Fase de Grupos')
+                            const hasKnockout = knockoutMatches.length > 0
+                            const groupsDone = groups.length > 0 && groupMatches.length > 0
 
                             return (
                                    <div key={cat.id} className="space-y-6">
@@ -579,12 +602,23 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                         )}
                                                  </div>
                                                  {hasFixture && (
-                                                        <button
-                                                               onClick={() => handleDeleteFixture(cat.id)}
-                                                               className="text-red-500 hover:text-red-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/10 transition-colors"
-                                                        >
-                                                               <Trash2 size={12} /> {t('reset_fixture')}
-                                                        </button>
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                               {groupsDone && !hasKnockout && (
+                                                                      <button
+                                                                             onClick={() => handleGenerateKnockout(cat.id)}
+                                                                             disabled={generating === cat.id + '_knockout'}
+                                                                             className="text-[var(--primary)] hover:brightness-110 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--primary)]/30 hover:bg-[var(--primary)]/10 transition-colors disabled:opacity-50"
+                                                                      >
+                                                                             <GitBranch size={12} /> {generating === cat.id + '_knockout' ? 'Generando...' : 'Generar Eliminatoria'}
+                                                                      </button>
+                                                               )}
+                                                               <button
+                                                                      onClick={() => handleDeleteFixture(cat.id)}
+                                                                      className="text-red-500 hover:text-red-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/10 transition-colors"
+                                                               >
+                                                                      <Trash2 size={12} /> {t('reset_fixture')}
+                                                               </button>
+                                                        </div>
                                                  )}
                                           </div>
 
@@ -603,8 +637,9 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                       {t('insufficient_pairs')}
                                                                </div>
                                                         ) : (
-                                                               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 bg-muted/30 p-3 sm:p-2 sm:pr-2 rounded-xl border border-border/50 w-full sm:w-auto">
-                                                                      <div className="flex items-center gap-3 px-3">
+                                                               <div className="flex flex-col sm:flex-row items-center gap-3 bg-muted/30 p-3 rounded-xl border border-border/50 w-full sm:w-auto">
+                                                                      {/* Zones */}
+                                                                      <div className="flex items-center gap-3 px-2">
                                                                              <span className="text-xs font-bold text-muted-foreground uppercase">{t('zones')}:</span>
                                                                              <div className="flex items-center gap-2">
                                                                                     <button
@@ -618,9 +653,25 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                                     >+</button>
                                                                              </div>
                                                                       </div>
+                                                                      {/* Teams to advance per group */}
+                                                                      <div className="flex items-center gap-3 px-2 border-t sm:border-t-0 sm:border-l border-border/50 pt-2 sm:pt-0 sm:pl-3">
+                                                                             <span className="text-xs font-bold text-muted-foreground uppercase">Clasifican:</span>
+                                                                             <div className="flex items-center gap-2">
+                                                                                    <button
+                                                                                           onClick={() => setAdvanceInput({ ...advanceInput, [cat.id]: Math.max(1, (advanceInput[cat.id] || 1) - 1) })}
+                                                                                           className="w-6 h-6 rounded bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-foreground font-bold transition-colors"
+                                                                                    >-</button>
+                                                                                    <span className="font-bold text-foreground w-4 text-center">{advanceInput[cat.id] || 1}</span>
+                                                                                    <button
+                                                                                           onClick={() => setAdvanceInput({ ...advanceInput, [cat.id]: (advanceInput[cat.id] || 1) + 1 })}
+                                                                                           className="w-6 h-6 rounded bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-foreground font-bold transition-colors"
+                                                                                    >+</button>
+                                                                             </div>
+                                                                             <span className="text-[10px] text-muted-foreground">por grupo</span>
+                                                                      </div>
                                                                       <button
                                                                              onClick={() => handleGenerate(cat.id)}
-                                                                             disabled={generating === cat.id}
+                                                                             disabled={!!generating}
                                                                              className="bg-primary hover:brightness-110 text-primary-foreground font-black text-sm py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                                                                       >
                                                                              {generating === cat.id ? t('generating') : t('generate')}

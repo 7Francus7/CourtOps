@@ -1,6 +1,7 @@
-import { handleSubscriptionSuccess } from '@/actions/subscription'
+import { handleSetupFeeSuccess, handleSubscriptionSuccess } from '@/actions/subscription'
 import { CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function SubscriptionStatusPage({
        searchParams,
@@ -9,7 +10,55 @@ export default async function SubscriptionStatusPage({
 }) {
        const resolvedParams = await searchParams
        const preapprovalId = resolvedParams['preapproval_id'] as string
+       const setup = resolvedParams['setup'] as string
+       const setupPaymentId = (resolvedParams['payment_id'] || resolvedParams['collection_id']) as string
        const status = resolvedParams['status'] as string
+
+       let setupRedirectUrl: string | null = null
+
+       if (setup === '1' && (status === 'approved' || status === 'authorized')) {
+              try {
+                     const result = await handleSetupFeeSuccess(setupPaymentId)
+                     if (result?.success && result.init_point) setupRedirectUrl = result.init_point
+              } catch (error: unknown) {
+                     console.error("Error confirming setup payment:", error)
+                     return (
+                            <div className="h-full min-h-[80vh] w-full flex items-center justify-center p-4">
+                                   <div className="max-w-md w-full text-center space-y-4">
+                                          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                                                 <AlertCircle className="w-8 h-8 text-muted-foreground" />
+                                          </div>
+                                          <h2 className="text-xl font-bold">No pudimos confirmar el alta</h2>
+                                          <p className="text-muted-foreground">{error instanceof Error ? error.message : 'Intentá nuevamente desde suscripción.'}</p>
+                                          <Link href="/dashboard/suscripcion" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+                                                 <ArrowLeft className="w-4 h-4" /> Volver a SuscripciÃ³n
+                                          </Link>
+                                   </div>
+                            </div>
+                     )
+              }
+       }
+
+       if (setupRedirectUrl) redirect(setupRedirectUrl)
+
+       if (setup === '1') {
+              return (
+                     <div className="h-full min-h-[80vh] w-full flex items-center justify-center p-4">
+                            <div className="max-w-md w-full text-center space-y-4">
+                                   <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                                          <AlertCircle className="w-8 h-8 text-muted-foreground" />
+                                   </div>
+                                   <h2 className="text-xl font-bold">Alta inicial no confirmada</h2>
+                                   <p className="text-muted-foreground">
+                                          {status === 'pending' ? 'El pago inicial estÃ¡ procesÃ¡ndose. Cuando se apruebe, podÃ©s volver a suscripciÃ³n para continuar.' : 'El pago inicial no fue aprobado o fue cancelado.'}
+                                   </p>
+                                   <Link href="/dashboard/suscripcion" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+                                          <ArrowLeft className="w-4 h-4" /> Volver a SuscripciÃ³n
+                                   </Link>
+                            </div>
+                     </div>
+              )
+       }
 
        if (!preapprovalId || !status) {
               return (

@@ -516,7 +516,7 @@ export async function sendManualReminder(bookingId: number) {
               const clientName = booking.client.name
               const phone = booking.client.phone
 
-              if (!booking.club?.hasWhatsApp) return { success: false, error: 'Tu plan no incluye WhatsApp automático. Actualizá a Plan Élite.' }
+              if (!booking.club?.hasWhatsApp) return { success: false, error: 'Tu plan no incluye WhatsApp automático. Actualizá a Plan Pro.' }
 
               if (phone) {
                      // Calculate real balance

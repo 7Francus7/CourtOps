@@ -372,7 +372,19 @@ export async function createClientWithCategory(data: { name: string, phone: stri
        }
 }
 
-export async function generateFixture(categoryId: string, numberOfZones: number) {
+function getRoundOrderServer(round: string): number {
+       const lower = round.toLowerCase()
+       if (lower.includes('final') && !lower.includes('semi') && !lower.includes('cuarto') && !lower.includes('octav')) return 100
+       if (lower.includes('semi')) return 90
+       if (lower.includes('cuarto') || lower.includes('quarter')) return 80
+       if (lower.includes('octav')) return 70
+       if (lower.includes('grupo') || lower.includes('group') || lower.includes('fase')) return 10
+       const numMatch = round.match(/(\d+)/)
+       if (numMatch) return parseInt(numMatch[1])
+       return 50
+}
+
+export async function generateFixture(categoryId: string, numberOfZones: number, teamsToAdvance: number = 1) {
        const session = await getServerSession(authOptions)
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
@@ -405,6 +417,10 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
                             data: { groupId: null, points: 0, matchesPlayed: 0, setsWon: 0, gamesWon: 0 }
                      })
                      await tx.tournamentGroup.deleteMany({ where: { categoryId } })
+                     await tx.tournamentCategory.update({
+                            where: { id: categoryId },
+                            data: { teamsToAdvance: Math.max(1, teamsToAdvance) }
+                     })
 
                      // 2. Create Zones
                      const zones: { id: string; name: string }[] = []
@@ -465,6 +481,112 @@ export async function generateFixture(categoryId: string, numberOfZones: number)
        }
 }
 
+export async function generateKnockoutPhase(categoryId: string) {
+       const session = await getServerSession(authOptions)
+       if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+       try {
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: { id: categoryId, tournament: { clubId: session.user.clubId } },
+                     include: { groups: { include: { teams: true } } }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
+              const teamsToAdvance = category.teamsToAdvance || 1
+              const groups = category.groups
+
+              if (groups.length === 0) return { success: false, error: "No hay grupos generados. Genera el fixture de grupos primero." }
+
+              // Collect advancers: rank 1 from all groups first, then rank 2, etc. (FIFA style)
+              const advancers: any[] = []
+              for (let rank = 0; rank < teamsToAdvance; rank++) {
+                     for (const group of groups) {
+                            const sorted = [...group.teams].sort((a: any, b: any) => {
+                                   if (b.points !== a.points) return b.points - a.points
+                                   if (b.setsWon !== a.setsWon) return b.setsWon - a.setsWon
+                                   return b.gamesWon - a.gamesWon
+                            })
+                            if (sorted[rank]) advancers.push(sorted[rank])
+                     }
+              }
+
+              const total = advancers.length
+              if (total < 2) return { success: false, error: "Se necesitan al menos 2 equipos clasificados" }
+
+              // Next power of 2
+              let bracketSize = 2
+              while (bracketSize < total) bracketSize *= 2
+
+              // Build round sequence from first to last (e.g. "Octavos de Final" → ... → "Final")
+              const allRounds: string[] = []
+              let size = bracketSize
+              while (size >= 2) {
+                     if (size === 2) allRounds.unshift("Final")
+                     else if (size === 4) allRounds.unshift("Semifinal")
+                     else if (size === 8) allRounds.unshift("Cuartos de Final")
+                     else if (size === 16) allRounds.unshift("Octavos de Final")
+                     else allRounds.unshift(`Ronda de ${size}`)
+                     size /= 2
+              }
+
+              await prisma.$transaction(async (tx: any) => {
+                     // Remove existing knockout matches only
+                     await tx.tournamentMatch.deleteMany({
+                            where: { categoryId, round: { not: "Fase de Grupos" } }
+                     })
+
+                     // Slots: advancers first, then BYE (null) to fill bracket
+                     const slots: (any | null)[] = [
+                            ...advancers,
+                            ...Array(bracketSize - total).fill(null)
+                     ]
+
+                     // Create first knockout round matches
+                     const firstRound = allRounds[0]
+                     const firstCount = bracketSize / 2
+                     for (let i = 0; i < firstCount; i++) {
+                            const home = slots[i * 2]
+                            const away = slots[i * 2 + 1]
+                            const isBye = !home || !away
+                            await tx.tournamentMatch.create({
+                                   data: {
+                                          categoryId,
+                                          round: firstRound,
+                                          homeTeamId: home?.id ?? null,
+                                          awayTeamId: away?.id ?? null,
+                                          status: isBye ? 'COMPLETED' : 'SCHEDULED',
+                                          winnerId: isBye ? (home?.id ?? away?.id ?? null) : null,
+                                          matchOrder: i + 1
+                                   }
+                            })
+                     }
+
+                     // Create empty subsequent rounds (TBD matches)
+                     for (let r = 1; r < allRounds.length; r++) {
+                            const matchCount = bracketSize / Math.pow(2, r + 1)
+                            for (let i = 0; i < matchCount; i++) {
+                                   await tx.tournamentMatch.create({
+                                          data: {
+                                                 categoryId,
+                                                 round: allRounds[r],
+                                                 homeTeamId: null,
+                                                 awayTeamId: null,
+                                                 status: 'SCHEDULED',
+                                                 matchOrder: i + 1
+                                          }
+                                   })
+                            }
+                     }
+              })
+
+              revalidatePath('/torneos/[id]')
+              return { success: true, rounds: allRounds }
+       } catch (error) {
+              console.error("Error generating knockout phase:", error)
+              return { success: false, error: "Error al generar la fase eliminatoria" }
+       }
+}
+
 export async function deleteFixture(categoryId: string) {
        try {
               const session = await getServerSession(authOptions)
@@ -503,29 +625,23 @@ export async function setMatchResult(matchId: string, data: { homeScore: string,
        if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
 
        try {
-              // Verify ownership
               const matchExists = await prisma.tournamentMatch.findFirst({
-                     where: {
-                            id: matchId,
-                            category: { tournament: { clubId: session.user.clubId } }
-                     }
+                     where: { id: matchId, category: { tournament: { clubId: session.user.clubId } } },
+                     select: { id: true, matchOrder: true, round: true, categoryId: true }
               })
               if (!matchExists) return { success: false, error: "No autorizado" }
 
-              // 1. Update Match
               const match = await prisma.tournamentMatch.update({
                      where: { id: matchId },
-                     data: {
-                            status: 'COMPLETED',
-                            homeScore: data.homeScore,
-                            awayScore: data.awayScore,
-                            winnerId: data.winnerId
-                     },
+                     data: { status: 'COMPLETED', homeScore: data.homeScore, awayScore: data.awayScore, winnerId: data.winnerId },
                      include: { category: true }
               })
 
-              // 2. Recalculate Standings for this Category
-              await updateCategoryStandings(match.categoryId)
+              if (matchExists.round === 'Fase de Grupos') {
+                     await updateCategoryStandings(match.categoryId)
+              } else if (matchExists.matchOrder !== null && data.winnerId) {
+                     await advanceKnockoutWinner(matchExists.categoryId, matchExists.matchOrder, matchExists.round, data.winnerId)
+              }
 
               revalidatePath('/torneos/[id]')
               return { success: true }
@@ -533,6 +649,35 @@ export async function setMatchResult(matchId: string, data: { homeScore: string,
               console.error("Error setting result:", error)
               return { success: false, error: "Failed to set result" }
        }
+}
+
+async function advanceKnockoutWinner(categoryId: string, matchOrder: number, round: string, winnerId: string) {
+       const roundRows = await prisma.tournamentMatch.findMany({
+              where: { categoryId },
+              select: { round: true },
+              distinct: ['round']
+       })
+
+       const roundsSorted = roundRows
+              .map((r: any) => r.round)
+              .sort((a: string, b: string) => getRoundOrderServer(a) - getRoundOrderServer(b))
+
+       const currentIdx = roundsSorted.indexOf(round)
+       if (currentIdx < 0 || currentIdx >= roundsSorted.length - 1) return
+
+       const nextRound = roundsSorted[currentIdx + 1]
+       const nextMatchOrder = Math.ceil(matchOrder / 2)
+
+       const nextMatch = await prisma.tournamentMatch.findFirst({
+              where: { categoryId, round: nextRound, matchOrder: nextMatchOrder }
+       })
+       if (!nextMatch) return
+
+       const isHome = matchOrder % 2 !== 0
+       await prisma.tournamentMatch.update({
+              where: { id: nextMatch.id },
+              data: isHome ? { homeTeamId: winnerId } : { awayTeamId: winnerId }
+       })
 }
 
 async function updateCategoryStandings(categoryId: string) {

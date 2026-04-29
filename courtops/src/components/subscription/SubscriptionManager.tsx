@@ -20,6 +20,7 @@ interface SubscriptionManagerProps {
 	currentPlan: any
 	subscriptionStatus: string | null
 	nextBillingDate: Date | string | null
+	setupFeePaidAt?: Date | string | null
 	availablePlans: Plan[]
 	pendingPlan?: Plan | null
 	pendingBillingCycle?: 'monthly' | 'yearly' | null
@@ -28,21 +29,22 @@ interface SubscriptionManagerProps {
 }
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
-	'Arranque': <Rocket className="w-5 h-5" />,
-	'Élite': <Zap className="w-5 h-5" />,
-	'VIP': <Building2 className="w-5 h-5" />,
+	'Base': <Rocket className="w-5 h-5" />,
+	'Pro': <Zap className="w-5 h-5" />,
+	'Max': <Building2 className="w-5 h-5" />,
 }
 
 const PLAN_COLORS: Record<string, { bg: string, border: string, text: string }> = {
-	'Arranque': { bg: 'bg-sky-500', border: 'border-sky-500/30', text: 'text-sky-500' },
-	'Élite': { bg: 'bg-emerald-500', border: 'border-emerald-500/30', text: 'text-emerald-500' },
-	'VIP': { bg: 'bg-violet-500', border: 'border-violet-500/30', text: 'text-violet-500' },
+	'Base': { bg: 'bg-sky-500', border: 'border-sky-500/30', text: 'text-sky-500' },
+	'Pro': { bg: 'bg-emerald-500', border: 'border-emerald-500/30', text: 'text-emerald-500' },
+	'Max': { bg: 'bg-violet-500', border: 'border-violet-500/30', text: 'text-violet-500' },
 }
 
 export default function SubscriptionManager({
 	currentPlan,
 	subscriptionStatus,
 	nextBillingDate,
+	setupFeePaidAt,
 	availablePlans,
 	pendingPlan,
 	pendingBillingCycle,
@@ -66,6 +68,8 @@ export default function SubscriptionManager({
 	}
 
 	const isActive = subscriptionStatus?.toLowerCase() === 'authorized' || subscriptionStatus?.toLowerCase() === 'active'
+	const hasPaidSubscription = Boolean(currentPlan && isActive)
+	const setupFeeAlreadyPaid = Boolean(setupFeePaidAt || currentPlan?.setupFeePaidAt || currentPlan?.setupFeePaymentId || hasPaidSubscription)
 
 	const openPlanModal = (plan: Plan, action: 'upgrade' | 'downgrade' | 'new') => {
 		setSelectedPlan(plan)
@@ -311,9 +315,10 @@ export default function SubscriptionManager({
 
 				{sortedPlans.map((plan) => {
 					const isCurrent = currentPlan?.id === plan.id && isActive
-					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
+					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Base']
 					const price = getPrice(plan)
-					const isUpgrade = currentPlan ? plan.price > currentPlan.price : true
+					const isUpgrade = hasPaidSubscription ? plan.price > currentPlan.price : true
+					const showSetupFee = !setupFeeAlreadyPaid && (plan.setupFee ?? 0) > 0
 
 					return (
 						<div
@@ -348,9 +353,11 @@ export default function SubscriptionManager({
 								<span className="text-xs text-muted-foreground">
 									{billingCycle === 'yearly' ? '/año' : '/mes'}
 								</span>
-								<div className="text-[10px] text-muted-foreground">
-									+ {formatPrice(plan.setupFee ?? 0)} licencia única al inicio
-								</div>
+								{showSetupFee && (
+									<div className="text-[10px] text-muted-foreground">
+										+ {formatPrice(plan.setupFee ?? 0)} pago único inicial. Primer mes bonificado.
+									</div>
+								)}
 								{billingCycle === 'yearly' && (
 									<div className="text-[10px] text-emerald-500 font-medium">
 										equivale a {formatPrice(Math.round(plan.price * 0.8))}/mes
@@ -370,7 +377,7 @@ export default function SubscriptionManager({
 										<CheckCircle2 className="w-4 h-4" />
 										Plan activo
 									</span>
-								) : currentPlan ? (
+								) : hasPaidSubscription ? (
 									<button
 										onClick={() => openPlanModal(plan, isUpgrade ? 'upgrade' : 'downgrade')}
 										disabled={!!loadingId}
@@ -404,7 +411,7 @@ export default function SubscriptionManager({
 				<h3 className="text-lg font-bold mb-4">Características por plan</h3>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
 					{sortedPlans.map((plan) => {
-						const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
+						const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Base']
 						const isCurrent = currentPlan?.id === plan.id && isActive
 
 						return (
@@ -496,7 +503,7 @@ export default function SubscriptionManager({
 						</DialogTitle>
 						<DialogDescription>
 							{(planAction === 'upgrade' || planAction === 'new') && (
-								<>Serás redirigido a MercadoPago para autorizar el cobro {billingCycle === 'yearly' ? 'anual' : 'mensual'}. Los cobros siguientes son automáticos.</>
+								<>{planAction === 'new' && !setupFeeAlreadyPaid ? 'Primero vas a pagar el alta única. Después vas a autorizar la suscripción del plan.' : `Serás redirigido a MercadoPago para autorizar el cobro ${billingCycle === 'yearly' ? 'anual' : 'mensual'}. Los cobros siguientes son automáticos.`}</>
 							)}
 							{planAction === 'downgrade' && (
 								<>Tu plan actual continúa hasta que venza el período. El nuevo plan arranca en la próxima fecha de facturación.</>
@@ -528,9 +535,9 @@ export default function SubscriptionManager({
 							<p className="text-xs text-muted-foreground pt-1">
 								MercadoPago debitará automáticamente en cada período.
 							</p>
-							{planAction === 'new' && (selectedPlan.setupFee ?? 0) > 0 && (
+							{planAction === 'new' && !setupFeeAlreadyPaid && (selectedPlan.setupFee ?? 0) > 0 && (
 								<p className="text-xs text-muted-foreground">
-									+ {formatPrice(selectedPlan.setupFee ?? 0)} licencia única al inicio.
+									+ {formatPrice(selectedPlan.setupFee ?? 0)} pago único inicial. Ese pago bonifica el primer mes; luego se cobra la mensualidad.
 								</p>
 							)}
 						</div>

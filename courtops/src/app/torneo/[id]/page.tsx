@@ -47,8 +47,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
        // Form State
        const [formData, setFormData] = useState({
               p1Name: '', p1Phone: '',
-              p2Name: '', p2Phone: '',
-              teamName: ''
+              p2Name: '', p2Phone: ''
        })
        const [submitting, setSubmitting] = useState(false)
        async function loadTournament(id: string) {
@@ -77,7 +76,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                      player1Phone: formData.p1Phone,
                      player2Name: formData.p2Name,
                      player2Phone: formData.p2Phone,
-                     teamName: formData.teamName
+                     teamName: ''
               })
 
               if (res.success) {
@@ -85,7 +84,7 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                             description: 'Te hemos registrado correctamente. Pronto te contactaremos.'
                      })
                      setShowForm(false)
-                     setFormData({ p1Name: '', p1Phone: '', p2Name: '', p2Phone: '', teamName: '' })
+                     setFormData({ p1Name: '', p1Phone: '', p2Name: '', p2Phone: '' })
                      loadTournament(tournamentId) // Refresh counts
               } else {
                      toast.error('Error al inscribirse', { description: res.error })
@@ -300,17 +299,6 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                              onChange={e => setFormData({ ...formData, p2Phone: e.target.value })}
                                                                       />
                                                                </div>
-                                                        </div>
-
-                                                        {/* Extras */}
-                                                        <div className="pt-2">
-                                                               <label className="text-xs font-bold text-muted-foreground uppercase mb-1 block">Nombre del Equipo (Opcional)</label>
-                                                               <input
-                                                                      placeholder="Ej: Los Invencibles"
-                                                                      className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-primary outline-none"
-                                                                      value={formData.teamName}
-                                                                      onChange={e => setFormData({ ...formData, teamName: e.target.value })}
-                                                               />
                                                         </div>
 
                                                         <div className="pt-4 flex gap-3">

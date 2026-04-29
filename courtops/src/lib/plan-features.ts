@@ -1,15 +1,13 @@
 /**
  * Determines feature limits based on plan name.
- * ONLY 3 plans: Arranque | Élite | VIP
+ * ONLY 3 plans: Base | Pro | Max
  */
+import { normalizePlatformPlanName } from './platform-plans'
+
 export function getPlanFeatures(planName: string) {
-	const name = planName.toLowerCase()
+	const name = normalizePlatformPlanName(planName)
 
-	const isArranque = name === 'arranque'
-	const isElite = name === 'élite' || name === 'elite'
-	const isVip = name === 'vip'
-
-	if (isElite) {
+	if (name === 'Pro') {
 		return {
 			maxCourts: 8,
 			maxUsers: 10,
@@ -23,7 +21,7 @@ export function getPlanFeatures(planName: string) {
 		}
 	}
 
-	if (isVip) {
+	if (name === 'Max') {
 		return {
 			maxCourts: 99,
 			maxUsers: 99,
@@ -37,7 +35,7 @@ export function getPlanFeatures(planName: string) {
 		}
 	}
 
-	// Arranque — defaults
+	// Base defaults
 	return {
 		maxCourts: 2,
 		maxUsers: 3,

@@ -5,12 +5,12 @@ import Link from 'next/link'
 
 const planes = [
   {
-    id: 'arranque',
-    nombre: 'Arranque',
+    id: 'base',
+    nombre: 'Base',
     subtitulo: 'Para clubes que quieren ordenar reservas y operar prolijos desde el día uno.',
     precio: 45000,
     precioAnual: 36000,
-    licencia: 100000,
+    licencia: 150000,
     funciones: [
       'Hasta 2 canchas de padel',
       'Hasta 3 empleados en el sistema',
@@ -20,21 +20,21 @@ const planes = [
       'QR Check-in',
       'Soporte por email L-V',
     ],
-    cta: 'Empezar Arranque',
-    url: '/register?plan=arranque',
+    cta: 'Empezar Base',
+    url: '/register?plan=base',
     destacado: false,
   },
   {
-    id: 'elite',
-    nombre: 'Élite',
+    id: 'pro',
+    nombre: 'Pro',
     subtitulo: 'Para clubes en crecimiento que quieren vender, cobrar y automatizar más.',
-    precio: 89000,
-    precioAnual: 71200,
-    licencia: 100000,
+    precio: 79000,
+    precioAnual: 63200,
+    licencia: 150000,
     funciones: [
       'Hasta 8 canchas de padel',
       'Hasta 10 empleados en el sistema',
-      'Todo lo del plan Arranque',
+      'Todo lo del plan Base',
       'Kiosco / Punto de venta con stock',
       'Pagos online con MercadoPago',
       'Notificaciones WhatsApp automáticas',
@@ -43,21 +43,21 @@ const planes = [
       'Reportes financieros avanzados',
       'Soporte prioritario WhatsApp 24/7',
     ],
-    cta: 'Elegir Élite',
-    url: '/register?plan=elite',
+    cta: 'Elegir Pro',
+    url: '/register?plan=pro',
     destacado: true,
   },
   {
-    id: 'vip',
-    nombre: 'VIP',
+    id: 'max',
+    nombre: 'Max',
     subtitulo: 'Para complejos que necesitan flexibilidad total y atención dedicada.',
-    precio: 129000,
-    precioAnual: 103200,
-    licencia: 100000,
+    precio: 119000,
+    precioAnual: 95200,
+    licencia: 150000,
     funciones: [
       'Canchas ilimitadas',
       'Usuarios ilimitados',
-      'Todo lo del plan Élite',
+      'Todo lo del plan Pro',
       'Dominio personalizado (ej: tuclub.com)',
       'Gestor de cuenta dedicado',
     ],
@@ -107,7 +107,7 @@ export default function PricingKinetic() {
         {planes.map((plan) => (
           <div
             key={plan.id}
-            className={`rounded-3xl p-7 md:p-10 flex flex-col h-full transition-all duration-300 ${plan.id === 'vip' ? 'md:col-start-1 lg:col-start-auto' : ''} ${
+            className={`rounded-3xl p-7 md:p-10 flex flex-col h-full transition-all duration-300 ${plan.id === 'max' ? 'md:col-start-1 lg:col-start-auto' : ''} ${
               plan.destacado
                 ? 'bg-zinc-900 dark:bg-[#262528] border-2 border-green-500 dark:border-[#72ff70] lg:-translate-y-4 shadow-2xl z-10 relative'
                 : 'bg-white dark:bg-[#1f1f22] border border-zinc-200 dark:border-zinc-800/50 shadow-lg'
@@ -133,7 +133,7 @@ export default function PricingKinetic() {
               <span className={`text-xl font-normal mb-1 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>/mes</span>
             </div>
             <p className={`text-sm -mt-6 mb-8 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
-              + ${fmt(plan.licencia)} licencia única al inicio
+              + ${fmt(plan.licencia)} pago único inicial. Primer mes bonificado.
             </p>
 
             <ul className={`space-y-5 mb-14 flex-grow ${plan.destacado ? 'text-white' : ''}`}>
@@ -157,7 +157,7 @@ export default function PricingKinetic() {
             >
               {plan.cta}
             </Link>
-            {plan.id !== 'vip' && (
+            {plan.id !== 'max' && (
               <p className={`text-center text-sm mt-4 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
                 7 días de prueba gratuita · Sin tarjeta de crédito
               </p>

@@ -68,7 +68,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
     if (navigator.share) {
       navigator.share({
         title: club.name,
-        text: `Reservá en ${club.name}`,
+        text: `Reservá tu cancha en ${club.name}`,
         url: window.location.href,
       }).catch(() => {})
     } else {
@@ -242,10 +242,10 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-                    Reserva movil
+                    Reserva desde el celular
                   </p>
                   <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                    Elegi horario, confirma y listo.
+                    Elegí horario, confirmá y seguí con tu día.
                   </p>
                 </div>
                 <div className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">

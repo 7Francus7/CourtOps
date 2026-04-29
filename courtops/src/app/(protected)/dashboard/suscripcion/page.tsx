@@ -20,6 +20,7 @@ export default async function SuscripcionPage() {
                                           currentPlan={data.currentPlan}
                                           subscriptionStatus={data.subscriptionStatus}
                                           nextBillingDate={data.nextBillingDate ? data.nextBillingDate.toISOString() : null}
+                                          setupFeePaidAt={data.setupFeePaidAt ? data.setupFeePaidAt.toISOString() : null}
                                           availablePlans={data.availablePlans}
                                           pendingPlan={data.pendingPlan}
                                           pendingBillingCycle={data.pendingBillingCycle}

@@ -5,17 +5,14 @@ import Link from "next/link"
 import { Newsreader, Space_Grotesk } from "next/font/google"
 import {
   ArrowRight,
-  Banknote,
   BarChart3,
   CalendarCheck,
   Check,
   ChevronRight,
   MessageCircle,
   ReceiptText,
-  ShieldCheck,
   Smartphone,
   Sparkles,
-  Trophy,
   Users,
   Zap,
 } from "lucide-react"
@@ -31,9 +28,9 @@ const fontSans = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
 export const dynamic = "force-dynamic"
 
 const navLinks = [
-  { href: "#experiencia", label: "Experiencia" },
+  { href: "#experiencia", label: "Link público" },
   { href: "#operacion", label: "Operación" },
-  { href: "#impacto", label: "Impacto" },
+  { href: "#impacto", label: "Métricas" },
   { href: "#planes", label: "Planes" },
 ]
 
@@ -45,65 +42,65 @@ const liveRows = [
 
 const operatingFlow = [
   {
-    title: "Reserva",
-    text: "El jugador elige cancha, horario y método de pago desde el celular.",
+    title: "El jugador reserva desde el celular",
+    text: "Abre el link del club, elige fecha, horario y cancha sin esperar respuesta por chat.",
     icon: Smartphone,
   },
   {
-    title: "Recepción",
-    text: "El staff ve estado, deuda, seña y cliente sin revisar chats.",
+    title: "WhatsApp queda para vender mejor",
+    text: "Los mensajes salen cuando aportan valor: comprobantes, consultas especiales y turnos sin disponibilidad.",
+    icon: MessageCircle,
+  },
+  {
+    title: "La lista de espera captura demanda",
+    text: "Si no hay horario, el jugador deja sus datos y el club conserva una oportunidad real de venta.",
     icon: Users,
   },
   {
-    title: "Caja",
-    text: "Cada cobro entra al cierre diario con trazabilidad y responsable.",
-    icon: Banknote,
-  },
-  {
-    title: "Decisión",
-    text: "Los dueños miran ocupación, ingresos y deudores en tiempo real.",
+    title: "El dueño ve qué canales convierten",
+    text: "Reservas, espera, ingresos y origen del tráfico quedan medidos para decidir con datos.",
     icon: BarChart3,
   },
 ]
 
 const features = [
-  { title: "Turnero visual", text: "Disponibilidad, estados, precios y huecos de agenda en una grilla rápida.", icon: CalendarCheck },
-  { title: "Caja diaria", text: "Apertura, movimientos, productos, alquileres y cierre sin planillas paralelas.", icon: ReceiptText },
-  { title: "Clientes vivos", text: "Historial, deudas, membresías, referidos, asistencia y contactos centralizados.", icon: Users },
-  { title: "WhatsApp y pagos", text: "Recordatorios, señas, links de pago y automatizaciones para bajar ausencias.", icon: MessageCircle },
-  { title: "Torneos", text: "Inscripción pública, categorías, zonas, fixtures y gestión del evento.", icon: Trophy },
-  { title: "Control seguro", text: "Roles, auditoría, multi-tenant y trazabilidad por usuario y club.", icon: ShieldCheck },
+  { title: "Reservas móviles", text: "Una experiencia rápida para Instagram, QR, Google Business y campañas pagas.", icon: Smartphone },
+  { title: "WhatsApp conectado", text: "Consultas, comprobantes y recordatorios sin que la recepción copie datos a mano.", icon: MessageCircle },
+  { title: "Lista de espera", text: "Cada horario lleno puede generar una venta futura en vez de perderse en un chat.", icon: CalendarCheck },
+  { title: "Referidos", text: "Clientes que traen jugadores nuevos con códigos y seguimiento dentro del club.", icon: Users },
+  { title: "Caja diaria", text: "Señas, alquileres, productos y movimientos con cierre claro por responsable.", icon: ReceiptText },
+  { title: "Métricas de club", text: "Ocupación, ingresos por hora, deudores, reservas públicas y canales de venta.", icon: BarChart3 },
 ]
 
 const metrics = [
-  ["-42%", "mensajes repetidos para confirmar turnos"],
-  ["+31%", "ocupación visible en horarios valle"],
-  ["0", "cierres de caja sin responsable"],
   ["24/7", "reservas online con disponibilidad real"],
+  ["3 pasos", "para elegir horario y confirmar desde el celular"],
+  ["4 canales", "Instagram, WhatsApp, QR y Google con tracking"],
+  ["1 tablero", "ocupación, caja, espera y referidos para decidir"],
 ]
 
 const plans = [
   {
-    name: "Básico",
+    name: "Base",
     price: "$45.000",
-    text: "Para ordenar reservas, clientes y caja sin complejidad.",
+    text: "Para ordenar reservas, clientes y caja sin sumar planillas.",
     items: ["Hasta 4 canchas", "Turnero visual", "Caja diaria", "Clientes y deudas"],
-    href: "/register?plan=basico",
-  },
-  {
-    name: "Élite",
-    price: "$85.000",
-    text: "Para clubes con alto movimiento, cobros y operación diaria.",
-    items: ["Canchas ilimitadas", "Kiosco POS", "WhatsApp", "Torneos y reportes"],
-    href: "/register?plan=elite",
-    highlighted: true,
+    href: "/register?plan=base",
   },
   {
     name: "Pro",
-    price: "$150.000",
-    text: "Para complejos con varias sedes o necesidades premium.",
+    price: "$79.000",
+    text: "Para clubes que quieren vender más turnos y operar con menos fricción.",
+    items: ["Canchas ilimitadas", "Kiosco POS", "WhatsApp", "Torneos y reportes"],
+    href: "/register?plan=pro",
+    highlighted: true,
+  },
+  {
+    name: "Max",
+    price: "$119.000",
+    text: "Para complejos con varias sedes, marca blanca y reporting ejecutivo.",
     items: ["Multi-sucursal", "Academia", "Marca blanca", "Soporte prioritario"],
-    href: "mailto:ventas@courtops.net",
+    href: "/register?plan=max",
   },
 ]
 
@@ -113,8 +110,8 @@ function BookingBoard() {
     <div className="relative mx-auto w-full max-w-[560px] overflow-hidden rounded-2xl border border-white/12 bg-zinc-950/80 p-3 shadow-[0_30px_120px_rgba(0,0,0,0.5)] backdrop-blur-xl">
       <div className="flex items-center justify-between border-b border-white/10 px-3 pb-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">Ahora en recepción</p>
-          <h2 className="mt-1 text-xl font-bold text-white">Turnero del club</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">Link público en vivo</p>
+          <h2 className="mt-1 text-xl font-bold text-white">Reservas que llegan solas</h2>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-emerald-950">
           <span className="h-2 w-2 rounded-full bg-emerald-950" />
@@ -161,9 +158,9 @@ function BookingBoard() {
 
       <div className="grid grid-cols-3 gap-2 border-t border-white/10 p-3">
         {[
-          ["18", "turnos"],
-          ["$312k", "caja"],
-          ["7", "deudores"],
+          ["18", "reservas"],
+          ["6", "en espera"],
+          ["31%", "referidos"],
         ].map(([value, label]) => (
           <div key={label} className="rounded-xl bg-white/[0.06] p-3">
             <p className="text-2xl font-black text-white">{value}</p>
@@ -233,22 +230,22 @@ export default async function Home() {
             <div className="max-w-5xl">
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
                 <Sparkles size={14} />
-                SaaS operativo para clubes de pádel
+                Link público, WhatsApp y métricas para clubes
               </div>
               <h1 className="max-w-6xl text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl md:text-8xl xl:text-[8.5rem]">
-                Que tu club se sienta
-                <span className="block font-serif italic text-emerald-300">imposible de olvidar.</span>
+                Más reservas confirmadas.
+                <span className="block font-serif italic text-emerald-300">Menos agenda por chat.</span>
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300 md:text-xl">
-                Reservas, caja, clientes, pagos, torneos y reportes en una experiencia que ordena la recepción y hace que cada jugador vuelva.
+                CourtOps convierte el link de tu club en un canal de venta: reservas móviles, señas, WhatsApp, lista de espera, referidos y métricas para saber qué está funcionando.
               </p>
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
                 <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-7 py-4 text-base font-black text-emerald-950 transition hover:bg-emerald-200">
-                  Crear mi club
+                  Crear mi link público
                   <ArrowRight size={19} />
                 </Link>
                 <a href="#experiencia" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/16 bg-white/8 px-7 py-4 text-base font-bold text-white backdrop-blur transition hover:bg-white/12">
-                  Ver experiencia
+                  Ver cómo vende
                   <ChevronRight size={19} />
                 </a>
               </div>
@@ -271,12 +268,12 @@ export default async function Home() {
         <section className="bg-[#f4faf7] px-5 py-20 dark:bg-[#07090b] md:px-10 md:py-32">
           <div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="lg:sticky lg:top-28 lg:h-fit">
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Scroll que vende</p>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Del link a la caja</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
-                Cada sección muestra una parte real de la operación.
+                El link público tiene que trabajar como un vendedor del club.
               </h2>
               <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-700 dark:text-zinc-400">
-                La landing no explica con humo: enseña cómo el club respira en hora pico, cómo cobra, cómo reduce errores y cómo ve el negocio completo.
+                No alcanza con mostrar horarios. CourtOps arma un recorrido completo: capta jugadores, reduce conversaciones repetidas, recupera demanda cuando no hay lugar y deja números claros para el dueño.
               </p>
             </div>
 
@@ -302,12 +299,12 @@ export default async function Home() {
         <section id="operacion" className="overflow-hidden bg-[#e9f2ef] text-zinc-950">
           <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-20 md:px-10 md:py-32 lg:grid-cols-[1fr_1fr]">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Operación premium</p>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Crecimiento operativo</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
-                El sistema tiene que sentirse rápido antes de que el cliente pregunte.
+                Lo que CourtReserve instaló como estándar, CourtOps lo lleva al día a día del club.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-700">
-                Recepción necesita menos pasos, administración necesita menos dudas y los dueños necesitan ver números claros. CourtOps junta esas tres realidades.
+                La prioridad es simple: que reservar desde el celular sea fácil, que WhatsApp deje de ser una planilla improvisada y que cada canal de adquisición se pueda medir.
               </p>
             </div>
 
@@ -337,21 +334,21 @@ export default async function Home() {
               <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
                 <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-200">Experiencia del jugador</p>
                 <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight tracking-tight text-white md:text-5xl">
-                  Reservar tiene que sentirse tan simple como entrar a la cancha.
+                  Si el jugador llega desde Instagram, tiene que poder terminar la reserva en el momento.
                 </h3>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-700 dark:text-amber-200">Menos fricción</p>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-700 dark:text-amber-200">Métricas accionables</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
-                Una landing que hace desear el producto, no solo entenderlo.
+                El club necesita saber dónde se gana plata y dónde se escapan turnos.
               </h2>
               <div className="mt-8 space-y-5">
                 {[
-                  "Visuales grandes desde el primer viewport.",
-                  "Secciones con contraste para que el scroll no se sienta repetido.",
-                  "Mockups funcionales que muestran turnero, caja y métricas sin depender de capturas viejas.",
+                  "Ocupación por día y horario para ajustar precios y promociones.",
+                  "Reservas, lista de espera y referidos medidos por canal.",
+                  "Caja, deudas y señas conectadas con la agenda del club.",
                 ].map((item) => (
                   <div key={item} className="flex gap-4 rounded-2xl border border-zinc-950/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none">
                     <Check className="mt-1 shrink-0 text-emerald-600 dark:text-emerald-300" size={22} />
@@ -370,7 +367,7 @@ export default async function Home() {
                 <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Planes</p>
                 <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">Arrancá simple. Escalá cuando el club lo pida.</h2>
               </div>
-              <p className="max-w-md text-lg leading-8 text-zinc-600">7 días de prueba gratuita. Sin tarjeta de crédito en los planes de entrada.</p>
+              <p className="max-w-md text-lg leading-8 text-zinc-600">Pago único inicial de $150.000. Ese pago deja bonificado el primer mes; después se cobra la mensualidad del plan elegido.</p>
             </div>
 
             <div className="grid gap-5 lg:grid-cols-3">

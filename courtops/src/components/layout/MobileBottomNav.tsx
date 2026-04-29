@@ -224,18 +224,19 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
 
       {/* Bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-8 pb-[max(env(safe-area-inset-bottom),0.75rem)] pointer-events-none"
+        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-7 pb-[max(env(safe-area-inset-bottom),0.75rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
-<div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
-          <div className="flex justify-around items-center h-[66px] px-1 rounded-[2rem] border border-border bg-card/95 shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[0_20px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-xl">
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white to-white/0" />
+        <div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
+          <div className="flex h-[66px] items-center justify-around rounded-[2rem] border border-slate-200/80 bg-white/95 px-2 text-slate-700 shadow-[0_18px_44px_rgba(15,23,42,0.18)] backdrop-blur-xl">
             {primaryItems.map(item => {
               if (item.isFab) {
                 return (
                   <button
                     key="fab"
                     onClick={() => router.push('/dashboard?action=new_booking')}
-                    className="relative flex h-[52px] w-[52px] -mt-7 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_28px_hsl(var(--primary)/0.5),0_0_0_3px_hsl(var(--card))] active:scale-95 transition-transform"
+                    className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_28px_hsl(var(--primary)/0.3)] active:scale-95 transition-transform"
                     aria-label="Nueva reserva"
                   >
                     <Plus size={22} strokeWidth={2.5} />
@@ -258,7 +259,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                   {isActive && (
                     <motion.div
                       layoutId="nav-active-pill"
-                      className="absolute inset-1 rounded-xl bg-primary/15"
+                      className="absolute inset-1 rounded-xl bg-primary/10"
                       transition={{ type: 'spring', stiffness: 420, damping: 38 }}
                     />
                   )}
@@ -267,12 +268,12 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                     strokeWidth={isActive ? 2.5 : 1.8}
                     className={cn(
                       'relative transition-colors duration-150',
-                      isActive ? 'text-primary' : 'text-muted-foreground/70'
+                      isActive ? 'text-primary' : 'text-slate-500'
                     )}
                   />
                   <span className={cn(
                     'relative text-[10px] font-semibold transition-colors duration-150',
-                    isActive ? 'text-primary' : 'text-muted-foreground/60'
+                    isActive ? 'text-primary' : 'text-slate-500'
                   )}>
                     {item.label}
                   </span>

@@ -5,6 +5,7 @@ import { hash } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import { getServerSession } from "next-auth"
 import { authOptions, isSuperAdmin } from "@/lib/auth"
+import { syncOfficialPlatformPlans } from '@/lib/platform-plans'
 
 // ... (existing code at end of file)
 async function checkOnlyDellorsif() {
@@ -273,7 +274,7 @@ export async function deleteClub(formData: FormData) {
        }
 }
 
-export async function activateClubSubscription(clubId: string, planName: string = 'Élite', months: number = 1) {
+export async function activateClubSubscription(clubId: string, planName: string = 'Pro', months: number = 1) {
 	if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
 	try {
 		let plan = await prisma.platformPlan.findFirst({
@@ -282,7 +283,7 @@ export async function activateClubSubscription(clubId: string, planName: string 
 
 		if (!plan) {
 			plan = await prisma.platformPlan.findFirst({
-				where: { name: 'Élite' }
+                            where: { name: 'Pro' }
 			})
 		}
 
@@ -611,75 +612,10 @@ export async function seedOfficialPlans() {
 	if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
 
 	try {
-		const plans = [
-			{
-				name: 'Arranque',
-				price: 45000,
-				setupFee: 100000,
-				features: [
-					'Hasta 2 canchas de padel',
-					'Hasta 3 empleados en el sistema',
-					'Reservas online (link público)',
-					'Turnero digital en tiempo real',
-					'Caja diaria (apertura y cierre)',
-					'QR Check-in',
-					'Soporte por email L-V'
-				],
-			},
-			{
-				name: 'Élite',
-				price: 89000,
-				setupFee: 100000,
-				features: [
-					'Hasta 8 canchas de padel',
-					'Hasta 10 empleados en el sistema',
-					'Todo lo del plan Arranque',
-					'Kiosco / Punto de venta con stock',
-					'Pagos online con MercadoPago',
-					'Notificaciones WhatsApp automáticas',
-					'Gestión de torneos y brackets',
-					'Waivers digitales (firma electrónica)',
-					'Reportes financieros avanzados',
-					'Soporte prioritario WhatsApp 24/7'
-				],
-			},
-			{
-				name: 'VIP',
-				price: 129000,
-				setupFee: 100000,
-				features: [
-					'Canchas ilimitadas',
-					'Usuarios ilimitados',
-					'Todo lo del plan Élite',
-					'Dominio personalizado (ej: tuclub.com)',
-					'Gestor de cuenta dedicado'
-				],
-			}
-		]
-
-              for (const p of plans) {
-                     const existing = await prisma.platformPlan.findFirst({ where: { name: p.name } })
-                     const featuresPayload = JSON.stringify(p.features)
-
-                     if (existing) {
-                            await prisma.platformPlan.update({
-                                   where: { id: existing.id },
-                                   data: { price: p.price, setupFee: p.setupFee, features: featuresPayload }
-                            })
-                     } else {
-                            await prisma.platformPlan.create({
-                                   data: {
-                                          name: p.name,
-                                          price: p.price,
-                                          setupFee: p.setupFee,
-                                          features: featuresPayload
-                                   }
-                            })
-                     }
-              }
+              await syncOfficialPlatformPlans(prisma)
 
               revalidatePath('/god-mode')
-              return { success: true, message: 'Planes actualizados a los precios oficiales 2026' }
+              return { success: true, message: 'Planes actualizados a Base, Pro y Max' }
        } catch (error: unknown) {
               console.error("Seed Plans Error:", error)
               return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

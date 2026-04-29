@@ -21,7 +21,7 @@ export default function LandingHero() {
             className="inline-block px-4 py-1.5 rounded-full text-xs font-extrabold tracking-widest mb-6"
             style={{ background: 'var(--co-mint)', color: 'var(--co-mint-text)' }}
           >
-            SISTEMA ELITE
+            GESTIÓN PARA CLUBES
           </span>
 
           <h1

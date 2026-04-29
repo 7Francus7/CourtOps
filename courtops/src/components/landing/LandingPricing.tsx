@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation'
 
 const planes = [
   {
-    id: 'arranque',
-    nombre: 'Arranque',
+    id: 'base',
+    nombre: 'Base',
     subtitulo: 'Para clubes que quieren empezar ordenados y sin complejidad de más',
     precio: 45000,
-    licencia: 100000,
+    licencia: 150000,
     funciones: [
       'Hasta 2 canchas de padel',
       'Hasta 3 empleados en el sistema',
@@ -21,19 +21,19 @@ const planes = [
       'QR Check-in',
       'Soporte por email L-V',
     ],
-    cta: 'Elegir Arranque',
+    cta: 'Elegir Base',
     destacado: false,
   },
   {
-    id: 'elite',
-    nombre: 'Élite',
+    id: 'pro',
+    nombre: 'Pro',
     subtitulo: 'Gestión profesional completa para vender, cobrar y automatizar',
-    precio: 89000,
-    licencia: 100000,
+    precio: 79000,
+    licencia: 150000,
     funciones: [
       'Hasta 8 canchas de padel',
       'Hasta 10 empleados en el sistema',
-      'Todo lo del plan Arranque',
+      'Todo lo del plan Base',
       'Kiosco / Punto de venta con stock',
       'Pagos online con MercadoPago',
       'Notificaciones WhatsApp automáticas',
@@ -42,23 +42,23 @@ const planes = [
       'Reportes financieros avanzados',
       'Soporte prioritario WhatsApp 24/7',
     ],
-    cta: 'Elegir Élite',
+    cta: 'Elegir Pro',
     destacado: true,
   },
   {
-    id: 'vip',
-    nombre: 'VIP',
+    id: 'max',
+    nombre: 'Max',
     subtitulo: 'Para complejos premium que necesitan flexibilidad total y atención dedicada',
-    precio: 129000,
-    licencia: 100000,
+    precio: 119000,
+    licencia: 150000,
     funciones: [
       'Canchas ilimitadas',
       'Usuarios ilimitados',
-      'Todo lo del plan Élite',
+      'Todo lo del plan Pro',
       'Dominio personalizado (ej: tuclub.com)',
       'Gestor de cuenta dedicado',
     ],
-    cta: 'Elegir VIP',
+    cta: 'Elegir Max',
     destacado: false,
   },
 ]
@@ -195,7 +195,7 @@ export default function LandingPricing() {
                     className="mt-2 text-sm"
                     style={{ color: plan.destacado ? 'rgba(249,249,255,0.55)' : 'var(--co-muted)' }}
                   >
-                    + ${fmt(plan.licencia)} licencia única al inicio
+                    + ${fmt(plan.licencia)} pago único inicial. Primer mes bonificado.
                   </p>
                 </div>
 

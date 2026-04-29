@@ -190,6 +190,38 @@ export async function POST(request: Request) {
               if (paymentInfo.status === 'approved') {
                       // --- LOGIC FOR SAAS SUBSCRIPTIONS (Platform) ---
                       if (isPlatform) {
+                             if (externalRef.startsWith('SETUP:')) {
+                                    const [, refClubId, refPlanId] = externalRef.split(':')
+                                    const setupPlan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+
+                                    if (refClubId && setupPlan) {
+                                           await prisma.club.update({
+                                                  where: { id: refClubId },
+                                                  data: {
+                                                         setupFeePaidAt: new Date(),
+                                                         setupFeePaymentId: String(paymentInfo.id),
+                                                  }
+                                           })
+
+                                           prisma.user.findFirst({ where: { role: 'GOD' } })
+                                                  .then(godUser => {
+                                                         const notifyEmail = godUser?.email || process.env.MASTER_ADMIN_EMAIL
+                                                         if (notifyEmail) {
+                                                                sendSubscriptionPaymentEmail(
+                                                                       notifyEmail,
+                                                                       'Alta CourtOps',
+                                                                       setupPlan.name,
+                                                                       paymentInfo.transaction_amount ?? 0,
+                                                                       'new'
+                                                                ).catch(e => console.error('[EMAIL] Setup fee notify failed:', e))
+                                                         }
+                                                  })
+                                                  .catch(e => console.error('[EMAIL] GOD user lookup failed:', e))
+
+                                           return NextResponse.json({ status: 'ok', msg: 'setup fee processed' })
+                                    }
+                             }
+
                              // Format: clubId:planId OR clubId:planId:billingCycle:changeType
                              if (externalRef.includes(':')) {
                                     const parts = externalRef.split(':')

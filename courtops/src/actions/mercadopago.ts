@@ -75,7 +75,8 @@ export async function createSubscriptionPreference(
 	payerEmail: string,
 	externalRef: string,
 	frequency: number = 1,
-	frequencyType: string = 'months'
+	frequencyType: string = 'months',
+	startDate?: Date
 ) {
 	try {
 		const platformAccessToken = process.env.MP_ACCESS_TOKEN
@@ -99,7 +100,8 @@ export async function createSubscriptionPreference(
 				frequency: frequency,
 				frequency_type: frequencyType,
 				transaction_amount: Number(price),
-				currency_id: 'ARS'
+				currency_id: 'ARS',
+				...(startDate ? { start_date: startDate.toISOString() } : {}),
 			},
 			back_url: backUrl,
 			payer_email: payerEmail?.trim(),
@@ -123,6 +125,81 @@ export async function createSubscriptionPreference(
 		}
 
 		return { success: false, error: debugInfo }
+	}
+}
+
+export async function createSetupFeePreference(
+	clubId: string,
+	planName: string,
+	setupFee: number,
+	payerEmail: string,
+	externalRef: string
+) {
+	try {
+		const platformAccessToken = process.env.MP_ACCESS_TOKEN
+		if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+
+		const { MercadoPagoConfig, Preference } = await import('mercadopago')
+		const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
+		const preference = new Preference(client)
+
+		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+		const statusUrl = `${baseUrl}/dashboard/suscripcion/status?setup=1`
+
+		const response = await preference.create({
+			body: {
+				items: [
+					{
+						id: externalRef,
+						title: `Alta CourtOps - ${planName}`,
+						description: 'Pago único inicial. Incluye el primer mes bonificado.',
+						quantity: 1,
+						unit_price: Number(setupFee),
+						currency_id: 'ARS',
+						category_id: 'services',
+					},
+				],
+				external_reference: externalRef,
+				back_urls: {
+					success: statusUrl,
+					failure: `${statusUrl}&status=failure`,
+					pending: `${statusUrl}&status=pending`,
+				},
+				notification_url: `${baseUrl}/api/webhooks/mercadopago`,
+				auto_return: 'approved',
+				statement_descriptor: 'COURTOPS',
+			},
+		})
+
+		return { success: true, init_point: response.init_point, id: response.id }
+	} catch (error: unknown) {
+		console.error("MP Setup Fee Error:", error)
+
+		let debugInfo = 'Error interno de Mercado Pago'
+		const err = error as { cause?: unknown; message?: string }
+		if (err.cause && Array.isArray(err.cause)) {
+			debugInfo = err.cause.map((e: { description?: string; code?: string }) => e.description || e.code).join(', ')
+		} else if (err.message) {
+			debugInfo = err.message
+		}
+
+		return { success: false, error: debugInfo }
+	}
+}
+
+export async function getPlatformPayment(id: string) {
+	try {
+		const platformAccessToken = process.env.MP_ACCESS_TOKEN
+		if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+
+		const { MercadoPagoConfig, Payment } = await import('mercadopago')
+		const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
+		const payment = new Payment(client)
+
+		return await payment.get({ id })
+	} catch (error) {
+		console.error("Error fetching platform payment:", error)
+		return null
 	}
 }
 
