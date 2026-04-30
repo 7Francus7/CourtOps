@@ -7,13 +7,10 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
-       Users as UsersIcon,
        Plus,
        Bell,
-       Store,
        ChevronRight,
        Globe,
-       Lock,
        AlertTriangle,
        MessageCircle,
        TrendingUp,
@@ -23,12 +20,9 @@ import {
        Moon,
        Sun,
        CalendarDays,
-       Trophy,
        Activity,
        Radio,
-       Zap,
        ArrowUpRight,
-       QrCode,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -39,7 +33,6 @@ import { cn } from '@/lib/utils'
 
 import { NotificationItem } from '@/actions/notifications'
 import MovementModal from './dashboard/MovementModal'
-import { UpgradeModal } from './layout/UpgradeModal'
 
 interface TimelineBooking {
        id: number
@@ -88,8 +81,6 @@ export default function MobileDashboard({
        logoUrl,
        slug,
        onOpenBooking,
-       onOpenKiosco,
-       onOpenGrowthKit,
        onNavigate,
        notifications,
        unreadCount,
@@ -102,20 +93,12 @@ export default function MobileDashboard({
        const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
        const [isMovementModalOpen, setIsMovementModalOpen] = useState(false)
        const [refreshKey, setRefreshKey] = useState(0)
-
-       const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-       const [lockedFeatureName, setLockedFeatureName] = useState('')
        const [isMobileViewport, setIsMobileViewport] = useState(false)
        const isFetchingRef = useRef(false)
        const mountedRef = useRef(false)
 
        const MOBILE_DASHBOARD_TIMEOUT_MS = 20000
        const MOBILE_DASHBOARD_TIMEOUT_ERROR = 'mobile-dashboard-timeout'
-
-       const handleLockedClick = (featureName: string) => {
-              setLockedFeatureName(featureName)
-              setShowUpgradeModal(true)
-       }
 
        const fetchData = useCallback(async () => {
               if (!mountedRef.current || !isMobileViewport || isFetchingRef.current) {
@@ -219,11 +202,8 @@ export default function MobileDashboard({
        const liveTone = activeCourtsCount > 0 ? 'En vivo' : freeCourtsCount > 0 ? 'Disponible' : 'Completo'
        const totalRevenueToday = data?.endOfDay?.totalRevenue ?? data?.caja?.total ?? 0
        const totalBookingsToday = data?.endOfDay?.totalBookings ?? 0
-       const averageBookingToday = totalBookingsToday > 0 ? Math.round(totalRevenueToday / totalBookingsToday) : 0
-       const openCourtOpportunity = averageBookingToday * freeCourtsCount
        const debtCount = data?.debts?.totalCount ?? 0
        const debtAmount = data?.debts?.totalAmount ?? 0
-       const topDebtor = data?.debts?.topDebtors?.[0] ?? null
        const shouldShowRecoveryCard = pending > 0 || debtCount > 0
 
        const handleCopyLink = () => {
@@ -253,10 +233,10 @@ export default function MobileDashboard({
                             <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-primary/10 to-transparent" />
 
                             {/* HEADER */}
-                            <header className="px-5 pt-[max(env(safe-area-inset-top),1.4rem)] pb-4 shrink-0 z-20">
+                            <header className="px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3 shrink-0 z-20">
                                    <div className="flex justify-between items-center gap-3">
                                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                 <div className="w-12 h-12 bg-gradient-to-br from-primary to-cyan-400 rounded-[1.15rem] flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden ring-1 ring-white/20">
+                                                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-cyan-400 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden ring-1 ring-white/20">
                                                         {logoUrl ? (
                                                                <>
                                                                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -273,22 +253,22 @@ export default function MobileDashboard({
                                                         )}
                                                  </div>
                                                  <div className="min-w-0">
-                                                        <p className="text-[10px] font-bold text-muted-foreground capitalize mb-0.5">
+                                                        <p className="text-[9px] font-bold text-muted-foreground capitalize mb-0.5">
                                                                {format(today, "EEEE d 'de' MMMM", { locale: es })}
                                                         </p>
-                                                        <h1 className="text-2xl font-black text-foreground tracking-[-0.04em] truncate">{clubName}</h1>
+                                                        <h1 className="text-xl font-black text-foreground tracking-tight truncate">{clubName}</h1>
                                                  </div>
                                           </div>
                                           <div className="flex items-center gap-2 shrink-0">
                                                  <button
                                                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                                        className="w-11 h-11 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 flex items-center justify-center text-muted-foreground active:scale-90 transition-transform shadow-sm"
+                                                        className="w-10 h-10 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 flex items-center justify-center text-muted-foreground active:scale-90 transition-transform shadow-sm"
                                                  >
                                                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                                                  </button>
                                                  <button
                                                         onClick={() => setIsNotificationsOpen(true)}
-                                                        className="w-11 h-11 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 flex items-center justify-center relative active:scale-90 transition-transform shadow-sm"
+                                                        className="w-10 h-10 rounded-2xl bg-card/70 backdrop-blur-xl border border-border/60 flex items-center justify-center relative active:scale-90 transition-transform shadow-sm"
                                                  >
                                                         {unreadCount > 0 && (
                                                                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white">
@@ -301,32 +281,32 @@ export default function MobileDashboard({
                                    </div>
                             </header>
 
-                            <main className="flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+8.5rem)] space-y-4 no-scrollbar relative z-10">
+                            <main className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+8.5rem)] space-y-3 no-scrollbar relative z-10">
 
                                    <motion.section
                                           initial={{ opacity: 0, y: 12 }}
                                           animate={{ opacity: 1, y: 0 }}
-                                          className="rounded-[2rem] border border-border/60 bg-card/90 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.14)] backdrop-blur-xl"
+                                          className="rounded-[1.55rem] border border-border/60 bg-card/90 p-3.5 shadow-[0_16px_45px_rgba(0,0,0,0.12)] backdrop-blur-xl"
                                    >
-                                          <div className="flex items-start justify-between gap-4">
+                                          <div className="flex items-start justify-between gap-3">
                                                  <div className="min-w-0 flex-1">
-                                                        <div className="mb-3 flex items-center gap-2">
-                                                               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-emerald-500">
+                                                        <div className="mb-2 flex items-center gap-2">
+                                                               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-500">
                                                                       <Radio size={11} />
                                                                       {liveTone}
                                                                </span>
-                                                               <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">
+                                                               <span className="rounded-full bg-muted px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-muted-foreground">
                                                                       {occupancy}% ocupacion
                                                                </span>
                                                         </div>
-                                                        <h2 className="text-3xl font-black leading-[0.96] text-foreground">
+                                                        <h2 className="text-2xl font-black leading-none text-foreground">
                                                                {activeCourtsCount > 0
                                                                       ? `${activeCourtsCount} cancha${activeCourtsCount === 1 ? '' : 's'} jugando`
                                                                       : freeCourtsCount > 0
                                                                              ? `${freeCourtsCount} cancha${freeCourtsCount === 1 ? '' : 's'} libre${freeCourtsCount === 1 ? '' : 's'}`
                                                                              : 'Sin huecos activos'}
                                                         </h2>
-                                                        <p className="mt-2 text-sm font-semibold leading-relaxed text-muted-foreground">
+                                                        <p className="mt-1.5 truncate text-xs font-semibold text-muted-foreground">
                                                                {nextBooking
                                                                       ? `Proximo: ${nextBooking.time} · ${nextBooking.courtName} · ${nextBooking.title}`
                                                                       : nextFreeCourt
@@ -337,31 +317,31 @@ export default function MobileDashboard({
 
                                                  <button
                                                         onClick={openCalendar}
-                                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg active:scale-95"
+                                                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg active:scale-95"
                                                         aria-label="Abrir turnero"
                                                  >
-                                                        <CalendarDays size={22} strokeWidth={2.6} />
+                                                        <CalendarDays size={19} strokeWidth={2.6} />
                                                  </button>
                                           </div>
 
-                                          <div className="mt-5 grid grid-cols-3 gap-2">
+                                          <div className="mt-4 grid grid-cols-3 gap-2">
                                                  <button
                                                         onClick={() => onOpenBooking({ isNew: true })}
-                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl bg-primary p-3 text-left text-primary-foreground shadow-sm active:scale-[0.98]"
+                                                        className="flex min-h-[62px] flex-col justify-between rounded-2xl bg-primary p-3 text-left text-primary-foreground shadow-sm active:scale-[0.98]"
                                                  >
                                                         <Plus size={19} strokeWidth={3} />
                                                         <span className="text-[11px] font-black uppercase tracking-wide">Reservar</span>
                                                  </button>
                                                  <button
                                                         onClick={openCalendar}
-                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
+                                                        className="flex min-h-[62px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
                                                  >
                                                         <Activity size={19} className="text-blue-500" />
                                                         <span className="text-[11px] font-black uppercase tracking-wide">Turnero</span>
                                                  </button>
                                                  <button
                                                         onClick={handleCopyLink}
-                                                        className="flex min-h-[78px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
+                                                        className="flex min-h-[62px] flex-col justify-between rounded-2xl border border-border bg-background p-3 text-left text-foreground active:scale-[0.98]"
                                                  >
                                                         <Globe size={19} className="text-teal-500" />
                                                         <span className="text-[11px] font-black uppercase tracking-wide">Link</span>
@@ -369,218 +349,67 @@ export default function MobileDashboard({
                                           </div>
                                    </motion.section>
 
-                                    {/* STATS ROW */}
-                                    <motion.div
+                                    <motion.section
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
                                            transition={{ delay: 0.03 }}
-                                           className="grid grid-cols-3 gap-2"
+                                           className="rounded-[1.35rem] border border-border/60 bg-card/85 p-3 shadow-sm backdrop-blur-xl"
                                     >
-                                           {/* Caja */}
-                                           <Link href="/caja" className="group relative bg-card/85 backdrop-blur-xl border border-border/60 rounded-2xl p-3 active:scale-[0.98] transition-transform shadow-sm overflow-hidden">
-                                                  <Banknote size={16} className="text-emerald-500" />
-                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">Caja</span>
-                                                  <span className="mt-1 block truncate text-base font-black text-foreground">
-                                                         ${(data?.caja?.total ?? 0).toLocaleString()}
-                                                  </span>
-                                           </Link>
-
-                                           {/* Canchas */}
-                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-2xl p-3 shadow-sm overflow-hidden">
-                                                  <CircleDot size={16} className="text-blue-500" />
-                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">En juego</span>
-                                                  <span className="mt-1 block text-base font-black text-foreground">{activeCourtsCount}/{totalCourts}</span>
-                                           </div>
-
-                                           {/* Pendiente */}
-                                           <div className="group relative bg-card/80 backdrop-blur-xl border border-border/60 rounded-2xl p-3 shadow-sm overflow-hidden">
-                                                  <Clock size={16} className={pending > 0 ? "text-amber-500" : "text-emerald-500"} />
-                                                  <span className="mt-3 block text-[10px] font-black text-muted-foreground uppercase tracking-wider">Pendiente</span>
-                                                  <span className={cn("mt-1 block truncate text-base font-black", pending > 0 ? "text-amber-500" : "text-foreground")}>
-                                                         ${pending.toLocaleString()}
-                                                  </span>
-                                           </div>
-                                     </motion.div>
-
-                                    <motion.section
-                                           initial={{ opacity: 0, y: 12 }}
-                                           animate={{ opacity: 1, y: 0 }}
-                                           transition={{ delay: 0.035 }}
-                                           className="relative overflow-hidden rounded-[1.7rem] border border-emerald-500/20 bg-emerald-500/10 p-4 shadow-sm"
-                                    >
-                                           <div className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
-                                           <div className="relative z-10 flex items-center justify-between gap-4">
-                                                  <div className="min-w-0 flex-1">
-                                                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-500">
-                                                                Valor de hoy
-                                                         </p>
-                                                         <p className="mt-1 text-2xl font-black tracking-tight text-foreground">
-                                                                ${totalRevenueToday.toLocaleString()}
-                                                         </p>
-                                                         <p className="mt-1 text-xs font-semibold text-muted-foreground">
-                                                                {totalBookingsToday} turnos registrados · {occupancy}% ocupacion
-                                                         </p>
-                                                  </div>
-                                                  <button
-                                                         type="button"
-                                                         onClick={freeCourtsCount > 0 ? (onOpenGrowthKit || handleCopyLink) : () => window.location.href = '/caja'}
-                                                         className="flex min-w-[112px] flex-col items-start rounded-2xl bg-background/75 px-3 py-2 text-left shadow-sm ring-1 ring-border/60 active:scale-[0.98]"
-                                                  >
-                                                         <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">
-                                                                {freeCourtsCount > 0 ? 'Oportunidad' : 'Cobrado'}
+                                           <div className="grid grid-cols-3 divide-x divide-border/60">
+                                                  <Link href="/caja" className="px-1 active:scale-[0.98]">
+                                                         <Banknote size={14} className="mb-1.5 text-emerald-500" />
+                                                         <span className="block text-[9px] font-black uppercase tracking-wider text-muted-foreground">Caja</span>
+                                                         <span className="mt-0.5 block truncate text-sm font-black text-foreground">
+                                                                ${(data?.caja?.total ?? 0).toLocaleString()}
                                                          </span>
-                                                         <span className="mt-1 truncate text-sm font-black text-foreground">
-                                                                {freeCourtsCount > 0 && openCourtOpportunity > 0
-                                                                       ? `$${openCourtOpportunity.toLocaleString()}`
-                                                                       : pending > 0
-                                                                              ? `$${pending.toLocaleString()}`
-                                                                              : 'Ver caja'}
+                                                  </Link>
+                                                  <div className="px-3">
+                                                         <CircleDot size={14} className="mb-1.5 text-blue-500" />
+                                                         <span className="block text-[9px] font-black uppercase tracking-wider text-muted-foreground">En juego</span>
+                                                         <span className="mt-0.5 block text-sm font-black text-foreground">{activeCourtsCount}/{totalCourts}</span>
+                                                  </div>
+                                                  <div className="px-3">
+                                                         <Clock size={14} className={pending > 0 ? "mb-1.5 text-amber-500" : "mb-1.5 text-emerald-500"} />
+                                                         <span className="block text-[9px] font-black uppercase tracking-wider text-muted-foreground">Pendiente</span>
+                                                         <span className={cn("mt-0.5 block truncate text-sm font-black", pending > 0 ? "text-amber-500" : "text-foreground")}>
+                                                                ${pending.toLocaleString()}
                                                          </span>
-                                                  </button>
+                                                  </div>
                                            </div>
-                                    </motion.section>
-
-                                    {slug && (
-                                           <motion.button
-                                                  initial={{ opacity: 0, y: 12 }}
-                                                  animate={{ opacity: 1, y: 0 }}
-                                                  transition={{ delay: 0.04 }}
-                                                  onClick={onOpenGrowthKit || handleCopyLink}
-                                                  className="group relative w-full overflow-hidden rounded-[1.7rem] border border-primary/20 bg-primary/10 p-4 text-left shadow-sm active:scale-[0.98]"
-                                           >
-                                                  <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/20 blur-3xl transition-transform group-active:scale-110" />
-                                                  <div className="relative z-10 flex items-center gap-4">
-                                                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-                                                                <QrCode size={22} strokeWidth={2.6} />
-                                                         </div>
-                                                         <div className="min-w-0 flex-1">
-                                                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-                                                                       Llenar mas horarios
-                                                                </p>
-                                                                <p className="mt-1 text-sm font-bold leading-snug text-foreground">
-                                                                       QR, WhatsApp, Instagram y Google para vender reservas.
-                                                                </p>
-                                                         </div>
-                                                         <ArrowUpRight size={18} className="shrink-0 text-primary" />
-                                                  </div>
-                                           </motion.button>
-                                    )}
-
-                                    <motion.section
-                                           initial={{ opacity: 0, y: 12 }}
-                                           animate={{ opacity: 1, y: 0 }}
-                                           transition={{ delay: 0.05 }}
-                                           className="rounded-[1.7rem] border border-border/60 bg-card/85 p-4 shadow-sm backdrop-blur-xl"
-                                    >
-                                           <div className="flex items-start justify-between gap-4">
-                                                  <div className="min-w-0 flex-1">
-                                                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
-                                                                Próxima acción
-                                                         </p>
-                                                         <h3 className="mt-1 text-lg font-black tracking-tight text-foreground">
-                                                                {freeCourtsCount > 0
-                                                                       ? `Llená ${freeCourtsCount} cancha${freeCourtsCount === 1 ? '' : 's'} libre${freeCourtsCount === 1 ? '' : 's'}`
-                                                                       : pending > 0
-                                                                              ? 'Reducí pendientes de cobro'
-                                                                              : 'Mantené el turno activo'}
-                                                         </h3>
-                                                         <p className="mt-1 text-sm font-semibold leading-relaxed text-muted-foreground">
-                                                                {freeCourtsCount > 0
-                                                                       ? 'Compartí QR o link público antes de que pase la franja fuerte.'
-                                                                       : pending > 0
-                                                                              ? `Hay $${pending.toLocaleString()} para recuperar.`
-                                                                              : 'Revisá agenda y prepará la próxima reserva.'}
-                                                         </p>
-                                                  </div>
-                                                  <button
-                                                         type="button"
-                                                         onClick={() => {
-                                                                if (freeCourtsCount > 0) {
-                                                                       ;(onOpenGrowthKit || handleCopyLink)()
-                                                                } else if (pending > 0) {
-                                                                       window.location.href = '/clientes'
-                                                                } else {
-                                                                       openCalendar()
-                                                                }
-                                                         }}
-                                                         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-sm active:scale-95"
-                                                         aria-label="Ejecutar acción recomendada"
-                                                  >
-                                                         <ArrowUpRight size={20} strokeWidth={2.6} />
-                                                  </button>
+                                           <div className="mt-3 flex items-center justify-between rounded-2xl bg-muted/45 px-3 py-2">
+                                                  <span className="text-[10px] font-bold text-muted-foreground">
+                                                         {totalBookingsToday} turnos · {occupancy}% ocupacion
+                                                  </span>
+                                                  <span className="text-xs font-black text-foreground">
+                                                         ${totalRevenueToday.toLocaleString()}
+                                                  </span>
                                            </div>
                                     </motion.section>
 
                                     {shouldShowRecoveryCard && (
-                                           <motion.section
+                                           <motion.button
                                                   initial={{ opacity: 0, y: 12 }}
                                                   animate={{ opacity: 1, y: 0 }}
-                                                  transition={{ delay: 0.08 }}
-                                                  className="relative overflow-hidden rounded-[1.7rem] border border-amber-500/20 bg-gradient-to-br from-amber-500/12 via-card to-card p-4 shadow-sm"
+                                                  transition={{ delay: 0.04 }}
+                                                  type="button"
+                                                  onClick={() => { window.location.href = '/clientes' }}
+                                                  className="flex w-full items-center justify-between gap-3 rounded-[1.35rem] border border-amber-500/20 bg-amber-500/10 px-3.5 py-3 text-left shadow-sm active:scale-[0.98]"
                                            >
-                                                  <div className="pointer-events-none absolute -right-12 top-0 h-28 w-28 rounded-full bg-amber-500/15 blur-3xl" />
-                                                  <div className="relative z-10 flex items-start justify-between gap-3">
-                                                         <div className="min-w-0 flex-1">
-                                                                <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">
-                                                                       <UsersIcon size={11} />
-                                                                       Reactivar clientes
-                                                                </div>
-                                                                <h3 className="mt-3 text-lg font-black tracking-tight text-foreground">
-                                                                       {pending > 0
-                                                                              ? `Recuperá $${pending.toLocaleString()} hoy`
-                                                                              : `${debtCount} cliente${debtCount === 1 ? '' : 's'} para mover`}
-                                                                </h3>
-                                                                <p className="mt-1 text-sm font-semibold leading-relaxed text-muted-foreground">
-                                                                       {pending > 0
-                                                                              ? 'Abrí clientes, escribí por WhatsApp y cerrá cobros antes de que enfríen.'
-                                                                              : debtAmount > 0
-                                                                                     ? `Tenés $${debtAmount.toLocaleString()} en deuda para trabajar desde el celular.`
-                                                                                     : 'Hay seguimiento comercial pendiente para convertir actividad en cobro.'}
-                                                                </p>
-                                                         </div>
-                                                         <div className="rounded-2xl border border-amber-500/20 bg-background/80 px-3 py-2 text-right shadow-sm">
-                                                                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-amber-600/70 dark:text-amber-400/70">
-                                                                       Foco
-                                                                </p>
-                                                                <p className="mt-1 text-sm font-black text-foreground">
-                                                                       {debtCount > 0 ? `${debtCount} deuda${debtCount === 1 ? '' : 's'}` : 'Cobros'}
-                                                                </p>
-                                                         </div>
+                                                  <div className="min-w-0">
+                                                         <p className="text-[10px] font-black uppercase tracking-[0.16em] text-amber-600 dark:text-amber-400">
+                                                                Cobros pendientes
+                                                         </p>
+                                                         <p className="mt-0.5 truncate text-sm font-bold text-foreground">
+                                                                {pending > 0
+                                                                       ? `$${pending.toLocaleString()} para recuperar`
+                                                                       : debtAmount > 0
+                                                                              ? `$${debtAmount.toLocaleString()} en deuda`
+                                                                              : `${debtCount} clientes para revisar`}
+                                                         </p>
                                                   </div>
-
-                                                  <div className="relative z-10 mt-4 grid grid-cols-2 gap-2">
-                                                         <button
-                                                                type="button"
-                                                                onClick={() => { window.location.href = '/clientes' }}
-                                                                className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-foreground px-4 text-[11px] font-black uppercase tracking-[0.16em] text-background shadow-sm active:scale-[0.98]"
-                                                         >
-                                                                Ver clientes
-                                                                <ArrowUpRight size={15} strokeWidth={2.6} />
-                                                         </button>
-                                                         {topDebtor?.phone ? (
-                                                                <a
-                                                                       href={`https://wa.me/${topDebtor.phone.replace(/\D/g, '')}`}
-                                                                       target="_blank"
-                                                                       rel="noopener noreferrer"
-                                                                       className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#25D366]/20 bg-[#25D366]/10 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-[#25D366] shadow-sm active:scale-[0.98]"
-                                                                >
-                                                                       Escribir
-                                                                       <MessageCircle size={15} strokeWidth={2.6} />
-                                                                </a>
-                                                         ) : (
-                                                                <button
-                                                                       type="button"
-                                                                       onClick={handleRefresh}
-                                                                       className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-border/70 bg-background/70 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-muted-foreground shadow-sm active:scale-[0.98]"
-                                                                >
-                                                                       Actualizar
-                                                                       <Activity size={15} strokeWidth={2.6} />
-                                                                </button>
-                                                         )}
-                                                  </div>
-                                           </motion.section>
+                                                  <ArrowUpRight size={18} className="shrink-0 text-amber-600 dark:text-amber-400" />
+                                           </motion.button>
                                     )}
-
                                     {loadError && (
                                            <motion.div
                                                   initial={{ opacity: 0, y: 8 }}
@@ -606,13 +435,13 @@ export default function MobileDashboard({
                                                   initial={{ opacity: 0, y: 12 }}
                                                   animate={{ opacity: 1, y: 0 }}
                                                   transition={{ delay: 0.05 }}
-                                                  className="bg-card/85 backdrop-blur-xl border border-border/60 rounded-[1.7rem] p-4 shadow-sm overflow-hidden"
+                                                  className="bg-card/85 backdrop-blur-xl border border-border/60 rounded-[1.45rem] p-3 shadow-sm overflow-hidden"
                                            >
-                                                  <div className="flex items-center justify-between mb-3">
+                                                  <div className="flex items-center justify-between mb-2.5">
                                                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.18em]">Estado de canchas</p>
                                                          <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">{freeCourtsCount} libres</span>
                                                   </div>
-                                                  <div className="flex flex-col gap-2">
+                                                  <div className="grid grid-cols-2 gap-2">
                                                          {data.courts.map((court) => {
                                                                 const isPlaying = court.status.includes('En Juego')
                                                                 return (
@@ -628,30 +457,30 @@ export default function MobileDashboard({
                                                                                      }
                                                                               }}
                                                                               className={cn(
-                                                                                     "w-full px-4 py-3.5 rounded-2xl text-left border transition-all flex items-center gap-3 active:scale-[0.98]",
+                                                                                     "w-full min-w-0 px-3 py-2.5 rounded-2xl text-left border transition-all flex items-center gap-2.5 active:scale-[0.98]",
                                                                                      isPlaying
                                                                                             ? "bg-blue-500/10 border-blue-500/20"
                                                                                             : "bg-background/55 border-border/45 hover:bg-muted/50"
                                                                               )}
                                                                        >
                                                                               <div className={cn(
-                                                                                     "w-2.5 h-2.5 rounded-full shrink-0",
+                                                                                     "w-2 h-2 rounded-full shrink-0",
                                                                                      isPlaying ? "bg-blue-500 animate-pulse" : "bg-emerald-500"
                                                                               )} />
                                                                               <div className="flex-1 min-w-0">
                                                                                      <span className={cn(
-                                                                                            "text-sm font-bold block truncate",
+                                                                                            "text-xs font-bold block truncate",
                                                                                             isPlaying ? "text-blue-600 dark:text-blue-400" : "text-foreground"
                                                                                      )}>
                                                                                             {court.name}
                                                                                      </span>
-                                                                                     <span className="text-[11px] text-muted-foreground block">
+                                                                                     <span className="text-[10px] text-muted-foreground block truncate">
                                                                                             {isPlaying ? court.status : 'Disponible'}
                                                                                      </span>
                                                                               </div>
                                                                               {court.timeDisplay && (
                                                                                      <span className={cn(
-                                                                                            "text-[11px] font-bold px-2.5 py-1 rounded-lg shrink-0",
+                                                                                            "hidden text-[10px] font-bold px-2 py-1 rounded-lg shrink-0 min-[390px]:inline-flex",
                                                                                             isPlaying
                                                                                                    ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
                                                                                                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -659,83 +488,13 @@ export default function MobileDashboard({
                                                                                             {isPlaying ? court.timeDisplay : `Próx ${court.timeDisplay}`}
                                                                                      </span>
                                                                               )}
-                                                                              <ChevronRight size={14} className="text-muted-foreground/40 shrink-0" />
+                                                                              <ChevronRight size={13} className="hidden text-muted-foreground/40 shrink-0 min-[390px]:block" />
                                                                        </button>
                                                                 )
                                                          })}
                                                   </div>
                                            </motion.div>
                                     )}
-
-                                   {/* QUICK ACTIONS — CourtReserve-style 3-col grid */}
-                                    <motion.div
-                                           initial={{ opacity: 0, y: 12 }}
-                                           animate={{ opacity: 1, y: 0 }}
-                                           transition={{ delay: 0.1 }}
-                                           className="space-y-3"
-                                    >
-                                           {/* Primary CTA */}
-                                           <motion.button
-                                                  whileTap={{ scale: 0.97 }}
-                                                  onClick={() => {
-                                                         if (nextFreeCourt?.proposal) {
-                                                                onOpenBooking({
-                                                                       isNew: true,
-                                                                       courtId: nextFreeCourt.id,
-                                                                       date: nextFreeCourt.proposal.date,
-                                                                       time: nextFreeCourt.proposal.time
-                                                                })
-                                                         } else {
-                                                                onOpenBooking({ isNew: true })
-                                                         }
-                                                  }}
-                                                  className="w-full relative overflow-hidden bg-foreground text-background rounded-[1.6rem] p-4 flex items-center gap-4 shadow-sm"
-                                           >
-                                                  <div className="absolute inset-y-0 right-0 w-28 bg-primary/20 blur-2xl" />
-                                                  <div className="w-12 h-12 rounded-2xl bg-background/15 flex items-center justify-center shrink-0 relative z-10 ring-1 ring-background/15">
-                                                         <Zap size={24} strokeWidth={3} />
-                                                  </div>
-                                                  <div className="relative z-10 text-left">
-                                                         <span className="text-base font-black tracking-tight block">
-                                                                {nextFreeCourt ? `Reservar ${nextFreeCourt.name}` : 'Nueva reserva'}
-                                                         </span>
-                                                         <span className="text-[11px] opacity-80 font-semibold">Agendá un turno rápidamente</span>
-                                                  </div>
-                                                  <ArrowUpRight size={18} className="ml-auto relative z-10 opacity-70" />
-                                           </motion.button>
-
-                                           {/* Quick actions grid — 3 cols */}
-                                           <div className="grid grid-cols-3 gap-2.5">
-                                                  {[
-                                                         { icon: CalendarDays, label: 'Turnos',    color: 'text-blue-500',   bg: 'bg-blue-500/10',   onClick: openCalendar },
-                                                         { icon: Store,        label: 'Kiosco',    color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
-                                                         { icon: UsersIcon,    label: 'Clientes',  color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
-                                                         { icon: Trophy,       label: 'Torneos',   color: 'text-amber-500',  bg: 'bg-amber-500/10',  href: '/torneos', locked: !data?.features?.hasTournaments },
-                                                         { icon: Globe,        label: 'Canales',   color: 'text-teal-500',   bg: 'bg-teal-500/10',   onClick: onOpenGrowthKit || handleCopyLink },
-                                                         { icon: Banknote,     label: 'Caja',      color: 'text-emerald-500',bg: 'bg-emerald-500/10',href: '/caja' },
-                                                  ].map((item) => (
-                                                         <motion.button
-                                                                key={item.label}
-                                                                whileTap={{ scale: 0.94 }}
-                                                                onClick={() => {
-                                                                       if (item.locked) { handleLockedClick(item.label); return }
-                                                                       if (item.onClick) item.onClick()
-                                                                       else if (item.href) window.location.href = item.href
-                                                                }}
-                                                                className={cn(
-                                                                       "flex flex-col items-center gap-2.5 py-4 px-2 rounded-[1.35rem] bg-card/80 backdrop-blur-xl border border-border/60 shadow-sm active:scale-95 transition-transform relative",
-                                                                       item.locked && "opacity-50"
-                                                                )}
-                                                         >
-                                                                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", item.bg)}>
-                                                                       <item.icon size={24} className={item.color} />
-                                                                </div>
-                                                                <span className="text-[11px] font-black uppercase tracking-wide text-foreground/70">{item.label}</span>
-                                                                {item.locked && <Lock size={9} className="absolute top-2 right-2 text-muted-foreground/40" />}
-                                                         </motion.button>
-                                                  ))}
-                                           </div>
-                                    </motion.div>
 
                                     {/* ALERTS / ANNOUNCEMENTS */}
                                     {data?.alerts && data.alerts.length > 0 && (
@@ -865,15 +624,15 @@ export default function MobileDashboard({
                                            initial={{ opacity: 0, y: 12 }}
                                            animate={{ opacity: 1, y: 0 }}
                                            transition={{ delay: 0.2 }}
-                                           className="pt-4 pb-10"
+                                           className="pt-2 pb-10"
                                     >
-                                           <div className="flex items-center justify-between mb-6 px-1">
+                                           <div className="flex items-center justify-between mb-4 px-1">
                                                   <div className="flex flex-col">
                                                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Agenda</span>
-                                                         <h3 className="text-2xl font-black text-foreground tracking-tight">Próximos Turnos</h3>
+                                                         <h3 className="text-xl font-black text-foreground tracking-tight">Próximos Turnos</h3>
                                                   </div>
-                                                  <div className="px-4 py-2 rounded-2xl bg-muted/30 border border-white/5 flex flex-col items-center">
-                                                         <span className="text-xl font-black text-foreground leading-none">{format(today, "d")}</span>
+                                                  <div className="px-3 py-2 rounded-2xl bg-muted/30 border border-white/5 flex flex-col items-center">
+                                                         <span className="text-lg font-black text-foreground leading-none">{format(today, "d")}</span>
                                                          <span className="text-[10px] font-black uppercase text-muted-foreground/60">{format(today, "MMM", { locale: es })}</span>
                                                   </div>
                                            </div>
@@ -901,11 +660,6 @@ export default function MobileDashboard({
                             onSuccess={handleRefresh}
                      />
 
-                     <UpgradeModal
-                            isOpen={showUpgradeModal}
-                            onClose={() => setShowUpgradeModal(false)}
-                            featureName={lockedFeatureName}
-                     />
               </>
        )
 }

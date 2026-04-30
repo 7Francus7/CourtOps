@@ -124,11 +124,15 @@ export async function cancelPublicBooking(publicToken: string) {
 		})
 
 		await sendPushToClubUsers(booking.clubId, {
-			title: 'Reserva cancelada',
-			body: `${clientName} canceló ${booking.court.name} del ${startLabel}.`,
+			title: 'Se liberó una cancha',
+			body: `${booking.court.name} · ${startLabel} · canceló ${clientName}`,
 			kind: 'cancellations',
 			url: '/dashboard?view=bookings',
 			tag: `public-cancel-${booking.id}`,
+			actions: [
+				{ action: 'open-bookings', title: 'Ver agenda', url: '/dashboard?view=bookings' },
+				{ action: 'open-public', title: 'Link publico', url: `/p/${booking.club.slug}` }
+			],
 			data: {
 				bookingId: booking.id,
 				type: 'public_booking_cancel'

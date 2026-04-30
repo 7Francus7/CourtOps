@@ -434,10 +434,14 @@ export async function createPublicBooking(data: PublicBookingInput) {
 
                      await sendPushToClubUsers(data.clubId, {
                             title: 'Nueva reserva online',
-                            body: `${clientName} reservó ${court.name} para ${startLabel}.`,
+                            body: `${court.name} · ${startLabel} · ${clientName}`,
                             kind: 'bookings',
                             url: '/dashboard?view=bookings',
                             tag: `public-booking-${booking.id}`,
+                            actions: [
+                                   { action: 'open-bookings', title: 'Ver agenda', url: '/dashboard?view=bookings' },
+                                   { action: 'open-public', title: 'Link publico', url: `/p/${club.slug}` }
+                            ],
                             data: {
                                    bookingId: booking.id,
                                    type: 'public_booking_create'
@@ -562,11 +566,15 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
 
               try {
                      await sendPushToClubUsers(data.clubId, {
-                            title: 'Nueva lista de espera',
-                            body: `${clientName} pidió aviso para ${data.dateStr}.`,
+                            title: 'Nuevo pedido en lista de espera',
+                            body: `${clientName} quiere aviso para ${data.dateStr}.`,
                             kind: 'waitingList',
                             url: '/dashboard?view=bookings',
                             tag: `waiting-list-${data.dateStr}-${clientPhone}`,
+                            actions: [
+                                   { action: 'open-bookings', title: 'Ver agenda', url: '/dashboard?view=bookings' },
+                                   { action: 'open-clients', title: 'Ver clientes', url: '/clientes' }
+                            ],
                             data: {
                                    type: 'waiting_list_create'
                             }

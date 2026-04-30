@@ -282,11 +282,15 @@ export class BookingService {
                      })
 
                      await sendPushToClubUsers(clubId, {
-                            title: 'Nueva reserva',
-                            body: `${client.name} reservó ${court.name} para ${startLabel}.`,
+                            title: 'Nueva reserva confirmada',
+                            body: `${court.name} · ${startLabel} · ${client.name}`,
                             kind: 'bookings',
                             url: '/dashboard?view=bookings',
                             tag: `booking-create-${primaryBooking.id}`,
+                            actions: [
+                                   { action: 'open-bookings', title: 'Ver agenda', url: '/dashboard?view=bookings' },
+                                   { action: 'open-clients', title: 'Ver cliente', url: '/clientes' }
+                            ],
                             data: {
                                    bookingId: primaryBooking.id,
                                    type: 'booking_create'
@@ -632,11 +636,15 @@ export class BookingService {
                      })
 
                      await sendPushToClubUsers(clubId, {
-                            title: 'Reserva cancelada',
-                            body: `${clientName} canceló ${courtName} del ${startLabel}.`,
+                            title: 'Se liberó una cancha',
+                            body: `${courtName} · ${startLabel} · canceló ${clientName}`,
                             kind: 'cancellations',
                             url: '/dashboard?view=bookings',
                             tag: `booking-cancel-${bookingId}`,
+                            actions: [
+                                   { action: 'open-bookings', title: 'Ver agenda', url: '/dashboard?view=bookings' },
+                                   { action: 'open-waiting', title: 'Lista espera', url: '/reservas' }
+                            ],
                             data: {
                                    bookingId,
                                    type: 'booking_cancel'
