@@ -28,6 +28,7 @@ import {
        Radio,
        Zap,
        ArrowUpRight,
+       QrCode,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
@@ -73,6 +74,7 @@ export interface MobileDashboardProps {
        slug?: string
        onOpenBooking: (_id: Record<string, unknown> | number) => void
        onOpenKiosco: () => void
+       onOpenGrowthKit?: () => void
        currentView?: 'dashboard' | 'calendar'
        onNavigate?: (_view: 'dashboard' | 'calendar') => void
        notifications: NotificationItem[]
@@ -87,6 +89,7 @@ export default function MobileDashboard({
        slug,
        onOpenBooking,
        onOpenKiosco,
+       onOpenGrowthKit,
        onNavigate,
        notifications,
        unreadCount,
@@ -207,13 +210,17 @@ export default function MobileDashboard({
 
        const today = new Date()
        const totalCourts = data?.courts?.length || 0
-       const activeCourtsCount = data?.courts?.filter(c => c.status === 'En Juego').length || 0
+       const activeCourtsCount = data?.courts?.filter(c => c.status.includes('En Juego')).length || 0
        const freeCourtsCount = data?.courts?.filter(c => !c.status.includes('En Juego')).length || 0
        const pending = data?.receivables || 0
        const nextBooking = data?.timeline?.[0]
        const nextFreeCourt = data?.courts?.find(c => c.isFree && c.proposal)
        const occupancy = data?.endOfDay?.occupancy ?? 0
        const liveTone = activeCourtsCount > 0 ? 'En vivo' : freeCourtsCount > 0 ? 'Disponible' : 'Completo'
+       const totalRevenueToday = data?.endOfDay?.totalRevenue ?? data?.caja?.total ?? 0
+       const totalBookingsToday = data?.endOfDay?.totalBookings ?? 0
+       const averageBookingToday = totalBookingsToday > 0 ? Math.round(totalRevenueToday / totalBookingsToday) : 0
+       const openCourtOpportunity = averageBookingToday * freeCourtsCount
 
        const handleCopyLink = () => {
               if (slug) {
@@ -389,7 +396,116 @@ export default function MobileDashboard({
                                                          ${pending.toLocaleString()}
                                                   </span>
                                            </div>
-                                    </motion.div>
+                                     </motion.div>
+
+                                    <motion.section
+                                           initial={{ opacity: 0, y: 12 }}
+                                           animate={{ opacity: 1, y: 0 }}
+                                           transition={{ delay: 0.035 }}
+                                           className="relative overflow-hidden rounded-[1.7rem] border border-emerald-500/20 bg-emerald-500/10 p-4 shadow-sm"
+                                    >
+                                           <div className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
+                                           <div className="relative z-10 flex items-center justify-between gap-4">
+                                                  <div className="min-w-0 flex-1">
+                                                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-500">
+                                                                Valor de hoy
+                                                         </p>
+                                                         <p className="mt-1 text-2xl font-black tracking-tight text-foreground">
+                                                                ${totalRevenueToday.toLocaleString()}
+                                                         </p>
+                                                         <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                                                                {totalBookingsToday} turnos registrados · {occupancy}% ocupacion
+                                                         </p>
+                                                  </div>
+                                                  <button
+                                                         type="button"
+                                                         onClick={freeCourtsCount > 0 ? (onOpenGrowthKit || handleCopyLink) : () => window.location.href = '/caja'}
+                                                         className="flex min-w-[112px] flex-col items-start rounded-2xl bg-background/75 px-3 py-2 text-left shadow-sm ring-1 ring-border/60 active:scale-[0.98]"
+                                                  >
+                                                         <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                                                                {freeCourtsCount > 0 ? 'Oportunidad' : 'Cobrado'}
+                                                         </span>
+                                                         <span className="mt-1 truncate text-sm font-black text-foreground">
+                                                                {freeCourtsCount > 0 && openCourtOpportunity > 0
+                                                                       ? `$${openCourtOpportunity.toLocaleString()}`
+                                                                       : pending > 0
+                                                                              ? `$${pending.toLocaleString()}`
+                                                                              : 'Ver caja'}
+                                                         </span>
+                                                  </button>
+                                           </div>
+                                    </motion.section>
+
+                                    {slug && (
+                                           <motion.button
+                                                  initial={{ opacity: 0, y: 12 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  transition={{ delay: 0.04 }}
+                                                  onClick={onOpenGrowthKit || handleCopyLink}
+                                                  className="group relative w-full overflow-hidden rounded-[1.7rem] border border-primary/20 bg-primary/10 p-4 text-left shadow-sm active:scale-[0.98]"
+                                           >
+                                                  <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/20 blur-3xl transition-transform group-active:scale-110" />
+                                                  <div className="relative z-10 flex items-center gap-4">
+                                                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+                                                                <QrCode size={22} strokeWidth={2.6} />
+                                                         </div>
+                                                         <div className="min-w-0 flex-1">
+                                                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                                                                       Llenar mas horarios
+                                                                </p>
+                                                                <p className="mt-1 text-sm font-bold leading-snug text-foreground">
+                                                                       QR, WhatsApp, Instagram y Google para vender reservas.
+                                                                </p>
+                                                         </div>
+                                                         <ArrowUpRight size={18} className="shrink-0 text-primary" />
+                                                  </div>
+                                           </motion.button>
+                                    )}
+
+                                    <motion.section
+                                           initial={{ opacity: 0, y: 12 }}
+                                           animate={{ opacity: 1, y: 0 }}
+                                           transition={{ delay: 0.05 }}
+                                           className="rounded-[1.7rem] border border-border/60 bg-card/85 p-4 shadow-sm backdrop-blur-xl"
+                                    >
+                                           <div className="flex items-start justify-between gap-4">
+                                                  <div className="min-w-0 flex-1">
+                                                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
+                                                                Próxima acción
+                                                         </p>
+                                                         <h3 className="mt-1 text-lg font-black tracking-tight text-foreground">
+                                                                {freeCourtsCount > 0
+                                                                       ? `Llená ${freeCourtsCount} cancha${freeCourtsCount === 1 ? '' : 's'} libre${freeCourtsCount === 1 ? '' : 's'}`
+                                                                       : pending > 0
+                                                                              ? 'Reducí pendientes de cobro'
+                                                                              : 'Mantené el turno activo'}
+                                                         </h3>
+                                                         <p className="mt-1 text-sm font-semibold leading-relaxed text-muted-foreground">
+                                                                {freeCourtsCount > 0
+                                                                       ? 'Compartí QR o link público antes de que pase la franja fuerte.'
+                                                                       : pending > 0
+                                                                              ? `Hay $${pending.toLocaleString()} para recuperar.`
+                                                                              : 'Revisá agenda y prepará la próxima reserva.'}
+                                                         </p>
+                                                  </div>
+                                                  <button
+                                                         type="button"
+                                                         onClick={() => {
+                                                                if (freeCourtsCount > 0) {
+                                                                       ;(onOpenGrowthKit || handleCopyLink)()
+                                                                } else if (pending > 0) {
+                                                                       window.location.href = '/clientes'
+                                                                } else {
+                                                                       openCalendar()
+                                                                }
+                                                         }}
+                                                         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-foreground text-background shadow-sm active:scale-95"
+                                                         aria-label="Ejecutar acción recomendada"
+                                                  >
+                                                         <ArrowUpRight size={20} strokeWidth={2.6} />
+                                                  </button>
+                                           </div>
+                                    </motion.section>
 
                                     {loadError && (
                                            <motion.div
@@ -521,7 +637,7 @@ export default function MobileDashboard({
                                                          { icon: Store,        label: 'Kiosco',    color: 'text-purple-500', bg: 'bg-purple-500/10', onClick: () => data?.features?.hasKiosco ? onOpenKiosco() : handleLockedClick('Kiosco'), locked: !data?.features?.hasKiosco },
                                                          { icon: UsersIcon,    label: 'Clientes',  color: 'text-indigo-500', bg: 'bg-indigo-500/10', href: '/clientes' },
                                                          { icon: Trophy,       label: 'Torneos',   color: 'text-amber-500',  bg: 'bg-amber-500/10',  href: '/torneos', locked: !data?.features?.hasTournaments },
-                                                         { icon: Globe,        label: 'Link Club', color: 'text-teal-500',   bg: 'bg-teal-500/10',   onClick: handleCopyLink },
+                                                         { icon: Globe,        label: 'Canales',   color: 'text-teal-500',   bg: 'bg-teal-500/10',   onClick: onOpenGrowthKit || handleCopyLink },
                                                          { icon: Banknote,     label: 'Caja',      color: 'text-emerald-500',bg: 'bg-emerald-500/10',href: '/caja' },
                                                   ].map((item) => (
                                                          <motion.button

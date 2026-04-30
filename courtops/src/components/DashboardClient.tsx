@@ -95,6 +95,7 @@ export default function DashboardClient({
               if (modal === 'help') {
                      setIsHelpOpen(true)
               }
+              setIsGrowthKitOpen(modal === 'growth')
               setIsKioscoOpen(modal === 'kiosco' && !!features?.hasKiosco)
        }, [searchParams, features?.hasKiosco])
 
@@ -311,6 +312,7 @@ export default function DashboardClient({
                                                  slug={slug}
                                                  onOpenBooking={handleOpenBooking}
                                                  onOpenKiosco={() => router.push('?modal=kiosco')}
+                                                 onOpenGrowthKit={() => setIsGrowthKitOpen(true)}
                                                  currentView={mobileView}
                                                  onNavigate={(view) => {
                                                         if (view === 'calendar') {

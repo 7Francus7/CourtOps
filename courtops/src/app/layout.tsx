@@ -3,6 +3,7 @@ import { getBaseUrl } from "@/lib/utils";
 import { Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import RootProvider from "@/components/providers/RootProvider";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import "./globals.css";
@@ -173,6 +174,7 @@ export default async function RootLayout({
         {/* End Google Tag Manager (noscript) */}
         <RootProvider session={session}>
           {children}
+          <InstallPrompt />
         </RootProvider>
       </body>
     </html>

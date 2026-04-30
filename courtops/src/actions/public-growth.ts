@@ -75,7 +75,7 @@ export async function getPublicBookingGrowthSummary(days = 14) {
        const since = new Date()
        since.setDate(since.getDate() - days)
 
-       const [club, logs] = await Promise.all([
+       const [club, logs, publicBookingStats] = await Promise.all([
               prisma.club.findUnique({
                      where: { id: clubId },
                      select: { slug: true }
@@ -93,6 +93,17 @@ export async function getPublicBookingGrowthSummary(days = 14) {
                      },
                      orderBy: { createdAt: 'desc' },
                      take: 1200
+              }),
+              prisma.booking.aggregate({
+                     where: {
+                            clubId,
+                            publicToken: { not: null },
+                            createdAt: { gte: since },
+                            status: { notIn: ['CANCELED', 'NO_SHOW'] }
+                     },
+                     _count: { _all: true },
+                     _sum: { price: true },
+                     _avg: { price: true }
               })
        ])
 
@@ -145,6 +156,17 @@ export async function getPublicBookingGrowthSummary(days = 14) {
               sources.set(key, current)
        }
 
+       const sourceList = Array.from(sources.values()).sort((a, b) => {
+              const aTotal = a.bookings + a.waitlist
+              const bTotal = b.bookings + b.waitlist
+              return bTotal - aTotal || b.views - a.views
+       })
+       const averageTicket = Math.round(publicBookingStats._avg.price || 0)
+       const publicBookingRevenue = Math.round(publicBookingStats._sum.price || 0)
+       const estimatedPublicRevenue = publicBookingRevenue > 0
+              ? publicBookingRevenue
+              : Math.round(events.booking_created * averageTicket)
+
        return {
               success: true,
               slug: club?.slug || '',
@@ -153,10 +175,14 @@ export async function getPublicBookingGrowthSummary(days = 14) {
               conversionRate: events.page_view > 0
                      ? Math.round((events.booking_created / events.page_view) * 1000) / 10
                      : 0,
-              sources: Array.from(sources.values()).sort((a, b) => {
-                     const aTotal = a.bookings + a.waitlist
-                     const bTotal = b.bookings + b.waitlist
-                     return bTotal - aTotal || b.views - a.views
-              })
+              value: {
+                     publicBookings: publicBookingStats._count._all,
+                     publicBookingRevenue,
+                     estimatedPublicRevenue,
+                     averageTicket,
+                     recoveredDemand: events.booking_created + events.waitlist_created,
+                     bestSource: sourceList[0] || null
+              },
+              sources: sourceList
        }
 }

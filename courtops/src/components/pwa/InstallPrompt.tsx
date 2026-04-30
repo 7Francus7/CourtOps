@@ -2,8 +2,17 @@
 import { useEffect, useState } from "react"
 import { Download } from "lucide-react"
 
+type BeforeInstallPromptEvent = Event & {
+       prompt: () => Promise<void>
+       userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>
+}
+
+type NavigatorWithStandalone = Navigator & {
+       standalone?: boolean
+}
+
 export function InstallPrompt() {
-       const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+       const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
        const [show, setShow] = useState(false)
        const [isIOS, setIsIOS] = useState(false)
        const [isStandalone, setIsStandalone] = useState(false)
@@ -14,7 +23,7 @@ export function InstallPrompt() {
               if (isDismissed) return
 
               // Check if standalone
-              const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone || document.referrer.includes('android-app://');
+              const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || Boolean((window.navigator as NavigatorWithStandalone).standalone) || document.referrer.includes('android-app://');
               setIsStandalone(isInStandaloneMode)
 
               // Check if iOS
@@ -23,9 +32,9 @@ export function InstallPrompt() {
               setIsIOS(isIosDevice)
 
               // Android / Desktop automatic prompt
-              const handler = (e: any) => {
+              const handler = (e: Event) => {
                      e.preventDefault()
-                     setDeferredPrompt(e)
+                     setDeferredPrompt(e as BeforeInstallPromptEvent)
                      if (!isInStandaloneMode) {
                             setShow(true)
                      }
@@ -54,18 +63,18 @@ export function InstallPrompt() {
        if (!show || isStandalone) return null
 
        return (
-              <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-500">
-                     <div className="bg-[#18181B] border border-white/10 rounded-xl p-4 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-md bg-opacity-90 max-w-md">
+              <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] left-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-500 md:bottom-4 md:left-auto md:right-4">
+                     <div className="mx-auto flex max-w-md flex-col items-start justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-[#18181B]/92 p-4 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-center">
                             <div className="flex items-center gap-3">
-                                   <div className="w-10 h-10 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white shrink-0 shadow-sm">
+                                   <div className="w-10 h-10 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white shrink-0 shadow-sm">
                                           <Download size={20} />
                                    </div>
                                    <div>
-                                          <h4 className="text-white font-bold text-sm">Instalar App</h4>
+                                          <h4 className="text-white font-black text-sm">Usar como app</h4>
                                           <p className="text-zinc-400 text-xs text-balance">
                                                  {isIOS
-                                                        ? "Para instalar en iPhone: Toca 'Compartir' y luego 'Agregar a Inicio'."
-                                                        : "Agrega CourtOps a tu inicio para una mejor experiencia."}
+                                                        ? "En iPhone: Compartir y luego Agregar a inicio."
+                                                        : "Agregá CourtOps al inicio para entrar más rápido."}
                                           </p>
                                    </div>
                             </div>
@@ -75,14 +84,14 @@ export function InstallPrompt() {
                                                  setShow(false)
                                                  localStorage.setItem('app_install_prompt_dismissed', 'true')
                                           }}
-                                          className="text-zinc-500 hover:text-white px-3 py-2 text-xs font-bold transition-colors"
+                                          className="text-zinc-500 hover:text-white px-3 py-2 text-xs font-black transition-colors"
                                    >
                                           {isIOS ? "ENTENDIDO" : "AHORA NO"}
                                    </button>
                                    {!isIOS && (
                                           <button
                                                  onClick={handleInstall}
-                                                 className="bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-lg text-xs font-bold transition-colors shadow-lg"
+                                                 className="bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-xl text-xs font-black transition-colors shadow-lg"
                                           >
                                                  INSTALAR
                                           </button>

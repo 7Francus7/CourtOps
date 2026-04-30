@@ -99,19 +99,32 @@ type PublicAvailabilitySlot = {
 	courts: PublicAvailabilityCourt[]
 }
 
+type SavedPublicPlayer = {
+	name: string
+	lastname: string
+	phone: string
+	email: string
+}
+
 export default function PublicBookingWizard({ club, initialDateStr, openMatches = [] }: Props) {
 	const today = useMemo(() => parseDateOnly(initialDateStr), [initialDateStr])
 	const { resolvedTheme, setTheme } = useTheme()
 	const searchParams = useSearchParams()
+	const initialSelectedDate = useMemo(() => {
+		const dateParam = searchParams.get('date')
+		if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) return today
+		return parseDateOnly(dateParam)
+	}, [searchParams, today])
 	const defaultDuration = club.slotDuration || 90
 	const canUseOnlinePayments = Boolean(club.canUseOnlinePayments || club.hasOnlinePayments)
 	const clubWhatsappNumber = getWhatsappNumber(club.phone)
+	const savedPlayerStorageKey = useMemo(() => `courtops_public_player_${club.id}`, [club.id])
 	const [themeMounted, setThemeMounted] = useState(false)
 
 	const [layoutTab, setLayoutTab] = useState<'booking' | 'info'>('booking')
 	const [step, setStep] = useState<PublicStep>(0)
 	const [mode, setMode] = useState<BookingMode>(null)
-	const [selectedDate, setSelectedDate] = useState<Date>(today)
+	const [selectedDate, setSelectedDate] = useState<Date>(initialSelectedDate)
 	const [slots, setSlots] = useState<PublicAvailabilitySlot[]>([])
 	const [loading, setLoading] = useState(true)
 	const [selectedSlot, setSelectedSlot] = useState<{
@@ -122,6 +135,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		duration: number
 	} | null>(null)
 	const [clientData, setClientData] = useState({ name: '', lastname: '', phone: '', email: '' })
+	const [savedPlayer, setSavedPlayer] = useState<SavedPublicPlayer | null>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [registerError, setRegisterError] = useState('')
 	const [authError, setAuthError] = useState('')
@@ -189,11 +203,45 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 	const validateName = (name: string) => name.trim().length >= 2
 
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem(savedPlayerStorageKey)
+			if (!raw) return
+			const parsed = JSON.parse(raw) as Partial<SavedPublicPlayer>
+			if (!parsed.name || !parsed.lastname || !parsed.phone) return
+			if (!validateName(parsed.name) || !validateName(parsed.lastname) || !validatePhone(parsed.phone)) return
+
+			const player: SavedPublicPlayer = {
+				name: parsed.name,
+				lastname: parsed.lastname,
+				phone: parsed.phone,
+				email: parsed.email || ''
+			}
+			setSavedPlayer(player)
+			setClientData(current => current.phone ? current : player)
+		} catch {
+			localStorage.removeItem(savedPlayerStorageKey)
+		}
+	}, [savedPlayerStorageKey])
+
+	const rememberCurrentPlayer = () => {
+		const player: SavedPublicPlayer = {
+			name: clientData.name.trim(),
+			lastname: clientData.lastname.trim(),
+			phone: clientData.phone.trim(),
+			email: clientData.email.trim()
+		}
+
+		if (!validateName(player.name) || !validateName(player.lastname) || !validatePhone(player.phone)) return
+		setSavedPlayer(player)
+		localStorage.setItem(savedPlayerStorageKey, JSON.stringify(player))
+	}
+
 	const resetBookingDraft = () => {
 		setAuthError('')
 		setBookingError('')
 		setRegisterError('')
-		setClientData({ name: '', lastname: '', phone: '', email: '' })
+		setClientData(savedPlayer || { name: '', lastname: '', phone: '', email: '' })
 		setMode(null)
 		setCreateOpenMatch(false)
 	}
@@ -433,6 +481,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		if (res.success && res.bookingId) {
 			setCreatedBookingId(res.bookingId)
 			if (res.publicToken) setCancelToken(res.publicToken)
+			rememberCurrentPlayer()
 			trackFunnelEvent('booking_created', {
 				dateStr: format(selectedDate, 'yyyy-MM-dd'),
 				timeStr: selectedSlot.time,
@@ -640,15 +689,56 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			)
 		})()
 
+		const repeatDate = addDays(selectedDate, 7)
+		const repeatDateLabel = format(repeatDate, 'EEEE d/M', { locale: es })
+		const buildPlayerShareUrl = () => {
+			const origin = typeof window !== 'undefined' ? window.location.origin : ''
+			const url = new URL(`/p/${club.slug}`, origin || 'https://courtops.app')
+			url.searchParams.set('utm_source', 'player_share')
+			url.searchParams.set('utm_medium', 'whatsapp')
+			url.searchParams.set('utm_campaign', 'post_booking')
+			url.searchParams.set('date', format(selectedDate, 'yyyy-MM-dd'))
+			return url.toString()
+		}
+
 		const handleShare = () => {
 			const dateStr = format(selectedDate, 'EEEE d/M', { locale: es })
+			const bookingUrl = buildPlayerShareUrl()
 			const text =
 				'Reservé cancha\n\nClub: ' + club.name +
 				'\nFecha: ' + dateStr +
 				'\nHora: ' + selectedSlot.time + 'hs' +
 				'\nCancha: ' + selectedSlot.courtName +
+				'\n\nSumate o reservá tu turno acá:\n' + bookingUrl +
 				'\n\n¿Jugamos?'
 			window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
+		}
+
+		const handleRepeatNextWeek = () => {
+			setSelectedDate(repeatDate)
+			setSelectedSlot(null)
+			setCreatedBookingId(null)
+			setCancelToken(null)
+			setPaymentError('')
+			setBookingError('')
+			setCopiedPaymentField(null)
+			setCreateOpenMatch(false)
+			setLayoutTab('booking')
+			goToStep(0)
+			setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
+		}
+
+		const handleBookAnother = () => {
+			setSelectedSlot(null)
+			setCreatedBookingId(null)
+			setCancelToken(null)
+			setPaymentError('')
+			setBookingError('')
+			setCopiedPaymentField(null)
+			setCreateOpenMatch(false)
+			setLayoutTab('booking')
+			goToStep(0)
+			setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
 		}
 
 		return (
@@ -867,6 +957,46 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								<Share2 size={14} />
 								Compartir
 							</button>
+						</motion.div>
+
+						<motion.div
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.48 }}
+							className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+						>
+							<div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 blur-2xl" />
+							<div className="relative z-10 space-y-3">
+								<div>
+									<p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+										Próxima jugada
+									</p>
+									<h3 className="mt-1 text-lg font-black tracking-tight text-slate-800 dark:text-white">
+										Hacé que vuelvan sin pensar
+									</h3>
+									<p className="mt-1 text-sm font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
+										Repetí el turno para el {repeatDateLabel} o abrí una nueva reserva en segundos.
+									</p>
+								</div>
+								<div className="grid grid-cols-2 gap-2.5">
+									<button
+										type="button"
+										onClick={handleRepeatNextWeek}
+										className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+									>
+										<CalendarPlus size={14} />
+										Repetir
+									</button>
+									<button
+										type="button"
+										onClick={openMatches.length > 0 ? () => goToStep('matchmaking') : handleBookAnother}
+										className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-[10px] font-black uppercase tracking-[0.12em] text-slate-600 transition-all active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"
+									>
+										{openMatches.length > 0 ? <Trophy size={14} /> : <ArrowRight size={14} />}
+										{openMatches.length > 0 ? 'Partidos' : 'Otro turno'}
+									</button>
+								</div>
+							</div>
 						</motion.div>
 
 						{/* ── Payment / Back section ── */}
@@ -1505,6 +1635,38 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							className="space-y-6 pt-2"
 						>
 							<BookingSummaryChip />
+
+							{savedPlayer && (
+								<button
+									type="button"
+									onClick={() => {
+										setClientData(savedPlayer)
+										setMode('guest')
+										setGuestErrors({})
+										goToStep(1)
+									}}
+									className="group relative overflow-hidden rounded-[2rem] border border-primary/20 bg-primary/10 p-4 text-left transition-all active:scale-[0.98]"
+								>
+									<div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/20 blur-2xl" />
+									<div className="relative z-10 flex items-center gap-4">
+										<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+											<User size={20} />
+										</div>
+										<div className="min-w-0 flex-1">
+											<p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+												Ya te conocemos
+											</p>
+											<p className="mt-1 truncate text-base font-black text-slate-800 dark:text-white">
+												Reservar como {savedPlayer.name}
+											</p>
+											<p className="mt-0.5 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
+												{savedPlayer.phone}
+											</p>
+										</div>
+										<ArrowRight size={18} className="shrink-0 text-primary transition-transform group-active:translate-x-1" />
+									</div>
+								</button>
+							)}
 
 							<div>
 								<p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">

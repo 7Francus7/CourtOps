@@ -2,67 +2,94 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { AlertCircle, Sparkles, ShieldX } from 'lucide-react'
+import { AlertCircle, ArrowRight, ShieldX, Sparkles } from 'lucide-react'
 import { differenceInDays } from 'date-fns'
 
 interface TrialBannerProps {
-       subscriptionStatus: string;
-       nextBillingDate: Date | string | null;
-       plan: string;
-       isSubscribed?: boolean;
+       subscriptionStatus: string
+       nextBillingDate: Date | string | null
+       plan: string
+       isSubscribed?: boolean
 }
 
-export const TrialBanner = ({ subscriptionStatus, nextBillingDate, plan, isSubscribed = false }: TrialBannerProps) => {
-       const today = new Date();
-       const billingDate = nextBillingDate ? new Date(nextBillingDate) : null;
+export const TrialBanner = ({ subscriptionStatus, nextBillingDate, plan }: TrialBannerProps) => {
+       const today = new Date()
+       const billingDate = nextBillingDate ? new Date(nextBillingDate) : null
 
        if (!billingDate) return null
 
-       const daysRemaining = differenceInDays(billingDate, today);
+       const daysRemaining = differenceInDays(billingDate, today)
 
-       // CASE A: TRIAL MODE
        if (subscriptionStatus === 'TRIAL') {
-              // Expired trial
               if (daysRemaining < 0) {
                      return (
-                            <div className="bg-red-600 text-white px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 text-center relative z-50">
-                                   <ShieldX size={16} />
-                                   <span>
-                                          Tu prueba gratuita ha expirado. <strong>Suscribite</strong> para seguir usando CourtOps.
-                                   </span>
-                                   <Link href="/dashboard/suscripcion" className="bg-white text-red-600 px-3 py-0.5 rounded-full text-xs font-bold hover:bg-red-50 transition-colors shadow-sm ml-2">
-                                          Ver Planes
-                                   </Link>
+                            <div className="relative z-50 border-b border-red-500/20 bg-gradient-to-r from-red-950 via-red-900 to-red-950 px-4 py-3 text-white shadow-lg">
+                                   <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                          <div className="flex items-start gap-3">
+                                                 <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+                                                        <ShieldX size={17} />
+                                                 </div>
+                                                 <div>
+                                                        <p className="text-sm font-black">Tu prueba termino</p>
+                                                        <p className="text-xs font-medium text-white/70">
+                                                               Activa un plan para mantener reservas online, caja y operacion sin cortes.
+                                                        </p>
+                                                 </div>
+                                          </div>
+                                          <Link href="/dashboard/suscripcion" className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-xs font-black uppercase tracking-widest text-red-700 transition-all active:scale-[0.98]">
+                                                 Activar plan
+                                                 <ArrowRight size={14} />
+                                          </Link>
+                                   </div>
                             </div>
                      )
               }
 
-              // Active trial
               return (
-                     <div className="bg-indigo-600 text-white px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 text-center animate-in slide-in-from-top-full duration-500 relative z-50">
-                            <Sparkles size={16} className="text-yellow-300" />
-                            <span>
-                                   Prueba Gratuita de <strong>CourtOps {plan}</strong>. Quedan {daysRemaining} días.
-                            </span>
-                            <Link href="/dashboard/suscripcion" className="bg-white text-indigo-600 px-3 py-0.5 rounded-full text-xs font-bold hover:bg-indigo-50 transition-colors shadow-sm ml-2">
-                                   Ver Planes
-                            </Link>
+                     <div className="relative z-50 border-b border-primary/20 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 px-4 py-3 text-white shadow-lg animate-in slide-in-from-top-full duration-500">
+                            <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                   <div className="flex items-start gap-3">
+                                          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                                                 <Sparkles size={17} />
+                                          </div>
+                                          <div>
+                                                 <p className="text-sm font-black">
+                                                        CourtOps {plan}: {daysRemaining} dias de prueba
+                                                 </p>
+                                                 <p className="text-xs font-medium text-white/65">
+                                                        Ya podes vender reservas, compartir QR y operar desde el celular.
+                                                 </p>
+                                          </div>
+                                   </div>
+                                   <Link href="/dashboard/suscripcion" className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-xs font-black uppercase tracking-widest text-primary-foreground transition-all active:scale-[0.98]">
+                                          Elegir plan
+                                          <ArrowRight size={14} />
+                                   </Link>
+                            </div>
                      </div>
               )
        }
 
-       // CASE B: ACTIVE SUBSCRIPTION (Expiring Soon)
-       // Only show if expiring in 5 days or less
        if (subscriptionStatus === 'ACTIVE' && daysRemaining <= 5 && daysRemaining >= 0) {
               return (
-                     <div className="bg-amber-500 text-white px-4 py-2 text-sm font-medium flex items-center justify-center gap-2 text-center animate-in slide-in-from-top-full duration-500 relative z-50">
-                            <AlertCircle size={16} />
-                            <span>
-                                   Tu suscripción se renueva en <strong>{daysRemaining} días</strong>.
-                            </span>
-                            <Link href="/dashboard/suscripcion" className="bg-white text-amber-600 px-3 py-0.5 rounded-full text-xs font-bold hover:bg-amber-50 transition-colors shadow-sm ml-2">
-                                   Gestionar
-                            </Link>
+                     <div className="relative z-50 border-b border-amber-500/20 bg-amber-500/10 px-4 py-3 text-foreground animate-in slide-in-from-top-full duration-500">
+                            <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                   <div className="flex items-start gap-3">
+                                          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-500">
+                                                 <AlertCircle size={17} />
+                                          </div>
+                                          <div>
+                                                 <p className="text-sm font-black">Renovacion proxima</p>
+                                                 <p className="text-xs font-medium text-muted-foreground">
+                                                        Tu suscripcion se renueva en <strong>{daysRemaining} dias</strong>.
+                                                 </p>
+                                          </div>
+                                   </div>
+                                   <Link href="/dashboard/suscripcion" className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-amber-500/25 bg-background px-4 text-xs font-black uppercase tracking-widest text-amber-600 transition-all active:scale-[0.98]">
+                                          Gestionar
+                                          <ArrowRight size={14} />
+                                   </Link>
+                            </div>
                      </div>
               )
        }

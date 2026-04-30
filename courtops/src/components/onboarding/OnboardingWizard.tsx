@@ -11,6 +11,7 @@ import {
 	LayoutGrid,
 	Loader2,
 	Plus,
+	QrCode,
 	Share2,
 	Sparkles,
 	Trash2,
@@ -150,6 +151,11 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 	const handleGoToDashboard = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
 		router.refresh()
+	}, [router])
+
+	const handleOpenChannels = useCallback(() => {
+		localStorage.setItem('courtops_onboarding_complete', 'true')
+		router.push('/dashboard?modal=growth')
 	}, [router])
 
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
@@ -490,9 +496,23 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 												Todo listo!
 											</h2>
 											<p className="text-muted-foreground text-sm max-w-xs mx-auto">
-												Tu club esta configurado. Comparte tu link para recibir reservas.
+												Tu club esta configurado. Ahora publica el link para empezar a recibir reservas.
 											</p>
 										</div>
+									</div>
+
+									<div className="grid grid-cols-3 gap-2">
+										{[
+											{ icon: QrCode, label: 'QR', value: 'Mostrador' },
+											{ icon: Share2, label: 'WhatsApp', value: 'Grupos' },
+											{ icon: Sparkles, label: 'Bio', value: 'Instagram' },
+										].map(({ icon: Icon, label, value }) => (
+											<div key={label} className="rounded-2xl border border-primary/15 bg-primary/5 p-3 text-center">
+												<Icon size={18} className="mx-auto text-primary" />
+												<p className="mt-2 text-[9px] font-black uppercase tracking-widest text-primary">{label}</p>
+												<p className="mt-0.5 text-xs font-bold text-foreground">{value}</p>
+											</div>
+										))}
 									</div>
 
 									{/* URL */}
@@ -530,10 +550,16 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									</div>
 
 									<button
-										onClick={handleGoToDashboard}
+										onClick={handleOpenChannels}
 										className="w-full bg-primary hover:brightness-110 active:scale-[0.98] transition-all text-primary-foreground h-12 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm shadow-md"
 									>
-										Ir al Dashboard <ArrowRight size={16} />
+										Abrir canales de venta <ArrowRight size={16} />
+									</button>
+									<button
+										onClick={handleGoToDashboard}
+										className="w-full border border-border hover:bg-muted active:scale-[0.98] transition-all text-foreground h-11 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm"
+									>
+										Ir al dashboard
 									</button>
 								</motion.div>
 							)}

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, Loader2, CreditCard, Calendar, AlertCircle, CheckCircle2, ChevronRight, Shield, Building2, Zap, Rocket, Clock, X } from 'lucide-react'
+import { Check, Loader2, CreditCard, Calendar, AlertCircle, CheckCircle2, ChevronRight, Shield, Building2, Zap, Rocket, Clock, X, QrCode, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { initiateSubscription, cancelSubscription, changePlan, cancelPendingDowngrade } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
@@ -16,8 +16,26 @@ interface Plan {
 	features: string[]
 }
 
+type CurrentPlan = {
+	id: string
+	name: string
+	price: number
+	setupFee?: number
+	features?: string[] | string
+	setupFeePaidAt?: Date | string | null
+	setupFeePaymentId?: string | null
+}
+
+type SubscriptionActionResult = {
+	success?: boolean
+	init_point?: string
+	pending?: boolean
+	message?: string
+	error?: string
+}
+
 interface SubscriptionManagerProps {
-	currentPlan: any
+	currentPlan: CurrentPlan | null
 	subscriptionStatus: string | null
 	nextBillingDate: Date | string | null
 	setupFeePaidAt?: Date | string | null
@@ -48,8 +66,7 @@ export default function SubscriptionManager({
 	availablePlans,
 	pendingPlan,
 	pendingBillingCycle,
-	isConfigured,
-	isDevMode = false
+	isConfigured
 }: SubscriptionManagerProps) {
 	const router = useRouter()
 	const [loadingId, setLoadingId] = useState<string | null>(null)
@@ -85,21 +102,21 @@ export default function SubscriptionManager({
 
 		try {
 			if (planAction === 'new') {
-				const res = await initiateSubscription(selectedPlan.id, billingCycle)
+				const res = await initiateSubscription(selectedPlan.id, billingCycle) as SubscriptionActionResult
 				if (res.success && res.init_point) {
 					window.location.href = res.init_point
 				} else {
-					toast.error((res as any)?.error || "Error al procesar")
+					toast.error(res.error || "Error al procesar")
 				}
 			} else {
-				const res = await changePlan(selectedPlan.id, billingCycle)
-				if (res.success && (res as any).init_point) {
-					window.location.href = (res as any).init_point
-				} else if (res.success && (res as any).pending) {
-					toast.success((res as any).message || "Cambio programado")
+				const res = await changePlan(selectedPlan.id, billingCycle) as SubscriptionActionResult
+				if (res.success && res.init_point) {
+					window.location.href = res.init_point
+				} else if (res.success && res.pending) {
+					toast.success(res.message || "Cambio programado")
 					router.refresh()
 				} else {
-					const msg = (res as any)?.message || (res as any)?.error
+					const msg = res.message || res.error
 					if (msg) toast.success(msg)
 					else toast.error("Error al cambiar de plan")
 					router.refresh()
@@ -160,6 +177,28 @@ export default function SubscriptionManager({
 				</div>
 			)}
 
+			<div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl md:p-6">
+				<div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/25 blur-3xl" />
+				<div className="relative z-10 grid gap-5 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+					<div>
+						<p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">
+							Por que pagar CourtOps
+						</p>
+						<h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">
+							Si te recupera unos pocos turnos perdidos, ya se paga solo.
+						</h2>
+						<p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-white/65">
+							La suscripcion no es solo software: es reservas online, cobros, QR compartible, caja y operacion movil para vender mas sin perseguir mensajes.
+						</p>
+					</div>
+					<div className="grid grid-cols-3 gap-2">
+						<ValueCard icon={QrCode} label="Canales" value="QR y link" />
+						<ValueCard icon={CreditCard} label="Cobro" value="Menos deuda" />
+						<ValueCard icon={Smartphone} label="Movil" value="App PWA" />
+					</div>
+				</div>
+			</div>
+
 			<div className="inline-flex items-center gap-1 rounded-full border border-border bg-muted p-1">
 				<button
 					onClick={() => setBillingCycle('monthly')}
@@ -217,17 +256,25 @@ export default function SubscriptionManager({
 					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
 					const price = getPrice(plan)
 					const isUpgrade = currentPlan ? plan.price > currentPlan.price : true
+					const isRecommended = plan.name.toLowerCase() === 'pro'
 
 					return (
 						<div
 							key={plan.id}
 							className={cn(
-								"rounded-2xl border p-4 transition-colors",
+								"relative rounded-2xl border p-4 transition-colors",
 								isCurrent
 									? "border-emerald-500/40 bg-emerald-500/5"
-									: "border-border bg-card"
+									: isRecommended
+										? "border-primary/35 bg-primary/5"
+										: "border-border bg-card"
 							)}
 						>
+							{isRecommended && !isCurrent && (
+								<span className="absolute right-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-primary-foreground">
+									Recomendado
+								</span>
+							)}
 							{/* Header row: icon + name + badge */}
 							<div className="flex items-center justify-between mb-3">
 								<div className="flex items-center gap-3">
@@ -286,7 +333,7 @@ export default function SubscriptionManager({
 											: "bg-muted text-muted-foreground hover:bg-muted/80"
 									)}
 								>
-									{isUpgrade ? 'Mejorar plan' : 'Cambiar plan'}
+									{isUpgrade ? `Activar ${plan.name}` : 'Cambiar plan'}
 									<ChevronRight className="w-4 h-4" />
 								</button>
 							) : (
@@ -295,7 +342,7 @@ export default function SubscriptionManager({
 									disabled={!!loadingId}
 									className="w-full py-2.5 rounded-xl text-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
 								>
-									Comenzar
+									Activar {plan.name}
 									<ChevronRight className="w-4 h-4" />
 								</button>
 							)}
@@ -317,8 +364,9 @@ export default function SubscriptionManager({
 					const isCurrent = currentPlan?.id === plan.id && isActive
 					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Base']
 					const price = getPrice(plan)
-					const isUpgrade = hasPaidSubscription ? plan.price > currentPlan.price : true
+					const isUpgrade = hasPaidSubscription && currentPlan ? plan.price > currentPlan.price : true
 					const showSetupFee = !setupFeeAlreadyPaid && (plan.setupFee ?? 0) > 0
+					const isRecommended = plan.name.toLowerCase() === 'pro'
 
 					return (
 						<div
@@ -326,6 +374,7 @@ export default function SubscriptionManager({
 							className={cn(
 								"grid grid-cols-4 p-4 items-center border-t border-border transition-colors",
 								isCurrent && "bg-emerald-500/5",
+								isRecommended && !isCurrent && "bg-primary/5",
 								!isCurrent && "hover:bg-muted/30"
 							)}
 						>
@@ -339,6 +388,11 @@ export default function SubscriptionManager({
 										{isCurrent && (
 											<span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
 												Actual
+											</span>
+										)}
+										{isRecommended && !isCurrent && (
+											<span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+												Recomendado
 											</span>
 										)}
 									</div>
@@ -388,7 +442,7 @@ export default function SubscriptionManager({
 												: "bg-muted text-muted-foreground hover:bg-muted/80"
 										)}
 									>
-										{isUpgrade ? 'Mejorar' : 'Cambiar'}
+										{isUpgrade ? `Activar ${plan.name}` : 'Cambiar'}
 										<ChevronRight className="w-4 h-4" />
 									</button>
 								) : (
@@ -397,7 +451,7 @@ export default function SubscriptionManager({
 										disabled={!!loadingId}
 										className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-1 ml-auto"
 									>
-										Comenzar
+										Activar {plan.name}
 										<ChevronRight className="w-4 h-4" />
 									</button>
 								)}
@@ -626,6 +680,16 @@ export default function SubscriptionManager({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+		</div>
+	)
+}
+
+function ValueCard({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+	return (
+		<div className="rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
+			<Icon className="h-5 w-5 text-primary" />
+			<p className="mt-3 text-[9px] font-black uppercase tracking-widest text-white/45">{label}</p>
+			<p className="mt-1 text-sm font-black text-white">{value}</p>
 		</div>
 	)
 }

@@ -6,6 +6,7 @@ import { getPublicBookingGrowthSummary } from '@/actions/public-growth'
 import { cn } from '@/lib/utils'
 import {
        BarChart3,
+       Banknote,
        Copy,
        Download,
        ExternalLink,
@@ -15,6 +16,8 @@ import {
        MapPinned,
        MessageCircle,
        QrCode,
+       Share2,
+       TrendingUp,
        X
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -31,6 +34,21 @@ type GrowthSummary = {
               waitlist_created: number
        }
        conversionRate: number
+       value?: {
+              publicBookings: number
+              publicBookingRevenue: number
+              estimatedPublicRevenue: number
+              averageTicket: number
+              recoveredDemand: number
+              bestSource: {
+                     source: string
+                     medium: string
+                     campaign: string
+                     views: number
+                     bookings: number
+                     waitlist: number
+              } | null
+       }
        sources: {
               source: string
               medium: string
@@ -49,6 +67,7 @@ type Channel = {
        campaign: string
        icon: React.ElementType
        helper: string
+       postText: string
 }
 
 const CHANNELS: Channel[] = [
@@ -59,7 +78,8 @@ const CHANNELS: Channel[] = [
               medium: 'business_profile',
               campaign: 'public_booking',
               icon: MapPinned,
-              helper: 'Usalo en el boton de reservas o en el perfil del club.'
+              helper: 'Usalo en el boton de reservas o en el perfil del club.',
+              postText: 'Reserva tu cancha online en segundos. Elegi dia, horario y cancha desde aca: {url}'
        },
        {
               id: 'instagram',
@@ -68,7 +88,8 @@ const CHANNELS: Channel[] = [
               medium: 'bio',
               campaign: 'public_booking',
               icon: Instagram,
-              helper: 'Pone este link en la bio y en historias destacadas.'
+              helper: 'Pone este link en la bio y en historias destacadas.',
+              postText: 'Turnos disponibles esta semana. Reserva directo desde la bio, sin esperar mensajes: {url}'
        },
        {
               id: 'whatsapp',
@@ -77,7 +98,8 @@ const CHANNELS: Channel[] = [
               medium: 'broadcast',
               campaign: 'public_booking',
               icon: MessageCircle,
-              helper: 'Compartilo en estados, grupos o respuestas rapidas.'
+              helper: 'Compartilo en estados, grupos o respuestas rapidas.',
+              postText: 'Ya podes reservar tu cancha online. Entra, elegi horario y confirma tu turno: {url}'
        },
        {
               id: 'qr_counter',
@@ -86,7 +108,8 @@ const CHANNELS: Channel[] = [
               medium: 'counter',
               campaign: 'public_booking',
               icon: QrCode,
-              helper: 'Ideal para recepcion, barra y carteleria del club.'
+              helper: 'Ideal para recepcion, barra y carteleria del club.',
+              postText: 'Escanea el QR del club y reserva tu proximo turno online: {url}'
        }
 ]
 
@@ -111,6 +134,11 @@ export default function PublicBookingGrowthKit({
        const [selectedChannelId, setSelectedChannelId] = useState(CHANNELS[0].id)
        const [summary, setSummary] = useState<GrowthSummary | null>(null)
        const [isLoading, setIsLoading] = useState(false)
+       const currencyFormatter = useMemo(() => new Intl.NumberFormat('es-AR', {
+              style: 'currency',
+              currency: 'ARS',
+              maximumFractionDigits: 0
+       }), [])
 
        useEffect(() => {
               if (typeof window !== 'undefined') {
@@ -152,7 +180,11 @@ export default function PublicBookingGrowthKit({
               return `${origin}/p/${activeSlug}`
        }, [activeSlug, origin])
 
-       const shareText = `Reserva tu cancha online en ${plainPublicUrl}`
+       const shareText = selectedChannel.postText.replace('{url}', plainPublicUrl || selectedUrl || '')
+       const selectedShareText = selectedChannel.postText.replace('{url}', selectedUrl || plainPublicUrl || '')
+       const whatsappShareUrl = selectedUrl
+              ? `https://wa.me/?text=${encodeURIComponent(selectedShareText)}`
+              : ''
 
        const copyText = async (text: string, label: string) => {
               try {
@@ -173,10 +205,35 @@ export default function PublicBookingGrowthKit({
               link.click()
        }
 
+       const shareSelectedLink = async () => {
+              if (!selectedUrl) return
+
+              if (navigator.share) {
+                     try {
+                            await navigator.share({
+                                   title: 'Reservas online',
+                                   text: 'Reservá tu cancha online',
+                                   url: selectedUrl
+                            })
+                            return
+                     } catch {
+                            // User cancelled or share target failed; fall back to copy.
+                     }
+              }
+
+              copyText(selectedUrl, 'Link')
+       }
+
        if (!isOpen) return null
 
        const funnel = summary?.events
        const sourceRows = summary?.sources.slice(0, 5) || []
+       const value = summary?.value
+       const generatedRevenue = value?.publicBookingRevenue || value?.estimatedPublicRevenue || 0
+       const publicBookingsCount = value?.publicBookings || funnel?.booking_created || 0
+       const recoveredDemand = value?.recoveredDemand || ((funnel?.booking_created || 0) + (funnel?.waitlist_created || 0))
+       const bestSource = value?.bestSource
+       const bestSourceLabel = bestSource ? `${bestSource.source} / ${bestSource.medium}` : 'Sin datos'
 
        return (
               <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -275,7 +332,28 @@ export default function PublicBookingGrowthKit({
                                                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                                                Acciones rapidas
                                                         </p>
-                                                        <div className="flex flex-wrap gap-2">
+                                                       <div className="flex flex-wrap gap-2">
+                                                               <button
+                                                                      onClick={shareSelectedLink}
+                                                                      disabled={!selectedUrl}
+                                                                      className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 dark:bg-white dark:text-slate-950"
+                                                               >
+                                                                      <Share2 size={14} />
+                                                                      Compartir
+                                                               </button>
+                                                               <a
+                                                                      href={whatsappShareUrl || undefined}
+                                                                      target="_blank"
+                                                                      rel="noopener noreferrer"
+                                                                      aria-disabled={!selectedUrl}
+                                                                      className={cn(
+                                                                             'inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition-opacity',
+                                                                             !selectedUrl && 'pointer-events-none opacity-40'
+                                                                      )}
+                                                               >
+                                                                      <MessageCircle size={14} />
+                                                                      WhatsApp
+                                                               </a>
                                                                <button
                                                                       onClick={downloadQr}
                                                                       disabled={!selectedUrl}
@@ -285,15 +363,24 @@ export default function PublicBookingGrowthKit({
                                                                       Descargar QR
                                                                </button>
                                                                <button
-                                                                      onClick={() => copyText(shareText, 'Texto')}
-                                                                      disabled={!plainPublicUrl}
+                                                                      onClick={() => copyText(selectedShareText, 'Texto')}
+                                                                      disabled={!selectedShareText}
                                                                       className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-black uppercase tracking-widest text-foreground transition-colors hover:text-primary disabled:opacity-40"
                                                                >
                                                                       <Link2 size={14} />
                                                                       Texto para publicar
                                                                </button>
                                                         </div>
+                                                        <p className="text-xs font-semibold leading-relaxed text-foreground">
+                                                               {selectedShareText || 'Generando texto para publicar...'}
+                                                        </p>
                                                         <p className="text-xs leading-relaxed text-muted-foreground">
+                                                               Siguiente paso: {selectedChannel.helper}
+                                                        </p>
+                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                                               Link directo: {plainPublicUrl || 'generando...'}
+                                                        </p>
+                                                        <p className="sr-only">
                                                                {shareText}
                                                         </p>
                                                  </div>
@@ -309,6 +396,38 @@ export default function PublicBookingGrowthKit({
                                                         <h3 className="mt-1 text-lg font-black text-foreground">Embudo publico</h3>
                                                  </div>
                                                  {isLoading && <Loader2 size={18} className="animate-spin text-muted-foreground" />}
+                                          </div>
+
+                                          <div className="relative overflow-hidden rounded-[2rem] border border-emerald-500/20 bg-emerald-500/10 p-4">
+                                                 <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-400/25 blur-3xl" />
+                                                 <div className="relative z-10">
+                                                        <div className="flex items-center gap-2">
+                                                               <Banknote size={16} className="text-emerald-500" />
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-500">
+                                                                      Valor generado
+                                                               </p>
+                                                        </div>
+                                                        <p className="mt-2 text-3xl font-black tracking-tight text-foreground">
+                                                               {currencyFormatter.format(generatedRevenue)}
+                                                        </p>
+                                                        <p className="mt-1 text-xs font-semibold leading-relaxed text-muted-foreground">
+                                                               {generatedRevenue > 0
+                                                                      ? `${publicBookingsCount} reservas publicas y ${funnel?.waitlist_created || 0} jugadores en espera.`
+                                                                      : 'Activa Google, Instagram, WhatsApp y QR para empezar a medir ventas reales.'}
+                                                        </p>
+                                                        <div className="mt-4 grid grid-cols-2 gap-2">
+                                                               <ValuePill
+                                                                      icon={TrendingUp}
+                                                                      label="Demanda"
+                                                                      value={`${recoveredDemand} leads`}
+                                                               />
+                                                               <ValuePill
+                                                                      icon={BarChart3}
+                                                                      label="Mejor canal"
+                                                                      value={bestSourceLabel}
+                                                               />
+                                                        </div>
+                                                 </div>
                                           </div>
 
                                           <div className="grid grid-cols-2 gap-2">
@@ -356,6 +475,24 @@ export default function PublicBookingGrowthKit({
                                    </div>
                             </div>
                      </div>
+              </div>
+       )
+}
+
+function ValuePill({
+       icon: Icon,
+       label,
+       value
+}: {
+       icon: React.ElementType
+       label: string
+       value: string
+}) {
+       return (
+              <div className="rounded-2xl border border-border/60 bg-background/70 p-3">
+                     <Icon size={14} className="text-primary" />
+                     <p className="mt-2 text-[9px] font-black uppercase tracking-widest text-muted-foreground">{label}</p>
+                     <p className="mt-1 truncate text-xs font-black text-foreground">{value}</p>
               </div>
        )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
@@ -25,15 +26,30 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+type VenueClub = {
+  name: string
+  amenities?: string | null
+  coverUrl?: string | null
+  logoUrl?: string | null
+  subscriptionStatus?: string | null
+  address?: string | null
+  openTime?: string | null
+  closeTime?: string | null
+  description?: string | null
+  phone?: string | null
+  socialInstagram?: string | null
+  socialFacebook?: string | null
+}
+
 interface VenueLayoutProps {
-  club: any
+  club: VenueClub
   activeTab: 'booking' | 'info'
-  setActiveTab: (tab: 'booking' | 'info') => void
+  setActiveTab: (_tab: 'booking' | 'info') => void
   children: React.ReactNode
   onBack?: () => void
 }
 
-const amenityIcons: Record<string, any> = {
+const amenityIcons: Record<string, React.ElementType> = {
   'Bar': Utensils,
   'Restaurante': Utensils,
   'Buffet': Utensils,
@@ -353,6 +369,27 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                 </div>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('booking')}
+              className="group relative w-full overflow-hidden rounded-[2rem] bg-primary px-5 py-4 text-left text-primary-foreground shadow-[0_18px_44px_hsl(var(--primary)/0.22)] transition-all active:scale-[0.98]"
+            >
+              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/20 blur-2xl" />
+              <div className="relative z-10 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
+                    Reserva online
+                  </p>
+                  <p className="mt-1 text-lg font-black tracking-tight">
+                    Elegí tu horario disponible
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/20 transition-transform group-active:translate-x-1">
+                  <ChevronRight size={20} strokeWidth={3} />
+                </div>
+              </div>
+            </button>
           </div>
         )}
       </main>
