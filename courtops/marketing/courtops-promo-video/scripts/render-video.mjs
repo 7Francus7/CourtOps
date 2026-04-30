@@ -13,34 +13,51 @@ const musicPath = path.join(root, "audio", "music.wav");
 const width = 1080;
 const height = 1920;
 const fps = 30;
-const duration = 42;
+const duration = 33;
 const totalFrames = duration * fps;
 
 fs.mkdirSync(framesDir, { recursive: true });
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.mkdirSync(path.dirname(musicPath), { recursive: true });
 
-const existingFrames = fs.existsSync(path.join(framesDir, `frame-${String(totalFrames - 1).padStart(5, "0")}.png`));
+const lastFrame = path.join(framesDir, `frame-${String(totalFrames - 1).padStart(5, "0")}.png`);
+const extraFrame = path.join(framesDir, `frame-${String(totalFrames).padStart(5, "0")}.png`);
+const existingFrames = fs.existsSync(lastFrame) && !fs.existsSync(extraFrame);
+const RESTART_EVERY = 300;
+const htmlUrl = `file://${path.join(root, "index.html").replaceAll("\\", "/")}?render=1`;
+
+async function openPage(browser) {
+  const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
+  await page.goto(htmlUrl, { waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts && document.fonts.ready);
+  return page;
+}
+
 if (!existingFrames) {
   fs.rmSync(framesDir, { recursive: true, force: true });
   fs.mkdirSync(framesDir, { recursive: true });
 
-  const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({
-    viewport: { width, height },
-    deviceScaleFactor: 1
+  let browser = await chromium.launch({
+    headless: true,
+    args: ["--disable-dev-shm-usage", "--no-sandbox", "--disable-gpu"]
   });
-
-  await page.goto(`file://${path.join(root, "index.html").replaceAll("\\", "/")}?render=1`, {
-    waitUntil: "networkidle"
-  });
-  await page.evaluate(() => document.fonts && document.fonts.ready);
+  let page = await openPage(browser);
 
   for (let frame = 0; frame < totalFrames; frame += 1) {
+    if (frame > 0 && frame % RESTART_EVERY === 0) {
+      await browser.close();
+      browser = await chromium.launch({
+        headless: true,
+        args: ["--disable-dev-shm-usage", "--no-sandbox", "--disable-gpu"]
+      });
+      page = await openPage(browser);
+      console.log(`Restarted browser at frame ${frame}`);
+    }
+
     const time = frame / fps;
     await page.evaluate((t) => window.setCourtOpsTime(t), time);
     const file = path.join(framesDir, `frame-${String(frame).padStart(5, "0")}.png`);
-    await page.screenshot({ path: file, type: "png" });
+    await page.screenshot({ path: file, type: "png", timeout: 120_000 });
     if (frame % 90 === 0) {
       console.log(`Rendered frame ${frame}/${totalFrames}`);
     }
@@ -98,27 +115,14 @@ function writeMusicWav(filePath) {
 writeMusicWav(musicPath);
 
 const ffmpeg = ffmpegStatic || "ffmpeg";
-const voiceInputs = [
-  ["audio/vo-01.wav", 0.35],
-  ["audio/vo-02.wav", 3.25],
-  ["audio/vo-03.wav", 8.35],
-  ["audio/vo-04.wav", 15.25],
-  ["audio/vo-05.wav", 30.25],
-  ["audio/vo-06.wav", 38.25]
-];
 
 const args = [
   "-y",
   "-framerate", String(fps),
   "-i", path.join(framesDir, "frame-%05d.png"),
   "-i", musicPath,
-  ...voiceInputs.flatMap(([file]) => ["-i", path.join(root, file)]),
   "-filter_complex",
-  [
-    "[1:a]volume=0.55,afade=t=in:st=0:d=0.8,afade=t=out:st=40.5:d=1.5[music]",
-    ...voiceInputs.map(([, start], index) => `[${index + 2}:a]adelay=${Math.round(start * 1000)}|${Math.round(start * 1000)},volume=1.35[vo${index}]`),
-    `[music]${voiceInputs.map((_, index) => `[vo${index}]`).join("")}amix=inputs=${voiceInputs.length + 1}:duration=longest:normalize=0,alimiter=limit=0.95[aout]`
-  ].join(";"),
+  "[1:a]volume=0.65,afade=t=in:st=0:d=0.8,afade=t=out:st=31.5:d=1.5[aout]",
   "-map", "0:v",
   "-map", "[aout]",
   "-c:v", "libx264",

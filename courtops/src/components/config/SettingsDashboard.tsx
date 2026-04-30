@@ -18,6 +18,7 @@ import type { EmployeePermissions } from '@/types/employee'
 import ProductManagementModal from './ProductManagementModal'
 import MembershipPlansConfig from './MembershipPlansConfig'
 import IntegrationsTab from './IntegrationsTab'
+import PushPreferencesCard from './PushPreferencesCard'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Store, UserCog, X, Edit, Trash2, PackagePlus, ChevronDown, CreditCard, Banknote, QrCode, Smartphone, Lock, Check, ExternalLink, GraduationCap, User, CalendarDays, Settings, Building2, Tag, Users, Warehouse, Shield, FileText, CreditCard as CardIcon, Plug, Copy } from 'lucide-react'
@@ -1165,7 +1166,8 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
 
                             {/* --- CUENTA TAB --- */}
                             {activeTab === 'CUENTA' && (
-                                   <div className="max-w-xl space-y-6 bg-card p-4 sm:p-6 rounded-2xl border border-border">
+                                   <div className="max-w-3xl space-y-6">
+                                          <div className="bg-card p-4 sm:p-6 rounded-2xl border border-border">
                                           <h3 className="text-xl font-bold text-foreground">Actualizar Contraseña</h3>
                                           <form onSubmit={savePassword} className="space-y-4 pt-4">
                                                  <InputGroup label="Nueva Contraseña">
@@ -1184,6 +1186,10 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                         <button type="submit" disabled={isLoading} className="btn-primary w-full bg-red-600 border-none hover:bg-red-700">Actualizar Contraseña</button>
                                                  </div>
                                           </form>
+
+                                          </div>
+
+                                          <PushPreferencesCard />
                                    </div>
                             )}
                             {/* --- INTEGRACIONES TAB --- */}

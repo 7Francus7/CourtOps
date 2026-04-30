@@ -5,6 +5,7 @@ import { getEffectivePrice, enforceActiveSubscription } from '@/lib/tenant'
 import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
+import { sendPushToClubUsers } from '@/lib/push-notifications'
 
 const PADEL_SLOT_MINUTES = 90
 
@@ -423,6 +424,29 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      console.error('[PUSHER ERROR in public-booking]', pusherErr)
               }
 
+              try {
+                     const startLabel = fromUTC(dateTime).toLocaleString('es-AR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                     })
+
+                     await sendPushToClubUsers(data.clubId, {
+                            title: 'Nueva reserva online',
+                            body: `${clientName} reservó ${court.name} para ${startLabel}.`,
+                            kind: 'bookings',
+                            url: '/dashboard?view=bookings',
+                            tag: `public-booking-${booking.id}`,
+                            data: {
+                                   bookingId: booking.id,
+                                   type: 'public_booking_create'
+                            }
+                     })
+              } catch (pushError) {
+                     console.error('[PUSH ERROR in public-booking]', pushError)
+              }
+
               revalidatePath('/')
               revalidatePath(`/p/${club.slug}`)
               revalidatePath(`/${club.slug}`)
@@ -534,6 +558,21 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
                      })
               } catch (pusherErr) {
                      console.error('[PUSHER ERROR in public-waiting-list]', pusherErr)
+              }
+
+              try {
+                     await sendPushToClubUsers(data.clubId, {
+                            title: 'Nueva lista de espera',
+                            body: `${clientName} pidió aviso para ${data.dateStr}.`,
+                            kind: 'waitingList',
+                            url: '/dashboard?view=bookings',
+                            tag: `waiting-list-${data.dateStr}-${clientPhone}`,
+                            data: {
+                                   type: 'waiting_list_create'
+                            }
+                     })
+              } catch (pushError) {
+                     console.error('[PUSH ERROR in public-waiting-list]', pushError)
               }
 
               revalidatePath(`/p/${club.slug}`)

@@ -12,6 +12,7 @@ import { AiAssistant } from '@/components/ai/AiAssistant'
 import { TrialBanner } from "@/components/layout/TrialBanner"
 import { TrialExpiredGuard } from "@/components/layout/TrialExpiredGuard"
 import { CommandPalette } from '@/components/CommandPalette'
+import { PushNotificationManager } from '@/components/pwa/PushNotificationManager'
 
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -90,6 +91,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                             <GlobalModals />
                             <AiAssistant />
                             <CommandPalette />
+                            <PushNotificationManager />
                      </AppShell>
               </div>
        )

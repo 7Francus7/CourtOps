@@ -81,6 +81,7 @@ model Club {
   waivers         Waiver[]
   referrals       Referral[]
   teachers        Teacher[]
+  pushSubscriptions PushSubscription[]
 
   deletedAt DateTime? // Soft delete for Club
 
@@ -107,12 +108,14 @@ model User {
   role      String
   clubId                   String?
   lastNotificationsReadAt  DateTime?
+  pushPreferences          String?
   createdAt                DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   deletedAt DateTime?
   tokenVersion             Int        @default(0)
   club      Club?      @relation(fields: [clubId], references: [id], onDelete: Cascade)
   auditLogs AuditLog[]
+  pushSubscriptions PushSubscription[]
 
   @@map("User")
 }
@@ -613,6 +616,26 @@ model Notification {
   @@index([clubId, isRead])
   @@index([clubId, createdAt])
   @@map("Notification")
+}
+
+model PushSubscription {
+  id         String   @id @default(uuid())
+  clubId      String
+  userId      String
+  endpoint    String   @unique
+  p256dh      String
+  auth        String
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastUsedAt  DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([clubId, userId])
+  @@index([clubId, updatedAt])
+  @@map("PushSubscription")
 }
 
 model PasswordResetToken {

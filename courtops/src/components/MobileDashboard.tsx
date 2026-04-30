@@ -221,6 +221,10 @@ export default function MobileDashboard({
        const totalBookingsToday = data?.endOfDay?.totalBookings ?? 0
        const averageBookingToday = totalBookingsToday > 0 ? Math.round(totalRevenueToday / totalBookingsToday) : 0
        const openCourtOpportunity = averageBookingToday * freeCourtsCount
+       const debtCount = data?.debts?.totalCount ?? 0
+       const debtAmount = data?.debts?.totalAmount ?? 0
+       const topDebtor = data?.debts?.topDebtors?.[0] ?? null
+       const shouldShowRecoveryCard = pending > 0 || debtCount > 0
 
        const handleCopyLink = () => {
               if (slug) {
@@ -506,6 +510,76 @@ export default function MobileDashboard({
                                                   </button>
                                            </div>
                                     </motion.section>
+
+                                    {shouldShowRecoveryCard && (
+                                           <motion.section
+                                                  initial={{ opacity: 0, y: 12 }}
+                                                  animate={{ opacity: 1, y: 0 }}
+                                                  transition={{ delay: 0.08 }}
+                                                  className="relative overflow-hidden rounded-[1.7rem] border border-amber-500/20 bg-gradient-to-br from-amber-500/12 via-card to-card p-4 shadow-sm"
+                                           >
+                                                  <div className="pointer-events-none absolute -right-12 top-0 h-28 w-28 rounded-full bg-amber-500/15 blur-3xl" />
+                                                  <div className="relative z-10 flex items-start justify-between gap-3">
+                                                         <div className="min-w-0 flex-1">
+                                                                <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">
+                                                                       <UsersIcon size={11} />
+                                                                       Reactivar clientes
+                                                                </div>
+                                                                <h3 className="mt-3 text-lg font-black tracking-tight text-foreground">
+                                                                       {pending > 0
+                                                                              ? `Recuperá $${pending.toLocaleString()} hoy`
+                                                                              : `${debtCount} cliente${debtCount === 1 ? '' : 's'} para mover`}
+                                                                </h3>
+                                                                <p className="mt-1 text-sm font-semibold leading-relaxed text-muted-foreground">
+                                                                       {pending > 0
+                                                                              ? 'Abrí clientes, escribí por WhatsApp y cerrá cobros antes de que enfríen.'
+                                                                              : debtAmount > 0
+                                                                                     ? `Tenés $${debtAmount.toLocaleString()} en deuda para trabajar desde el celular.`
+                                                                                     : 'Hay seguimiento comercial pendiente para convertir actividad en cobro.'}
+                                                                </p>
+                                                         </div>
+                                                         <div className="rounded-2xl border border-amber-500/20 bg-background/80 px-3 py-2 text-right shadow-sm">
+                                                                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-amber-600/70 dark:text-amber-400/70">
+                                                                       Foco
+                                                                </p>
+                                                                <p className="mt-1 text-sm font-black text-foreground">
+                                                                       {debtCount > 0 ? `${debtCount} deuda${debtCount === 1 ? '' : 's'}` : 'Cobros'}
+                                                                </p>
+                                                         </div>
+                                                  </div>
+
+                                                  <div className="relative z-10 mt-4 grid grid-cols-2 gap-2">
+                                                         <button
+                                                                type="button"
+                                                                onClick={() => { window.location.href = '/clientes' }}
+                                                                className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-foreground px-4 text-[11px] font-black uppercase tracking-[0.16em] text-background shadow-sm active:scale-[0.98]"
+                                                         >
+                                                                Ver clientes
+                                                                <ArrowUpRight size={15} strokeWidth={2.6} />
+                                                         </button>
+                                                         {topDebtor?.phone ? (
+                                                                <a
+                                                                       href={`https://wa.me/${topDebtor.phone.replace(/\D/g, '')}`}
+                                                                       target="_blank"
+                                                                       rel="noopener noreferrer"
+                                                                       className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#25D366]/20 bg-[#25D366]/10 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-[#25D366] shadow-sm active:scale-[0.98]"
+                                                                >
+                                                                       Escribir
+                                                                       <MessageCircle size={15} strokeWidth={2.6} />
+                                                                </a>
+                                                         ) : (
+                                                                <button
+                                                                       type="button"
+                                                                       onClick={handleRefresh}
+                                                                       className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-border/70 bg-background/70 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-muted-foreground shadow-sm active:scale-[0.98]"
+                                                                >
+                                                                       Actualizar
+                                                                       <Activity size={15} strokeWidth={2.6} />
+                                                                </button>
+                                                         )}
+                                                  </div>
+                                           </motion.section>
+                                    )}
 
                                     {loadError && (
                                            <motion.div

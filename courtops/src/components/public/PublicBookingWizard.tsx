@@ -364,6 +364,18 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		if (durations.length > 1) return 'VARIAS DURACIONES'
 		return `${defaultDuration} MIN`
 	}, [slots, defaultDuration])
+	const totalAvailableCourts = useMemo(
+		() => slots.reduce((sum, slot) => sum + slot.courts.length, 0),
+		[slots]
+	)
+	const primeTimeSlots = useMemo(
+		() =>
+			slots.filter(slot => {
+				const hour = Number(slot.time.split(':')[0] || 0)
+				return hour >= 18 && hour <= 22
+			}).length,
+		[slots]
+	)
 
 	const bookingStepIndex = useMemo(() => {
 		if (step === 3) return 4
@@ -383,6 +395,32 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			`Hola ${club.name}. Estoy viendo la reserva online para el ${format(selectedDate, 'd/M', { locale: es })} y quería consultar si tienen otro horario disponible.`
 		)}`
 		: null
+
+	const getSlotSignal = (slot: PublicAvailabilitySlot, idx: number) => {
+		const hour = Number(slot.time.split(':')[0] || 0)
+		if (slot.courts.length === 1) {
+			return {
+				label: 'Ultima cancha',
+				tone: 'bg-amber-500/12 text-amber-500 border-amber-500/20'
+			}
+		}
+		if (hour >= 18 && hour <= 22) {
+			return {
+				label: 'Horario fuerte',
+				tone: 'bg-primary/12 text-primary border-primary/20'
+			}
+		}
+		if (idx < 2) {
+			return {
+				label: 'Sale rapido',
+				tone: 'bg-emerald-500/12 text-emerald-500 border-emerald-500/20'
+			}
+		}
+		return {
+			label: 'Disponible',
+			tone: 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-white/[0.05] dark:text-slate-300 dark:border-white/[0.08]'
+		}
+	}
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -1196,6 +1234,33 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 											<ChevronRight size={15} strokeWidth={3} />
 										</button>
 									)}
+
+									<div className="grid grid-cols-3 gap-2">
+										<div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur">
+											<p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/45">
+												Reserva
+											</p>
+											<p className="mt-1 text-sm font-black text-white">
+												Sin llamadas
+											</p>
+										</div>
+										<div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur">
+											<p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/45">
+												Opciones
+											</p>
+											<p className="mt-1 text-sm font-black text-white">
+												{totalAvailableCourts} hoy
+											</p>
+										</div>
+										<div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur">
+											<p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/45">
+												Demanda
+											</p>
+											<p className="mt-1 text-sm font-black text-white">
+												{primeTimeSlots > 0 ? `${primeTimeSlots} fuerte${primeTimeSlots === 1 ? '' : 's'}` : 'Lista espera'}
+											</p>
+										</div>
+									</div>
 								</div>
 							</div>
 							{/* Calendar */}
@@ -1284,6 +1349,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										slots.map((slot, idx) => {
 											const isExpanded = expandedSlot === slot.time
 											const hasSingleCourt = slot.courts.length === 1
+											const slotSignal = getSlotSignal(slot, idx)
 											return (
 												<div key={slot.time} className="space-y-3">
 													<motion.button
@@ -1338,6 +1404,14 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																		{hasSingleCourt ? `${slot.courts[0].name} listo para reservar` : `${slot.courts.length} cancha${slot.courts.length !== 1 ? 's' : ''}`}
 																	</span>
 																</div>
+																<span
+																	className={cn(
+																		'mt-2 inline-flex rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-[0.18em]',
+																		slotSignal.tone
+																	)}
+																>
+																	{slotSignal.label}
+																</span>
 															</div>
 														</div>
 														<div

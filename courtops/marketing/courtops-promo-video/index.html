@@ -147,37 +147,11 @@
         gap: 22px;
       }
 
-      .logo-mark {
-        position: relative;
+      .logo-mark-svg {
         width: 104px;
         height: 104px;
-        border-radius: 26px;
-        background: #111;
-        box-shadow: 0 0 52px rgba(0, 230, 118, 0.28);
-      }
-
-      .logo-mark::before {
-        content: "";
-        position: absolute;
-        left: 26px;
-        top: 22px;
-        width: 46px;
-        height: 58px;
-        border: 13px solid #fff;
-        border-right: 0;
-        border-radius: 50px 0 0 50px;
-      }
-
-      .logo-mark::after {
-        content: "";
-        position: absolute;
-        left: 47px;
-        top: 28px;
-        width: 46px;
-        height: 46px;
-        border: 13px solid var(--accent);
-        border-radius: 999px;
-        box-shadow: inset 0 0 0 10px #111;
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 26px rgba(0, 230, 118, 0.38));
       }
 
       .brand {
@@ -642,32 +616,6 @@
         font-weight: 900;
       }
 
-      .caption {
-        position: absolute;
-        left: 58px;
-        right: 58px;
-        bottom: 76px;
-        z-index: 6;
-        min-height: 104px;
-        display: grid;
-        place-items: center;
-        padding: 22px 28px;
-        border-radius: 30px;
-        background: rgba(5, 8, 7, 0.72);
-        border: 1px solid rgba(247, 255, 249, 0.12);
-        backdrop-filter: blur(18px);
-        text-align: center;
-        font-size: 34px;
-        line-height: 1.14;
-        font-weight: 850;
-        text-wrap: balance;
-        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.36);
-      }
-
-      .caption b {
-        color: var(--accent);
-      }
-
       .progress {
         position: absolute;
         left: 50px;
@@ -754,7 +702,14 @@
       <section id="scene-solution" class="scene">
         <div class="scene-content">
           <div class="logo-lockup">
-            <div class="logo-mark"></div>
+            <svg class="logo-mark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+              <rect width="60" height="60" rx="13" fill="#111111"/>
+              <g transform="translate(-2, 10)">
+                <path d="M 28 6 A 14 14 0 1 0 28 34" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="36" cy="20" r="14" fill="none" stroke="#00e676" stroke-width="8"/>
+                <circle cx="36" cy="20" r="4" fill="#ffffff"/>
+              </g>
+            </svg>
             <div class="brand">Court<span>Ops</span></div>
           </div>
           <h2 class="headline small">Todo tu club, en un solo sistema.</h2>
@@ -841,7 +796,14 @@
         <div class="scene-content">
           <div class="cta-wrap">
             <div class="logo-lockup">
-              <div class="logo-mark"></div>
+              <svg class="logo-mark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+                <rect width="60" height="60" rx="13" fill="#111111"/>
+                <g transform="translate(-2, 10)">
+                  <path d="M 28 6 A 14 14 0 1 0 28 34" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+                  <circle cx="36" cy="20" r="14" fill="none" stroke="#00e676" stroke-width="8"/>
+                  <circle cx="36" cy="20" r="4" fill="#ffffff"/>
+                </g>
+              </svg>
               <div class="brand">Court<span>Ops</span></div>
             </div>
             <div class="cta-card">
@@ -854,29 +816,18 @@
       </section>
 
       <div id="wipe" class="wipe"></div>
-      <div id="caption" class="caption"></div>
       <div class="progress"><i id="progress"></i></div>
     </main>
 
     <script>
-      const DURATION = 42;
+      const DURATION = 33;
       const SCENES = [
-        ["scene-hook", 0, 3],
-        ["scene-problem", 3, 8],
-        ["scene-solution", 8, 15],
-        ["scene-benefits", 15, 30],
-        ["scene-impact", 30, 38],
-        ["scene-cta", 38, 42]
-      ];
-
-      const CAPTIONS = [
-        [0.25, 3.0, "¿Tu club todavía se maneja así?"],
-        [3.2, 8.0, "Turnos desordenados, clientes que se pierden, y cero control."],
-        [8.25, 15.0, "Con <b>CourtOps</b> gestionás todo tu club desde un solo lugar."],
-        [15.2, 21.0, "Reservas rápidas, control total de clientes."],
-        [21.0, 30.0, "Reportes claros y más tiempo para hacer crecer tu negocio."],
-        [30.2, 38.0, "Menos errores. Más control. Más ingresos."],
-        [38.2, 42.0, "Digitalizá tu club hoy con <b>CourtOps</b>"]
+        ["scene-hook",     0,    2.5],
+        ["scene-problem",  2.5,  6.5],
+        ["scene-solution", 6.5,  12.5],
+        ["scene-benefits", 12.5, 23],
+        ["scene-impact",   23,   29],
+        ["scene-cta",      29,   33]
       ];
 
       const $ = (selector) => document.querySelector(selector);
@@ -931,29 +882,29 @@
         stagger("#scene-hook .eyebrow, #scene-hook .headline, #scene-hook .paper, #scene-hook .scribble, #scene-hook .owner", t, 0.08, 0.16, 52);
         $$("#scene-hook .paper").forEach((el, i) => {
           const base = [-8, 7, -3][i];
-          const shake = t < 3 ? Math.sin(t * 20 + i) * 3 : 0;
+          const shake = t < 2.5 ? Math.sin(t * 20 + i) * 3 : 0;
           el.style.transform += ` rotate(${base + shake}deg)`;
         });
 
-        stagger("#scene-problem .eyebrow, #scene-problem .headline, #scene-problem .problem-card", t, 3.05, 0.18, 48);
+        stagger("#scene-problem .eyebrow, #scene-problem .headline, #scene-problem .problem-card", t, 2.55, 0.18, 48);
         $$("#scene-problem .stamp").forEach((el, i) => {
-          const p = easeOut((t - 3.55 - i * 0.35) / 0.22);
+          const p = easeOut((t - 3.05 - i * 0.35) / 0.22);
           setStyle(el, { opacity: clamp(p), transform: `rotate(-8deg) scale(${lerp(1.25, 1, p)})` });
         });
 
-        stagger("#scene-solution .logo-lockup, #scene-solution .headline, #scene-solution .dashboard", t, 8.1, 0.22, 58);
-        stagger("#scene-solution .ui-panel", t, 9.05, 0.13, 38);
+        stagger("#scene-solution .logo-lockup, #scene-solution .headline, #scene-solution .dashboard", t, 6.6, 0.22, 58);
+        stagger("#scene-solution .ui-panel", t, 7.55, 0.13, 38);
         $$("#scene-solution .bar").forEach((el, i) => {
           const target = [32, 58, 46, 78, 92][i];
-          const p = easeOut((t - 10.15 - i * 0.08) / 0.5);
+          const p = easeOut((t - 8.65 - i * 0.08) / 0.5);
           el.style.height = `${target * clamp(p)}%`;
         });
 
-        stagger("#scene-benefits .eyebrow, #scene-benefits .headline, #scene-benefits .laptop, #scene-benefits .phone", t, 15.1, 0.18, 48);
+        stagger("#scene-benefits .eyebrow, #scene-benefits .headline, #scene-benefits .laptop, #scene-benefits .phone", t, 12.6, 0.18, 48);
         $$(".benefit").forEach((el, i) => {
-          const start = 16.2 + i * 2.6;
+          const start = 13.7 + i * 2.2;
           const p = easeOut((t - start) / 0.45);
-          const pulse = t > start && t < start + 1.7 ? 1 + Math.sin((t - start) * 8) * 0.018 : 1;
+          const pulse = t > start && t < start + 1.4 ? 1 + Math.sin((t - start) * 8) * 0.018 : 1;
           setStyle(el, {
             opacity: clamp(p),
             transform: `translateX(${lerp(-50, 0, p)}px) scale(${pulse})`
@@ -966,17 +917,17 @@
           transform: `translateY(${Math.cos(t * 0.9) * 6}px)`
         });
 
-        stagger("#scene-impact .eyebrow, #scene-impact .headline, #scene-impact .impact-card", t, 30.05, 0.2, 52);
+        stagger("#scene-impact .eyebrow, #scene-impact .headline, #scene-impact .impact-card", t, 23.05, 0.2, 52);
         $$("#scene-impact .impact-card span").forEach((el, i) => {
-          const p = easeOut((t - 31.1 - i * 0.7) / 0.6);
+          const p = easeOut((t - 24.1 - i * 0.7) / 0.6);
           setStyle(el, { opacity: clamp(p), transform: `scale(${lerp(0.72, 1, p)})` });
         });
 
-        stagger("#scene-cta .logo-lockup, #scene-cta .cta-card", t, 38.05, 0.26, 56);
-        const buttonPulse = 1 + Math.max(0, Math.sin((t - 39.3) * Math.PI * 2)) * 0.028;
+        stagger("#scene-cta .logo-lockup, #scene-cta .cta-card", t, 29.05, 0.26, 56);
+        const buttonPulse = 1 + Math.max(0, Math.sin((t - 30.3) * Math.PI * 2)) * 0.028;
         setStyle($(".cta-button"), { transform: `scale(${buttonPulse})` });
 
-        const wipeTimes = [2.92, 7.85, 14.88, 29.86, 37.86];
+        const wipeTimes = [2.42, 6.35, 12.38, 22.86, 28.86];
         let wipeX = -110;
         for (const wt of wipeTimes) {
           const p = (t - wt) / 0.52;
@@ -987,27 +938,10 @@
         setStyle($("#wipe"), { transform: `translateX(${wipeX}%) skewX(-7deg)` });
       }
 
-      function updateCaption(t) {
-        const active = CAPTIONS.find(([start, end]) => t >= start && t < end);
-        const el = $("#caption");
-        if (!active) {
-          setStyle(el, { opacity: 0, transform: "translateY(18px) scale(0.98)" });
-          return;
-        }
-        const [start, end, html] = active;
-        el.innerHTML = html;
-        const opacity = inOut(t, start, end, 0.18, 0.18);
-        setStyle(el, {
-          opacity,
-          transform: `translateY(${lerp(18, 0, easeOut((t - start) / 0.2))}px) scale(${lerp(0.98, 1, opacity)})`
-        });
-      }
-
       window.setCourtOpsTime = function setCourtOpsTime(t) {
         t = clamp(t, 0, DURATION);
         SCENES.forEach((scene) => updateScene(scene, t));
         updateSpecials(t);
-        updateCaption(t);
         $("#progress").style.width = `${(t / DURATION) * 100}%`;
       };
 

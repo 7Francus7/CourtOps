@@ -7,6 +7,7 @@ import { logAction } from '@/lib/logger'
 import { pusherServer } from '@/lib/pusher'
 import { processPaymentAtomic } from '@/actions/payment.atomic'
 import { getMatchingWaitingUsers } from '@/actions/waitingList'
+import { sendPushToClubUsers } from '@/lib/push-notifications'
 
 export type CreateBookingDTO = {
        clubId: string
@@ -272,6 +273,29 @@ export class BookingService {
                      }
               } catch (e) { console.error(e) }
 
+              try {
+                     const startLabel = fromUTC(primaryBooking.startTime).toLocaleString('es-AR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                     })
+
+                     await sendPushToClubUsers(clubId, {
+                            title: 'Nueva reserva',
+                            body: `${client.name} reservó ${court.name} para ${startLabel}.`,
+                            kind: 'bookings',
+                            url: '/dashboard?view=bookings',
+                            tag: `booking-create-${primaryBooking.id}`,
+                            data: {
+                                   bookingId: primaryBooking.id,
+                                   type: 'booking_create'
+                            }
+                     })
+              } catch (error) {
+                     console.error('[BOOKING PUSH ERROR]', error)
+              }
+
               // WhatsApp Notification (Fire & Forget)
               try {
                      const initialData = bookingsPayload[0]
@@ -422,7 +446,9 @@ export class BookingService {
                      include: {
                             transactions: true,
                             items: true,
-                            club: { select: { cancelHours: true } }
+                            club: { select: { cancelHours: true } },
+                            client: { select: { name: true } },
+                            court: { select: { name: true } }
                      }
               })
 
@@ -584,6 +610,41 @@ export class BookingService {
                             courtId
                      })
               } catch (e) { console.error("Pusher Error:", e) }
+
+              try {
+                     const clientName =
+                            typeof bookingData.client === 'object' &&
+                            bookingData.client !== null &&
+                            'name' in bookingData.client
+                                   ? String((bookingData.client as { name?: string }).name || 'Cliente')
+                                   : 'Cliente'
+                     const courtName =
+                            typeof bookingData.court === 'object' &&
+                            bookingData.court !== null &&
+                            'name' in bookingData.court
+                                   ? String((bookingData.court as { name?: string }).name || `Cancha ${courtId}`)
+                                   : `Cancha ${courtId}`
+                     const startLabel = fromUTC(startTime).toLocaleString('es-AR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                     })
+
+                     await sendPushToClubUsers(clubId, {
+                            title: 'Reserva cancelada',
+                            body: `${clientName} canceló ${courtName} del ${startLabel}.`,
+                            kind: 'cancellations',
+                            url: '/dashboard?view=bookings',
+                            tag: `booking-cancel-${bookingId}`,
+                            data: {
+                                   bookingId,
+                                   type: 'booking_cancel'
+                            }
+                     })
+              } catch (error) {
+                     console.error('[BOOKING CANCEL PUSH ERROR]', error)
+              }
        }
 
        /**

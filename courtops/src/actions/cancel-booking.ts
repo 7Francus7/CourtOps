@@ -3,6 +3,8 @@
 import prisma from '@/lib/db'
 import { logAction } from '@/lib/logger'
 import { revalidatePath } from 'next/cache'
+import { fromUTC } from '@/lib/date-utils'
+import { sendPushToClubUsers } from '@/lib/push-notifications'
 
 export async function getBookingByToken(publicToken: string) {
 	if (!publicToken) return null
@@ -31,7 +33,8 @@ export async function cancelPublicBooking(publicToken: string) {
 		where: { publicToken },
 		include: {
 			club: { select: { id: true, name: true, slug: true, cancelHours: true } },
-			court: { select: { name: true } }
+			court: { select: { name: true } },
+			client: { select: { name: true } }
 		}
 	})
 
@@ -110,6 +113,30 @@ export async function cancelPublicBooking(publicToken: string) {
 			courtId: booking.courtId
 		})
 	} catch {}
+
+	try {
+		const clientName = booking.guestName || booking.client?.name || 'Cliente'
+		const startLabel = fromUTC(booking.startTime).toLocaleString('es-AR', {
+			day: '2-digit',
+			month: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit'
+		})
+
+		await sendPushToClubUsers(booking.clubId, {
+			title: 'Reserva cancelada',
+			body: `${clientName} canceló ${booking.court.name} del ${startLabel}.`,
+			kind: 'cancellations',
+			url: '/dashboard?view=bookings',
+			tag: `public-cancel-${booking.id}`,
+			data: {
+				bookingId: booking.id,
+				type: 'public_booking_cancel'
+			}
+		})
+	} catch (error) {
+		console.error('[PUSH ERROR in cancel-public-booking]', error)
+	}
 
 	revalidatePath(`/p/${booking.club.slug}`)
 	revalidatePath(`/${booking.club.slug}`)
