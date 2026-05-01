@@ -96,6 +96,67 @@ export async function deleteMembershipPlan(id: string) {
        }
 }
 
+export async function getActiveMembers() {
+  const clubId = await getCurrentClubId()
+  const now = nowInArg()
+  const members = await prisma.membership.findMany({
+    where: { plan: { clubId }, status: 'ACTIVE' },
+    include: {
+      client: { select: { id: true, name: true, phone: true, email: true, clubId: true } },
+      plan: { select: { id: true, name: true, price: true, durationDays: true } }
+    },
+    orderBy: { endDate: 'asc' }
+  })
+  return members.filter(m => m.client.clubId === clubId).map(m => ({
+    ...m,
+    isExpiringSoon: m.endDate < addDays(now, 7)
+  }))
+}
+
+export async function getMembershipsOverview() {
+  const clubId = await getCurrentClubId()
+  const now = nowInArg()
+  const [plans, activeCount, expiredCount, totalRevenue] = await Promise.all([
+    prisma.membershipPlan.findMany({
+      where: { clubId, isActive: true },
+      include: {
+        _count: { select: { memberships: { where: { status: 'ACTIVE' } } } }
+      }
+    }),
+    prisma.membership.count({ where: { plan: { clubId }, status: 'ACTIVE', endDate: { gte: now } } }),
+    prisma.membership.count({ where: { plan: { clubId }, OR: [{ status: 'EXPIRED' }, { endDate: { lt: now } }] } }),
+    prisma.membership.aggregate({
+      where: { plan: { clubId }, status: 'ACTIVE' },
+      _sum: { pricePaid: true }
+    })
+  ])
+  return {
+    plans: plans.map(p => ({ ...p, activeSubscribers: p._count.memberships })),
+    activeCount,
+    expiredCount,
+    monthlyRevenue: totalRevenue._sum.pricePaid ?? 0
+  }
+}
+
+export async function cancelClientMembership(membershipId: string) {
+  const clubId = await getCurrentClubId()
+  const membership = await prisma.membership.findFirst({
+    where: { id: membershipId, plan: { clubId } },
+    include: { client: true }
+  })
+  if (!membership) return { success: false, error: 'Membresía no encontrada' }
+  await prisma.$transaction(async (tx) => {
+    await tx.membership.update({ where: { id: membershipId }, data: { status: 'CANCELLED' } })
+    await tx.client.update({
+      where: { id_clubId: { id: membership.clientId, clubId } },
+      data: { membershipStatus: 'NONE', membershipExpiresAt: null }
+    })
+  })
+  await logAction({ clubId, action: 'UPDATE', entity: 'CLIENT', entityId: membership.clientId.toString(), details: { type: 'CANCEL_MEMBERSHIP' } })
+  revalidatePath('/dashboard/membresias')
+  return { success: true }
+}
+
 export async function subscribeClient(clientId: number, planId: string, paymentMethod: string = 'CASH') {
        const clubId = await getCurrentClubId()
 

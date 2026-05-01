@@ -1,7 +1,8 @@
-import { getAllClubs, getPlatformPlans, getGodModeStats, getSystemNotifications } from '@/actions/super-admin'
+import { getAllClubs, getPlatformPlans, getGodModeStats, getSystemNotifications, getClubNetwork } from '@/actions/super-admin'
 import CreateClubForm from '@/components/super-admin/CreateClubForm'
 import ClubList from '@/components/super-admin/ClubList'
 import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
+import SedesManager from '@/components/super-admin/SedesManager'
 import BroadcastForm from '@/components/super-admin/BroadcastForm'
 import PlanManager from '@/components/super-admin/PlanManager'
 import GodModeTutorial from '@/components/super-admin/GodModeTutorial'
@@ -96,12 +97,16 @@ export default async function GodModePage() {
 		redirect('/login')
 	}
 
-	const [clubs, plans, stats, notifications] = await Promise.all([
+	const [clubs, plans, stats, notifications, networkResult] = await Promise.all([
 		getAllClubs(),
 		getPlatformPlans(),
 		getGodModeStats(),
 		getSystemNotifications(),
+		getClubNetwork(),
 	])
+
+	const networks = networkResult.success ? (networkResult.networks ?? []) : []
+	const allClubsForSedes = networkResult.success ? (networkResult.allClubs ?? []) : []
 
 	const fmt = (val: number) =>
 		new Intl.NumberFormat('es-AR', {
@@ -280,6 +285,9 @@ export default async function GodModePage() {
 
 				</div>
 			</div>
+
+			{/* ── Red de Sedes ─────────────────────────────────────────── */}
+			<SedesManager networks={networks} allClubs={allClubsForSedes} />
 
 			{/* ── SQL Explorer ─────────────────────────────────────────── */}
 			<SqlExplorer />

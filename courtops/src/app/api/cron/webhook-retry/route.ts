@@ -20,12 +20,7 @@ const RETRY_INTERVALS_MS = [
        86_400_000,  // 24 hours
 ]
 
-export async function POST(request: Request) {
-       // Verify cron secret
-       const cronSecret = request.headers.get('x-cron-secret')
-       if (cronSecret !== process.env.CRON_SECRET && process.env.NODE_ENV === 'production') {
-              return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-       }
+async function runRetry() {
 
        try {
               // Get pending webhooks
@@ -121,4 +116,24 @@ export async function POST(request: Request) {
               console.error('Webhook Retry Cron Error:', error)
               return NextResponse.json({ error: 'Internal error' }, { status: 500 })
        }
+}
+
+function verifyCronSecret(request: Request) {
+       const auth = request.headers.get('authorization')
+       const secret = auth?.replace('Bearer ', '') ?? request.headers.get('x-cron-secret')
+       return secret === process.env.CRON_SECRET || process.env.NODE_ENV !== 'production'
+}
+
+export async function GET(request: Request) {
+       if (!verifyCronSecret(request)) {
+              return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+       }
+       return runRetry()
+}
+
+export async function POST(request: Request) {
+       if (!verifyCronSecret(request)) {
+              return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+       }
+       return runRetry()
 }

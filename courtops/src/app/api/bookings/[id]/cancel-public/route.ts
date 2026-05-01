@@ -56,6 +56,37 @@ export async function POST(
                      data: { status: 'CANCELED' }
               })
 
+              // Notify waiting list (no session — query directly by clubId + date + time slot)
+              try {
+                     const bookingDate = new Date(booking.startTime)
+                     const dayStart = new Date(bookingDate)
+                     dayStart.setUTCHours(0, 0, 0, 0)
+                     const dayEnd = new Date(dayStart)
+                     dayEnd.setUTCDate(dayEnd.getUTCDate() + 1)
+
+                     const waitingEntries = await prisma.waitingList.findMany({
+                            where: {
+                                   clubId: booking.clubId,
+                                   status: 'PENDING',
+                                   date: { gte: dayStart, lt: dayEnd },
+                                   OR: [
+                                          { startTime: null },
+                                          { startTime: booking.startTime },
+                                   ],
+                            },
+                     })
+
+                     if (waitingEntries.length > 0) {
+                            const { MessagingService } = await import('@/lib/messaging')
+                            await MessagingService.notifyWaitingList(
+                                   { startTime: booking.startTime },
+                                   waitingEntries.map(e => ({ phone: e.phone, name: e.name }))
+                            )
+                     }
+              } catch {
+                     // Non-critical — cancellation already succeeded
+              }
+
               return NextResponse.json({ success: true, message: 'Reserva cancelada correctamente' })
        } catch {
               return NextResponse.json({ success: false, error: 'Error del servidor' }, { status: 500 })

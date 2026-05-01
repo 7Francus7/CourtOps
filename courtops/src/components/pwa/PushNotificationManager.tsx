@@ -55,8 +55,7 @@ export function PushNotificationManager() {
 		const permission = window.Notification?.permission
 
 		if (permission === 'granted') {
-			setEnabled(true)
-			void syncExistingSubscription()
+			void syncExistingSubscription(dismissed)
 			return
 		}
 
@@ -65,12 +64,13 @@ export function PushNotificationManager() {
 		}
 	}, [])
 
-	const syncExistingSubscription = async () => {
+	const syncExistingSubscription = async (dismissed = false) => {
 		try {
 			const registration = await navigator.serviceWorker.ready
 			const subscription = await registration.pushManager.getSubscription()
 			if (!subscription) {
 				setEnabled(false)
+				if (!dismissed) setCanPrompt(true)
 				return
 			}
 
@@ -138,8 +138,8 @@ export function PushNotificationManager() {
 			}
 
 			setEnabled(false)
-			setCanPrompt(false)
-			localStorage.setItem(DISMISS_KEY, 'true')
+			localStorage.removeItem(DISMISS_KEY)
+			setCanPrompt(true)
 			toast.success('Notificaciones desactivadas en este dispositivo.')
 		} catch (error) {
 			console.error('[PUSH DISABLE ERROR]', error)

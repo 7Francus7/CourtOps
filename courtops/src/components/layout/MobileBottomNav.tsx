@@ -18,6 +18,7 @@ import {
   Users,
   Lock,
   HelpCircle,
+  Crown,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -87,10 +88,11 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
     {
       label: 'Gestión',
       items: [
-        { href: '/clientes',     icon: Users,        label: 'Clientes',  active: pathname.startsWith('/clientes') },
-        { href: '/torneos',      icon: Trophy,       label: 'Torneos',   active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments },
-        { href: '?modal=kiosco', icon: ShoppingCart, label: 'Kiosco',    active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
-        { href: '/reportes',     icon: FileBarChart, label: 'Reportes',  active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
+        { href: '/clientes',              icon: Users,        label: 'Clientes',   active: pathname.startsWith('/clientes') },
+        { href: '/dashboard/membresias',  icon: Crown,        label: 'Membresías', active: pathname.startsWith('/dashboard/membresias') },
+        { href: '/torneos',               icon: Trophy,       label: 'Torneos',    active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments },
+        { href: '?modal=kiosco',          icon: ShoppingCart, label: 'Kiosco',     active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
+        { href: '/reportes',              icon: FileBarChart, label: 'Reportes',   active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
       ],
     },
     {
@@ -224,22 +226,22 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
 
       {/* Bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-7 pb-[max(env(safe-area-inset-bottom),0.75rem)] pointer-events-none"
+        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white to-white/0" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-background/70 to-background/0" />
         <div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
-          <div className="flex h-[66px] items-center justify-around rounded-[2rem] border border-slate-200/80 bg-white/95 px-2 text-slate-700 shadow-[0_18px_44px_rgba(15,23,42,0.18)] backdrop-blur-xl">
+          <div className="flex h-[58px] items-center justify-around rounded-[1.65rem] border border-border/70 bg-card/95 px-1.5 text-muted-foreground shadow-[0_10px_28px_rgba(15,23,42,0.14)] backdrop-blur-xl">
             {primaryItems.map(item => {
               if (item.isFab) {
                 return (
                   <button
                     key="fab"
                     onClick={() => router.push('/dashboard?action=new_booking')}
-                    className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_28px_hsl(var(--primary)/0.3)] active:scale-95 transition-transform"
+                    className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.24)] active:scale-95 transition-transform"
                     aria-label="Nueva reserva"
                   >
-                    <Plus size={22} strokeWidth={2.5} />
+                    <Plus size={21} strokeWidth={2.5} />
                   </button>
                 )
               }
@@ -254,7 +256,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                     if (item.isMenu) setIsMenuOpen(!isMenuOpen)
                     else if (item.href) router.push(item.href)
                   }}
-                  className="relative flex h-14 w-14 flex-col items-center justify-center gap-[3px] rounded-2xl cursor-pointer"
+                  className="relative flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-2xl cursor-pointer"
                 >
                   {isActive && (
                     <motion.div
@@ -264,16 +266,16 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                     />
                   )}
                   <item.icon
-                    size={20}
+                    size={19}
                     strokeWidth={isActive ? 2.5 : 1.8}
                     className={cn(
                       'relative transition-colors duration-150',
-                      isActive ? 'text-primary' : 'text-slate-500'
+                      isActive ? 'text-primary' : 'text-muted-foreground'
                     )}
                   />
                   <span className={cn(
-                    'relative text-[10px] font-semibold transition-colors duration-150',
-                    isActive ? 'text-primary' : 'text-slate-500'
+                    'relative text-[9px] font-semibold transition-colors duration-150',
+                    isActive ? 'text-primary' : 'text-muted-foreground'
                   )}>
                     {item.label}
                   </span>

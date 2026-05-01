@@ -21,6 +21,7 @@ import {
   Lock,
   Moon,
   Sun,
+  Crown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'
@@ -33,10 +34,11 @@ const NAV_SECTIONS = [
   {
     label: 'Gestión',
     items: [
-      { href: '/dashboard',  icon: LayoutDashboard, label: 'Inicio'    },
-      { href: '/reservas',   icon: CalendarDays,    label: 'Reservas'  },
-      { href: '/torneos',    icon: Trophy,           label: 'Torneos',  featureKey: 'hasTournaments' },
-      { href: '/clientes',   icon: Users,            label: 'Clientes'  },
+      { href: '/dashboard',              icon: LayoutDashboard, label: 'Inicio'      },
+      { href: '/reservas',               icon: CalendarDays,    label: 'Reservas'    },
+      { href: '/torneos',                icon: Trophy,          label: 'Torneos',    featureKey: 'hasTournaments' },
+      { href: '/clientes',               icon: Users,           label: 'Clientes'    },
+      { href: '/dashboard/membresias',   icon: Crown,           label: 'Membresías'  },
     ],
   },
   {

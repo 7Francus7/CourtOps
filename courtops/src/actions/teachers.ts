@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { createSafeAction } from '@/lib/safe-action'
 import { revalidatePath } from 'next/cache'
+import { logAction } from '@/lib/logger'
 
 export const getTeachers = createSafeAction(async ({ clubId }) => {
        return await prisma.teacher.findMany({
@@ -46,6 +47,102 @@ export const deleteTeacher = createSafeAction(async ({ clubId }, id: string) => 
        })
        revalidatePath('/configuracion/academia')
        return { success: true }
+})
+
+// --- CLASS SCHEDULES ---
+
+type ClassScheduleData = {
+  name: string
+  teacherId: string
+  courtId?: number
+  description?: string
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  maxStudents: number
+  price: number
+}
+
+export const getClassSchedules = createSafeAction(async ({ clubId }) => {
+  return await prisma.classSchedule.findMany({
+    where: { clubId, isActive: true, deletedAt: null },
+    include: {
+      teacher: { select: { id: true, name: true } },
+      court: { select: { id: true, name: true } },
+      enrollments: {
+        where: { status: 'ACTIVE' },
+        select: { id: true }
+      }
+    },
+    orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }]
+  })
+})
+
+export const createClassSchedule = createSafeAction(async ({ clubId }, data: ClassScheduleData) => {
+  const schedule = await prisma.classSchedule.create({
+    data: { clubId, ...data }
+  })
+  await logAction({ clubId, action: 'CREATE', entity: 'SETTINGS', details: { type: 'CLASS_SCHEDULE', name: data.name } })
+  revalidatePath('/configuracion/academia')
+  return schedule
+})
+
+export const updateClassSchedule = createSafeAction(async ({ clubId }, id: string, data: Partial<ClassScheduleData> & { isActive?: boolean }) => {
+  const existing = await prisma.classSchedule.findFirst({ where: { id, clubId, deletedAt: null } })
+  if (!existing) throw new Error('Horario no encontrado')
+  const schedule = await prisma.classSchedule.update({ where: { id }, data })
+  revalidatePath('/configuracion/academia')
+  return schedule
+})
+
+export const deleteClassSchedule = createSafeAction(async ({ clubId }, id: string) => {
+  const existing = await prisma.classSchedule.findFirst({ where: { id, clubId } })
+  if (!existing) throw new Error('Horario no encontrado')
+  await prisma.classSchedule.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } })
+  revalidatePath('/configuracion/academia')
+  return { success: true }
+})
+
+// --- CLASS ENROLLMENTS ---
+
+export const getClassEnrollments = createSafeAction(async ({ clubId }, scheduleId: string) => {
+  const schedule = await prisma.classSchedule.findFirst({ where: { id: scheduleId, clubId } })
+  if (!schedule) throw new Error('Horario no encontrado')
+  return await prisma.classEnrollment.findMany({
+    where: { classScheduleId: scheduleId, status: 'ACTIVE' },
+    include: { client: { select: { id: true, name: true, phone: true } } },
+    orderBy: { enrolledAt: 'asc' }
+  })
+})
+
+export const enrollClient = createSafeAction(async ({ clubId }, scheduleId: string, clientId: number) => {
+  const [schedule, client] = await Promise.all([
+    prisma.classSchedule.findFirst({ where: { id: scheduleId, clubId }, include: { enrollments: { where: { status: 'ACTIVE' } } } }),
+    prisma.client.findFirst({ where: { id: clientId, clubId } })
+  ])
+  if (!schedule) throw new Error('Horario no encontrado')
+  if (!client) throw new Error('Cliente no encontrado')
+  if (schedule.enrollments.length >= schedule.maxStudents) throw new Error('Clase llena')
+
+  const existing = await prisma.classEnrollment.findUnique({
+    where: { classScheduleId_clientId: { classScheduleId: scheduleId, clientId } }
+  })
+  if (existing) {
+    if (existing.status === 'ACTIVE') throw new Error('El alumno ya está inscripto')
+    await prisma.classEnrollment.update({ where: { id: existing.id }, data: { status: 'ACTIVE', enrolledAt: new Date() } })
+  } else {
+    await prisma.classEnrollment.create({ data: { classScheduleId: scheduleId, clientId, clubId, status: 'ACTIVE' } })
+  }
+  revalidatePath('/configuracion/academia')
+  return { success: true }
+})
+
+export const unenrollClient = createSafeAction(async ({ clubId }, enrollmentId: string) => {
+  const enrollment = await prisma.classEnrollment.findFirst({ where: { id: enrollmentId, clubId } })
+  if (!enrollment) throw new Error('Inscripción no encontrada')
+  await prisma.classEnrollment.update({ where: { id: enrollmentId }, data: { status: 'CANCELLED' } })
+  revalidatePath('/configuracion/academia')
+  return { success: true }
 })
 
 export const getAcademiaStats = createSafeAction(async ({ clubId }) => {

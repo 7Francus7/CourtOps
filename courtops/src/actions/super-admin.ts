@@ -642,3 +642,52 @@ export async function forceLogoutUser(userId: string) {
               return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
        }
 }
+
+// --- MULTI-SEDE ---
+
+export async function linkClubAsBranch(branchClubId: string, parentClubId: string) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+       try {
+              if (branchClubId === parentClubId) throw new Error('Un club no puede ser sucursal de sí mismo')
+              const [branch, parent] = await Promise.all([
+                     prisma.club.findUnique({ where: { id: branchClubId } }),
+                     prisma.club.findUnique({ where: { id: parentClubId } })
+              ])
+              if (!branch) throw new Error('Sucursal no encontrada')
+              if (!parent) throw new Error('Club principal no encontrado')
+              if (parent.parentClubId) throw new Error('El club principal ya es sucursal de otro. Solo se permite 1 nivel de jerarquía.')
+              await prisma.club.update({ where: { id: branchClubId }, data: { parentClubId } })
+              return { success: true }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+       }
+}
+
+export async function unlinkBranch(branchClubId: string) {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+       try {
+              await prisma.club.update({ where: { id: branchClubId }, data: { parentClubId: null } })
+              return { success: true }
+       } catch (error: unknown) {
+              return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+       }
+}
+
+export async function getClubNetwork() {
+       if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized', networks: [] }
+       const clubs = await prisma.club.findMany({
+              where: { deletedAt: null },
+              select: {
+                     id: true, name: true, slug: true, parentClubId: true,
+                     subscriptionStatus: true, plan: true,
+                     _count: { select: { bookings: true, clients: true } }
+              },
+              orderBy: { name: 'asc' }
+       })
+       const roots = clubs.filter(c => !c.parentClubId)
+       const networks = roots.map(root => ({
+              ...root,
+              branches: clubs.filter(c => c.parentClubId === root.id)
+       }))
+       return { success: true, networks, allClubs: clubs }
+}

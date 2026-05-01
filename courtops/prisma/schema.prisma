@@ -65,25 +65,32 @@ model Club {
   pendingPlanId       String?  // Plan pendiente en caso de downgrade (se aplica al vencer el período)
   pendingBillingCycle String?  // "monthly" | "yearly"
 
-  cashRegisters   CashRegister[]
-  clients         Client[]
-  courts          Court[]
-  priceRules      PriceRule[]
-  products        Product[]
-  users           User[]
-  auditLogs       AuditLog[]
-  waitingList     WaitingList[]
-  membershipPlans MembershipPlan[]
-  employees       Employee[] // Relation to employees
-  tournaments     Tournament[]
-  transactions    Transaction[]
-  notifications   Notification[]
-  waivers         Waiver[]
-  referrals       Referral[]
-  teachers        Teacher[]
+  cashRegisters    CashRegister[]
+  clients          Client[]
+  courts           Court[]
+  priceRules       PriceRule[]
+  products         Product[]
+  users            User[]
+  auditLogs        AuditLog[]
+  waitingList      WaitingList[]
+  membershipPlans  MembershipPlan[]
+  employees        Employee[]
+  tournaments      Tournament[]
+  transactions     Transaction[]
+  notifications    Notification[]
+  waivers          Waiver[]
+  referrals        Referral[]
+  teachers         Teacher[]
   pushSubscriptions PushSubscription[]
+  classSchedules   ClassSchedule[]
+  classEnrollments ClassEnrollment[]
 
-  deletedAt DateTime? // Soft delete for Club
+  // Multi-sede: un club puede ser sucursal de otro
+  parentClubId String?
+  parentClub   Club?   @relation("ClubBranches", fields: [parentClubId], references: [id])
+  branches     Club[]  @relation("ClubBranches")
+
+  deletedAt DateTime?
 
   @@map("Club")
 }
@@ -153,6 +160,7 @@ model Court {
   club              Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
   waitingList       WaitingList[]
   tournamentMatches TournamentMatch[]
+  classSchedules    ClassSchedule[]
   deletedAt         DateTime?
 
   @@unique([id, clubId], name: "id_clubId")
@@ -185,9 +193,10 @@ model Client {
   preferredSchedule String?   // Tarde, Mañana, Noche
   tournamentTeams1    TournamentTeam[]    @relation("TeamPlayer1")
   tournamentTeams2    TournamentTeam[]    @relation("TeamPlayer2")
-  waiverSignatures    WaiverSignature[]
-  referralsMade       Referral[]          @relation("Referrer")
-  referralsReceived   Referral[]          @relation("Referred")
+  waiverSignatures WaiverSignature[]
+  referralsMade    Referral[]        @relation("Referrer")
+  referralsReceived Referral[]       @relation("Referred")
+  classEnrollments ClassEnrollment[]
 
   @@unique([id, clubId], name: "id_clubId")
   @@unique([clubId, phone])
@@ -734,16 +743,64 @@ model WebhookQueue {
 // --- ACADEMY / TEACHERS MODULE ---
 
 model Teacher {
-  id        String   @id @default(uuid())
-  clubId    String
-  name      String
-  phone     String?
-  isActive  Boolean  @default(true)
-  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  bookings  Booking[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String          @id @default(uuid())
+  clubId         String
+  name           String
+  phone          String?
+  isActive       Boolean         @default(true)
+  club           Club            @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  bookings       Booking[]
+  classSchedules ClassSchedule[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
   @@index([clubId])
   @@map("Teacher")
+}
+
+// --- CLASS SCHEDULE & ENROLLMENT ---
+
+model ClassSchedule {
+  id          String   @id @default(uuid())
+  clubId      String
+  teacherId   String
+  courtId     Int?
+  name        String
+  description String?
+  dayOfWeek   Int      // 0=Dom, 1=Lun, ..., 6=Sab
+  startTime   String   // "HH:MM"
+  endTime     String   // "HH:MM"
+  maxStudents Int      @default(10)
+  price       Float    @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  club        Club              @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  teacher     Teacher           @relation(fields: [teacherId], references: [id])
+  court       Court?            @relation(fields: [courtId], references: [id])
+  enrollments ClassEnrollment[]
+
+  @@index([clubId])
+  @@index([teacherId])
+  @@map("ClassSchedule")
+}
+
+model ClassEnrollment {
+  id              String        @id @default(uuid())
+  classScheduleId String
+  clientId        Int
+  clubId          String
+  status          String        @default("ACTIVE") // ACTIVE, CANCELLED
+  enrolledAt      DateTime      @default(now())
+
+  classSchedule   ClassSchedule @relation(fields: [classScheduleId], references: [id], onDelete: Cascade)
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  club            Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@unique([classScheduleId, clientId])
+  @@index([clubId])
+  @@index([clientId])
+  @@map("ClassEnrollment")
 }

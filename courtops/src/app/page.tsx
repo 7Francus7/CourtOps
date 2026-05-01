@@ -326,9 +326,9 @@ export default async function Home() {
           <div className="mx-auto grid max-w-[1440px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="relative min-h-[520px] overflow-hidden rounded-2xl border border-white/10">
               <img
-                src="https://images.pexels.com/photos/35248374/pexels-photo-35248374.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                alt="Jugadora de pádel preparando el saque"
-                className="absolute inset-0 h-full w-full object-cover"
+                src="https://www.padelfip.com/wp-content/uploads/2024/10/Final_web-1024x576.jpg"
+                alt="Agustín Tapia y Arturo Coello en acción en la final de Roland Garros 2024"
+                className="absolute inset-0 h-full w-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">

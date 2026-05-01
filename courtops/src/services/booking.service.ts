@@ -300,22 +300,22 @@ export class BookingService {
                      console.error('[BOOKING PUSH ERROR]', error)
               }
 
-              // WhatsApp Notification (Fire & Forget)
+              // WhatsApp confirmación instantánea (Fire & Forget)
               try {
                      const initialData = bookingsPayload[0]
                      const paymentsArr = (initialData.paymentsToRecord || []) as { amount: number }[]
                      const paid = paymentsArr.reduce((s: number, p: { amount: number }) => s + p.amount, 0) || 0
-                     const bal = Math.max(0, (initialData.price as number) - paid)
+                     const totalPrice = initialData.price as number
+                     const bal = Math.max(0, totalPrice - paid)
 
-                     const wrapper = {
+                     const msg = MessagingService.generateBookingMessage({
                             schedule: {
                                    startTime: primaryBooking.startTime,
-                                   courtName: `Cancha ${data.courtId}` // Ideally fetch court name
+                                   courtName: court.name   // nombre real de la cancha
                             },
                             client: { name: client.name },
-                            pricing: { balance: bal }
-                     }
-                     const msg = MessagingService.generateBookingMessage(wrapper, 'new_booking')
+                            pricing: { balance: bal, totalPrice }
+                     }, 'new_booking')
                      MessagingService.sendWhatsApp(data.clientPhone, msg).catch(console.error)
               } catch (e) {
                      console.error("WhatsApp Error:", e)
