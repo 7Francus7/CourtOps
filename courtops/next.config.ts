@@ -61,19 +61,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(withPWA(nextConfig), {
-  // Sentry org and project (set via env vars or here)
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
+const pwaConfig = withPWA(nextConfig)
 
-  // Upload source maps for better stack traces
-  sourcemaps: {
-    deleteSourcemapsAfterUpload: true,
-  },
-
-  // Suppress noisy build logs
-  silent: !process.env.CI,
-
-  // Disable Sentry telemetry
-  telemetry: false,
-});
+export default process.env.SENTRY_AUTH_TOKEN
+  ? withSentryConfig(pwaConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      sourcemaps: { deleteSourcemapsAfterUpload: true },
+      silent: !process.env.CI,
+      telemetry: false,
+    })
+  : pwaConfig
