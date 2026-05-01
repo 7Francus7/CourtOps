@@ -69,7 +69,7 @@ export function SetupWizard({ initialData }: { initialData: any }) {
               try {
                      const res = await completeSetup(formData)
                      if (res.success) {
-                            router.push('/dashboard')
+                            router.push('/dashboard?welcome=1')
                             router.refresh()
                      } else {
                             alert("Error: " + res.error)

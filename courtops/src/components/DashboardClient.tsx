@@ -228,6 +228,19 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isGrowthKitOpen, setIsGrowthKitOpen] = useState(false)
        const [showManualTutorial, setShowManualTutorial] = useState(false)
+       const [showWelcomeTour, setShowWelcomeTour] = useState(false)
+
+       // Detect ?welcome=1 from post-setup redirect and clean the URL
+       useEffect(() => {
+              if (typeof window === 'undefined') return
+              const params = new URLSearchParams(window.location.search)
+              if (params.get('welcome') === '1') {
+                     setShowWelcomeTour(true)
+                     params.delete('welcome')
+                     const newUrl = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`
+                     window.history.replaceState({}, '', newUrl)
+              }
+       }, [])
 
        const handleRestartTutorial = useCallback(() => {
               setShowManualTutorial(true)
@@ -504,9 +517,12 @@ export default function DashboardClient({
                             <OnboardingWizard clubName={clubName} slug={slug} />
                      )}
                      <DashboardTutorial
-                            manualOpen={showManualTutorial}
+                            manualOpen={showManualTutorial ? true : undefined}
                             onManualClose={() => setShowManualTutorial(false)}
-                      />
+                            forceOpen={showWelcomeTour}
+                            onClose={() => setShowWelcomeTour(false)}
+                            slug={slug}
+                     />
 
               </>
        )
