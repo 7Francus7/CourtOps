@@ -1,4 +1,5 @@
 'use client'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
@@ -265,13 +266,12 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                              value={formData.p1Name}
                                                                              onChange={e => setFormData({ ...formData, p1Name: e.target.value })}
                                                                       />
-                                                                      <input
+                                                                      <PhoneInput
+                                                                             placeholder="351 123 4567"
                                                                              required
-                                                                             placeholder="Teléfono/WhatsApp"
-                                                                             type="tel"
-                                                                             className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-primary outline-none"
                                                                              value={formData.p1Phone}
-                                                                             onChange={e => setFormData({ ...formData, p1Phone: e.target.value })}
+                                                                             onChange={v => setFormData({ ...formData, p1Phone: v })}
+                                                                             className="w-full bg-secondary/50 border border-border rounded-xl py-3"
                                                                       />
                                                                </div>
                                                         </div>
@@ -290,13 +290,12 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                              value={formData.p2Name}
                                                                              onChange={e => setFormData({ ...formData, p2Name: e.target.value })}
                                                                       />
-                                                                      <input
+                                                                      <PhoneInput
+                                                                             placeholder="351 123 4567"
                                                                              required
-                                                                             placeholder="Teléfono/WhatsApp"
-                                                                             type="tel"
-                                                                             className="w-full bg-secondary/50 border border-border rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 ring-primary outline-none"
                                                                              value={formData.p2Phone}
-                                                                             onChange={e => setFormData({ ...formData, p2Phone: e.target.value })}
+                                                                             onChange={v => setFormData({ ...formData, p2Phone: v })}
+                                                                             className="w-full bg-secondary/50 border border-border rounded-xl py-3"
                                                                       />
                                                                </div>
                                                         </div>

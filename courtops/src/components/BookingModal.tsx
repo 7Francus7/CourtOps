@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { MessagingService } from '@/lib/messaging'
 import { MessageCircle, AlertTriangle, User, Phone, Mail, FileText, UserCheck, Repeat, Clock, DollarSign, CheckCircle2, X, ChevronDown, Sparkles, CalendarDays, MapPin, Search } from 'lucide-react'
 import { createPortal } from 'react-dom'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getTeachers } from '@/actions/teachers'
 import { updateWaitingListStatus } from '@/actions/waitingList'
@@ -486,19 +487,13 @@ export default function BookingModal({
                                                                       <div className="grid grid-cols-2 gap-3">
                                                                              <div className="space-y-2">
                                                                                     <label className="text-[11px] font-bold text-muted-foreground ml-1 uppercase tracking-wider">WhatsApp</label>
-                                                                                    <div className="relative">
-                                                                                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                                                                  <Phone size={14} className="text-muted-foreground" />
-                                                                                           </div>
-                                                                                           <input
-                                                                                                  required
-                                                                                                  type="tel"
-                                                                                                  className="block w-full pl-11 pr-4 py-3.5 text-sm font-semibold bg-muted/40 border border-border/60 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary/50 text-foreground placeholder-muted-foreground/60 transition-all outline-none"
-                                                                                                  placeholder="351..."
-                                                                                                  value={formData.phone}
-                                                                                                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                                                                           />
-                                                                                    </div>
+                                                                                    <PhoneInput
+                                                                                    required
+                                                                                    placeholder="351 123 4567"
+                                                                                    value={formData.phone}
+                                                                                    onChange={v => setFormData({ ...formData, phone: v })}
+                                                                                    className="w-full py-3.5 bg-muted/40 border border-border/60 rounded-xl text-foreground transition-all"
+                                                                                 />
                                                                              </div>
                                                                              <div className="space-y-2">
                                                                                     <label className="text-[11px] font-bold text-muted-foreground ml-1 uppercase tracking-wider">Email <span className="opacity-50">(opc.)</span></label>

@@ -10,7 +10,6 @@ import {
   ChevronDown,
   ChevronUp,
   LogOut,
-  Phone,
   Shield,
   X,
   CheckCircle,
@@ -18,6 +17,7 @@ import {
   Trophy,
   AlertCircle,
 } from 'lucide-react'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 type BookingItem = {
   id: number
@@ -146,17 +146,13 @@ function AuthFlow({ club, clubSlug }: { club: UnauthData['club']; clubSlug: stri
           <form onSubmit={submitPhone} className="space-y-4">
             <div>
               <label className="block text-sm text-white/60 mb-2">Tu número de WhatsApp</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Ej: 351 1234567"
-                  required
-                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-[var(--club-color)] transition-colors"
-                />
-              </div>
+              <PhoneInput
+                value={phone}
+                onChange={setPhone}
+                placeholder="351 123 4567"
+                required
+                className="w-full py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white transition-colors"
+              />
               <p className="text-xs text-white/40 mt-2">
                 Te enviamos un código por WhatsApp para verificar tu identidad.
               </p>

@@ -1,4 +1,5 @@
 'use client'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 import React, { useEffect, useState } from 'react'
 import { OpenMatch, joinOpenMatch } from '@/actions/open-matches'
@@ -265,13 +266,12 @@ function JoinMatchModal({
                                                  </div>
                                                  <div className="space-y-2">
                                                         <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Teléfono</label>
-                                                        <input
+                                                        <PhoneInput
                                                                required
-                                                               type="tel"
                                                                value={phone}
-                                                               onChange={e => setPhone(e.target.value)}
-                                                               className="w-full bg-muted/30 border border-border rounded-xl p-3.5 text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm font-medium"
-                                                               placeholder="Ej. 11 1234 5678"
+                                                               onChange={v => setPhone(v)}
+                                                               placeholder="351 123 4567"
+                                                               className="w-full bg-muted/30 border border-border rounded-xl py-3.5 text-foreground transition-all"
                                                         />
                                                  </div>
 

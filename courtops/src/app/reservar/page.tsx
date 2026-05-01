@@ -1,4 +1,5 @@
 'use client'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { format, addDays, isSameDay, addMinutes, startOfDay } from 'date-fns'
@@ -541,14 +542,12 @@ export default function PublicBookingPage() {
                                                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 flex items-center gap-1.5">
                                                         <Smartphone size={12} /> WhatsApp
                                                  </label>
-                                                 <input
+                                                 <PhoneInput
                                                         required
-                                                        type="tel"
-                                                        autoComplete="tel"
-                                                        placeholder="Ej: 351 123 4567"
-                                                        className="w-full h-14 rounded-xl bg-card border border-border px-5 font-bold outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm text-foreground placeholder-muted-foreground"
+                                                        placeholder="351 123 4567"
                                                         value={clientData.phone}
-                                                        onChange={e => setClientData({ ...clientData, phone: e.target.value })}
+                                                        onChange={v => setClientData({ ...clientData, phone: v })}
+                                                        className="w-full h-14 rounded-xl bg-card border border-border font-bold text-foreground transition-all"
                                                  />
                                           </div>
                                    </div>

@@ -36,6 +36,7 @@ import {
 	Moon
 } from 'lucide-react'
 import VenueLayout from './VenueLayout'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 type Props = {
 	club: {
@@ -1619,17 +1620,16 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
 											TelÃ©fono
 										</label>
-										<input
-											type="tel"
+										<PhoneInput
 											value={waitlistData.phone}
-											onChange={e => {
-												setWaitlistData(current => ({ ...current, phone: e.target.value }))
+											onChange={v => {
+												setWaitlistData(current => ({ ...current, phone: v }))
 												setWaitlistErrors(current => ({ ...current, phone: undefined }))
 											}}
-											placeholder="11 1234-5678"
+											placeholder="351 123 4567"
 											className={cn(
-												'w-full h-12 rounded-2xl border bg-white px-4 text-sm font-bold text-slate-800 outline-none transition-all dark:bg-white/[0.04] dark:text-white',
-												waitlistErrors.phone ? 'border-red-400' : 'border-slate-200 focus:border-primary/50 dark:border-white/[0.07]'
+												'w-full h-12 rounded-2xl border bg-white text-slate-800 transition-all dark:bg-white/[0.04] dark:text-white',
+												waitlistErrors.phone ? 'border-red-400' : 'border-slate-200 dark:border-white/[0.07]'
 											)}
 										/>
 										{waitlistErrors.phone && (
@@ -1880,14 +1880,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
 										Teléfono
 									</label>
-									<input
-										type="tel"
+									<PhoneInput
 										value={clientData.phone}
-										onChange={e =>
-											setClientData(p => ({ ...p, phone: e.target.value }))
-										}
-										placeholder="11 1234-5678"
-										className="w-full h-12 px-4 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] rounded-2xl text-sm font-bold text-slate-800 dark:text-white placeholder-slate-300 dark:placeholder-slate-600 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
+										onChange={v => setClientData(p => ({ ...p, phone: v }))}
+										placeholder="351 123 4567"
+										className="w-full h-12 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] rounded-2xl text-slate-800 dark:text-white transition-all"
 									/>
 								</div>
 

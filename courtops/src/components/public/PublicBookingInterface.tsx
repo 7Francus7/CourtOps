@@ -1,4 +1,5 @@
 'use client'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { format, addDays, startOfToday, isSameDay } from 'date-fns'
@@ -514,22 +515,20 @@ export default function PublicBookingInterface({ club }: Props) {
                                                                                     )}
                                                                              </div>
                                                                              <div className="relative">
-                                                                                    <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/20" />
-                                                                                    <input
+                                                                                    <PhoneInput
                                                                                            required
-                                                                                           type="tel"
-                                                                                           className={cn(
-                                                                                                  "w-full bg-white/[0.04] border rounded-xl pl-10 pr-10 py-3.5 text-[14px] text-white font-medium focus:outline-none transition-all placeholder:text-white/20",
-                                                                                                  formTouched.phone && !phoneValid
-                                                                                                         ? "border-red-500/50 focus:border-red-500/70 focus:ring-1 focus:ring-red-500/30"
-                                                                                                         : formTouched.phone && phoneValid
-                                                                                                                ? "border-emerald-500/30 focus:border-emerald-500/50"
-                                                                                                                : "border-white/[0.08] focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
-                                                                                           )}
-                                                                                           placeholder="WhatsApp (ej: 3511234567)"
+                                                                                           placeholder="351 123 4567"
                                                                                            value={formData.phone}
-                                                                                           onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                                                                           onChange={v => setFormData({ ...formData, phone: v })}
                                                                                            onBlur={() => setFormTouched(t => ({ ...t, phone: true }))}
+                                                                                           className={cn(
+                                                                                                  "w-full bg-white/[0.04] border rounded-xl py-3.5 pr-10 text-white transition-all",
+                                                                                                  formTouched.phone && !phoneValid
+                                                                                                         ? "border-red-500/50"
+                                                                                                         : formTouched.phone && phoneValid
+                                                                                                                ? "border-emerald-500/30"
+                                                                                                                : "border-white/[0.08]"
+                                                                                           )}
                                                                                     />
                                                                                     {formTouched.phone && (
                                                                                            <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
