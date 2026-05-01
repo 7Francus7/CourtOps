@@ -9,6 +9,9 @@ const withPWA = withPWAInit({
   reloadOnOnline: true,
   customWorkerSrc: "worker",
   disable: process.env.NODE_ENV === "development",
+  fallbacks: {
+    document: "/offline",
+  },
   workboxOptions: {
     disableDevLogs: true,
   },
