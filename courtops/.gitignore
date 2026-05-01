@@ -78,3 +78,5 @@ eslint-report.json
 
 # Backups
 /backups
+public/fallback-*.js
+public/*.js.map
