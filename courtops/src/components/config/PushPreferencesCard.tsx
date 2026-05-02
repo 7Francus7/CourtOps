@@ -19,6 +19,7 @@ import {
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 const DISMISS_KEY = 'courtops_push_prompt_dismissed'
+const SW_TIMEOUT_MS = 5_000
 
 function urlBase64ToUint8Array(base64String: string) {
 	const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -33,6 +34,18 @@ function toSubscriptionInput(subscription: PushSubscriptionJSON): PushSubscripti
 		endpoint: subscription.endpoint,
 		keys: { p256dh: subscription.keys.p256dh, auth: subscription.keys.auth }
 	}
+}
+
+/** navigator.serviceWorker.ready never resolves if no SW is registered (e.g. plain browser).
+ *  This wrapper adds a timeout so we don't hang forever. */
+function getServiceWorkerRegistration(timeoutMs = SW_TIMEOUT_MS): Promise<ServiceWorkerRegistration | null> {
+	if (!('serviceWorker' in navigator)) return Promise.resolve(null)
+
+	// If there's already a controller, .ready will resolve immediately
+	return Promise.race([
+		navigator.serviceWorker.ready.then(r => r as ServiceWorkerRegistration | null),
+		new Promise<null>(resolve => setTimeout(() => resolve(null), timeoutMs))
+	])
 }
 
 const OPTIONS: {
@@ -104,11 +117,14 @@ export default function PushPreferencesCard() {
 			'PushManager' in window &&
 			VAPID_PUBLIC_KEY
 		) {
-			setPushSupported(true)
-			navigator.serviceWorker.ready
-				.then(reg => reg.pushManager.getSubscription())
+			getServiceWorkerRegistration()
+				.then(reg => {
+					if (!reg || !mounted) return
+					setPushSupported(true)
+					return reg.pushManager.getSubscription()
+				})
 				.then(sub => {
-					if (mounted) setSubscribed(!!sub)
+					if (mounted && sub !== undefined) setSubscribed(!!sub)
 				})
 				.catch(() => {})
 		}
@@ -128,7 +144,11 @@ export default function PushPreferencesCard() {
 				toast.error('Necesitás habilitar notificaciones en ajustes del sistema.')
 				return
 			}
-			const registration = await navigator.serviceWorker.ready
+			const registration = await getServiceWorkerRegistration(8_000)
+			if (!registration) {
+				toast.error('No hay un Service Worker activo. ¿Tenés la app instalada?')
+				return
+			}
 			let sub = await registration.pushManager.getSubscription()
 			if (!sub) {
 				sub = await registration.pushManager.subscribe({
@@ -156,8 +176,8 @@ export default function PushPreferencesCard() {
 	const handleDisable = async () => {
 		try {
 			setSubLoading(true)
-			const registration = await navigator.serviceWorker.ready
-			const sub = await registration.pushManager.getSubscription()
+			const registration = await getServiceWorkerRegistration()
+			const sub = registration ? await registration.pushManager.getSubscription() : null
 			if (sub) {
 				await unsubscribeFromPushNotifications(sub.endpoint)
 				await sub.unsubscribe()
