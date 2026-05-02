@@ -228,8 +228,8 @@ export default function MobileDashboard({
 
        return (
               <>
-                     <div className="text-foreground h-full flex flex-col relative overflow-x-hidden bg-background">
-                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_34%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted)/0.35))]" />
+                     <div className="text-foreground flex-1 min-h-0 flex flex-col relative overflow-x-hidden bg-background">
+                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.16),transparent_34%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted)/0.35)_40%,hsl(var(--background))_75%)]" />
                             <div className="pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b from-primary/10 to-transparent" />
 
                             {/* HEADER */}
