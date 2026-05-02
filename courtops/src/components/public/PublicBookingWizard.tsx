@@ -84,7 +84,7 @@ function formatArs(amount: number) {
 }
 
 type BookingMode = 'guest' | 'premium' | null
-type PublicStep = number | 'register' | 'login' | 'matchmaking'
+type PublicStep = number | 'register' | 'login' | 'matchmaking' | 'payment'
 type PublicAvailabilityCourt = {
 	id: number
 	name: string
@@ -526,7 +526,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 				timeStr: selectedSlot.time,
 				courtId: selectedSlot.courtId
 			})
-			goToStep(3)
+			const hasPaymentOptions =
+				mode === 'guest' &&
+				(canUseOnlinePayments || club.mpAlias || club.mpCvu || club.phone)
+			goToStep(hasPaymentOptions ? 'payment' : 3)
 		} else {
 			setBookingError(res.error || 'Error al crear la reserva. Intentá de nuevo.')
 		}
@@ -705,6 +708,179 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		)
 	}
 
+	if (step === 'payment' && selectedSlot) {
+		const hasAlias = Boolean(club.mpAlias)
+		const hasCvu = Boolean(club.mpCvu)
+		const hasTransfer = hasAlias || hasCvu
+		const whatsappNum = getWhatsappNumber(club.phone)
+
+		return (
+			<div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
+				{/* Theme toggle */}
+				<div className="fixed top-4 right-4 z-50">
+					<button
+						onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+						className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 shadow-sm transition-all"
+						aria-label="Cambiar tema"
+					>
+						{themeMounted ? (
+							resolvedTheme === 'dark' ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />
+						) : (
+							<div className="h-4 w-4" aria-hidden="true" />
+						)}
+					</button>
+				</div>
+
+				<main className="flex-1 flex flex-col w-full max-w-md mx-auto px-4 py-8 relative z-10 items-center justify-center">
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.35, ease: 'easeOut' }}
+						className="w-full space-y-3"
+					>
+						{/* Header */}
+						<div className="text-center space-y-1 pb-1">
+							<div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 mb-2">
+								<CreditCard size={22} className="text-primary" />
+							</div>
+							<h2 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
+								Pagá la seña
+							</h2>
+							<p className="text-sm font-semibold text-slate-500 dark:text-zinc-400">
+								Confirmá tu turno enviando el pago ahora
+							</p>
+						</div>
+
+						{/* Booking summary pill */}
+						<div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+							<div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+								<Trophy size={16} className="text-primary" />
+							</div>
+							<div className="flex-1 min-w-0">
+								<p className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white truncate">
+									{selectedSlot.courtName}
+								</p>
+								<p className="text-[11px] font-semibold text-slate-400 dark:text-zinc-500 capitalize">
+									{format(selectedDate, 'EEEE d/M', { locale: es })} · {selectedSlot.time}hs
+								</p>
+							</div>
+							<span className="text-base font-black text-primary tabular-nums shrink-0">
+								{formatArs(selectedSlot.price)}
+							</span>
+						</div>
+
+						{/* MercadoPago button */}
+						{canUseOnlinePayments && (
+							<div className="space-y-2">
+								<button
+									onClick={handlePayment}
+									disabled={isPaying}
+									className="w-full h-14 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+								>
+									{isPaying ? (
+										<Loader2 className="animate-spin" size={16} />
+									) : (
+										<>
+											<CreditCard size={16} />
+											Pagar con MercadoPago
+										</>
+									)}
+								</button>
+								{paymentError && (
+									<p className="text-[11px] font-bold text-red-400 text-center flex items-center justify-center gap-1.5">
+										<AlertTriangle size={12} /> {paymentError}
+									</p>
+								)}
+							</div>
+						)}
+
+						{/* Divider between options */}
+						{canUseOnlinePayments && hasTransfer && (
+							<div className="flex items-center gap-3">
+								<div className="flex-1 h-px bg-slate-200 dark:bg-zinc-800" />
+								<span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600">
+									o transferir
+								</span>
+								<div className="flex-1 h-px bg-slate-200 dark:bg-zinc-800" />
+							</div>
+						)}
+
+						{/* Transfer details */}
+						{hasTransfer && (
+							<div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden">
+								<div className="px-4 pt-3.5 pb-2">
+									<p className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 dark:text-zinc-500">
+										Datos para transferir
+									</p>
+								</div>
+								<div className="px-4 pb-3.5 space-y-2">
+									{hasAlias && (
+										<button
+											type="button"
+											onClick={() => copyPaymentValue('alias', club.mpAlias!)}
+											className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-slate-50 dark:bg-zinc-800/50 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
+										>
+											<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+												Alias
+											</span>
+											<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
+												{club.mpAlias}
+											</span>
+											<span className={`text-[9px] font-black uppercase tracking-widest shrink-0 ${copiedPaymentField === 'alias' ? 'text-green-500' : 'text-primary'}`}>
+												{copiedPaymentField === 'alias' ? 'Copiado ✓' : 'Copiar'}
+											</span>
+										</button>
+									)}
+									{hasCvu && (
+										<button
+											type="button"
+											onClick={() => copyPaymentValue('cvu', club.mpCvu!)}
+											className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-slate-50 dark:bg-zinc-800/50 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
+										>
+											<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+												CVU
+											</span>
+											<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
+												{club.mpCvu}
+											</span>
+											<span className={`text-[9px] font-black uppercase tracking-widest shrink-0 ${copiedPaymentField === 'cvu' ? 'text-green-500' : 'text-primary'}`}>
+												{copiedPaymentField === 'cvu' ? 'Copiado ✓' : 'Copiar'}
+											</span>
+										</button>
+									)}
+								</div>
+							</div>
+						)}
+
+						{/* WhatsApp proof button */}
+						{whatsappNum && (
+							<a
+								href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(
+									`Hola! Reservé para el ${format(selectedDate, 'EEEE d/M', { locale: es })} a las ${selectedSlot.time}hs en ${selectedSlot.courtName}. Reserva #${createdBookingId}. Te envío el comprobante de pago.`
+								)}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="w-full h-12 bg-[#25D366] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+							>
+								<MessageCircle size={15} />
+								Enviar comprobante por WhatsApp
+							</a>
+						)}
+
+						{/* Skip */}
+						<button
+							type="button"
+							onClick={() => goToStep(3)}
+							className="w-full py-3 text-[11px] font-bold text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors"
+						>
+							Saltar por ahora →
+						</button>
+					</motion.div>
+				</main>
+			</div>
+		)
+	}
+
 	if (step === 3 && selectedSlot) {
 		const isGuest = mode === 'guest'
 		const playerName = `${clientData.name} ${clientData.lastname}`.trim()
@@ -808,7 +984,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 					/>
 				</div>
 
-				<main className="flex-1 flex flex-col w-full max-w-md mx-auto px-4 py-8 relative z-10 items-center justify-center">
+				<main className="flex-1 flex flex-col w-full max-w-md mx-auto px-4 py-5 relative z-10 items-center justify-center">
 					<motion.div
 						initial={{ opacity: 0, y: 24 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -818,29 +994,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 						{/* ── Ticket ── */}
 						<div className="w-full rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/60">
 
-							{/* Header */}
-							<div className="relative px-7 pt-7 pb-11 bg-gradient-to-br from-[#1aff6e] via-primary to-[#00b844] text-white text-center overflow-hidden">
-								{/* Decorative dots */}
-								<div className="absolute top-4 left-7 w-1.5 h-1.5 bg-white/50 rounded-full" />
-								<div className="absolute top-7 left-14 w-1 h-1 bg-white/25 rounded-full" />
-								<div className="absolute top-4 right-7 w-1.5 h-1.5 bg-white/50 rounded-full" />
-								<div className="absolute top-7 right-14 w-1 h-1 bg-white/25 rounded-full" />
-								<div className="absolute bottom-7 left-10 w-1 h-1 bg-white/30 rounded-full" />
-								<div className="absolute bottom-5 right-10 w-1.5 h-1.5 bg-white/20 rounded-full" />
-								{/* Glow orbs */}
-								<div className="absolute -top-8 -right-8 w-40 h-40 bg-white/[0.07] rounded-full blur-xl" />
-								<div className="absolute -bottom-10 -left-8 w-36 h-36 bg-black/[0.08] rounded-full" />
+							{/* Header — compact */}
+							<div className="relative px-6 pt-5 pb-9 bg-gradient-to-br from-[#1aff6e] via-primary to-[#00b844] text-white text-center overflow-hidden">
+								<div className="absolute top-3 left-6 w-1.5 h-1.5 bg-white/50 rounded-full" />
+								<div className="absolute top-3 right-6 w-1.5 h-1.5 bg-white/50 rounded-full" />
+								<div className="absolute -top-6 -right-6 w-32 h-32 bg-white/[0.07] rounded-full blur-xl" />
+								<div className="absolute -bottom-8 -left-6 w-28 h-28 bg-black/[0.08] rounded-full" />
 
 								<div className="relative z-10 flex flex-col items-center">
-									{/* Animated check with pulse rings */}
 									<motion.div
 										initial={{ scale: 0, rotate: -90 }}
 										animate={{ scale: 1, rotate: 0 }}
 										transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.15 }}
-										className="relative mb-4"
+										className="relative mb-3"
 									>
-										<div className="w-16 h-16 bg-white/25 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/40 shadow-xl shadow-black/20">
-											<Check size={30} strokeWidth={3} className="drop-shadow" />
+										<div className="w-[52px] h-[52px] bg-white/25 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/40 shadow-xl shadow-black/20">
+											<Check size={26} strokeWidth={3} className="drop-shadow" />
 										</div>
 										<motion.div
 											initial={{ scale: 1, opacity: 0.7 }}
@@ -848,19 +1017,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 											transition={{ duration: 1.1, delay: 0.5, ease: 'easeOut' }}
 											className="absolute inset-0 rounded-full border-2 border-white/60"
 										/>
-										<motion.div
-											initial={{ scale: 1, opacity: 0.4 }}
-											animate={{ scale: 2.8, opacity: 0 }}
-											transition={{ duration: 1.5, delay: 0.65, ease: 'easeOut' }}
-											className="absolute inset-0 rounded-full border border-white/40"
-										/>
 									</motion.div>
 
 									<motion.h2
 										initial={{ opacity: 0, y: 8 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 0.3 }}
-										className="text-2xl font-black uppercase tracking-tight drop-shadow-sm"
+										className="text-xl font-black uppercase tracking-tight drop-shadow-sm"
 									>
 										¡Turno Reservado!
 									</motion.h2>
@@ -868,7 +1031,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										initial={{ opacity: 0 }}
 										animate={{ opacity: 1 }}
 										transition={{ delay: 0.42 }}
-										className="text-white/65 text-[11px] font-bold uppercase tracking-[0.2em] mt-1.5"
+										className="text-white/65 text-[10px] font-bold uppercase tracking-[0.2em] mt-1"
 									>
 										{club.name}
 									</motion.p>
@@ -882,48 +1045,40 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								<div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-zinc-950 -mr-4 shrink-0" />
 							</div>
 
-							{/* Ticket body */}
+							{/* Ticket body — compact */}
 							<motion.div
 								initial={{ opacity: 0 }}
 								animate={{ opacity: 1 }}
 								transition={{ delay: 0.28 }}
-								className="bg-white dark:bg-zinc-900 px-6 pb-6 pt-2 space-y-4"
+								className="bg-white dark:bg-zinc-900 px-5 pb-4 pt-1 space-y-3"
 							>
 								{/* Date + Time */}
-								<div className="flex justify-between items-end pt-1">
+								<div className="flex justify-between items-center pt-1">
 									<div>
-										<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-1.5">
-											Fecha
-										</p>
-										<p className="font-black text-lg text-slate-800 dark:text-white capitalize leading-none">
+										<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-1">Fecha</p>
+										<p className="font-black text-base text-slate-800 dark:text-white capitalize leading-none">
 											{format(selectedDate, 'EEEE d', { locale: es })}
 										</p>
-										<p className="text-[11px] text-slate-400 dark:text-zinc-500 font-semibold capitalize mt-0.5">
+										<p className="text-[10px] text-slate-400 dark:text-zinc-500 font-semibold capitalize mt-0.5">
 											{format(selectedDate, 'MMMM yyyy', { locale: es })}
 										</p>
 									</div>
 									<div className="text-right">
-										<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-1.5">
-											Hora
+										<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-1">Hora</p>
+										<p className="font-black text-[2.1rem] text-primary leading-none tracking-tighter">
+											{selectedSlot.time}<span className="text-xs ml-1 text-slate-400 dark:text-zinc-500 font-black">HS</span>
 										</p>
-										<p className="font-black text-[2.6rem] text-primary leading-none tracking-tighter">
-											{selectedSlot.time}
-											<span className="text-sm ml-1 text-slate-400 dark:text-zinc-500 font-black">HS</span>
-										</p>
-										<p className="text-[11px] text-slate-400 dark:text-zinc-600 font-semibold mt-0.5">
-											{selectedSlot.duration} min
-										</p>
+										<p className="text-[10px] text-slate-400 dark:text-zinc-600 font-semibold mt-0.5">{selectedSlot.duration} min</p>
 									</div>
 								</div>
 
-								{/* Divider */}
 								<div className="h-px bg-slate-100 dark:bg-zinc-800" />
 
 								{/* Court + Price */}
-								<div className="flex items-center justify-between px-4 py-3.5 bg-slate-50 dark:bg-zinc-800/50 rounded-2xl border border-slate-200 dark:border-zinc-700/40">
-									<div className="flex items-center gap-2.5">
-										<div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-											<Trophy size={15} className="text-primary" />
+								<div className="flex items-center justify-between px-3 py-2.5 bg-slate-50 dark:bg-zinc-800/50 rounded-xl border border-slate-200 dark:border-zinc-700/40">
+									<div className="flex items-center gap-2">
+										<div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+											<Trophy size={13} className="text-primary" />
 										</div>
 										<span className="text-sm font-black uppercase text-slate-700 dark:text-white tracking-wider">
 											{selectedSlot.courtName}
@@ -934,11 +1089,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									</span>
 								</div>
 
-								{/* Player name row */}
+								{/* Player row */}
 								{playerName.length > 1 && (
-									<div className="flex items-center gap-3 px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/30 rounded-2xl border border-slate-200 dark:border-zinc-700/30">
-										<div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-700/80 flex items-center justify-center shrink-0">
-											<User size={13} className="text-slate-500 dark:text-zinc-400" />
+									<div className="flex items-center gap-2.5 px-3 py-2 bg-slate-50 dark:bg-zinc-800/30 rounded-xl border border-slate-200 dark:border-zinc-700/30">
+										<div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-zinc-700/80 flex items-center justify-center shrink-0">
+											<User size={12} className="text-slate-500 dark:text-zinc-400" />
 										</div>
 										<span className="text-sm font-bold text-slate-600 dark:text-zinc-300 flex-1 truncate">
 											{playerName}
@@ -946,17 +1101,15 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										{mode === 'premium' && (
 											<div className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 rounded-full border border-primary/20 shrink-0">
 												<Check size={9} strokeWidth={3} className="text-primary" />
-												<span className="text-[9px] font-black text-primary uppercase tracking-wider">
-													Cuenta
-												</span>
+												<span className="text-[9px] font-black text-primary uppercase tracking-wider">Cuenta</span>
 											</div>
 										)}
 									</div>
 								)}
 
-								{/* Guest pending badge */}
+								{/* Guest pending */}
 								{isGuest && (
-									<div className="flex items-center justify-center gap-2 py-2.5 bg-amber-50 dark:bg-amber-500/[0.08] rounded-xl border border-amber-200 dark:border-amber-500/20">
+									<div className="flex items-center justify-center gap-2 py-2 bg-amber-50 dark:bg-amber-500/[0.08] rounded-xl border border-amber-200 dark:border-amber-500/20">
 										<Lock size={11} className="text-amber-500 dark:text-amber-400" />
 										<span className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
 											Pendiente de Confirmación
@@ -964,8 +1117,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									</div>
 								)}
 
-								{/* Booking ref */}
-								<div className="flex items-center justify-center pt-1">
+								{/* Ref */}
+								<div className="flex items-center justify-center">
 									<span className="text-[10px] font-bold text-slate-400 dark:text-zinc-700 tracking-[0.15em] uppercase">
 										# {createdBookingId} · {club.name}
 									</span>
@@ -977,182 +1130,85 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 						<motion.div
 							initial={{ opacity: 0, y: 8 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.42 }}
+							transition={{ delay: 0.38 }}
 							className="grid grid-cols-2 gap-2.5"
 						>
 							<a
 								href={calendarHref}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="flex items-center justify-center gap-2 h-12 bg-white dark:bg-zinc-900 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-slate-500 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 hover:border-primary/40 hover:text-primary active:scale-[0.98] transition-all cursor-pointer"
+								className="flex items-center justify-center gap-2 h-11 bg-white dark:bg-zinc-900 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-slate-500 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 hover:border-primary/40 hover:text-primary active:scale-[0.98] transition-all cursor-pointer"
 							>
 								<CalendarPlus size={14} className="text-primary shrink-0" />
 								Calendario
 							</a>
 							<button
 								onClick={handleShare}
-								className="flex items-center justify-center gap-2 h-12 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
+								className="flex items-center justify-center gap-2 h-11 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
 							>
 								<Share2 size={14} />
 								Compartir
 							</button>
 						</motion.div>
 
+						{/* ── Next play — compact inline ── */}
 						<motion.div
 							initial={{ opacity: 0, y: 8 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.48 }}
-							className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+							transition={{ delay: 0.44 }}
+							className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
 						>
-							<div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 blur-2xl" />
-							<div className="relative z-10 space-y-3">
-								<div>
-									<p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-										Próxima jugada
-									</p>
-									<h3 className="mt-1 text-lg font-black tracking-tight text-slate-800 dark:text-white">
-										Hacé que vuelvan sin pensar
-									</h3>
-									<p className="mt-1 text-sm font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
-										Repetí el turno para el {repeatDateLabel} o abrí una nueva reserva en segundos.
+							<div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+							<div className="relative z-10 flex items-center justify-between gap-3">
+								<div className="flex-1 min-w-0">
+									<p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary mb-0.5">Próxima jugada</p>
+									<p className="text-sm font-black text-slate-800 dark:text-white truncate">
+										Repetir {repeatDateLabel}
 									</p>
 								</div>
-								<div className="grid grid-cols-2 gap-2.5">
+								<div className="flex gap-2 shrink-0">
 									<button
 										type="button"
 										onClick={handleRepeatNextWeek}
-										className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+										className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-slate-950 text-[10px] font-black uppercase tracking-[0.1em] text-white transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
 									>
-										<CalendarPlus size={14} />
+										<CalendarPlus size={13} />
 										Repetir
 									</button>
 									<button
 										type="button"
 										onClick={openMatches.length > 0 ? () => goToStep('matchmaking') : handleBookAnother}
-										className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-[10px] font-black uppercase tracking-[0.12em] text-slate-600 transition-all active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"
+										className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-[10px] font-black uppercase tracking-[0.1em] text-slate-600 transition-all active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"
 									>
-										{openMatches.length > 0 ? <Trophy size={14} /> : <ArrowRight size={14} />}
-										{openMatches.length > 0 ? 'Partidos' : 'Otro turno'}
+										{openMatches.length > 0 ? <Trophy size={13} /> : <ArrowRight size={13} />}
+										{openMatches.length > 0 ? 'Partidos' : 'Otro'}
 									</button>
 								</div>
 							</div>
 						</motion.div>
 
-						{/* ── Payment / Back section ── */}
+						{/* ── Back + Cancel ── */}
 						<motion.div
-							initial={{ opacity: 0, y: 8 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.52 }}
-							className="space-y-2.5"
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							transition={{ delay: 0.5 }}
+							className="flex flex-col items-center gap-2 pb-2"
 						>
-							{isGuest ? (
-								canUseOnlinePayments ? (
-									<>
-										<button
-											onClick={handlePayment}
-											disabled={isPaying}
-											className="w-full h-14 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-										>
-											{isPaying ? (
-												<Loader2 className="animate-spin" size={16} />
-											) : (
-												<>
-													<CreditCard size={16} />
-													Pagar seña con MercadoPago
-												</>
-											)}
-										</button>
-										{paymentError && (
-											<p className="text-[11px] font-bold text-red-400 text-center flex items-center justify-center gap-1.5">
-												<AlertTriangle size={12} /> {paymentError}
-											</p>
-										)}
-									</>
-								) : (
-									<>
-										{(club.mpAlias || club.mpCvu) && (
-											<div className="space-y-2 p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800">
-												<p className="text-[9px] text-slate-400 dark:text-zinc-500 uppercase font-bold tracking-[0.2em] mb-2">
-													Transferir seña
-												</p>
-												{club.mpAlias && (
-													<button
-														type="button"
-														onClick={() => copyPaymentValue('alias', club.mpAlias!)}
-														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-slate-50 dark:bg-zinc-800/50 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
-													>
-														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
-															Alias
-														</span>
-														<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
-															{club.mpAlias}
-														</span>
-														<span className="text-[9px] font-black uppercase tracking-widest text-primary shrink-0">
-															{copiedPaymentField === 'alias' ? 'Copiado ✓' : 'Copiar'}
-														</span>
-													</button>
-												)}
-												{club.mpCvu && (
-													<button
-														type="button"
-														onClick={() => copyPaymentValue('cvu', club.mpCvu!)}
-														className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-slate-50 dark:bg-zinc-800/50 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
-													>
-														<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
-															CVU
-														</span>
-														<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
-															{club.mpCvu}
-														</span>
-														<span className="text-[9px] font-black uppercase tracking-widest text-primary shrink-0">
-															{copiedPaymentField === 'cvu' ? 'Copiado ✓' : 'Copiar'}
-														</span>
-													</button>
-												)}
-											</div>
-										)}
-										{getWhatsappNumber(club.phone) && (
-											<a
-												href={`https://wa.me/${getWhatsappNumber(club.phone)}?text=${encodeURIComponent(
-													`Hola! Reservé el ${format(selectedDate, 'd/M')} a las ${selectedSlot.time}hs. Te envío el comprobante.`
-												)}`}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="w-full h-12 bg-[#25D366] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
-											>
-												<MessageCircle size={15} />
-												Enviar comprobante por WhatsApp
-											</a>
-										)}
-									</>
-								)
-							) : (
-								<button
-									onClick={() => goToStep(0)}
-									className="w-full py-3.5 bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-slate-300 dark:hover:border-zinc-600 hover:text-slate-700 dark:hover:text-zinc-200 active:scale-[0.98] transition-all cursor-pointer"
-								>
-									Volver al Inicio
-								</button>
+							<button
+								onClick={() => goToStep(0)}
+								className="w-full py-3 bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:border-slate-300 dark:hover:border-zinc-600 hover:text-slate-700 dark:hover:text-zinc-200 active:scale-[0.98] transition-all cursor-pointer"
+							>
+								Volver al Inicio
+							</button>
+							{cancelToken && (
+								<p className="text-[10px] text-slate-400 dark:text-zinc-600">
+									¿Necesitás cancelar?{' '}
+									<a href={`/cancelar/${cancelToken}`} className="text-primary font-bold underline underline-offset-2">
+										Cancelar esta reserva
+									</a>
+								</p>
 							)}
 						</motion.div>
-
-						{/* ── Cancel link ── */}
-						{cancelToken && (
-							<motion.p
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								transition={{ delay: 0.7 }}
-								className="text-center text-[10px] text-slate-400 dark:text-zinc-600 pb-2"
-							>
-								¿Necesitás cancelar?{' '}
-								<a
-									href={`/cancelar/${cancelToken}`}
-									className="text-primary font-bold underline underline-offset-2"
-								>
-									Cancelar esta reserva
-								</a>
-							</motion.p>
-						)}
 					</motion.div>
 				</main>
 			</div>
