@@ -281,7 +281,7 @@ export default function MobileDashboard({
                                    </div>
                             </header>
 
-                            <main className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+6.25rem)] space-y-3 no-scrollbar relative z-10">
+                            <main className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+8rem)] space-y-3 no-scrollbar relative z-10">
 
                                    <motion.section
                                           initial={{ opacity: 0, y: 12 }}
