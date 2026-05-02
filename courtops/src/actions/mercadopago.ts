@@ -53,7 +53,7 @@ export async function createPreference(bookingId: number, redirectPath: string =
               const year = localStart.getUTCFullYear()
               const hours = String(localStart.getUTCHours()).padStart(2, '0')
               const minutes = String(localStart.getUTCMinutes()).padStart(2, '0')
-              const dateStr = `${day}/${month}/${year} ${hours}:${minutes}hs`
+              const dateStr = `${day}-${month}-${year} ${hours}:${minutes}hs`
 
               const isPartial = amountToPay < booking.price
               const typeLabel = isPartial ? 'Seña' : 'Pago total'
