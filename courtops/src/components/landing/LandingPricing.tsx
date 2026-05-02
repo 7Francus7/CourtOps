@@ -270,7 +270,7 @@ export default function LandingPricing() {
 
   return (
     <section
-      id="pricing"
+      id="planes"
       className="relative overflow-hidden bg-[#09090b] py-24 md:py-36 px-5 md:px-8"
     >
       {/* Background decoration */}
