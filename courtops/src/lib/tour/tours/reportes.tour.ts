@@ -1,3 +1,4 @@
+import { BarChart3, TrendingUp, FileDown, Flag } from 'lucide-react'
 import type { TourDefinition } from '../types'
 
 export const reportesTour: TourDefinition = {
@@ -9,17 +10,21 @@ export const reportesTour: TourDefinition = {
     {
       id: 'reportes-intro',
       target: null,
+      icon: BarChart3,
       title: 'Módulo de Reportes',
       description:
-        'Ingresos diarios, ocupación por cancha, productos más vendidos y tendencias semanales. Todo en tiempo real.',
+        'Inteligencia de negocio para tu club. Ingresos por período, ocupación por cancha, horarios más rentables y productos top. Todo exportable.',
       position: 'center',
     },
     {
       id: 'nav-reportes',
       target: '[data-tour="nav-reportes"]',
+      category: 'Acceso',
+      icon: BarChart3,
       title: 'Sección de Reportes',
       description:
-        'Accedé a los reportes desde el menú lateral o con la tecla "R". Disponible solo en planes Pro y superiores.',
+        'Accedé a los reportes desde el menú lateral o con la tecla "R". Disponible en todos los planes activos de CourtOps.',
+      proTip: 'Guardá esta sección como favorito en tu navegador para revisar los números cada mañana antes de abrir el club.',
       position: 'right',
       padding: 6,
       borderRadius: 12,
@@ -28,9 +33,12 @@ export const reportesTour: TourDefinition = {
     {
       id: 'reportes-charts',
       target: '[data-tour="reportes-charts"]',
+      category: 'Visualización',
+      icon: TrendingUp,
       title: 'Gráficas de ingresos',
       description:
-        'Visualizá ingresos por día, semana o mes. Compará períodos para detectar tendencias de crecimiento.',
+        'Visualizá tus ingresos diarios, semanales o mensuales en barras o líneas. Comparás períodos para detectar tendencias y estacionalidades.',
+      proTip: 'Comparar el mismo mes del año anterior te ayuda a entender si el negocio está creciendo o si hay variaciones estacionales normales.',
       position: 'top',
       padding: 8,
       borderRadius: 16,
@@ -40,9 +48,12 @@ export const reportesTour: TourDefinition = {
     {
       id: 'reportes-export',
       target: '[data-tour="reportes-export"]',
-      title: 'Exportar datos',
+      category: 'Exportación',
+      icon: FileDown,
+      title: 'Exportá a Excel o CSV',
       description:
-        'Descargá tus reportes en formato Excel o CSV para compartir con tu contador o para análisis externo.',
+        'Descargá cualquier reporte en formato Excel o CSV. Listo para enviarle a tu contador, importar a otro sistema, o hacer tu propio análisis.',
+      proTip: 'Exportar el reporte mensual de ingresos en formato Excel es lo que más tiempo ahorra a la hora de rendir cuentas.',
       position: 'bottom',
       padding: 8,
       borderRadius: 12,
@@ -51,9 +62,10 @@ export const reportesTour: TourDefinition = {
     {
       id: 'reportes-fin',
       target: null,
-      title: '¡Módulo de Reportes dominado!',
+      icon: Flag,
+      title: 'Ya tenés todo para crecer',
       description:
-        'Ya sabés cómo leer los datos de tu negocio. Completaste todos los tours disponibles de CourtOps.',
+        'Completaste todos los tours de CourtOps. Con estos datos podés tomar mejores decisiones cada día. El sistema trabaja para vos 24/7.',
       position: 'center',
     },
   ],

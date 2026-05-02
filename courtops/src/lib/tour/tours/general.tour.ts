@@ -1,3 +1,13 @@
+import {
+  Sparkles,
+  LayoutDashboard,
+  TrendingUp,
+  CalendarDays,
+  Plus,
+  Users,
+  BarChart3,
+  HelpCircle,
+} from 'lucide-react'
 import type { TourDefinition } from '../types'
 
 export const generalTour: TourDefinition = {
@@ -9,17 +19,21 @@ export const generalTour: TourDefinition = {
     {
       id: 'welcome',
       target: null,
+      icon: Sparkles,
       title: '¡Bienvenido a CourtOps!',
       description:
-        'En este recorrido rápido vas a conocer las funciones principales para gestionar tu club de padel. Podés saltar el tour en cualquier momento.',
+        'Tu club ya está configurado. En los próximos minutos vas a conocer todo lo que necesitás para operar de manera profesional.',
       position: 'center',
     },
     {
       id: 'sidebar-nav',
       target: '[data-tour="sidebar-nav"]',
-      title: 'Menú de navegación',
+      category: 'Navegación',
+      icon: LayoutDashboard,
+      title: 'Tu centro de control',
       description:
-        'Desde aquí accedés a todas las secciones: Reservas, Clientes, Kiosco, Caja, Reportes y Configuración. En pantallas pequeñas el menú se colapsa a íconos.',
+        'El menú lateral es tu punto de partida. Desde acá accedés a Reservas, Clientes, Kiosco, Caja, Reportes y Configuración con un solo clic.',
+      proTip: 'En pantallas pequeñas el menú colapsa a íconos para maximizar el espacio. Pasá el cursor para ver las etiquetas.',
       position: 'right',
       padding: 8,
       borderRadius: 16,
@@ -28,9 +42,12 @@ export const generalTour: TourDefinition = {
     {
       id: 'dashboard-stats',
       target: '[data-tour="dashboard-stats"]',
-      title: 'Métricas del día',
+      category: 'Métricas',
+      icon: TrendingUp,
+      title: 'Pulso de tu negocio',
       description:
-        'Acá ves los ingresos, reservas activas, deudas pendientes y ocupación de canchas — actualizados en tiempo real.',
+        'Ingresos del día, reservas activas, deudas pendientes y ocupación de canchas. Todos los números clave en tiempo real, sin reportes manuales.',
+      proTip: 'Hacé clic en cualquier métrica para ver el detalle. Los datos se actualizan automáticamente cada vez que se registra una acción.',
       position: 'bottom',
       padding: 8,
       borderRadius: 20,
@@ -39,9 +56,12 @@ export const generalTour: TourDefinition = {
     {
       id: 'turnero-grid',
       target: '[data-tour="turnero-grid"]',
-      title: 'Grilla de reservas',
+      category: 'Reservas',
+      icon: CalendarDays,
+      title: 'La grilla de canchas',
       description:
-        'El corazón del sistema. Hacé clic en cualquier espacio vacío para crear una reserva. Arrastrá para mover turnos. Los colores indican el estado de pago.',
+        'El corazón del sistema. Cada columna es una cancha, cada fila es un horario. Los colores indican el estado de pago: verde (pagado), amarillo (señado), rojo (deuda).',
+      proTip: 'Hacé clic en cualquier espacio vacío para crear una reserva ahí mismo, sin necesidad de completar formularios adicionales.',
       position: 'top',
       padding: 6,
       borderRadius: 24,
@@ -51,20 +71,26 @@ export const generalTour: TourDefinition = {
     {
       id: 'new-booking',
       target: '[data-tour="new-booking-btn"]',
-      title: 'Nueva reserva',
+      category: 'Acción rápida',
+      icon: Plus,
+      title: 'Nueva reserva en segundos',
       description:
-        'Creá una nueva reserva con un clic. También podés usar el atajo de teclado "N" desde cualquier parte del dashboard.',
+        'Creá una reserva eligiendo cancha, horario y cliente. Podés cobrar en el momento o dejar deuda pendiente. Todo queda registrado automáticamente.',
+      proTip: 'Atajo de teclado: presioná "N" desde cualquier parte del dashboard para abrir el modal de nueva reserva al instante.',
       position: 'bottom',
       padding: 8,
-      borderRadius: 12,
+      borderRadius: 14,
       waitForElement: true,
     },
     {
       id: 'nav-clientes',
       target: '[data-tour="nav-clientes"]',
-      title: 'Gestión de clientes',
+      category: 'Clientes',
+      icon: Users,
+      title: 'Ficha completa por jugador',
       description:
-        'Accedé a la ficha completa de cada cliente: historial de turnos, deudas, membresías y firma digital de waivers.',
+        'Historial de turnos, deudas, membresías activas y waivers firmados digitalmente. Todo centralizado. Nunca más "¿cuándo jugó este cliente?".',
+      proTip: 'Los clientes se crean automáticamente cuando hacen una reserva online desde tu link público. No necesitás cargarlos a mano.',
       position: 'right',
       padding: 6,
       borderRadius: 12,
@@ -73,9 +99,12 @@ export const generalTour: TourDefinition = {
     {
       id: 'nav-reportes',
       target: '[data-tour="nav-reportes"]',
-      title: 'Reportes y analítica',
+      category: 'Analytics',
+      icon: BarChart3,
+      title: 'Decisiones basadas en datos',
       description:
-        'Ingresos diarios, ocupación por cancha, productos más vendidos y tendencias. Todo en tiempo real para tomar mejores decisiones.',
+        'Ingresos por día y semana, ocupación por cancha, productos más vendidos, horas pico. Todo exportable a Excel para tu contador.',
+      proTip: 'Usá el reporte de ocupación para detectar horarios flojos y hacer promociones dirigidas. Es la herramienta más subestimada del sistema.',
       position: 'right',
       padding: 6,
       borderRadius: 12,
@@ -84,9 +113,10 @@ export const generalTour: TourDefinition = {
     {
       id: 'finish',
       target: null,
-      title: '¡Ya estás listo!',
+      icon: HelpCircle,
+      title: '¡Ya estás listo para operar!',
       description:
-        'Exploraste las funciones clave de CourtOps. Podés relanzar este tour desde el Centro de Ayuda en cualquier momento.',
+        'Exploraste las funciones clave de CourtOps. Si necesitás profundizar en Kiosco, Reservas, Clientes o Reportes, tenés tours específicos disponibles.',
       position: 'center',
     },
   ],

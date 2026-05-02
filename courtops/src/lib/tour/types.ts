@@ -1,3 +1,5 @@
+import type React from 'react'
+
 export type TourPosition = 'top' | 'bottom' | 'left' | 'right' | 'center'
 
 export interface TourStep {
@@ -6,6 +8,12 @@ export interface TourStep {
   target?: string | null
   title: string
   description: string
+  /** Small label shown above the title (e.g. "Navegación", "Finanzas") */
+  category?: string
+  /** Lucide icon component to display in the tooltip */
+  icon?: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>
+  /** Optional highlighted tip box shown below description */
+  proTip?: string
   /** Where to render the tooltip relative to the target */
   position?: TourPosition
   /** Extra space around the spotlight cutout (px) */
