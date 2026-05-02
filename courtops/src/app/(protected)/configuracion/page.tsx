@@ -22,7 +22,7 @@ export default async function ConfiguracionPage() {
               <div className="flex flex-col h-full bg-background">
                      <Header title="Configuración" backHref="/dashboard" />
                      <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto">
-                            <div className="max-w-5xl mx-auto space-y-6 pb-20">
+                            <div className="max-w-5xl mx-auto space-y-6">
                                    {/* Sub-header / Context */}
                                    <div className="flex items-center justify-between gap-3">
                                           <div className="min-w-0">

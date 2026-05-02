@@ -49,7 +49,7 @@ export default function NewTournamentPage() {
        }
 
        return (
-              <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-start">
+              <div className="py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-start">
                      <div className="w-full max-w-2xl space-y-8">
 
                             {/* Navigation */}

@@ -74,12 +74,12 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
        }
 
        return (
-              <div className="min-h-screen bg-[#07090D] text-slate-200 font-sans pb-24 md:pb-0">
+              <div className="bg-background text-foreground font-sans">
 
                      {/* ================= DESKTOP LAYOUT ================= */}
                      <div className="hidden md:flex h-screen overflow-hidden">
                             {/* SIDEBAR */}
-                            <aside className="w-64 border-r border-white/5 flex flex-col shrink-0 bg-[#0A0E17]">
+                            <aside className="w-64 border-r border-white/5 flex flex-col shrink-0 bg-card">
                                    <div className="p-8">
                                           <div className="flex items-center gap-3">
                                                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
@@ -108,7 +108,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                             </aside>
 
                             {/* MAIN DESKTOP CONTENT */}
-                            <main className="flex-1 overflow-y-auto bg-[#07090D] p-8">
+                            <main className="flex-1 overflow-y-auto bg-background p-8">
                                    <div className="max-w-[1600px] mx-auto">
                                           {/* Header */}
                                           <header className="flex items-center justify-between mb-8">
@@ -136,7 +136,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                  {/* Left Column: Core Profile */}
                                                  <div className="col-span-12 lg:col-span-4 xl:col-span-3 space-y-6">
                                                         {/* Profile Card */}
-                                                        <div className="bg-[#161B26] border border-white/5 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
+                                                        <div className="bg-card border border-white/5 rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden">
                                                                <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-600/10 to-transparent"></div>
                                                                <div className="relative mb-4">
                                                                       <div className={cn("w-32 h-32 rounded-full flex items-center justify-center text-4xl font-bold text-white border-4 border-[#0A0E17] shadow-2xl", avatarBg)}>
@@ -207,7 +207,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                         </div>
 
                                                         {/* Stats / Balance Card */}
-                                                        <div className="bg-[#161B26] border border-white/5 rounded-3xl p-6 relative overflow-hidden group">
+                                                        <div className="bg-card border border-white/5 rounded-3xl p-6 relative overflow-hidden group">
                                                                <div className="absolute right-0 top-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                                                                       <Wallet size={80} />
                                                                </div>
@@ -228,7 +228,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                         </div>
 
                                                         {/* Internal Notes */}
-                                                        <div className="bg-[#161B26] border border-white/5 rounded-3xl p-6">
+                                                        <div className="bg-card border border-white/5 rounded-3xl p-6">
                                                                <div className="flex items-center gap-2 mb-4 text-slate-400">
                                                                       <StickyNote size={18} />
                                                                       <span className="text-xs font-bold uppercase tracking-widest">Notas Internas</span>
@@ -344,7 +344,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                )}
 
                                                                {activeTab === 'cta corriente' && (
-                                                                      <div className="bg-[#161B26] border border-white/5 rounded-3xl overflow-hidden">
+                                                                      <div className="bg-card border border-white/5 rounded-3xl overflow-hidden">
                                                                              <table className="w-full text-left">
                                                                                     <thead className="bg-black/20 text-xs text-slate-500 uppercase font-bold tracking-widest">
                                                                                            <tr>
@@ -375,7 +375,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                                                {activeTab === 'turnos' && (
                                                                       <div className="space-y-4">
                                                                              {client.bookings?.map((b: any) => (
-                                                                                    <div key={b.id} className="bg-[#161B26] border border-white/5 rounded-2xl p-5 flex items-center justify-between">
+                                                                                    <div key={b.id} className="bg-card border border-white/5 rounded-2xl p-5 flex items-center justify-between">
                                                                                            <div className="flex items-center gap-4">
                                                                                                   <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-slate-400">
                                                                                                          <Activity size={24} />
@@ -412,7 +412,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                      {/* ================= MOBILE VIEW ================= */}
                      <div className="md:hidden">
                             {/* Mobile Header */}
-                            <header className="sticky top-0 z-50 bg-[#0A0E17]/80 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-white/5">
+                            <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-white/5">
                                    <div className="flex items-center gap-3">
                                           <button onClick={() => router.back()} className="text-slate-400 active:scale-95 transition-transform"><ChevronLeft /></button>
                                           <h1 className="text-lg font-bold text-white tracking-tight">Perfil de Cliente</h1>
@@ -444,7 +444,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                    </div>
 
                                    {/* Balance Card */}
-                                   <div className="bg-[#161B26] border border-white/5 rounded-[1.5rem] p-6 text-center shadow-xl shadow-blue-900/10 relative overflow-hidden">
+                                   <div className="bg-card border border-white/5 rounded-[1.5rem] p-6 text-center shadow-xl shadow-blue-900/10 relative overflow-hidden">
                                           <div className="relative z-10">
                                                  <p className="text-sm font-medium text-slate-400 mb-1">Saldo Actual</p>
                                                  <p className={cn("text-4xl font-black mb-6", client.debt > 0 ? "text-red-500" : "text-emerald-500")}>
@@ -493,7 +493,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                           <div className="flex justify-between items-center px-1">
                                                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Notas & Categoría</h3>
                                           </div>
-                                          <div className="bg-[#161B26] border border-white/5 rounded-2xl p-4 space-y-4">
+                                          <div className="bg-card border border-white/5 rounded-2xl p-4 space-y-4">
                                                  <div>
                                                         <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Categoría</label>
                                                         <input
@@ -516,12 +516,12 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                                    </div>
 
                                    {/* Recent Transactions List */}
-                                   <div className="space-y-3 pb-32">
+                                   <div className="space-y-3">
                                           <div className="flex items-center justify-between px-1">
                                                  <h3 className="text-lg font-bold text-white">Últimos Movimientos</h3>
                                                  <button className="text-blue-500 text-xs font-bold">Ver todo</button>
                                           </div>
-                                          <div className="bg-[#161B26] border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
+                                          <div className="bg-card border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
                                                  {client.transactions?.slice(0, 5).map((t: any) => (
                                                         <div key={t.id} className="flex items-center p-4 gap-4">
                                                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center",
@@ -577,7 +577,7 @@ function SidebarLink({ href, icon: Icon, label, active }: { href: string, icon: 
 
 function KPICard({ icon: Icon, label, value, trend, trendUp, color = 'text-blue-500' }: { icon: React.ElementType, label: string, value: string | number, trend?: string, trendUp?: boolean, color?: string }) {
        return (
-              <div className="bg-[#161B26] border border-white/5 p-5 rounded-2xl">
+              <div className="bg-card border border-white/5 p-5 rounded-2xl">
                      <div className="flex justify-between items-start mb-2">
                             <Icon size={24} className={color} />
                             {trend && (
@@ -614,7 +614,7 @@ function PaymentModal({ debt, clientId, onClose }: { debt: number, clientId: num
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-                     <div className="bg-[#161B26] border border-white/10 w-full max-w-sm rounded-[1.5rem] shadow-2xl p-6">
+                     <div className="bg-card border border-white/10 w-full max-w-sm rounded-[1.5rem] shadow-2xl p-6">
                             <h2 className="text-xl font-bold text-white mb-4">Registrar Pago</h2>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -721,7 +721,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
        if (subscriptionLink) {
               return (
                      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-                            <div className="bg-[#161B26] border border-white/10 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden p-6 text-center">
+                            <div className="bg-card border border-white/10 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden p-6 text-center">
                                    <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/30">
                                           <CheckCircle2 size={32} className="text-white" />
                                    </div>
@@ -754,7 +754,7 @@ function SubscriptionModal({ clientId, plans, onClose }: { clientId: number, pla
 
        return (
               <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-                     <div className="bg-[#161B26] border border-white/10 w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden">
+                     <div className="bg-card border border-white/10 w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden">
                             <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                                    <div>
                                           <h3 className="text-xl font-black text-white uppercase tracking-tighter">Asignar Membresía</h3>
@@ -944,7 +944,7 @@ function ReferralSection({ clientId }: { clientId: number }) {
                             ) : (
                                    <div className="space-y-2">
                                           {referrals.map((r: any) => (
-                                                 <div key={r.id} className="flex items-center justify-between p-4 bg-[#161B26] border border-white/5 rounded-2xl">
+                                                 <div key={r.id} className="flex items-center justify-between p-4 bg-card border border-white/5 rounded-2xl">
                                                         <div>
                                                                <p className="text-white font-semibold text-sm">{r.referred?.name || r.referredName || 'Pendiente'}</p>
                                                                <p className="text-[10px] text-slate-500">{new Date(r.createdAt).toLocaleDateString('es-AR')}</p>

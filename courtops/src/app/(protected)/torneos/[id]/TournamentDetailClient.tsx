@@ -75,7 +75,7 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
        const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
        return (
-              <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4 md:space-y-6 pb-32">
+              <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4 md:space-y-6">
                      {/* Header */}
                      <div className="flex flex-col gap-4">
                             <Link href="/torneos" className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-medium transition-colors w-fit group">

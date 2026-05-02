@@ -237,7 +237,7 @@ export default function CashRegisterPage() {
        const summary = status!.summary!
        const register = status!.register!
 return (
-               <div className="max-w-7xl mx-auto space-y-4 md:space-y-8 pt-3 md:pt-8 px-3 md:px-4 pb-24 md:pb-8">
+               <div className="max-w-7xl mx-auto space-y-4 md:space-y-8 pt-3 md:pt-8 px-3 md:px-4">
                       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                              <div>
                                     <h1 className="text-xl sm:text-2xl font-black flex items-center gap-2">

@@ -187,7 +187,7 @@ export default function ReportsPage() {
                      <Header title={t('reports')} backHref="/dashboard" minimal={true} />
 
                      <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                            <div className="max-w-[1400px] mx-auto pb-20">
+                            <div className="max-w-[1400px] mx-auto">
 
                                    {/* Premium Controls Bar */}
                                    <div className="flex flex-col gap-4 mb-8 bg-card/30 backdrop-blur-2xl p-4 md:p-6 rounded-2xl md:rounded-[2.5rem] border border-border/40 shadow-2xl">

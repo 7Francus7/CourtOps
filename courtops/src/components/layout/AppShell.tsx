@@ -13,7 +13,7 @@ export function AppShell({ children, club }: { children: React.ReactNode, club?:
               <div className="flex flex-1 min-h-0 overflow-hidden bg-background font-sans transition-colors duration-300">
                      <Sidebar club={club} />
                      <div className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
-                            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-32 md:pb-0">
                                    <SectionTransition>
                                           {children}
                                    </SectionTransition>

@@ -60,7 +60,7 @@ export default function AuditPage() {
        }
 
        return (
-              <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 p-4 md:p-6 lg:p-10 min-h-screen bg-transparent pb-24 md:pb-10">
+              <div className="max-w-7xl mx-auto space-y-6 md:space-y-8 p-4 md:p-6 lg:p-10">
                      {/* Header Section */}
                      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
                             <motion.div

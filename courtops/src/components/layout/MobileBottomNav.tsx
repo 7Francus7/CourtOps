@@ -226,7 +226,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
 
       {/* Bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.85rem)] pointer-events-none"
+        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
         <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-background/70 to-background/0" />

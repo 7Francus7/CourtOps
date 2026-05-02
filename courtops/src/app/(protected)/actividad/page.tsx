@@ -28,7 +28,7 @@ export default async function ActivityPage() {
               <div className="flex flex-col h-full bg-[var(--bg-dark)]">
                      <Header title="Registro de Actividad" />
                      <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto">
-                            <div className="max-w-7xl mx-auto space-y-6 pb-20">
+                            <div className="max-w-7xl mx-auto space-y-6">
 
                                    {/* Context */}
                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

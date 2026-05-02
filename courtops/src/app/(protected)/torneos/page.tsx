@@ -69,7 +69,7 @@ export default function TournamentsPage() {
        }
 
        return (
-              <div className="p-4 md:p-8 space-y-4 md:space-y-8 max-w-7xl mx-auto min-h-screen overflow-x-hidden pb-24 md:pb-12">
+              <div className="p-4 md:p-8 space-y-4 md:space-y-8 max-w-7xl mx-auto overflow-x-hidden">
 
                      {/* HEADER SECTION */}
                      <div className="flex items-start justify-between gap-4">

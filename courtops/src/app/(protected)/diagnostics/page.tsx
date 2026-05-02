@@ -52,7 +52,7 @@ export default function DiagnosticsPage() {
        }
 
        return (
-              <div className="min-h-screen bg-background text-foreground p-6 md:p-12">
+              <div className="bg-background text-foreground p-6 md:p-12">
                      <div className="max-w-4xl mx-auto space-y-8">
                             {/* Header */}
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
