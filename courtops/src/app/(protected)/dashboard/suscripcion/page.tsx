@@ -9,7 +9,7 @@ export default async function SuscripcionPage() {
        return (
               <div className="flex flex-col h-full bg-background transition-colors duration-300">
                      <Header title="Suscripción" backHref="/dashboard" />
-                     <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto overflow-x-hidden">
+                     <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto overflow-x-hidden pb-32 md:pb-8">
                             <div className="max-w-5xl xl:max-w-6xl mx-auto space-y-6 md:space-y-10">
                                    <div className="flex flex-col gap-1">
                                           <h2 className="text-xl md:text-2xl font-bold text-foreground">Planes y Facturación</h2>

@@ -27,7 +27,7 @@ export default async function ActivityPage() {
        return (
               <div className="flex flex-col h-full bg-[var(--bg-dark)]">
                      <Header title="Registro de Actividad" />
-                     <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto">
+                     <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto pb-32 md:pb-8">
                             <div className="max-w-7xl mx-auto space-y-6">
 
                                    {/* Context */}

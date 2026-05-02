@@ -376,7 +376,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
                                                  x: { type: "spring", stiffness: 300, damping: 30 },
                                                  opacity: { duration: 0.2 }
                                           }}
-                                          className="h-full overflow-y-auto custom-scrollbar pb-24"
+                                          className="h-full overflow-y-auto custom-scrollbar pb-32"
                                    >
                                           {isLoading ? (
                                                  <div className="p-4 space-y-8">

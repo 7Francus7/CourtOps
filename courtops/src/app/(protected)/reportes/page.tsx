@@ -186,7 +186,7 @@ export default function ReportsPage() {
               <div className="flex flex-col h-full bg-background text-foreground transition-colors duration-300">
                      <Header title={t('reports')} backHref="/dashboard" minimal={true} />
 
-                     <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                     <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 md:pb-8">
                             <div className="max-w-[1400px] mx-auto">
 
                                    {/* Premium Controls Bar */}

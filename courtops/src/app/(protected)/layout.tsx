@@ -85,7 +85,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                                    plan={serializedClub?.plan || 'PRO'}
                             />
                             <AppShell club={serializedClub}>
-                                   <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar">
+                                   <div className="flex-1 w-full flex flex-col min-h-0">
                                           <SystemAlerts />
                                           <TrialExpiredGuard isTrialExpired={isTrialExpired}>
                                                  {children}
