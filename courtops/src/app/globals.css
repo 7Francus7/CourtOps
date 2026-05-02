@@ -240,8 +240,9 @@
     --chart-5: 27 87% 67%;
   }
 
-  body {
+  html, body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    min-height: 100dvh;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }

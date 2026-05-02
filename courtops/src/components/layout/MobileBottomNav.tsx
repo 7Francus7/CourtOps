@@ -229,7 +229,6 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
         className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-background/70 to-background/0" />
         <div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
           <div className="flex h-[58px] items-center justify-around rounded-[1.65rem] border border-border/70 bg-card/95 px-1.5 text-muted-foreground shadow-[0_10px_28px_rgba(15,23,42,0.14)] backdrop-blur-xl">
             {primaryItems.map(item => {
