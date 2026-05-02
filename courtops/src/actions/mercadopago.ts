@@ -47,13 +47,23 @@ export async function createPreference(bookingId: number, redirectPath: string =
               const adapter = getClubPaymentAdapter('mercadopago', accessToken)
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+              const localStart = fromUTC(booking.startTime)
+              const day = String(localStart.getUTCDate()).padStart(2, '0')
+              const month = String(localStart.getUTCMonth() + 1).padStart(2, '0')
+              const year = localStart.getUTCFullYear()
+              const hours = String(localStart.getUTCHours()).padStart(2, '0')
+              const minutes = String(localStart.getUTCMinutes()).padStart(2, '0')
+              const dateStr = `${day}/${month}/${year} ${hours}:${minutes}hs`
+
               const isPartial = amountToPay < booking.price
-              const title = isPartial ? `Seña Reserva - ${booking.court.name}` : `Reserva Total - ${booking.court.name}`
+              const typeLabel = isPartial ? 'Seña' : 'Pago total'
+              const title = `${club.name} - ${typeLabel}`
+              const description = `${booking.court.name} · ${dateStr}`
 
               const result = await adapter.createBookingCheckout({
                      bookingId: booking.id,
                      title,
-                     description: `Fecha: ${fromUTC(booking.startTime).toLocaleDateString('es-AR')}`,
+                     description,
                      amount: amountToPay,
                      currency: club.currency || 'ARS',
                      clubId: club.id,
