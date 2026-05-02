@@ -13,6 +13,8 @@ import { TrialBanner } from "@/components/layout/TrialBanner"
 import { TrialExpiredGuard } from "@/components/layout/TrialExpiredGuard"
 import { CommandPalette } from '@/components/CommandPalette'
 import { PushNotificationManager } from '@/components/pwa/PushNotificationManager'
+import { TourProvider } from '@/contexts/TourContext'
+import { TourSpotlight } from '@/components/tour/TourSpotlight'
 
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -74,25 +76,29 @@ export default async function ProtectedLayout({ children }: { children: React.Re
        )
 
        return (
-              <div className="flex flex-col h-screen overflow-hidden">
-                     <ThemeRegistry themeColor={serializedClub?.themeColor} />
-                     <TrialBanner
-                            subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
-                            nextBillingDate={serializedClub?.nextBillingDate || null}
-                            plan={serializedClub?.plan || 'PRO'}
-                     />
-                     <AppShell club={serializedClub}>
-                            <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar pb-32 md:pb-0">
-                                   <SystemAlerts />
-                                   <TrialExpiredGuard isTrialExpired={isTrialExpired}>
-                                          {children}
-                                   </TrialExpiredGuard>
-                            </div>
-                            <GlobalModals />
-                            <AiAssistant />
-                            <CommandPalette />
-                            <PushNotificationManager />
-                     </AppShell>
-              </div>
+              <TourProvider>
+                     <div className="flex flex-col h-screen overflow-hidden">
+                            <ThemeRegistry themeColor={serializedClub?.themeColor} />
+                            <TrialBanner
+                                   subscriptionStatus={serializedClub?.subscriptionStatus || 'ACTIVE'}
+                                   nextBillingDate={serializedClub?.nextBillingDate || null}
+                                   plan={serializedClub?.plan || 'PRO'}
+                            />
+                            <AppShell club={serializedClub}>
+                                   <div className="flex-1 w-full h-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar pb-32 md:pb-0">
+                                          <SystemAlerts />
+                                          <TrialExpiredGuard isTrialExpired={isTrialExpired}>
+                                                 {children}
+                                          </TrialExpiredGuard>
+                                   </div>
+                                   <GlobalModals />
+                                   <AiAssistant />
+                                   <CommandPalette />
+                                   <PushNotificationManager />
+                            </AppShell>
+                            {/* Global tour spotlight — renders via portal to document.body */}
+                            <TourSpotlight />
+                     </div>
+              </TourProvider>
        )
 }

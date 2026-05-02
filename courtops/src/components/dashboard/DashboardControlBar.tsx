@@ -28,7 +28,7 @@ export function DashboardControlBar({
                      {/* LEFT: Date Nav & Title */}
                      <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
                             {/* Date Navigation Pill */}
-                            <div className="flex items-center bg-secondary/30 rounded-xl md:rounded-2xl p-1 md:p-1.5 border border-border/40 shadow-inner">
+                            <div data-tour="date-navigator" className="flex items-center bg-secondary/30 rounded-xl md:rounded-2xl p-1 md:p-1.5 border border-border/40 shadow-inner">
                                    <button
                                           onClick={() => setSelectedDate(prev => subDays(prev, 1))}
                                           className="p-2 hover:bg-background/80 rounded-lg md:rounded-xl text-muted-foreground hover:text-primary transition-all active:scale-90"
@@ -109,6 +109,7 @@ export function DashboardControlBar({
                             </button>
 
                             <button
+                                   data-tour="new-booking-btn"
                                    onClick={() => setIsCreateModalOpen(true)}
                                    className="relative group overflow-hidden bg-foreground text-background px-6 py-3.5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-foreground/10 flex items-center gap-3"
                             >

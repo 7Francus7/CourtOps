@@ -245,6 +245,7 @@ const filtered = clients.filter(c => {
                                            <span className="sm:hidden">CSV</span>
                                     </button>
                                     <button
+                                           data-tour="clients-new-btn"
                                            onClick={() => setIsCreating(true)}
                                            className="px-3 py-2 sm:px-4 sm:py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 text-xs sm:text-sm"
                                     >
@@ -312,7 +313,7 @@ const filtered = clients.filter(c => {
 
                      {/* UNIFIED FILTER BAR */}
                      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-2 flex flex-col md:flex-row items-center gap-2 shrink-0 mb-4">
-                            <div className="relative flex-1 w-full">
+                            <div data-tour="clients-search" className="relative flex-1 w-full">
                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                    <input
                                           type="text"
@@ -371,7 +372,7 @@ const filtered = clients.filter(c => {
                                    <p className="text-sm text-muted-foreground">Prueba ajustando los filtros o realiza una nueva búsqueda.</p>
                             </div>
                      ) : viewMode === 'grid' ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div data-tour="clients-table" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                    {filtered.map(client => (
                                           <motion.div
                                                  layout

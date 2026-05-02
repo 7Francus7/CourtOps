@@ -16,7 +16,6 @@ import { useQueryClient } from '@tanstack/react-query'
 
 const BookingModal = dynamic(() => import('@/components/BookingModal'), { ssr: false })
 const OnboardingWizard = dynamic(() => import('@/components/onboarding/OnboardingWizard'), { ssr: false })
-const DashboardTutorial = dynamic(() => import('@/components/onboarding/DashboardTutorial'), { ssr: false })
 const HelpSheet = dynamic(() => import('@/components/onboarding/HelpSheet'), { ssr: false })
 const BookingManagementModal = dynamic(() => import('@/components/BookingManagementModal'), { ssr: false })
 const NotificationsSheet = dynamic(() => import('@/components/NotificationsSheet'), { ssr: false })
@@ -30,6 +29,7 @@ const PublicBookingGrowthKit = dynamic(() => import('@/components/PublicBookingG
 import { ThemeRegistry } from './ThemeRegistry'
 import { DashboardSkeleton } from './SkeletonDashboard'
 import { Info, X, AlertTriangle, Settings } from 'lucide-react'
+import { useTour } from '@/hooks/useTour'
 
 import { DashboardControlBar } from '@/components/dashboard/DashboardControlBar'
 
@@ -227,24 +227,29 @@ export default function DashboardClient({
        const [isHelpOpen, setIsHelpOpen] = useState(false)
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isGrowthKitOpen, setIsGrowthKitOpen] = useState(false)
-       const [showManualTutorial, setShowManualTutorial] = useState(false)
-       const [showWelcomeTour, setShowWelcomeTour] = useState(false)
 
-       // Detect ?welcome=1 from post-setup redirect and clean the URL
+       const { startTour, resetAndStartTour, hasCompletedTour } = useTour()
+
+       // Detect ?welcome=1 from post-setup redirect and auto-launch general tour
        useEffect(() => {
               if (typeof window === 'undefined') return
               const params = new URLSearchParams(window.location.search)
               if (params.get('welcome') === '1') {
-                     setShowWelcomeTour(true)
                      params.delete('welcome')
                      const newUrl = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`
                      window.history.replaceState({}, '', newUrl)
+                     // Small delay so dashboard renders before spotlight measures elements
+                     setTimeout(() => { resetAndStartTour('general') }, 800)
+              } else if (!hasCompletedTour('general')) {
+                     // Auto-show on first visit (no ?welcome param needed)
+                     setTimeout(() => { startTour('general') }, 1200)
               }
+       // eslint-disable-next-line react-hooks/exhaustive-deps
        }, [])
 
        const handleRestartTutorial = useCallback(() => {
-              setShowManualTutorial(true)
-       }, [])
+              resetAndStartTour('general')
+       }, [resetAndStartTour])
 
        // ⌨️ ULTRA-PRO KEYBOARD SHORTCUTS
        useEffect(() => {
@@ -407,7 +412,7 @@ export default function DashboardClient({
 
                                           {/* TOP STATS BAR */}
                                           {searchParams.get('view') !== 'bookings' && (
-                                                 <div className="w-full shrink-0">
+                                                 <div data-tour="dashboard-stats" className="w-full shrink-0">
                                                         <DashboardStats
                                                                date={selectedDate}
                                                                refreshKey={refreshKey}
@@ -418,7 +423,7 @@ export default function DashboardClient({
                                           )}
 
                                           {/* MAIN CONTENT AREA */}
-                                          <div className="flex-1 min-h-0 flex flex-col bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2rem] overflow-hidden shadow-2xl relative">
+                                          <div data-tour="turnero-grid" className="flex-1 min-h-0 flex flex-col bg-card/50 backdrop-blur-xl border border-border/50 rounded-[2rem] overflow-hidden shadow-2xl relative">
 
                                                  {/* UNIFIED CONTROL BAR (Date & Actions) - Refactored */}
                                                  <DashboardControlBar
@@ -516,13 +521,6 @@ export default function DashboardClient({
                      {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (
                             <OnboardingWizard clubName={clubName} slug={slug} />
                      )}
-                     <DashboardTutorial
-                            manualOpen={showManualTutorial ? true : undefined}
-                            onManualClose={() => setShowManualTutorial(false)}
-                            forceOpen={showWelcomeTour}
-                            onClose={() => setShowWelcomeTour(false)}
-                            slug={slug}
-                     />
 
               </>
        )

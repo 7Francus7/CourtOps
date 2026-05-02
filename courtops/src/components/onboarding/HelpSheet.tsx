@@ -7,25 +7,21 @@ import {
        HelpCircle,
        BookOpen,
        Keyboard,
-       MousePointer2,
-       PlayCircle,
-       MessageSquare,
-       ChevronRight,
-       Search,
        Zap,
        Calendar,
        Store,
        BarChart3,
        Settings,
-       FileText,
-       ArrowLeft
+       ArrowLeft,
+       Compass,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { TourLauncher } from '@/components/tour/TourLauncher'
 
 interface HelpSheetProps {
        isOpen: boolean
        onClose: () => void
-       onRestartTutorial: () => void
+       onRestartTutorial?: () => void
 }
 
 const SHORTCUTS = [
@@ -94,7 +90,7 @@ const MODULES = [
 ]
 
 export default function HelpSheet({ isOpen, onClose, onRestartTutorial }: HelpSheetProps) {
-       const [activeTab, setActiveTab] = useState<'guides' | 'modules' | 'shortcuts'>('guides')
+       const [activeTab, setActiveTab] = useState<'guides' | 'modules' | 'shortcuts' | 'tours'>('guides')
 
        // Prevent body scroll when open
        useEffect(() => {
@@ -148,99 +144,67 @@ export default function HelpSheet({ isOpen, onClose, onRestartTutorial }: HelpSh
                                                         </button>
                                                  </div>
 
-                                                 <div className="mt-8 flex gap-2">
-                                                        <button
-                                                               onClick={() => setActiveTab('guides')}
-                                                               className={cn(
-                                                                      "flex-1 py-3 px-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
-                                                                      activeTab === 'guides'
-                                                                             ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                                                                             : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
-                                                               )}
-                                                        >
-                                                               <BookOpen size={16} /> FAQ
-                                                        </button>
-                                                        <button
-                                                               onClick={() => setActiveTab('modules')}
-                                                               className={cn(
-                                                                      "flex-1 py-3 px-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
-                                                                      activeTab === 'modules'
-                                                                             ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                                                                             : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
-                                                               )}
-                                                        >
-                                                               <Zap size={16} /> Secciones
-                                                        </button>
-                                                        <button
-                                                               onClick={() => setActiveTab('shortcuts')}
-                                                               className={cn(
-                                                                      "flex-1 py-3 px-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
-                                                                      activeTab === 'shortcuts'
-                                                                             ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                                                                             : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
-                                                               )}
-                                                        >
-                                                               <Keyboard size={16} /> Atajos
-                                                        </button>
+                                                 <div className="mt-8 grid grid-cols-4 gap-1.5">
+                                                        {([
+                                                               { id: 'guides',    icon: BookOpen,  label: 'FAQ'      },
+                                                               { id: 'modules',   icon: Zap,       label: 'Módulos'  },
+                                                               { id: 'tours',     icon: Compass,   label: 'Tours'    },
+                                                               { id: 'shortcuts', icon: Keyboard,  label: 'Atajos'   },
+                                                        ] as const).map(tab => (
+                                                               <button
+                                                                      key={tab.id}
+                                                                      onClick={() => setActiveTab(tab.id)}
+                                                                      className={cn(
+                                                                             "py-2.5 px-1 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1.5",
+                                                                             activeTab === tab.id
+                                                                                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                                                                                    : "bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10"
+                                                                      )}
+                                                               >
+                                                                      <tab.icon size={15} /> {tab.label}
+                                                               </button>
+                                                        ))}
                                                  </div>
                                           </div>
 
                                           {/* Scrollable Content */}
                                           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 no-scrollbar bg-background">
                                                  {activeTab === 'guides' ? (
-                                                        <div className="space-y-6">
-                                                               <div className="space-y-4">
-                                                                      <div className="flex items-center gap-3">
-                                                                             <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Preguntas Frecuentes</span>
-                                                                             <div className="h-px bg-white/5 flex-1" />
-                                                                      </div>
-
-                                                                      {FAQS.map((faq, i) => (
-                                                                             <motion.div
-                                                                                    key={i}
-                                                                                    initial={{ opacity: 0, y: 10 }}
-                                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                                    transition={{ delay: i * 0.05 }}
-                                                                                    className="group p-5 bg-card border border-white/5 rounded-[2rem] hover:border-primary/20 transition-all"
-                                                                             >
-                                                                                    <div className="flex gap-4">
-                                                                                           <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border border-white/5 shrink-0 bg-white/5", faq.color)}>
-                                                                                                  <faq.icon size={20} />
-                                                                                           </div>
-                                                                                           <div className="space-y-1">
-                                                                                                  <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors">{faq.q}</h4>
-                                                                                                  <p className="text-xs font-medium text-zinc-400 leading-relaxed italic">{faq.a}</p>
-                                                                                           </div>
-                                                                                    </div>
-                                                                             </motion.div>
-                                                                      ))}
+                                                        <div className="space-y-4">
+                                                               <div className="flex items-center gap-3">
+                                                                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Preguntas Frecuentes</span>
+                                                                      <div className="h-px bg-white/5 flex-1" />
                                                                </div>
-
-                                                               <div className="space-y-4">
-                                                                      <div className="flex items-center gap-3">
-                                                                             <span className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500">Recurso Adicional</span>
-                                                                             <div className="h-px bg-white/5 flex-1" />
-                                                                      </div>
-
-                                                                      <button
-                                                                             onClick={() => {
-                                                                                    onRestartTutorial()
-                                                                                    onClose()
-                                                                             }}
-                                                                             className="w-full group p-5 bg-primary/10 border border-primary/20 rounded-[2rem] hover:bg-primary/20 transition-all flex items-center justify-between"
+                                                               {FAQS.map((faq, i) => (
+                                                                      <motion.div
+                                                                             key={i}
+                                                                             initial={{ opacity: 0, y: 10 }}
+                                                                             animate={{ opacity: 1, y: 0 }}
+                                                                             transition={{ delay: i * 0.05 }}
+                                                                             className="group p-5 bg-card border border-white/5 rounded-[2rem] hover:border-primary/20 transition-all"
                                                                       >
-                                                                             <div className="flex items-center gap-4">
-                                                                                    <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                                                                                           <PlayCircle size={24} />
+                                                                             <div className="flex gap-4">
+                                                                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border border-white/5 shrink-0 bg-white/5", faq.color)}>
+                                                                                           <faq.icon size={20} />
                                                                                     </div>
-                                                                                    <div className="text-left">
-                                                                                           <h4 className="text-sm font-black text-white">Reiniciar Tour</h4>
-                                                                                           <p className="text-[10px] font-bold text-primary uppercase tracking-wider">Ver la introducción de nuevo</p>
+                                                                                    <div className="space-y-1">
+                                                                                           <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors">{faq.q}</h4>
+                                                                                           <p className="text-xs font-medium text-zinc-400 leading-relaxed italic">{faq.a}</p>
                                                                                     </div>
                                                                              </div>
-                                                                             <ChevronRight className="text-primary group-hover:translate-x-1 transition-transform" size={20} />
-                                                                      </button>
+                                                                      </motion.div>
+                                                               ))}
+                                                        </div>
+                                                  ) : activeTab === 'tours' ? (
+                                                        <div className="space-y-4">
+                                                               <div className="flex items-center gap-3">
+                                                                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Tours Interactivos</span>
+                                                                      <div className="h-px bg-white/5 flex-1" />
                                                                </div>
+                                                               <p className="text-xs text-zinc-500 italic bg-white/5 p-4 rounded-2xl">
+                                                                      Cada tour resalta los elementos reales del sistema paso a paso. Podés saltar o relanzar en cualquier momento.
+                                                               </p>
+                                                               <TourLauncher variant="list" onLaunch={onClose} />
                                                         </div>
                                                   ) : activeTab === 'modules' ? (
                                                          <div className="space-y-6">

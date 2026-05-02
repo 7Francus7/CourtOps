@@ -34,19 +34,19 @@ const NAV_SECTIONS = [
   {
     label: 'Gestión',
     items: [
-      { href: '/dashboard',              icon: LayoutDashboard, label: 'Inicio'      },
-      { href: '/reservas',               icon: CalendarDays,    label: 'Reservas'    },
+      { href: '/dashboard',              icon: LayoutDashboard, label: 'Inicio',     dataTour: 'nav-dashboard'  },
+      { href: '/reservas',               icon: CalendarDays,    label: 'Reservas',   dataTour: 'nav-reservas'   },
       { href: '/torneos',                icon: Trophy,          label: 'Torneos',    featureKey: 'hasTournaments' },
-      { href: '/clientes',               icon: Users,           label: 'Clientes'    },
+      { href: '/clientes',               icon: Users,           label: 'Clientes',   dataTour: 'nav-clientes'   },
       { href: '/dashboard/membresias',   icon: Crown,           label: 'Membresías'  },
     ],
   },
   {
     label: 'Finanzas',
     items: [
-      { href: '?modal=kiosco', icon: ShoppingCart,  label: 'Kiosco',   featureKey: 'hasKiosco',          isModal: true },
+      { href: '?modal=kiosco', icon: ShoppingCart,  label: 'Kiosco',   featureKey: 'hasKiosco', isModal: true, dataTour: 'nav-kiosco'   },
       { href: '/caja',          icon: Banknote,      label: 'Caja'      },
-      { href: '/reportes',      icon: FileBarChart,  label: 'Reportes', featureKey: 'hasAdvancedReports'  },
+      { href: '/reportes',      icon: FileBarChart,  label: 'Reportes', featureKey: 'hasAdvancedReports', dataTour: 'nav-reportes' },
     ],
   },
   {
@@ -149,7 +149,7 @@ export function Sidebar({ club }: { club?: any }) {
         </div>
 
         {/* ── Nav ── */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4 no-scrollbar">
+        <nav data-tour="sidebar-nav" className="flex-1 overflow-y-auto py-3 px-2 space-y-4 no-scrollbar">
           {NAV_SECTIONS.map(section => (
             <div key={section.label}>
               {!isCollapsed && (
@@ -170,6 +170,7 @@ export function Sidebar({ club }: { club?: any }) {
                       active={active}
                       locked={locked}
                       isCollapsed={isCollapsed}
+                      dataTour={(item as { dataTour?: string }).dataTour}
                       onLockedClick={() => {
                         setLockedFeatureName(item.label)
                         setShowUpgradeModal(true)
@@ -238,10 +239,11 @@ interface NavItemProps {
   active?: boolean
   locked?: boolean
   isCollapsed: boolean
+  dataTour?: string
   onLockedClick: () => void
 }
 
-function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, onLockedClick }: NavItemProps) {
+function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, dataTour, onLockedClick }: NavItemProps) {
   const [showTip, setShowTip] = useState(false)
   const [pos, setPos]         = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
@@ -257,6 +259,7 @@ function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, onLocke
   const inner = (
     <div
       ref={ref}
+      data-tour={dataTour}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowTip(false)}
       onClick={locked ? (e) => { e.preventDefault(); onLockedClick() } : undefined}
