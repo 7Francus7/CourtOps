@@ -161,7 +161,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
 
 	return (
-		<div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/98 backdrop-blur-2xl">
+		<div className="fixed inset-0 z-[100] bg-background/98 backdrop-blur-2xl">
 			{/* Top bar */}
 			<div className="absolute top-0 left-0 right-0 z-10">
 				<div className="h-1 bg-border">
@@ -183,8 +183,8 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 			</div>
 
 			{/* Scrollable content */}
-			<div className="w-full h-full overflow-y-auto flex items-center justify-center p-4 pt-16 pb-6">
-				<div className="w-full max-w-md mx-auto">
+			<div className="w-full h-full overflow-y-auto p-4 pt-20 pb-6 flex flex-col">
+				<div className="w-full max-w-md mx-auto my-auto shrink-0">
 					<div className="bg-card border border-border rounded-3xl p-6 md:p-10 relative shadow-xl dark:shadow-2xl">
 
 						<AnimatePresence mode="wait">
@@ -296,7 +296,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									</div>
 
 									{/* Court list */}
-									<div className="space-y-1.5 min-h-[120px]">
+									<div className="space-y-1.5 min-h-[120px] max-h-[40vh] overflow-y-auto pr-1">
 										<div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs font-medium text-muted-foreground">
 											Todas las canchas se crean como <span className="text-foreground font-semibold">Padel</span> con turnos de <span className="text-foreground font-semibold">90 minutos</span>.
 										</div>

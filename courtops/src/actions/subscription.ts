@@ -81,6 +81,12 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 	const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
 	if (!plan) throw new Error("Plan no válido")
 
+	const features = getPlanFeatures(plan.name)
+	const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
+	if (courtCount > features.maxCourts) {
+		throw new Error(`El plan ${plan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas desde Configuración o elegí un plan superior.`)
+	}
+
 	const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
 
 	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
@@ -248,6 +254,12 @@ export async function changePlan(planId: string, billingCycle: 'monthly' | 'year
 	const isActive = club.subscriptionStatus?.toLowerCase() === 'authorized' || club.subscriptionStatus?.toLowerCase() === 'active'
 	const newPlan = await prisma.platformPlan.findUnique({ where: { id: planId } })
 	if (!newPlan) throw new Error("Plan no válido")
+
+	const features = getPlanFeatures(newPlan.name)
+	const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
+	if (courtCount > features.maxCourts) {
+		return { success: false, error: `El plan ${newPlan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas o elegí un plan superior.` }
+	}
 
 	if (!isActive) {
 		return initiateSubscription(planId, billingCycle)

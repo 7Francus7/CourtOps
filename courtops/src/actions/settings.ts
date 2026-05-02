@@ -113,10 +113,10 @@ export const upsertCourt = createSafeAction(async ({ clubId }, data: { id?: numb
               // 1. Check Limits
               const club = await prisma.club.findUnique({
                      where: { id: clubId },
-                     select: { maxCourts: true, _count: { select: { courts: true } } }
+                     select: { maxCourts: true, subscriptionStatus: true, _count: { select: { courts: true } } }
               })
 
-              if (club && club._count.courts >= club.maxCourts) {
+              if (club && club.subscriptionStatus !== 'TRIAL' && club._count.courts >= club.maxCourts) {
                      throw new Error(`Has alcanzado el límite de ${club.maxCourts} canchas.`)
               }
 
