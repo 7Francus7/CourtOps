@@ -21,6 +21,7 @@ import CookieConsent from "@/components/CookieConsent"
 import WhatsAppButton from "@/components/WhatsAppButton"
 import MobileNavMenu from "@/components/landing/MobileNavMenu"
 import { CourtOpsLogoAuto } from "@/components/ui/CourtOpsLogo"
+import LandingPricing from "@/components/landing/LandingPricing"
 
 const fontSerif = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader" })
 const fontSans = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
@@ -79,30 +80,6 @@ const metrics = [
   ["1 tablero", "ocupación, caja, espera y referidos para decidir"],
 ]
 
-const plans = [
-  {
-    name: "Base",
-    price: "$45.000",
-    text: "Para ordenar reservas, clientes y caja sin sumar planillas.",
-    items: ["Hasta 4 canchas", "Turnero visual", "Caja diaria", "Clientes y deudas"],
-    href: "/register?plan=base",
-  },
-  {
-    name: "Pro",
-    price: "$79.000",
-    text: "Para clubes que quieren vender más turnos y operar con menos fricción.",
-    items: ["Canchas ilimitadas", "Kiosco POS", "WhatsApp", "Torneos y reportes"],
-    href: "/register?plan=pro",
-    highlighted: true,
-  },
-  {
-    name: "Max",
-    price: "$119.000",
-    text: "Para complejos con varias sedes, marca blanca y reporting ejecutivo.",
-    items: ["Multi-sucursal", "Academia", "Marca blanca", "Soporte prioritario"],
-    href: "/register?plan=max",
-  },
-]
 
 
 function BookingBoard() {
@@ -360,48 +337,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="planes" className="bg-white px-5 py-20 text-zinc-950 md:px-10 md:py-32">
-          <div className="mx-auto max-w-[1440px]">
-            <div className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Planes</p>
-                <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">Arrancá simple. Escalá cuando el club lo pida.</h2>
-              </div>
-              <p className="max-w-md text-lg leading-8 text-zinc-600">Pago único inicial de $150.000. Ese pago deja bonificado el primer mes; después se cobra la mensualidad del plan elegido.</p>
-            </div>
-
-            <div className="grid gap-5 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <div key={plan.name} className={`rounded-2xl border p-6 md:p-8 ${plan.highlighted ? "border-zinc-950 bg-zinc-950 text-white shadow-2xl" : "border-zinc-200 bg-white text-zinc-950 shadow-sm"}`}>
-                  {plan.highlighted && (
-                    <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-300 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-950">
-                      <Zap size={14} />
-                      Recomendado
-                    </div>
-                  )}
-                  <h3 className="text-3xl font-black tracking-tight">{plan.name}</h3>
-                  <p className={`mt-3 min-h-14 leading-7 ${plan.highlighted ? "text-zinc-300" : "text-zinc-600"}`}>{plan.text}</p>
-                  <div className="mt-8 flex items-end gap-2">
-                    <span className="text-5xl font-black tracking-tight">{plan.price}</span>
-                    <span className={plan.highlighted ? "mb-2 text-zinc-400" : "mb-2 text-zinc-500"}>/mes</span>
-                  </div>
-                  <ul className="mt-8 space-y-4">
-                    {plan.items.map((item) => (
-                      <li key={item} className="flex gap-3">
-                        <Check className="mt-0.5 shrink-0 text-emerald-500" size={20} />
-                        <span className={plan.highlighted ? "text-zinc-200" : "text-zinc-700"}>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href={plan.href} className={`mt-9 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-5 py-4 text-center font-black transition ${plan.highlighted ? "bg-emerald-300 text-emerald-950 hover:bg-emerald-200" : "bg-zinc-950 text-white hover:bg-zinc-800"}`}>
-                    Elegir plan
-                    <ArrowRight size={18} />
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <LandingPricing />
 
         <section className="bg-zinc-950 px-5 py-16 text-white dark:bg-[#07090b] md:px-10 md:py-24">
           <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 md:flex-row md:items-center">
