@@ -228,9 +228,9 @@ export default function DashboardClient({
        const [isKioscoOpen, setIsKioscoOpen] = useState(false)
        const [isGrowthKitOpen, setIsGrowthKitOpen] = useState(false)
 
-       const { startTour, resetAndStartTour, hasCompletedTour } = useTour()
+       const { resetAndStartTour } = useTour()
 
-       // Detect ?welcome=1 from post-setup redirect and auto-launch general tour
+       // Only auto-launch tour once after club setup (?welcome=1 from OnboardingWizard redirect)
        useEffect(() => {
               if (typeof window === 'undefined') return
               const params = new URLSearchParams(window.location.search)
@@ -238,11 +238,7 @@ export default function DashboardClient({
                      params.delete('welcome')
                      const newUrl = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`
                      window.history.replaceState({}, '', newUrl)
-                     // Small delay so dashboard renders before spotlight measures elements
                      setTimeout(() => { resetAndStartTour('general') }, 800)
-              } else if (!hasCompletedTour('general')) {
-                     // Auto-show on first visit (no ?welcome param needed)
-                     setTimeout(() => { startTour('general') }, 1200)
               }
        // eslint-disable-next-line react-hooks/exhaustive-deps
        }, [])
