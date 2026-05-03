@@ -89,8 +89,11 @@ export async function createSubscriptionPreference(
 	startDate?: Date
 ) {
 	try {
-		const platformAccessToken = process.env.MP_ACCESS_TOKEN
-		if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+		const platformAccessToken = process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN
+		if (!platformAccessToken) {
+			console.error("MP Configuration Error: MP_ACCESS_TOKEN is missing")
+			throw new Error("Plataforma Mercado Pago no configurada")
+		}
 
 		const club = await prisma.club.findUnique({ where: { id: clubId } })
 		if (!club) throw new Error("Club no encontrado")
@@ -146,8 +149,11 @@ export async function createSetupFeePreference(
 	externalRef: string
 ) {
 	try {
-		const platformAccessToken = process.env.MP_ACCESS_TOKEN
-		if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
+		const platformAccessToken = process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN
+		if (!platformAccessToken) {
+			console.error("MP Configuration Error: MP_ACCESS_TOKEN is missing")
+			throw new Error("Plataforma Mercado Pago no configurada")
+		}
 
 		const { MercadoPagoConfig, Preference } = await import('mercadopago')
 		const client = new MercadoPagoConfig({ accessToken: platformAccessToken })
@@ -232,7 +238,7 @@ export async function getSubscription(id: string) {
 
 export async function cancelSubscriptionMP(id: string) {
        try {
-              const platformAccessToken = process.env.MP_ACCESS_TOKEN
+              const platformAccessToken = process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN
               if (!platformAccessToken) throw new Error("Plataforma Mercado Pago no configurada")
 
               const { MercadoPagoConfig, PreApproval } = await import('mercadopago')
@@ -245,7 +251,13 @@ export async function cancelSubscriptionMP(id: string) {
                             status: 'cancelled'
                      }
               })
-              return { success: true, data: response }
+              
+              // Return only serializable data
+              return { 
+                success: true, 
+                id: response.id,
+                status: response.status 
+              }
        } catch (error: unknown) {
               console.error("Error cancelling subscription in MP:", error)
               return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

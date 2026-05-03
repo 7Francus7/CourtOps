@@ -28,14 +28,33 @@ function emit(level: Level, msg: string, ctx?: Context) {
 
   if (isDev) {
     const icons: Record<Level, string> = { debug: '[DBG]', info: '[INF]', warn: '[WRN]', error: '[ERR]' }
-    const out = safe ? `${icons[level]} ${msg} ${JSON.stringify(safe)}` : `${icons[level]} ${msg}`
+    let out = `${icons[level]} ${msg}`
+    if (safe) {
+      try {
+        out += ` ${JSON.stringify(safe, null, 2)}`
+      } catch {
+        out += ` [Unserializable Context]`
+      }
+    }
     level === 'error' ? console.error(out) : level === 'warn' ? console.warn(out) : console.log(out)
     return
   }
 
   // Production: JSON lines for Vercel log drains
-  const entry = { time: new Date().toISOString(), level, msg, ...safe }
-  level === 'error' ? console.error(JSON.stringify(entry)) : level === 'warn' ? console.warn(JSON.stringify(entry)) : console.log(JSON.stringify(entry))
+  try {
+    const entry = { time: new Date().toISOString(), level, msg, ...safe }
+    const out = JSON.stringify(entry)
+    level === 'error' ? console.error(out) : level === 'warn' ? console.warn(out) : console.log(out)
+  } catch (err) {
+    // Fallback if serialization fails
+    const fallback = JSON.stringify({ 
+      time: new Date().toISOString(), 
+      level: 'error', 
+      msg: `Log serialization failed: ${msg}`,
+      originalLevel: level 
+    })
+    console.error(fallback)
+  }
 }
 
 export const logger = {

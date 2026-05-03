@@ -6,6 +6,7 @@ import { createSubscriptionPreference, createSetupFeePreference, cancelSubscript
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
 import { syncOfficialPlatformPlans } from '@/lib/platform-plans'
+import { logger } from '@/lib/app-logger'
 
 function hasPaidSetupFee(club: { setupFeePaidAt?: Date | null; setupFeePaymentId?: string | null; mpPreapprovalId?: string | null }) {
 	return Boolean(club.setupFeePaidAt || club.setupFeePaymentId || club.mpPreapprovalId)
@@ -94,80 +95,115 @@ export async function getSubscriptionDetails() {
 }
 
 export async function initiateSubscription(planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') {
-	const clubId = await getCurrentClubId()
-	const club = await prisma.club.findUnique({
-		where: { id: clubId },
-		include: { users: true }
-	})
+	const log = logger.child({ planId, billingCycle, action: 'initiateSubscription' })
+	
+	try {
+		const clubId = await getCurrentClubId()
+		const club = await prisma.club.findUnique({
+			where: { id: clubId },
+			include: { users: true }
+		})
 
-	if (!club) throw new Error("Club no encontrado")
+		if (!club) {
+			log.error("Club no encontrado", { clubId })
+			return { success: false, error: "Club no encontrado" }
+		}
 
-	const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
-	if (!plan) throw new Error("Plan no válido")
+		const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
+		if (!plan) {
+			log.error("Plan no válido", { planId })
+			return { success: false, error: "Plan no válido" }
+		}
 
-	const features = getPlanFeatures(plan.name)
-	const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
-	if (courtCount > features.maxCourts) {
-		throw new Error(`El plan ${plan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas desde Configuración o elegí un plan superior.`)
-	}
+		log.info("Iniciando suscripción", { 
+			clubId, 
+			planName: plan.name, 
+			price: plan.price,
+			setupFee: plan.setupFee 
+		})
 
-	const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
+		const features = getPlanFeatures(plan.name)
+		const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
+		if (courtCount > features.maxCourts) {
+			log.warn("Exceso de canchas para el plan", { clubId, courtCount, maxCourts: features.maxCourts })
+			return { 
+				success: false, 
+				error: `El plan ${plan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas desde Configuración o elegí un plan superior.` 
+			}
+		}
 
-	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
-	const payerEmail = adminUser?.email || 'admin@courtops.com'
-	const setupFee = plan.setupFee ?? 0
-	const shouldChargeSetupFee = setupFee > 0 && !hasPaidSetupFee(club)
+		const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
 
-	if (!process.env.MP_ACCESS_TOKEN) {
+		const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+		const payerEmail = adminUser?.email || 'admin@courtops.com'
+		const setupFee = plan.setupFee ?? 0
+		const shouldChargeSetupFee = setupFee > 0 && !hasPaidSetupFee(club)
+
+		// Check platform configuration
+		if (!process.env.MP_ACCESS_TOKEN) {
+			log.warn("MP_ACCESS_TOKEN no configurada, usando modo demo", { clubId })
+			if (shouldChargeSetupFee) {
+				await prisma.club.update({
+					where: { id: clubId },
+					data: {
+						setupFeePaidAt: new Date(),
+						setupFeePaymentId: `DEV_SETUP_${clubId}:${planId}:${billingCycle}`,
+					},
+				})
+			}
+
+			const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+			const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
+
+			return {
+				success: true,
+				init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
+			}
+		}
+
 		if (shouldChargeSetupFee) {
-			await prisma.club.update({
-				where: { id: clubId },
-				data: {
-					setupFeePaidAt: new Date(),
-					setupFeePaymentId: `DEV_SETUP_${clubId}:${planId}:${billingCycle}`,
-				},
-			})
+			log.info("Creando preferencia de Setup Fee", { clubId, setupFee })
+			return createSetupFeePreference(
+				clubId,
+				plan.name,
+				setupFee,
+				payerEmail,
+				`SETUP:${clubId}:${planId}:${billingCycle}`
+			)
 		}
 
-		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-		const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
-
-		return {
-			success: true,
-			init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
+		if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
+			try {
+				log.info("Cancelando suscripción previa", { preapprovalId: club.mpPreapprovalId })
+				await cancelSubscriptionMP(club.mpPreapprovalId)
+			} catch (e) {
+				log.error("Fallo al cancelar suscripción anterior", { error: e })
+			}
 		}
-	}
 
-	if (shouldChargeSetupFee) {
-		return createSetupFeePreference(
+		log.info("Creando preferencia de suscripción recurrente", { clubId, price, frequency })
+		const result = await createSubscriptionPreference(
 			clubId,
 			plan.name,
-			setupFee,
+			price,
 			payerEmail,
-			`SETUP:${clubId}:${planId}:${billingCycle}`
+			`${clubId}:${planId}:${billingCycle}`,
+			frequency,
+			frequencyType,
+			!club.mpPreapprovalId && hasPaidSetupFee(club) ? getFirstRecurringStartDate(club.setupFeePaidAt) : undefined
 		)
-	}
 
-	if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
-		try {
-			await cancelSubscriptionMP(club.mpPreapprovalId)
-		} catch (e) {
-			console.error("Failed to cancel previous subscription:", e)
+		return result
+	} catch (error: any) {
+		log.error("Error crítico en initiateSubscription", { 
+			message: error?.message, 
+			stack: error?.stack 
+		})
+		return { 
+			success: false, 
+			error: error instanceof Error ? error.message : "Error interno del servidor al procesar la suscripción" 
 		}
 	}
-
-	const result = await createSubscriptionPreference(
-		clubId,
-		plan.name,
-		price,
-		payerEmail,
-		`${clubId}:${planId}:${billingCycle}`,
-		frequency,
-		frequencyType,
-		!club.mpPreapprovalId && hasPaidSetupFee(club) ? getFirstRecurringStartDate(club.setupFeePaidAt) : undefined
-	)
-
-	return result
 }
 
 export async function handleSetupFeeSuccess(paymentId: string) {
@@ -266,91 +302,129 @@ export async function cancelSubscription() {
 }
 
 export async function changePlan(planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') {
-	const clubId = await getCurrentClubId()
-	const club = await prisma.club.findUnique({
-		where: { id: clubId },
-		include: { users: true, platformPlan: true }
-	})
+	const log = logger.child({ planId, billingCycle, action: 'changePlan' })
 
-	if (!club) throw new Error("Club no encontrado")
-
-	const currentPlan = club.platformPlan
-	const isActive = club.subscriptionStatus?.toLowerCase() === 'authorized' || club.subscriptionStatus?.toLowerCase() === 'active'
-	const newPlan = await prisma.platformPlan.findUnique({ where: { id: planId } })
-	if (!newPlan) throw new Error("Plan no válido")
-
-	const features = getPlanFeatures(newPlan.name)
-	const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
-	if (courtCount > features.maxCourts) {
-		return { success: false, error: `El plan ${newPlan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas o elegí un plan superior.` }
-	}
-
-	if (!isActive) {
-		return initiateSubscription(planId, billingCycle)
-	}
-
-	if (currentPlan?.id === newPlan.id) {
-		return { success: false, error: "Ya tenés este plan" }
-	}
-
-	const isUpgrade = newPlan.price > (currentPlan?.price || 0)
-
-	if (!isUpgrade) {
-		await prisma.club.update({
+	try {
+		const clubId = await getCurrentClubId()
+		const club = await prisma.club.findUnique({
 			where: { id: clubId },
-			data: {
-				pendingPlanId: planId,
-				pendingBillingCycle: billingCycle,
-			}
+			include: { users: true, platformPlan: true }
 		})
-		revalidatePath('/dashboard/suscripcion')
-		return {
-			success: true,
-			pending: true,
-			message: `Tu plan cambiará a ${newPlan.name} cuando venza el período actual. No se reembolsa la diferencia.`
+
+		if (!club) {
+			log.error("Club no encontrado", { clubId })
+			return { success: false, error: "Club no encontrado" }
+		}
+
+		const currentPlan = club.platformPlan
+		const isActive = club.subscriptionStatus?.toLowerCase() === 'authorized' || club.subscriptionStatus?.toLowerCase() === 'active'
+		
+		const newPlan = await prisma.platformPlan.findUnique({ where: { id: planId } })
+		if (!newPlan) {
+			log.error("Plan no válido", { planId })
+			return { success: false, error: "Plan no válido" }
+		}
+
+		log.info("Cambiando plan", { 
+			clubId, 
+			from: currentPlan?.name, 
+			to: newPlan.name,
+			isActive 
+		})
+
+		const features = getPlanFeatures(newPlan.name)
+		const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
+		if (courtCount > features.maxCourts) {
+			log.warn("Exceso de canchas para el nuevo plan", { clubId, courtCount, maxCourts: features.maxCourts })
+			return { 
+				success: false, 
+				error: `El plan ${newPlan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas o elegí un plan superior.` 
+			}
+		}
+
+		if (!isActive) {
+			log.info("Suscripción no activa, iniciando nueva", { clubId })
+			return initiateSubscription(planId, billingCycle)
+		}
+
+		if (currentPlan?.id === newPlan.id) {
+			return { success: false, error: "Ya tenés este plan" }
+		}
+
+		const isUpgrade = newPlan.price > (currentPlan?.price || 0)
+
+		if (!isUpgrade) {
+			log.info("Downgrade detectado, programando cambio", { clubId, planId })
+			await prisma.club.update({
+				where: { id: clubId },
+				data: {
+					pendingPlanId: planId,
+					pendingBillingCycle: billingCycle,
+				}
+			})
+			revalidatePath('/dashboard/suscripcion')
+			return {
+				success: true,
+				pending: true,
+				message: `Tu plan cambiará a ${newPlan.name} cuando venza el período actual. No se reembolsa la diferencia.`
+			}
+		}
+
+		// Upgrade flow
+		log.info("Upgrade detectado, procediendo a MercadoPago", { clubId })
+		const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+		if (!process.env.MP_ACCESS_TOKEN) {
+			log.warn("MP_ACCESS_TOKEN no configurada en upgrade, usando modo demo", { clubId })
+			const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:upgrade`
+			return {
+				success: true,
+				init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
+			}
+		}
+
+		const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+		const payerEmail = adminUser?.email || 'admin@courtops.com'
+
+		if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
+			try {
+				log.info("Cancelando suscripción anterior para upgrade", { preapprovalId: club.mpPreapprovalId })
+				await cancelSubscriptionMP(club.mpPreapprovalId)
+			} catch (e) {
+				log.error("Error al cancelar suscripción previa en upgrade", { error: e })
+			}
+		}
+
+		let price = newPlan.price
+		let frequency = 1
+
+		if (billingCycle === 'yearly') {
+			price = Math.round(newPlan.price * 12 * 0.8)
+			frequency = 12
+		}
+
+		log.info("Creando preferencia de upgrade", { clubId, price, frequency })
+		const result = await createSubscriptionPreference(
+			clubId,
+			newPlan.name,
+			price,
+			payerEmail,
+			`${clubId}:${planId}:${billingCycle}:upgrade`,
+			frequency,
+			'months'
+		)
+
+		return result
+	} catch (error: any) {
+		log.error("Error crítico en changePlan", { 
+			message: error?.message, 
+			stack: error?.stack 
+		})
+		return { 
+			success: false, 
+			error: error instanceof Error ? error.message : "Error interno del servidor al cambiar el plan" 
 		}
 	}
-
-	const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
-	if (!process.env.MP_ACCESS_TOKEN) {
-		const fakeId = `DEV_CHANGE_${clubId}:${planId}:${billingCycle}:upgrade`
-		return {
-			success: true,
-			init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
-		}
-	}
-
-	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
-	const payerEmail = adminUser?.email || 'admin@courtops.com'
-
-	if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
-		try {
-			await cancelSubscriptionMP(club.mpPreapprovalId)
-		} catch (e) {
-			console.error("Failed to cancel previous subscription:", e)
-		}
-	}
-
-	let price = newPlan.price
-	let frequency = 1
-
-	if (billingCycle === 'yearly') {
-		price = Math.round(newPlan.price * 12 * 0.8)
-		frequency = 12
-	}
-
-	const result = await createSubscriptionPreference(
-		clubId,
-		newPlan.name,
-		price,
-		payerEmail,
-		`${clubId}:${planId}:${billingCycle}:upgrade`,
-		frequency,
-		'months'
-	)
-
-	return result
 }
 
 export async function cancelPendingDowngrade() {
