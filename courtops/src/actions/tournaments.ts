@@ -1151,3 +1151,44 @@ export async function generateDirectElimination(categoryId: string) {
               return { success: false, error: "Error al generar la eliminación directa" }
        }
 }
+
+export async function deleteFixture(categoryId: string) {
+       const session = await getServerSession(authOptions)
+       if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+       try {
+              // Verify ownership
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: { id: categoryId, tournament: { clubId: session.user.clubId } }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
+              await prisma.tournamentMatch.deleteMany({
+                     where: { categoryId }
+              })
+
+              // Reset team stats
+              await prisma.tournamentTeam.updateMany({
+                     where: { categoryId },
+                     data: {
+                            points: 0,
+                            matchesPlayed: 0,
+                            won: 0,
+                            lost: 0,
+                            draw: 0,
+                            setsFor: 0,
+                            setsAgainst: 0,
+                            gamesFor: 0,
+                            gamesAgainst: 0,
+                            setsWon: 0,
+                            gamesWon: 0
+                     }
+              })
+
+              revalidatePath('/torneos/[id]')
+              return { success: true }
+       } catch (error) {
+              console.error("Error deleting fixture:", error)
+              return { success: false, error: "Error al eliminar el fixture" }
+       }
+}
