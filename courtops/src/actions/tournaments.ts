@@ -135,6 +135,8 @@ export async function deleteTournament(id: string) {
 export async function updateTournament(id: string, data: { 
        name?: string, 
        status?: string, 
+       type?: "TOURNAMENT" | "LEAGUE",
+       matchType?: "INDIVIDUAL" | "PAIRS",
        startDate?: Date, 
        endDate?: Date,
        pointsVictory?: number,
