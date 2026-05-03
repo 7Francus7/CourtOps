@@ -456,10 +456,10 @@ function TooltipCard({
 
             {/* Pro tip */}
             {step.proTip && (
-              <div className="flex gap-2.5 p-3 bg-amber-500/6 border border-amber-500/20 rounded-xl">
-                <Lightbulb size={13} className="text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-[11.5px] text-amber-200/80 leading-relaxed">
-                  <span className="font-black text-amber-400">Pro tip: </span>
+              <div className="flex gap-2.5 p-3 bg-amber-500/10 dark:bg-amber-500/6 border border-amber-500/30 dark:border-amber-500/20 rounded-xl">
+                <Lightbulb size={13} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-[11.5px] text-amber-800 dark:text-amber-200/90 leading-relaxed">
+                  <span className="font-black text-amber-700 dark:text-amber-400">Pro tip: </span>
                   {step.proTip}
                 </p>
               </div>

@@ -285,7 +285,7 @@ export default function LoginPage() {
 										className="w-full rounded-xl py-3 pl-10 pr-4 text-sm outline-none transition-all duration-200 font-medium placeholder:opacity-40 focus:ring-2"
 										style={{
 											background: 'var(--co-surface)',
-											border: '1.5px solid var(--co-border)',
+											border: '1.5px solid var(--co-border-hi, var(--co-border))',
 											color: 'var(--co-navy)',
 										}}
 										onFocus={e => (e.currentTarget.style.borderColor = 'var(--co-green)')}
@@ -318,7 +318,7 @@ export default function LoginPage() {
 										className="w-full rounded-xl py-3 pl-10 pr-10 text-sm outline-none transition-all duration-200 font-medium placeholder:opacity-40"
 										style={{
 											background: 'var(--co-surface)',
-											border: '1.5px solid var(--co-border)',
+											border: '1.5px solid var(--co-border-hi, var(--co-border))',
 											color: 'var(--co-navy)',
 										}}
 										onFocus={e => (e.currentTarget.style.borderColor = 'var(--co-green)')}
@@ -361,14 +361,14 @@ export default function LoginPage() {
 											</svg>
 										)}
 									</div>
-									<span className="text-xs font-medium" style={{ color: 'var(--co-muted)' }}>
+									<span className="text-xs font-medium" style={{ color: 'var(--co-navy)' }}>
 										Recordarme
 									</span>
 								</label>
 								<Link
 									href="/forgot-password"
 									className="text-xs font-medium transition-opacity hover:opacity-70"
-									style={{ color: 'var(--co-muted)' }}
+									style={{ color: 'var(--co-navy)' }}
 								>
 									¿Olvidaste tu contraseña?
 								</Link>
@@ -447,7 +447,7 @@ export default function LoginPage() {
 									<div
 										key={i}
 										className="flex items-center gap-1.5 text-[10px] font-semibold"
-										style={{ color: 'var(--co-navy-50)' }}
+										style={{ color: 'var(--co-navy-65, var(--co-muted))' }}
 									>
 										<item.icon size={11} style={{ color: 'var(--co-green)' }} />
 										{item.text}

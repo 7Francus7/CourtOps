@@ -106,7 +106,7 @@ export default function SubscriptionManager({
 				if (res.success && res.init_point) {
 					window.location.href = res.init_point
 				} else {
-					toast.error(res.error || "Error al procesar")
+					toast.error(res.error || "Error al procesar el pago")
 				}
 			} else {
 				const res = await changePlan(selectedPlan.id, billingCycle) as SubscriptionActionResult
@@ -117,14 +117,15 @@ export default function SubscriptionManager({
 					router.refresh()
 				} else {
 					const msg = res.message || res.error
-					if (msg) toast.success(msg)
+					if (msg) toast.error(msg)
 					else toast.error("Error al cambiar de plan")
 					router.refresh()
 				}
 			}
-		} catch (err) {
-			console.error(err)
-			toast.error("Error de conexión")
+		} catch (err: unknown) {
+			console.error('[SubscriptionManager] Error inesperado:', err)
+			const message = err instanceof Error ? err.message : 'Error de conexión'
+			toast.error(message)
 		} finally {
 			setLoadingId(null)
 		}
