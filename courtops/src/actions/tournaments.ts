@@ -1080,8 +1080,6 @@ export async function generateDirectElimination(categoryId: string) {
                      else rounds.push(`Ronda de ${size}`)
                      size /= 2
               }
-              // Reverse to have Final last in array, but we need First Round first
-              rounds.reverse()
 
               await prisma.$transaction(async (tx: any) => {
                      // 1. Clear
