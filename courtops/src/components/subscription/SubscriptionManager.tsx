@@ -254,7 +254,7 @@ export default function SubscriptionManager({
 			<div className="md:hidden space-y-3">
 				{sortedPlans.map((plan) => {
 					const isCurrent = currentPlan?.id === plan.id && isActive
-					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Arranque']
+					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Base']
 					const price = getPrice(plan)
 					const isUpgrade = currentPlan ? plan.price > currentPlan.price : true
 					const isRecommended = plan.name.toLowerCase() === 'pro'

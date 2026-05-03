@@ -28,7 +28,11 @@ function getFirstRecurringStartDate(setupFeePaidAt?: Date | null) {
 export async function getSubscriptionDetails() {
 	const clubId = await getCurrentClubId()
 
-	await syncOfficialPlatformPlans(prisma)
+	try {
+		await syncOfficialPlatformPlans(prisma)
+	} catch (e) {
+		console.error("Error syncing platform plans:", e)
+	}
 
 	const club = await prisma.club.findUnique({
 		where: { id: clubId },
@@ -51,18 +55,46 @@ export async function getSubscriptionDetails() {
 		subscriptionStatus: club.subscriptionStatus,
 		nextBillingDate: club.nextBillingDate,
 		setupFeePaidAt: club.setupFeePaidAt,
-		availablePlans: allPlans.map(p => ({
+	const safePlans = allPlans.map(p => {
+		let features: string[] = []
+		try {
+			features = p.features ? JSON.parse(p.features) : []
+			if (!Array.isArray(features)) features = []
+		} catch (e) {
+			console.error(`Error parsing features for plan ${p.name}:`, e)
+		}
+		return {
 			...p,
 			setupFee: p.setupFee ?? 0,
-			features: JSON.parse(p.features) as string[]
-		})),
-		pendingPlan: pendingPlan
-			? {
-				...pendingPlan,
-				setupFee: pendingPlan.setupFee ?? 0,
-				features: JSON.parse(pendingPlan.features) as string[]
-			}
-			: null,
+			features
+		}
+	})
+
+	const pendingPlanDetails = pendingPlan ? (() => {
+		let features: string[] = []
+		try {
+			features = pendingPlan.features ? JSON.parse(pendingPlan.features) : []
+			if (!Array.isArray(features)) features = []
+		} catch (e) {
+			console.error(`Error parsing features for pending plan ${pendingPlan.name}:`, e)
+		}
+		return {
+			...pendingPlan,
+			setupFee: pendingPlan.setupFee ?? 0,
+			features
+		}
+	})() : null
+
+	const isDev = process.env.NODE_ENV === 'development'
+	const hasToken = !!process.env.MP_ACCESS_TOKEN
+
+	return {
+		currentPlan: club.platformPlan,
+		subscriptionStatus: club.subscriptionStatus,
+		nextBillingDate: club.nextBillingDate,
+		setupFeePaidAt: club.setupFeePaidAt,
+		availablePlans: safePlans,
+		pendingPlan: pendingPlanDetails,
 		pendingBillingCycle: club.pendingBillingCycle as 'monthly' | 'yearly' | null,
 		isConfigured: hasToken || isDev,
 		isDevMode: isDev && !hasToken,
