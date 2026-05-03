@@ -145,7 +145,7 @@
     --co-mint-text:       #00714d;
     --co-muted:           #45474c;
     --co-muted-55:        rgba(69,71,76,0.55);
-    --co-border:          rgba(197,198,205,0.2);
+    --co-border:          rgba(197,198,205,0.4);
     --co-card:            #ffffff;
     --co-featured-card:   #091426;
     --co-dark-section:    #091426;
@@ -166,8 +166,8 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
+    --border: 240 5% 84%;
+    --input: 240 5% 84%;
     --ring: 262 83% 58%;
     --radius: 1rem;
     --chart-1: 262 83% 58%;

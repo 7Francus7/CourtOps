@@ -203,7 +203,7 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col justify-between">
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/60 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/90 flex flex-col justify-between">
                                           <div className="mb-4">
                                                  <div className="flex items-center gap-2 mb-1">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
@@ -234,7 +234,7 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col">
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/60 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/90 flex flex-col">
                                           <div className="mb-6">
                                                  <div className="flex items-center gap-2 mb-1">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -284,7 +284,7 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col justify-between">
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/60 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/90 flex flex-col justify-between">
                                           <div>
                                                  <div className="flex items-center gap-2 mb-1">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
@@ -327,7 +327,7 @@ export default function DashboardStats({
                                    }}
                                    className="relative overflow-hidden group"
                             >
-                                   <div className="bg-card/40 backdrop-blur-xl border border-border/40 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/70 flex flex-col justify-between">
+                                   <div className="bg-card/40 backdrop-blur-xl border border-border/60 p-6 rounded-[2.5rem] h-full transition-all duration-500 hover:border-border/90 flex flex-col justify-between">
                                           <div>
                                                  <div className="flex items-center gap-2 mb-1">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />

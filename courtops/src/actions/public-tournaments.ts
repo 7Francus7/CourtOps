@@ -57,6 +57,14 @@ export async function registerPublicTeam(categoryId: string, data: {
 
               if (!category) return { success: false, error: 'Categoría no encontrada' }
 
+              // Check max teams limit
+              const currentTeamsCount = await prisma.tournamentTeam.count({
+                     where: { categoryId }
+              })
+              if (category.maxTeams && currentTeamsCount >= category.maxTeams) {
+                     return { success: false, error: `Cupos agotados para la categoría ${category.name}.` }
+              }
+
               // Only allow registration for open tournaments
               if (category.tournament.status === 'FINISHED' || category.tournament.status === 'CANCELLED') {
                      return { success: false, error: 'El torneo no está abierto para inscripción' }

@@ -4,12 +4,12 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X, List, GitBranch } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X, List, GitBranch, Edit3 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { createCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, generateKnockoutPhase, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
+import { createCategory, updateCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, generateKnockoutPhase, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import BracketView, { hasEliminationMatches } from '@/components/tournaments/BracketView'
@@ -72,6 +72,8 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
        const { t } = useLanguage()
        const [activeTab, setActiveTab] = useState('overview')
        const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false)
+       const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false)
+       const [editingCategory, setEditingCategory] = useState<any>(null)
        const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
        return (
@@ -137,7 +139,16 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                      {/* Content Content */}
                      <div className="min-h-[400px]">
                             {activeTab === 'overview' && <OverviewTab tournament={tournament} />}
-                            {activeTab === 'categories' && <CategoriesTab tournament={tournament} onAdd={() => setIsCreateCategoryModalOpen(true)} />}
+                            {activeTab === 'categories' && (
+                                   <CategoriesTab
+                                          tournament={tournament}
+                                          onAdd={() => setIsCreateCategoryModalOpen(true)}
+                                          onEdit={(cat: any) => {
+                                                 setEditingCategory(cat);
+                                                 setIsEditCategoryModalOpen(true);
+                                          }}
+                                   />
+                            )}
                             {activeTab === 'teams' && <TeamsTab tournament={tournament} />}
                             {activeTab === 'matches' && <MatchesTab tournament={tournament} />}
                      </div>
@@ -146,6 +157,14 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                             isOpen={isCreateCategoryModalOpen}
                             onClose={() => setIsCreateCategoryModalOpen(false)}
                             tournamentId={tournament.id}
+                     />
+                     <EditCategoryModal
+                            isOpen={isEditCategoryModalOpen}
+                            onClose={() => {
+                                   setIsEditCategoryModalOpen(false);
+                                   setEditingCategory(null);
+                            }}
+                            category={editingCategory}
                      />
                      <TournamentSettingsModal
                             isOpen={isSettingsModalOpen}
@@ -249,7 +268,7 @@ function StatsCard({ label, value, icon: Icon, color }: any) {
        )
 }
 
-function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => void }) {
+function CategoriesTab({ tournament, onAdd, onEdit }: { tournament: any, onAdd: () => void, onEdit: (cat: any) => void }) {
        const { t } = useLanguage()
        const confirmAction = useConfirmation()
        const handleDelete = async (id: string) => {
@@ -307,15 +326,23 @@ function CategoriesTab({ tournament, onAdd }: { tournament: any, onAdd: () => vo
                                                         </div>
                                                         <p className="text-sm text-muted-foreground mt-4 font-medium flex items-center gap-1.5">
                                                                <Users size={14} className="text-muted-foreground/70" />
-                                                               {cat.teams.length} {t('registered_pairs')}
+                                                               {cat.teams.length} / {cat.maxTeams || '∞'} {t('registered_pairs')}
                                                         </p>
                                                  </div>
-                                                 <button
-                                                        onClick={() => handleDelete(cat.id)}
-                                                        className="text-muted-foreground/40 hover:text-red-500 p-2 transition-all md:opacity-0 md:group-hover:opacity-100 hover:bg-red-500/10 rounded-lg"
-                                                 >
-                                                        <Trash2 size={18} />
-                                                 </button>
+                                                 <div className="flex flex-col gap-2">
+                                                        <button
+                                                               onClick={() => onEdit(cat)}
+                                                               className="text-muted-foreground/40 hover:text-[var(--primary)] p-2 transition-all md:opacity-0 md:group-hover:opacity-100 hover:bg-[var(--primary)]/10 rounded-lg"
+                                                        >
+                                                               <Edit3 size={18} />
+                                                        </button>
+                                                        <button
+                                                               onClick={() => handleDelete(cat.id)}
+                                                               className="text-muted-foreground/40 hover:text-red-500 p-2 transition-all md:opacity-0 md:group-hover:opacity-100 hover:bg-red-500/10 rounded-lg"
+                                                        >
+                                                               <Trash2 size={18} />
+                                                        </button>
+                                                 </div>
                                           </div>
                                    ))}
                             </div>
@@ -968,6 +995,7 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
        const [name, setName] = useState('')
        const [price, setPrice] = useState('')
        const [gender, setGender] = useState('MALE')
+       const [maxTeams, setMaxTeams] = useState('')
 
        if (!isOpen) return null
 
@@ -978,12 +1006,14 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
                      await createCategory(tournamentId, {
                             name,
                             price: Number(price),
-                            gender: gender as any
+                            gender: gender as any,
+                            maxTeams: maxTeams ? Number(maxTeams) : undefined
                      })
                      toast.success(t('category_created'))
                      onClose()
                      setName('')
                      setPrice('')
+                     setMaxTeams('')
               } catch {
                      toast.error(t('error_creating_category'))
               } finally {
@@ -1043,10 +1073,132 @@ function CreateCategoryModal({ isOpen, onClose, tournamentId }: any) {
                                           </div>
                                    </div>
 
+                                   <div>
+                                          <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">Cupos Máximos</label>
+                                          <input
+                                                 type="number"
+                                                 value={maxTeams} onChange={e => setMaxTeams(e.target.value)}
+                                                 placeholder="Ilimitado"
+                                                 className="w-full bg-muted/30 border border-border rounded-xl p-3 text-foreground outline-none focus:border-[var(--primary)] focus:bg-background transition-all"
+                                          />
+                                   </div>
+
                                    <div className="flex gap-3 mt-6 pt-4 border-t border-border/50">
                                           <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">{t('cancel')}</button>
                                           <button disabled={loading} className="flex-1 py-3 bg-primary text-primary-foreground text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-primary/20 active:scale-95">
                                                  {loading ? t('saving') : t('create_category')}
+                                          </button>
+                                   </div>
+                            </form>
+                     </div>
+              </div>
+       )
+}
+
+function EditCategoryModal({ isOpen, onClose, category }: any) {
+       const { t } = useLanguage()
+       const [loading, setLoading] = useState(false)
+       const [name, setName] = useState('')
+       const [price, setPrice] = useState('')
+       const [gender, setGender] = useState('MALE')
+       const [maxTeams, setMaxTeams] = useState('')
+
+       React.useEffect(() => {
+              if (category) {
+                     setName(category.name || '')
+                     setPrice(category.price?.toString() || '')
+                     setGender(category.gender || 'MALE')
+                     setMaxTeams(category.maxTeams?.toString() || '')
+              }
+       }, [category])
+
+       if (!isOpen || !category) return null
+
+       const handleSubmit = async (e: React.FormEvent) => {
+              e.preventDefault()
+              setLoading(true)
+              try {
+                     await updateCategory(category.id, {
+                            name,
+                            price: Number(price),
+                            gender: gender as any,
+                            maxTeams: maxTeams ? Number(maxTeams) : null
+                     })
+                     toast.success(t('category_updated'))
+                     onClose()
+              } catch {
+                     toast.error(t('error_updating'))
+              } finally {
+                     setLoading(false)
+              }
+       }
+
+       return (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                     <div className="bg-card shadow-sm w-full max-w-md rounded-2xl border border-border p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center mb-6">
+                                   <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] border border-[var(--primary)]/20">
+                                                 <Edit3 size={18} />
+                                          </div>
+                                          <h3 className="text-xl font-bold text-foreground">Editar Categoría</h3>
+                                   </div>
+                                   <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+                                          <X size={20} />
+                                   </button>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                   <div>
+                                          <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">{t('name')}</label>
+                                          <input
+                                                 value={name} onChange={e => setName(e.target.value)}
+                                                 placeholder="Ej. 7ma Categoría"
+                                                 className="w-full bg-muted/30 border border-border rounded-xl p-3 text-foreground outline-none focus:border-[var(--primary)] focus:bg-background transition-all"
+                                                 required
+                                          />
+                                   </div>
+                                   <div className="grid grid-cols-2 gap-4">
+                                          <div>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">{t('inscription_price')}</label>
+                                                 <div className="relative">
+                                                        <span className="absolute left-3 top-3 text-muted-foreground">$</span>
+                                                        <input
+                                                               type="number"
+                                                               value={price} onChange={e => setPrice(e.target.value)}
+                                                               placeholder="0.00"
+                                                               className="w-full bg-muted/30 border border-border rounded-xl pl-7 pr-3 py-3 text-foreground outline-none focus:border-[var(--primary)] focus:bg-background transition-all"
+                                                               required
+                                                        />
+                                                 </div>
+                                          </div>
+                                          <div>
+                                                 <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">{t('gender')}</label>
+                                                 <select
+                                                        value={gender} onChange={e => setGender(e.target.value)}
+                                                        className="w-full bg-muted/30 border border-border rounded-xl p-3 text-foreground outline-none focus:border-[var(--primary)] focus:bg-background transition-all appearance-none"
+                                                 >
+                                                        <option value="MALE">{t('male')}</option>
+                                                        <option value="FEMALE">{t('female')}</option>
+                                                        <option value="MIXED">{t('mixed')}</option>
+                                                 </select>
+                                          </div>
+                                   </div>
+
+                                   <div>
+                                          <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">Cupos Máximos</label>
+                                          <input
+                                                 type="number"
+                                                 value={maxTeams} onChange={e => setMaxTeams(e.target.value)}
+                                                 placeholder="Ilimitado"
+                                                 className="w-full bg-muted/30 border border-border rounded-xl p-3 text-foreground outline-none focus:border-[var(--primary)] focus:bg-background transition-all"
+                                          />
+                                   </div>
+
+                                   <div className="flex gap-3 mt-6 pt-4 border-t border-border/50">
+                                          <button type="button" onClick={onClose} className="flex-1 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">{t('cancel')}</button>
+                                          <button disabled={loading} className="flex-1 py-3 bg-primary text-primary-foreground text-sm font-black rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-primary/20 active:scale-95">
+                                                 {loading ? t('saving') : t('save_changes')}
                                           </button>
                                    </div>
                             </form>

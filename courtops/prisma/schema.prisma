@@ -519,6 +519,7 @@ model TournamentCategory {
   gender         String? // MALE, FEMALE, MIXED
   price          Float
   teamsToAdvance Int?    @default(1) // teams advancing per group to knockout
+  maxTeams       Int?    // maximum number of teams allowed to register
 
   teams   TournamentTeam[]
   matches TournamentMatch[]

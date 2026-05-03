@@ -18,6 +18,7 @@ interface TournamentCategory {
        name?: string
        gender?: string
        price?: number
+       maxTeams?: number | null
        _count?: { teams?: number; [key: string]: unknown }
        [key: string]: unknown
 }
@@ -207,14 +208,20 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
                                                                <div className="flex items-center justify-between mt-6">
                                                                       <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
                                                                              <Users size={14} />
-                                                                             {cat._count?.teams} Equipos
+                                                                             {cat._count?.teams} / {cat.maxTeams || '∞'} Equipos
                                                                       </div>
-                                                                      <button
-                                                                             onClick={() => { setSelectedCategory(cat); setShowForm(true) }}
-                                                                             className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 hover:brightness-110"
-                                                                      >
-                                                                             Inscribirse <ArrowRight size={14} />
-                                                                      </button>
+                                                                      {cat.maxTeams && (cat._count?.teams || 0) >= cat.maxTeams ? (
+                                                                             <div className="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-sm font-bold border border-red-500/20">
+                                                                                    Cupos Agotados
+                                                                             </div>
+                                                                      ) : (
+                                                                             <button
+                                                                                    onClick={() => { setSelectedCategory(cat); setShowForm(true) }}
+                                                                                    className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 hover:brightness-110"
+                                                                             >
+                                                                                    Inscribirse <ArrowRight size={14} />
+                                                                             </button>
+                                                                      )}
                                                                </div>
                                                         </div>
                                                  ))}

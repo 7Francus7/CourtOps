@@ -186,7 +186,7 @@ export async function getTournament(id: string) {
        }
 }
 
-export async function createCategory(tournamentId: string, data: { name: string, gender: "MALE" | "FEMALE" | "MIXED", price: number }) {
+export async function createCategory(tournamentId: string, data: { name: string, gender: "MALE" | "FEMALE" | "MIXED", price: number, maxTeams?: number }) {
        try {
               const session = await getServerSession(authOptions)
               if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
@@ -202,13 +202,41 @@ export async function createCategory(tournamentId: string, data: { name: string,
                             tournamentId,
                             name: data.name,
                             gender: data.gender,
-                            price: data.price
+                            price: data.price,
+                            maxTeams: data.maxTeams
                      }
               })
               revalidatePath(`/torneos/${tournamentId}`)
               return { success: true, category }
        } catch (_error) {
               return { success: false, error: "Error creating category" }
+       }
+}
+
+export async function updateCategory(categoryId: string, data: { name?: string, gender?: "MALE" | "FEMALE" | "MIXED", price?: number, maxTeams?: number | null }) {
+       try {
+              const session = await getServerSession(authOptions)
+              if (!session?.user?.clubId) return { success: false, error: "Unauthorized" }
+
+              // Verify ownership via tournament
+              const category = await prisma.tournamentCategory.findFirst({
+                     where: {
+                            id: categoryId,
+                            tournament: { clubId: session.user.clubId }
+                     }
+              })
+              if (!category) return { success: false, error: "No autorizado" }
+
+              const updated = await prisma.tournamentCategory.update({
+                     where: { id: categoryId },
+                     data
+              })
+              
+              revalidatePath(`/torneos/${updated.tournamentId}`)
+              return { success: true, category: updated }
+       } catch (error) {
+              console.error("Error updating category:", error)
+              return { success: false, error: "Error updating category" }
        }
 }
 
@@ -275,9 +303,19 @@ export async function createTeam(
                      where: {
                             id: categoryId,
                             tournament: { clubId: session.user.clubId }
+                     },
+                     include: {
+                            _count: {
+                                   select: { teams: true }
+                            }
                      }
               })
               if (!category) return { success: false, error: "No autorizado" }
+
+              // Check max teams limit
+              if (category.maxTeams && category._count.teams >= category.maxTeams) {
+                     return { success: false, error: `Cupos agotados para esta categoría (Máximo: ${category.maxTeams})` }
+              }
 
               // Validate players exist AND belong to the same club
               const p1 = await prisma.client.findFirst({ where: { id: data.player1Id, clubId: session.user.clubId } })

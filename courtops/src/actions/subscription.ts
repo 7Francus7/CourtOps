@@ -207,56 +207,72 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 }
 
 export async function handleSetupFeeSuccess(paymentId: string) {
-	const clubId = await getCurrentClubId()
+	const log = logger.child({ paymentId, action: 'handleSetupFeeSuccess' })
+	
+	try {
+		const clubId = await getCurrentClubId()
+		if (!paymentId) throw new Error("No se pudo verificar el pago inicial")
 
-	if (!paymentId) throw new Error("No se pudo verificar el pago inicial")
+		const payment = await getPlatformPayment(paymentId)
+		if (!payment) {
+			log.error("No se encontró el pago en MercadoPago", { paymentId })
+			throw new Error("No se pudo verificar el pago inicial")
+		}
 
-	const payment = await getPlatformPayment(paymentId)
-	if (!payment) throw new Error("No se pudo verificar el pago inicial")
+		if (payment.status !== 'approved') {
+			log.warn("Pago inicial no aprobado", { paymentId, status: payment.status })
+			throw new Error("El pago inicial todavía no fue aprobado")
+		}
 
-	if (payment.status !== 'approved') {
-		throw new Error("El pago inicial todavÃ­a no fue aprobado")
-	}
+		const [kind, refClubId, refPlanId, cycle = 'monthly'] = (payment.external_reference || '').split(':')
 
-	const [kind, refClubId, refPlanId, cycle = 'monthly'] = (payment.external_reference || '').split(':')
+		if (kind !== 'SETUP' || refClubId !== clubId || !refPlanId) {
+			log.error("Referencia de pago inválida", { external_reference: payment.external_reference, clubId })
+			throw new Error("La referencia del pago inicial no coincide con tu club")
+		}
 
-	if (kind !== 'SETUP' || refClubId !== clubId || !refPlanId) {
-		throw new Error("La referencia del pago inicial no coincide con tu club")
-	}
-
-	const billingCycle = cycle === 'yearly' ? 'yearly' : 'monthly'
-	const club = await prisma.club.findUnique({
-		where: { id: clubId },
-		include: { users: true }
-	})
-	const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
-
-	if (!club || !plan) throw new Error("No se pudo preparar la suscripciÃ³n")
-
-	if (!hasPaidSetupFee(club)) {
-		await prisma.club.update({
+		const billingCycle = cycle === 'yearly' ? 'yearly' : 'monthly'
+		const club = await prisma.club.findUnique({
 			where: { id: clubId },
-			data: {
-				setupFeePaidAt: new Date(),
-				setupFeePaymentId: String(payment.id),
-			}
+			include: { users: true }
 		})
+		const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+
+		if (!club || !plan) {
+			log.error("Club o Plan no encontrado tras pago", { clubId, refPlanId })
+			throw new Error("No se pudo preparar la suscripción")
+		}
+
+		if (!hasPaidSetupFee(club)) {
+			log.info("Marcando Setup Fee como pagado", { clubId, paymentId })
+			await prisma.club.update({
+				where: { id: clubId },
+				data: {
+					setupFeePaidAt: new Date(),
+					setupFeePaymentId: String(payment.id),
+				}
+			})
+		}
+
+		const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
+		const payerEmail = adminUser?.email || 'admin@courtops.com'
+		const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
+
+		log.info("Creando preferencia de suscripción recurrente post-setup", { clubId, planName: plan.name })
+		return createSubscriptionPreference(
+			clubId,
+			plan.name,
+			price,
+			payerEmail,
+			`${clubId}:${refPlanId}:${billingCycle}`,
+			frequency,
+			frequencyType,
+			getFirstRecurringStartDate(new Date())
+		)
+	} catch (error: any) {
+		log.error("Error en handleSetupFeeSuccess", { message: error?.message })
+		throw error
 	}
-
-	const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
-	const payerEmail = adminUser?.email || 'admin@courtops.com'
-	const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
-
-	return createSubscriptionPreference(
-		clubId,
-		plan.name,
-		price,
-		payerEmail,
-		`${clubId}:${refPlanId}:${billingCycle}`,
-		frequency,
-		frequencyType,
-		getFirstRecurringStartDate(new Date())
-	)
 }
 
 export async function cancelSubscription() {
@@ -438,64 +454,82 @@ export async function cancelPendingDowngrade() {
 }
 
 export async function handleSubscriptionSuccess(preapprovalId: string) {
-	const clubId = await getCurrentClubId()
+	const log = logger.child({ preapprovalId, action: 'handleSubscriptionSuccess' })
 
-	if (preapprovalId.startsWith('DEV_')) {
-		const parts = preapprovalId.replace('DEV_', '').split(':')
-		if (parts.length < 2) throw new Error("ID inválido")
+	try {
+		const clubId = await getCurrentClubId()
 
-		const [refClubId, refPlanId, cycle] = parts
+		if (preapprovalId.startsWith('DEV_')) {
+			log.info("Procesando éxito de suscripción en modo DEV", { preapprovalId })
+			const parts = preapprovalId.replace('DEV_', '').split(':')
+			if (parts.length < 2) throw new Error("ID inválido")
+
+			const [refClubId, refPlanId, cycle] = parts
+
+			if (refClubId !== clubId) {
+				log.error("ID de club no coincide en modo DEV", { refClubId, clubId })
+				throw new Error("ID de club no coincide")
+			}
+
+			const daysToAdd = cycle === 'yearly' ? 365 : 30
+			const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+			const features = plan ? getPlanFeatures(plan.name) : {}
+
+			await prisma.club.update({
+				where: { id: clubId },
+				data: {
+					mpPreapprovalId: preapprovalId,
+					platformPlanId: refPlanId,
+					subscriptionStatus: 'authorized',
+					nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+					...features
+				}
+			})
+
+			revalidatePath('/dashboard/suscripcion')
+			return { success: true }
+		}
+
+		log.info("Verificando suscripción en MercadoPago", { preapprovalId })
+		const subscription = await getSubscription(preapprovalId)
+		if (!subscription) {
+			log.error("No se encontró la suscripción en MercadoPago", { preapprovalId })
+			throw new Error("No se pudo verificar la suscripción")
+		}
+
+		if (subscription.status !== 'authorized') {
+			log.warn("Suscripción no autorizada en MercadoPago", { preapprovalId, status: subscription.status })
+			throw new Error("Suscripción no autorizada")
+		}
+
+		const [refClubId, refPlanId] = (subscription.external_reference || '').split(':')
 
 		if (refClubId !== clubId) {
+			log.error("ID de club no coincide con la suscripción", { refClubId, clubId })
 			throw new Error("ID de club no coincide")
 		}
 
-		const daysToAdd = cycle === 'yearly' ? 365 : 30
 		const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
-		const features = plan ? getPlanFeatures(plan.name) : {}
+		if (!plan) throw new Error("Plan no encontrado")
+		
+		const features = getPlanFeatures(plan.name)
 
+		log.info("Activando plan para el club", { clubId, planName: plan.name })
 		await prisma.club.update({
 			where: { id: clubId },
 			data: {
 				mpPreapprovalId: preapprovalId,
 				platformPlanId: refPlanId,
-				subscriptionStatus: 'authorized',
-				nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+				subscriptionStatus: subscription.status,
+				nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined,
 				...features
 			}
 		})
 
 		revalidatePath('/dashboard/suscripcion')
 		return { success: true }
+	} catch (error: any) {
+		log.error("Error en handleSubscriptionSuccess", { message: error?.message })
+		throw error
 	}
-
-	const subscription = await getSubscription(preapprovalId)
-	if (!subscription) throw new Error("No se pudo verificar la suscripción")
-
-	if (subscription.status !== 'authorized') {
-		throw new Error("Suscripción no autorizada")
-	}
-
-	const [refClubId, refPlanId] = (subscription.external_reference || '').split(':')
-
-	if (refClubId !== clubId) {
-		throw new Error("ID de club no coincide")
-	}
-
-	const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
-	const features = plan ? getPlanFeatures(plan.name) : {}
-
-	await prisma.club.update({
-		where: { id: clubId },
-		data: {
-			mpPreapprovalId: preapprovalId,
-			platformPlanId: refPlanId,
-			subscriptionStatus: subscription.status,
-			nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined,
-			...features
-		}
-	})
-
-	revalidatePath('/dashboard/suscripcion')
-	return { success: true }
 }

@@ -178,7 +178,7 @@ const DroppableSlot = React.memo(function DroppableSlot({ id, children, isCurren
                      }}
                      className={cn(
                             "group p-1 border-r relative h-full min-h-[96px] transition-all duration-200",
-                            isHourSlot ? "border-b border-border/60" : "border-b border-border/25",
+                            isHourSlot ? "border-b border-border/80" : "border-b border-border/45",
                             isCurrent ? "bg-emerald-500/5 overflow-hidden" : isHourSlot ? "bg-white/[0.018] dark:bg-white/[0.018]" : "bg-transparent",
                             isOver && "bg-emerald-500/10 ring-2 ring-inset ring-emerald-500/40",
                             isDragActive && !children && !isOver && "bg-emerald-500/[0.03] border-emerald-500/10",
@@ -761,7 +761,7 @@ export default function TurneroGrid({
                                                                <div className={cn(
                                                                       "sticky left-0 z-10 border-r border-b bg-background h-[96px]",
                                                                       "relative flex items-center justify-center",
-                                                                      isHour ? "border-border/60" : "border-border/25",
+                                                                       isHour ? "border-border/80" : "border-border/45",
                                                                       isCurrent ? "text-emerald-500" : isHour ? "text-foreground/55" : "text-muted-foreground/30",
                                                                )}>
                                                                       {/* Tick mark for on-the-hour slots */}
@@ -843,7 +843,7 @@ export default function TurneroGrid({
                                                                <p className="text-xs text-muted-foreground font-medium">Confirmar cambio de horario</p>
                                                         </div>
                                                  </div>
-                                                 <div className="bg-muted/30 rounded-2xl p-4 space-y-3 mb-6 border border-border/50">
+                                                 <div className="bg-muted/30 rounded-2xl p-4 space-y-3 mb-6 border border-border/70">
                                                         <div className="flex items-center justify-between text-sm">
                                                                <span className="text-muted-foreground font-medium">Cliente</span>
                                                                <span className="font-bold text-foreground">{pendingMove.booking.client?.name || pendingMove.booking.guestName || '---'}</span>
