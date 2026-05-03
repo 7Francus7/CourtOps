@@ -47,14 +47,6 @@ export async function getSubscriptionDetails() {
 		? allPlans.find(p => p.id === club.pendingPlanId) ?? null
 		: null
 
-	const isDev = process.env.NODE_ENV === 'development'
-	const hasToken = !!process.env.MP_ACCESS_TOKEN
-
-	return {
-		currentPlan: club.platformPlan,
-		subscriptionStatus: club.subscriptionStatus,
-		nextBillingDate: club.nextBillingDate,
-		setupFeePaidAt: club.setupFeePaidAt,
 	const safePlans = allPlans.map(p => {
 		let features: string[] = []
 		try {
