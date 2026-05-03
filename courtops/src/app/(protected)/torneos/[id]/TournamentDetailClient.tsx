@@ -4,7 +4,7 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Users, Calendar, Settings, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X, List, GitBranch, Edit3 } from 'lucide-react'
+import { ArrowLeft, Trophy, Users, Calendar, Settings, Settings2, Plus, Trash2, Sword, LayoutGrid, Search, UserPlus, AlertCircle, Check, Clock, Share2, X, List, GitBranch, Edit3 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
