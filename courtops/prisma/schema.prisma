@@ -496,10 +496,18 @@ model Tournament {
   id          String    @id @default(uuid())
   clubId      String
   name        String
+  type        String    @default("TOURNAMENT") // TOURNAMENT, LEAGUE
   startDate   DateTime
   endDate     DateTime?
   status      String    @default("DRAFT") // DRAFT, OPEN, IN_PROGRESS, COMPLETED
   description String?
+
+  // Points configuration (especially for leagues)
+  pointsVictory    Int @default(3)
+  pointsDraw       Int @default(1)
+  pointsLossPlayed Int @default(0)
+  pointsLossNoShow Int @default(0)
+  pointsWalkover   Int @default(-1)
 
   categories TournamentCategory[]
   club       Club                 @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -517,6 +525,8 @@ model TournamentCategory {
   tournamentId   String
   name           String // e.g., "7ma Categoría"
   gender         String? // MALE, FEMALE, MIXED
+  format         String  @default("GROUPS_KNOCKOUT") // ELIMINATION, GROUPS_KNOCKOUT, ROUND_ROBIN, LEAGUE
+  matchType      String  @default("PAIRS") // INDIVIDUAL, PAIRS
   price          Float
   teamsToAdvance Int?    @default(1) // teams advancing per group to knockout
   maxTeams       Int?    // maximum number of teams allowed to register
@@ -547,8 +557,18 @@ model TournamentTeam {
   player2Name  String
   player2Phone String?
 
+  // Statistics
   points        Int @default(0)
   matchesPlayed Int @default(0)
+  won           Int @default(0)
+  lost          Int @default(0)
+  draw          Int @default(0)
+  setsFor       Int @default(0)
+  setsAgainst   Int @default(0)
+  gamesFor      Int @default(0)
+  gamesAgainst  Int @default(0)
+
+  // Legacy fields (kept for compatibility if needed, but we'll use the new ones)
   setsWon       Int @default(0)
   gamesWon      Int @default(0)
 
@@ -589,8 +609,10 @@ model TournamentMatch {
   homeScore  String? // "6-4 6-2"
   awayScore  String?
   winnerId   String?
-  status     String  @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED
+  status     String  @default("SCHEDULED") // SCHEDULED, LIVE, COMPLETED
   matchOrder Int?    // bracket position for knockout phase
+  matchday   Int?    // for leagues / round robin
+  isWalkover Boolean @default(false)
 
   category TournamentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   court    Court?             @relation(fields: [courtId], references: [id])

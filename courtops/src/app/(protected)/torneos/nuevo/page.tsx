@@ -15,8 +15,14 @@ export default function NewTournamentPage() {
        const [loading, setLoading] = useState(false)
        const [formData, setFormData] = useState({
               name: '',
+              type: 'TOURNAMENT' as 'TOURNAMENT' | 'LEAGUE',
               startDate: new Date().toISOString().split('T')[0],
-              endDate: ''
+              endDate: '',
+              pointsVictory: 3,
+              pointsDraw: 1,
+              pointsLossPlayed: 1, // Default for leagues: 1 point for playing
+              pointsLossNoShow: 0,
+              pointsWalkover: -1,
        })
 
        // Derived state for better UX
@@ -31,8 +37,14 @@ export default function NewTournamentPage() {
               try {
                      const res = await createTournament({
                             name: formData.name,
+                            type: formData.type,
                             startDate: new Date(formData.startDate),
-                            endDate: formData.endDate ? new Date(formData.endDate) : undefined
+                            endDate: formData.endDate ? new Date(formData.endDate) : undefined,
+                            pointsVictory: formData.pointsVictory,
+                            pointsDraw: formData.pointsDraw,
+                            pointsLossPlayed: formData.pointsLossPlayed,
+                            pointsLossNoShow: formData.pointsLossNoShow,
+                            pointsWalkover: formData.pointsWalkover,
                      })
 
                      if (res.success && res.tournament) {
@@ -83,6 +95,41 @@ export default function NewTournamentPage() {
 
                                    <div className="p-8">
                                           <form onSubmit={handleSubmit} className="space-y-8">
+                                                 {/* Type Selector */}
+                                                 <div className="space-y-4">
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                                                               {t('tournament_type')}
+                                                        </label>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                               <button
+                                                                      type="button"
+                                                                      onClick={() => setFormData({ ...formData, type: 'TOURNAMENT' })}
+                                                                      className={cn(
+                                                                             "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
+                                                                             formData.type === 'TOURNAMENT' 
+                                                                                    ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]" 
+                                                                                    : "border-border bg-muted/20 text-muted-foreground hover:border-border/80"
+                                                                      )}
+                                                               >
+                                                                      <Trophy size={24} />
+                                                                      <span className="font-bold">{t('tournament_only')}</span>
+                                                               </button>
+                                                               <button
+                                                                      type="button"
+                                                                      onClick={() => setFormData({ ...formData, type: 'LEAGUE' })}
+                                                                      className={cn(
+                                                                             "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
+                                                                             formData.type === 'LEAGUE' 
+                                                                                    ? "border-[var(--primary)] bg-[var(--primary)]/5 text-[var(--primary)]" 
+                                                                                    : "border-border bg-muted/20 text-muted-foreground hover:border-border/80"
+                                                                      )}
+                                                               >
+                                                                      <CalendarDays size={24} />
+                                                                      <span className="font-bold">{t('league_only')}</span>
+                                                               </button>
+                                                        </div>
+                                                 </div>
+
                                                  {/* Name Input */}
                                                  <div className="space-y-2 group">
                                                         <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest group-focus-within:text-[var(--primary)] transition-colors">
@@ -96,11 +143,50 @@ export default function NewTournamentPage() {
                                                                       value={formData.name}
                                                                       onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                                       className="w-full bg-muted/30 border-2 border-border rounded-xl px-4 py-4 text-lg font-bold outline-none focus:border-[var(--primary)] focus:bg-background transition-all placeholder:text-muted-foreground/30"
-                                                                      placeholder={t('tournament_name_placeholder')}
+                                                                      placeholder={formData.type === 'LEAGUE' ? 'Ej. Liga Local Nivel 5' : t('tournament_name_placeholder')}
                                                                />
                                                                <Trophy className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/20 pointer-events-none" size={20} />
                                                         </div>
                                                  </div>
+
+                                                 {/* Points Config (Visible only for Leagues or advanced setup) */}
+                                                 {formData.type === 'LEAGUE' && (
+                                                        <div className="p-6 bg-muted/20 border border-border/50 rounded-2xl space-y-6">
+                                                               <div className="flex items-center gap-2 text-muted-foreground">
+                                                                      <Save size={16} />
+                                                                      <h3 className="text-sm font-bold uppercase tracking-wider">{t('points_short')} - {t('league_settings')}</h3>
+                                                               </div>
+                                                               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                                      <div className="space-y-2">
+                                                                             <label className="text-[10px] font-bold uppercase text-muted-foreground">{t('points_victory')}</label>
+                                                                             <input 
+                                                                                    type="number" 
+                                                                                    value={formData.pointsVictory}
+                                                                                    onChange={e => setFormData({...formData, pointsVictory: parseInt(e.target.value)})}
+                                                                                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-bold focus:border-[var(--primary)] outline-none"
+                                                                             />
+                                                                      </div>
+                                                                      <div className="space-y-2">
+                                                                             <label className="text-[10px] font-bold uppercase text-muted-foreground">{t('points_draw')}</label>
+                                                                             <input 
+                                                                                    type="number" 
+                                                                                    value={formData.pointsDraw}
+                                                                                    onChange={e => setFormData({...formData, pointsDraw: parseInt(e.target.value)})}
+                                                                                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-bold focus:border-[var(--primary)] outline-none"
+                                                                             />
+                                                                      </div>
+                                                                      <div className="space-y-2">
+                                                                             <label className="text-[10px] font-bold uppercase text-muted-foreground">{t('points_loss')}</label>
+                                                                             <input 
+                                                                                    type="number" 
+                                                                                    value={formData.pointsLossPlayed}
+                                                                                    onChange={e => setFormData({...formData, pointsLossPlayed: parseInt(e.target.value)})}
+                                                                                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-bold focus:border-[var(--primary)] outline-none"
+                                                                             />
+                                                                      </div>
+                                                               </div>
+                                                        </div>
+                                                 )}
 
                                                  {/* Dates Grid */}
                                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -169,4 +255,3 @@ export default function NewTournamentPage() {
               </div>
        )
 }
-

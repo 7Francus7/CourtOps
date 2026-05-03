@@ -9,7 +9,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import { createCategory, updateCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, generateKnockoutPhase, deleteFixture, setMatchResult, updateTournament, deleteTournament } from '@/actions/tournaments'
+import { createCategory, updateCategory, deleteCategory, createTeam, deleteTeam, searchClients, createClientWithCategory, generateFixture, generateKnockoutPhase, deleteFixture, setMatchResult, updateTournament, deleteTournament, generateLeagueFixture, generateDirectElimination } from '@/actions/tournaments'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
 import BracketView, { hasEliminationMatches } from '@/components/tournaments/BracketView'
@@ -127,11 +127,13 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                                    </div>
                             </div>
 
-                            {/* ... tabs ... */}
                             <div className="flex items-center gap-1 border-b border-border overflow-x-auto no-scrollbar pb-1">
                                    <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={LayoutGrid} label={t('overview')} />
                                    <TabButton active={activeTab === 'categories'} onClick={() => setActiveTab('categories')} icon={Trophy} label={t('categories')} count={tournament.categories.length} />
                                    <TabButton active={activeTab === 'teams'} onClick={() => setActiveTab('teams')} icon={Users} label={t('inscriptions')} count={tournament.categories.reduce((acc: any, cat: any) => acc + cat.teams.length, 0)} />
+                                   {tournament.type === 'LEAGUE' && (
+                                          <TabButton active={activeTab === 'standings'} onClick={() => setActiveTab('standings')} icon={List} label={t('standing_table')} />
+                                   )}
                                    <TabButton active={activeTab === 'matches'} onClick={() => setActiveTab('matches')} icon={Sword} label={t('matches')} count={tournament.matches?.length} />
                             </div>
                      </div>
@@ -150,6 +152,7 @@ export default function TournamentDetailClient({ tournament }: { tournament: any
                                    />
                             )}
                             {activeTab === 'teams' && <TeamsTab tournament={tournament} />}
+                            {activeTab === 'standings' && <StandingsTab tournament={tournament} />}
                             {activeTab === 'matches' && <MatchesTab tournament={tournament} />}
                      </div>
 
@@ -206,7 +209,6 @@ function OverviewTab({ tournament }: { tournament: any }) {
        return (
               <div className="grid grid-cols-3 gap-2 md:gap-6 animate-in fade-in duration-300">
                      <StatsCard label={t('categories')} value={tournament.categories.length} icon={Trophy} color="text-yellow-500" />
-                     {/* Simple count of teams across all categories */}
                      <StatsCard
                             label={t('registered_pairs')}
                             value={tournament.categories.reduce((acc: any, cat: any) => acc + cat.teams.length, 0)}
@@ -214,6 +216,40 @@ function OverviewTab({ tournament }: { tournament: any }) {
                             color="text-blue-500"
                      />
                      <StatsCard label={t('scheduled_matches')} value={tournament.matches?.length || 0} icon={Sword} color="text-green-500" />
+                      
+                      <div className="col-span-full md:col-span-1 bg-card border border-border rounded-xl p-4 shadow-sm">
+                             <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1 tracking-wider">{t('tournament_type')}</p>
+                             <div className="flex items-center gap-2">
+                                    {tournament.type === 'LEAGUE' ? (
+                                           <div className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-xs font-black border border-emerald-500/20 flex items-center gap-1.5">
+                                                  <Calendar size={12} /> {t('league_only')}
+                                           </div>
+                                    ) : (
+                                           <div className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full text-xs font-black border border-blue-500/20 flex items-center gap-1.5">
+                                                  <Trophy size={12} /> {t('tournament_only')}
+                                           </div>
+                                    )}
+                             </div>
+                      </div>
+
+                      {tournament.type === 'LEAGUE' && (
+                             <div className="col-span-full md:col-span-2 bg-card border border-border rounded-xl p-4 shadow-sm flex flex-wrap gap-4 items-center">
+                                    <div className="space-y-1">
+                                           <p className="text-[9px] font-bold text-muted-foreground uppercase">{t('points_victory')}</p>
+                                           <p className="font-black text-emerald-500">{tournament.pointsVictory || 3}</p>
+                                    </div>
+                                    <div className="w-px h-6 bg-border mx-2" />
+                                    <div className="space-y-1">
+                                           <p className="text-[9px] font-bold text-muted-foreground uppercase">{t('points_draw')}</p>
+                                           <p className="font-black text-orange-500">{tournament.pointsDraw || 1}</p>
+                                    </div>
+                                    <div className="w-px h-6 bg-border mx-2" />
+                                    <div className="space-y-1">
+                                           <p className="text-[9px] font-bold text-muted-foreground uppercase">{t('points_loss')}</p>
+                                           <p className="font-black text-red-500">{tournament.pointsLossPlayed || 0}</p>
+                                    </div>
+                             </div>
+                      )}
 
                      <div className="col-span-full bg-card border border-border rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm">
                             <h3 className="text-lg font-bold text-foreground mb-4">{t('tournament_status')}</h3>
@@ -473,18 +509,14 @@ function MatchesTab({ tournament }: { tournament: any }) {
        const confirmAction = useConfirmation()
        const [generating, setGenerating] = useState<string | null>(null)
        const [zonesInput, setZonesInput] = useState<{ [key: string]: number }>({})
-       const [advanceInput, setAdvanceInput] = useState<{ [key: string]: number }>({})
        const [activeCategoryTab, setActiveCategoryTab] = useState<string | null>(null)
-
        const [editingMatch, setEditingMatch] = useState<any>(null)
        const [isResultModalOpen, setIsResultModalOpen] = useState(false)
 
-       // Determine if bracket view should be available and default
        const allMatches = tournament.matches || []
        const showBracketOption = hasEliminationMatches(allMatches)
        const [viewMode, setViewMode] = useState<'list' | 'bracket'>(showBracketOption ? 'bracket' : 'list')
 
-       // Set default active tab
        React.useEffect(() => {
               if (!activeCategoryTab && tournament.categories.length > 0) {
                      setActiveCategoryTab(tournament.categories[0].id)
@@ -494,33 +526,11 @@ function MatchesTab({ tournament }: { tournament: any }) {
        const handleGenerate = async (categoryId: string) => {
               if (generating) return
               const zones = zonesInput[categoryId] || 1
-              const advance = advanceInput[categoryId] || 1
-
               setGenerating(categoryId)
               try {
-                     const res = await generateFixture(categoryId, zones, advance)
-                     if (res.success) {
-                            toast.success(t('fixture_generated_success'))
-                     } else {
-                            toast.error(res.error || t('error_generating'))
-                     }
-              } catch {
-                     toast.error(t('error_unexpected'))
-              } finally {
-                     setGenerating(null)
-              }
-       }
-
-       const handleGenerateKnockout = async (categoryId: string) => {
-              if (generating) return
-              setGenerating(categoryId + '_knockout')
-              try {
-                     const res = await generateKnockoutPhase(categoryId)
-                     if (res.success) {
-                            toast.success('Fase eliminatoria generada')
-                     } else {
-                            toast.error(res.error || 'Error al generar la eliminatoria')
-                     }
+                     const res = await generateFixture(categoryId, zones, 1)
+                     if (res.success) toast.success(t('fixture_generated_success'))
+                     else toast.error(res.error || t('error_generating'))
               } catch {
                      toast.error(t('error_unexpected'))
               } finally {
@@ -536,15 +546,11 @@ function MatchesTab({ tournament }: { tournament: any }) {
                      variant: 'destructive'
               })
               if (!ok) return
-
               setGenerating(categoryId)
               try {
                      const res = await deleteFixture(categoryId)
-                     if (res.success) {
-                            toast.success(t('fixture_deleted'))
-                     } else {
-                            toast.error(t('error_deleting'))
-                     }
+                     if (res.success) toast.success(t('fixture_deleted'))
+                     else toast.error(t('error_deleting'))
               } catch {
                      toast.error(t('error_unexpected'))
               } finally {
@@ -555,7 +561,6 @@ function MatchesTab({ tournament }: { tournament: any }) {
        return (
               <div className="space-y-6 animate-in fade-in duration-300">
                      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-                            {/* Category Selector if multiple */}
                             {tournament.categories.length > 1 && (
                                    <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
                                           {tournament.categories.map((cat: any) => (
@@ -575,7 +580,6 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                    </div>
                             )}
 
-                            {/* View Toggle: List / Bracket */}
                             {showBracketOption && (
                                    <div className="flex items-center bg-muted/30 rounded-lg border border-border/50 p-0.5 shrink-0">
                                           <button
@@ -613,14 +617,9 @@ function MatchesTab({ tournament }: { tournament: any }) {
                             const hasFixture = catMatches.length > 0
                             const teamCount = cat.teams.length
                             const groups = cat.groups || []
-                            const groupMatches = catMatches.filter((m: any) => m.round === 'Fase de Grupos')
-                            const knockoutMatches = catMatches.filter((m: any) => m.round !== 'Fase de Grupos')
-                            const hasKnockout = knockoutMatches.length > 0
-                            const groupsDone = groups.length > 0 && groupMatches.length > 0
 
                             return (
                                    <div key={cat.id} className="space-y-6">
-                                          {/* Header / Actions */}
                                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 sm:gap-0">
                                                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                                                         <h3 className="text-xl md:text-2xl font-black text-foreground">{cat.name}</h3>
@@ -629,16 +628,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                         )}
                                                  </div>
                                                  {hasFixture && (
-                                                        <div className="flex items-center gap-2 flex-wrap">
-                                                               {groupsDone && !hasKnockout && (
-                                                                      <button
-                                                                             onClick={() => handleGenerateKnockout(cat.id)}
-                                                                             disabled={generating === cat.id + '_knockout'}
-                                                                             className="text-[var(--primary)] hover:brightness-110 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--primary)]/30 hover:bg-[var(--primary)]/10 transition-colors disabled:opacity-50"
-                                                                      >
-                                                                             <GitBranch size={12} /> {generating === cat.id + '_knockout' ? 'Generando...' : 'Generar Eliminatoria'}
-                                                                      </button>
-                                                               )}
+                                                        <div className="flex items-center gap-2">
                                                                <button
                                                                       onClick={() => handleDeleteFixture(cat.id)}
                                                                       className="text-red-500 hover:text-red-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/10 transition-colors"
@@ -656,7 +646,7 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                         </div>
                                                         <h4 className="text-lg font-bold text-foreground mb-2">{t('generate_fixture')}</h4>
                                                         <p className="text-muted-foreground text-sm max-w-md mb-8 font-medium">
-                                                               {t('generate_fixture_desc')} ({teamCount} {t('registered_pairs')})
+                                                               Selecciona el formato para generar los partidos de esta categoría ({teamCount} {t('registered_pairs')})
                                                         </p>
 
                                                         {teamCount < 2 ? (
@@ -664,102 +654,81 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                       {t('insufficient_pairs')}
                                                                </div>
                                                         ) : (
-                                                               <div className="flex flex-col sm:flex-row items-center gap-3 bg-muted/30 p-3 rounded-xl border border-border/50 w-full sm:w-auto">
-                                                                      {/* Zones */}
-                                                                      <div className="flex items-center gap-3 px-2">
-                                                                             <span className="text-xs font-bold text-muted-foreground uppercase">{t('zones')}:</span>
-                                                                             <div className="flex items-center gap-2">
-                                                                                    <button
-                                                                                           onClick={() => setZonesInput({ ...zonesInput, [cat.id]: Math.max(1, (zonesInput[cat.id] || 1) - 1) })}
-                                                                                           className="w-6 h-6 rounded bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-foreground font-bold transition-colors"
-                                                                                    >-</button>
-                                                                                    <span className="font-bold text-foreground w-4 text-center">{zonesInput[cat.id] || 1}</span>
-                                                                                    <button
-                                                                                           onClick={() => setZonesInput({ ...zonesInput, [cat.id]: (zonesInput[cat.id] || 1) + 1 })}
-                                                                                           className="w-6 h-6 rounded bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-foreground font-bold transition-colors"
-                                                                                    >+</button>
-                                                                             </div>
+                                                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+                                                                      <div className="p-6 bg-muted/30 rounded-2xl border border-border/50 flex flex-col items-center gap-4">
+                                                                             <GitBranch size={24} className="text-blue-500" />
+                                                                             <h5 className="font-bold text-sm">{t('format_direct')}</h5>
+                                                                             <button
+                                                                                    onClick={async () => {
+                                                                                           setGenerating(cat.id)
+                                                                                           const res = await generateDirectElimination(cat.id)
+                                                                                           if (res.success) toast.success(t('fixture_generated_success'))
+                                                                                           else toast.error(res.error)
+                                                                                           setGenerating(null)
+                                                                                    }}
+                                                                                    disabled={!!generating}
+                                                                                    className="w-full py-2 bg-blue-500 text-white rounded-lg font-bold text-xs hover:brightness-110 transition-all"
+                                                                             >
+                                                                                    {t('generate')}
+                                                                             </button>
                                                                       </div>
-                                                                      {/* Teams to advance per group */}
-                                                                      <div className="flex items-center gap-3 px-2 border-t sm:border-t-0 sm:border-l border-border/50 pt-2 sm:pt-0 sm:pl-3">
-                                                                             <span className="text-xs font-bold text-muted-foreground uppercase">Clasifican:</span>
+                                                                      <div className="p-6 bg-muted/30 rounded-2xl border border-border/50 flex flex-col items-center gap-4">
+                                                                             <LayoutGrid size={24} className="text-[var(--primary)]" />
+                                                                             <h5 className="font-bold text-sm text-center">{t('format_groups')}</h5>
                                                                              <div className="flex items-center gap-2">
-                                                                                    <button
-                                                                                           onClick={() => setAdvanceInput({ ...advanceInput, [cat.id]: Math.max(1, (advanceInput[cat.id] || 1) - 1) })}
-                                                                                           className="w-6 h-6 rounded bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-foreground font-bold transition-colors"
-                                                                                    >-</button>
-                                                                                    <span className="font-bold text-foreground w-4 text-center">{advanceInput[cat.id] || 1}</span>
-                                                                                    <button
-                                                                                           onClick={() => setAdvanceInput({ ...advanceInput, [cat.id]: (advanceInput[cat.id] || 1) + 1 })}
-                                                                                           className="w-6 h-6 rounded bg-muted/50 hover:bg-muted/80 flex items-center justify-center text-foreground font-bold transition-colors"
-                                                                                    >+</button>
+                                                                                    <span className="text-[10px] font-bold text-muted-foreground">Zonas:</span>
+                                                                                    <input 
+                                                                                           type="number" 
+                                                                                           value={zonesInput[cat.id] || 1} 
+                                                                                           onChange={e => setZonesInput({...zonesInput, [cat.id]: parseInt(e.target.value)})}
+                                                                                           className="w-10 bg-background border border-border rounded px-1 text-center font-bold text-xs"
+                                                                                    />
                                                                              </div>
-                                                                             <span className="text-[10px] text-muted-foreground">por grupo</span>
+                                                                             <button
+                                                                                    onClick={() => handleGenerate(cat.id)}
+                                                                                    disabled={!!generating}
+                                                                                    className="w-full py-2 bg-[var(--primary)] text-white rounded-lg font-bold text-xs hover:brightness-110 transition-all"
+                                                                             >
+                                                                                    {t('generate')}
+                                                                             </button>
                                                                       </div>
-                                                                      <button
-                                                                             onClick={() => handleGenerate(cat.id)}
-                                                                             disabled={!!generating}
-                                                                             className="bg-primary hover:brightness-110 text-primary-foreground font-black text-sm py-2 px-6 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-                                                                      >
-                                                                             {generating === cat.id ? t('generating') : t('generate')}
-                                                                      </button>
+                                                                      <div className="p-6 bg-muted/30 rounded-2xl border border-border/50 flex flex-col items-center gap-4">
+                                                                             <Calendar size={24} className="text-emerald-500" />
+                                                                             <h5 className="font-bold text-sm">{t('format_league')}</h5>
+                                                                             <button
+                                                                                    onClick={async () => {
+                                                                                           setGenerating(cat.id)
+                                                                                           const res = await generateLeagueFixture(cat.id)
+                                                                                           if (res.success) toast.success(t('fixture_generated_success'))
+                                                                                           else toast.error(res.error)
+                                                                                           setGenerating(null)
+                                                                                    }}
+                                                                                    disabled={!!generating}
+                                                                                    className="w-full py-2 bg-emerald-500 text-white rounded-lg font-bold text-xs hover:brightness-110 transition-all"
+                                                                             >
+                                                                                    {t('generate')}
+                                                                             </button>
+                                                                      </div>
                                                                </div>
                                                         )}
                                                  </div>
                                           ) : viewMode === 'bracket' && showBracketOption ? (
-                                                 /* Bracket View */
                                                  <BracketView
                                                         matches={catMatches}
                                                         onEditMatch={(match: any) => { setEditingMatch(match); setIsResultModalOpen(true); }}
                                                  />
                                           ) : (
-                                                 /* List View */
-                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                        {groups.length > 0 ? (
-                                                               groups.map((group: any) => {
-                                                                      const groupTeamIds = group.teams.map((t: any) => t.id)
-                                                                      const groupMatches = catMatches.filter((m: any) => groupTeamIds.includes(m.homeTeamId) || groupTeamIds.includes(m.awayTeamId))
-
-                                                                      // Sort teams by points descending
-                                                                      const sortedTeams = [...group.teams].sort((a: any, b: any) => b.points - a.points)
-
-                                                                      return (
-                                                                             <div key={group.id} className="space-y-4">
-                                                                                    <div className="flex items-center justify-between border-b border-border pb-2">
-                                                                                           <h4 className="font-bold text-xl text-foreground flex items-center gap-2">
-                                                                                                  <span className="w-1.5 h-6 bg-[var(--primary)] rounded-full" />
-                                                                                                  {group.name}
-                                                                                           </h4>
+                                                 <div className="space-y-8">
+                                                        {cat.format === 'LEAGUE' || cat.format === 'ROUND_ROBIN' ? (
+                                                               <div className="space-y-10">
+                                                                      {Array.from(new Set(catMatches.map((m: any) => m.matchday))).sort((a: any, b: any) => a - b).map((matchday: any) => (
+                                                                             <div key={matchday} className="space-y-4">
+                                                                                    <div className="flex items-center gap-3">
+                                                                                           <div className="h-8 w-1.5 bg-[var(--primary)] rounded-full" />
+                                                                                           <h4 className="text-xl font-black text-foreground">{t('matchday')} {matchday}</h4>
                                                                                     </div>
-
-                                                                                    {/* Standings Table - REAL DATA */}
-                                                                                    <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
-                                                                                           <table className="w-full text-sm">
-                                                                                                  <thead className="bg-muted/30 text-[10px] text-muted-foreground font-black uppercase tracking-wider">
-                                                                                                         <tr>
-                                                                                                                <th className="px-4 py-3 text-left">Pareja</th>
-                                                                                                                <th className="px-2 py-2 text-center w-12">PTS</th>
-                                                                                                                <th className="px-2 py-2 text-center w-10">PJ</th>
-                                                                                                         </tr>
-                                                                                                  </thead>
-                                                                                                  <tbody className="divide-y divide-border/50">
-                                                                                                         {sortedTeams.map((team: any, i: number) => (
-                                                                                                                <tr key={team.id} className="hover:bg-muted/5 transition-colors">
-                                                                                                                       <td className="px-4 py-2.5 text-foreground font-bold flex items-center gap-3">
-                                                                                                                              <span className={cn("text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-black", i === 0 ? "bg-yellow-500/10 text-yellow-500" : "text-muted-foreground/40 bg-muted/20")}>{i + 1}</span>
-                                                                                                                              <span className="truncate max-w-[120px]">{team.name}</span>
-                                                                                                                       </td>
-                                                                                                                       <td className="px-2 py-2 text-center font-black text-[var(--primary)]">{team.points}</td>
-                                                                                                                       <td className="px-2 py-2 text-center text-muted-foreground font-medium">{team.matchesPlayed}</td>
-                                                                                                                </tr>
-                                                                                                         ))}
-                                                                                                  </tbody>
-                                                                                           </table>
-                                                                                    </div>
-
-                                                                                    {/* Matches */}
-                                                                                    <div className="flex flex-col gap-3">
-                                                                                           {groupMatches.map((match: any) => (
+                                                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                                                           {catMatches.filter((m: any) => m.matchday === matchday).map((match: any) => (
                                                                                                   <MatchCard
                                                                                                          key={match.id}
                                                                                                          match={match}
@@ -768,11 +737,61 @@ function MatchesTab({ tournament }: { tournament: any }) {
                                                                                            ))}
                                                                                     </div>
                                                                              </div>
-                                                                      )
-                                                               })
+                                                                      ))}
+                                                               </div>
+                                                        ) : groups.length > 0 ? (
+                                                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                                      {groups.map((group: any) => {
+                                                                             const groupTeamIds = group.teams.map((t: any) => t.id)
+                                                                             const groupMatches = catMatches.filter((m: any) => groupTeamIds.includes(m.homeTeamId) || groupTeamIds.includes(m.awayTeamId))
+                                                                             const sortedTeams = [...group.teams].sort((a: any, b: any) => b.points - a.points)
+
+                                                                             return (
+                                                                                    <div key={group.id} className="space-y-4">
+                                                                                           <div className="flex items-center justify-between border-b border-border pb-2">
+                                                                                                  <h4 className="font-bold text-xl text-foreground flex items-center gap-2">
+                                                                                                         <span className="w-1.5 h-6 bg-[var(--primary)] rounded-full" />
+                                                                                                         {group.name}
+                                                                                                  </h4>
+                                                                                           </div>
+                                                                                           <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+                                                                                                  <table className="w-full text-sm">
+                                                                                                         <thead className="bg-muted/30 text-[10px] text-muted-foreground font-black uppercase tracking-wider">
+                                                                                                                <tr>
+                                                                                                                       <th className="px-4 py-3 text-left">Pareja</th>
+                                                                                                                       <th className="px-2 py-2 text-center w-12">PTS</th>
+                                                                                                                       <th className="px-2 py-2 text-center w-10">PJ</th>
+                                                                                                                </tr>
+                                                                                                         </thead>
+                                                                                                         <tbody className="divide-y divide-border/50">
+                                                                                                                {sortedTeams.map((team: any, i: number) => (
+                                                                                                                       <tr key={team.id} className="hover:bg-muted/5 transition-colors">
+                                                                                                                              <td className="px-4 py-2.5 text-foreground font-bold flex items-center gap-3">
+                                                                                                                                     <span className={cn("text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-black", i === 0 ? "bg-yellow-500/10 text-yellow-500" : "text-muted-foreground/40 bg-muted/20")}>{i + 1}</span>
+                                                                                                                                     <span className="truncate max-w-[120px]">{team.name}</span>
+                                                                                                                              </td>
+                                                                                                                              <td className="px-2 py-2 text-center font-black text-[var(--primary)]">{team.points}</td>
+                                                                                                                              <td className="px-2 py-2 text-center text-muted-foreground font-medium">{team.matchesPlayed}</td>
+                                                                                                                       </tr>
+                                                                                                                ))}
+                                                                                                         </tbody>
+                                                                                                  </table>
+                                                                                           </div>
+                                                                                           <div className="flex flex-col gap-3">
+                                                                                                  {groupMatches.map((match: any) => (
+                                                                                                         <MatchCard
+                                                                                                                key={match.id}
+                                                                                                                match={match}
+                                                                                                                onEdit={() => { setEditingMatch(match); setIsResultModalOpen(true); }}
+                                                                                                         />
+                                                                                                  ))}
+                                                                                           </div>
+                                                                                    </div>
+                                                                             )
+                                                                      })}
+                                                               </div>
                                                         ) : (
-                                                               // Fallback (No groups, just matches)
-                                                               <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                               <div className="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                                       {catMatches.map((match: any) => (
                                                                              <MatchCard
                                                                                     key={match.id}
@@ -1553,29 +1572,45 @@ function CreateTeamModal({ isOpen, onClose, categoryId, categoryName }: any) {
 
 function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
        const { t } = useLanguage()
-       const confirmAction = useConfirmation()
-       const [loading, setLoading] = useState(false)
-       const [name, setName] = useState(tournament.name || '')
-       const [status, setStatus] = useState(tournament.status || 'DRAFT')
-       const [startDate, setStartDate] = useState(tournament.startDate ? format(new Date(tournament.startDate), 'yyyy-MM-dd') : '')
+        const confirmAction = useConfirmation()
+        const [loading, setLoading] = useState(false)
+        const [name, setName] = useState(tournament.name || '')
+        const [status, setStatus] = useState(tournament.status || 'DRAFT')
+        const [type, setType] = useState<'TOURNAMENT' | 'LEAGUE'>(tournament.type || 'TOURNAMENT')
+        const [matchType, setMatchType] = useState<'INDIVIDUAL' | 'PAIRS'>(tournament.matchType || 'PAIRS')
+        const [startDate, setStartDate] = useState(tournament.startDate ? format(new Date(tournament.startDate), 'yyyy-MM-dd') : '')
 
-       const handleSubmit = async (e: React.FormEvent) => {
-              e.preventDefault()
-              setLoading(true)
-              try {
-                     await updateTournament(tournament.id, {
-                            name,
-                            status,
-                            startDate: startDate ? new Date(startDate) : undefined
-                     })
-                     toast.success(t('tournament_updated'))
-                     onClose()
-              } catch {
-                     toast.error(t('error_updating'))
-              } finally {
-                     setLoading(false)
-              }
-       }
+        // Points
+        const [ptsV, setPtsV] = useState(tournament.pointsVictory ?? 3)
+        const [ptsE, setPtsE] = useState(tournament.pointsDraw ?? 1)
+        const [ptsP, setPtsP] = useState(tournament.pointsLossPlayed ?? 0)
+        const [ptsWo, setPtsWo] = useState(tournament.pointsLossNoShow ?? 0)
+        const [ptsAdv, setPtsAdv] = useState(tournament.pointsWalkover ?? 3)
+
+        const handleSubmit = async (e: React.FormEvent) => {
+               e.preventDefault()
+               setLoading(true)
+               try {
+                      await updateTournament(tournament.id, {
+                             name,
+                             status,
+                             type,
+                             matchType,
+                             startDate: startDate ? new Date(startDate) : undefined,
+                             pointsVictory: ptsV,
+                             pointsDraw: ptsE,
+                             pointsLossPlayed: ptsP,
+                             pointsLossNoShow: ptsWo,
+                             pointsWalkover: ptsAdv
+                      })
+                      toast.success(t('tournament_updated'))
+                      onClose()
+               } catch {
+                      toast.error(t('error_updating'))
+               } finally {
+                      setLoading(false)
+               }
+        }
 
        const handleDelete = async () => {
               const ok = await confirmAction({
@@ -1654,6 +1689,63 @@ function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
                                                         </select>
                                                  </div>
                                           </div>
+
+                                          <div className="grid grid-cols-2 gap-4">
+                                                 <div>
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">{t('tournament_type')}</label>
+                                                        <select
+                                                               value={type}
+                                                               onChange={e => setType(e.target.value as any)}
+                                                               className="w-full bg-muted/30 border border-border rounded-xl p-3 text-foreground text-sm outline-none focus:border-[var(--primary)] focus:bg-background transition-all appearance-none"
+                                                        >
+                                                               <option value="TOURNAMENT">{t('tournament_only')}</option>
+                                                               <option value="LEAGUE">{t('league_only')}</option>
+                                                        </select>
+                                                 </div>
+                                                 <div>
+                                                        <label className="text-xs font-bold text-muted-foreground uppercase mb-1.5 block ml-1">{t('match_type')}</label>
+                                                        <select
+                                                               value={matchType}
+                                                               onChange={e => setMatchType(e.target.value as any)}
+                                                               className="w-full bg-muted/30 border border-border rounded-xl p-3 text-foreground text-sm outline-none focus:border-[var(--primary)] focus:bg-background transition-all appearance-none"
+                                                        >
+                                                               <option value="PAIRS">{t('pairs_mode')}</option>
+                                                               <option value="INDIVIDUAL">{t('individual')}</option>
+                                                        </select>
+                                                 </div>
+                                          </div>
+
+                                          {type === 'LEAGUE' && (
+                                                 <div className="space-y-4 p-4 bg-muted/20 rounded-2xl border border-border/50 animate-in fade-in zoom-in-95 duration-200">
+                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                                                               <Settings2 size={12} /> Configuración de Puntos
+                                                        </p>
+                                                        <div className="grid grid-cols-3 gap-3">
+                                                               <div>
+                                                                      <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">{t('points_victory')}</label>
+                                                                      <input type="number" value={ptsV} onChange={e => setPtsV(Number(e.target.value))} className="w-full bg-background border border-border rounded-lg p-2 text-sm text-center font-bold" />
+                                                               </div>
+                                                               <div>
+                                                                      <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">{t('points_draw')}</label>
+                                                                      <input type="number" value={ptsE} onChange={e => setPtsE(Number(e.target.value))} className="w-full bg-background border border-border rounded-lg p-2 text-sm text-center font-bold" />
+                                                               </div>
+                                                               <div>
+                                                                      <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">{t('points_loss')}</label>
+                                                                      <input type="number" value={ptsP} onChange={e => setPtsP(Number(e.target.value))} className="w-full bg-background border border-border rounded-lg p-2 text-sm text-center font-bold" />
+                                                               </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                               <div>
+                                                                      <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">{t('points_loss_noshow')}</label>
+                                                                      <input type="number" value={ptsWo} onChange={e => setPtsWo(Number(e.target.value))} className="w-full bg-background border border-border rounded-lg p-2 text-sm text-center font-bold" />
+                                                               </div>
+                                                               <div>
+                                                                      <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">{t('points_walkover')}</label>
+                                                                      <input type="number" value={ptsAdv} onChange={e => setPtsAdv(Number(e.target.value))} className="w-full bg-background border border-border rounded-lg p-2 text-sm text-center font-bold" />
+                                                               </div>
+                                                        </div>
+                                                 </div>
+                                          )}
                                    </div>
 
                                    <div className="flex gap-3 pt-4 border-t border-border/50">
@@ -1674,6 +1766,102 @@ function TournamentSettingsModal({ isOpen, onClose, tournament, router }: any) {
                                           </button>
                                    </div>
                             </form>
+                     </div>
+              </div>
+       )
+}
+function StandingsTab({ tournament }: { tournament: any }) {
+       const { t } = useLanguage()
+       const [selectedCategory, setSelectedCategory] = useState<string>(tournament.categories[0]?.id || '')
+       const activeCategory = tournament.categories.find((c: any) => c.id === selectedCategory)
+
+       if (!activeCategory) return null
+
+       // Sort teams by points, then diff, then won matches
+       const sortedTeams = [...activeCategory.teams].sort((a: any, b: any) => {
+              if (b.points !== a.points) return b.points - a.points
+              const aDiff = a.gamesFor - a.gamesAgainst
+              const bDiff = b.gamesFor - b.gamesAgainst
+              if (bDiff !== aDiff) return bDiff - aDiff
+              return b.won - a.won
+       })
+
+       return (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                     <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+                            {tournament.categories.map((cat: any) => (
+                                   <button
+                                          key={cat.id}
+                                          onClick={() => setSelectedCategory(cat.id)}
+                                          className={cn(
+                                                 "px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border",
+                                                 selectedCategory === cat.id
+                                                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                                        : "bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+                                          )}
+                                   >
+                                          {cat.name}
+                                   </button>
+                            ))}
+                     </div>
+
+                     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl overflow-x-auto">
+                            <table className="w-full text-sm">
+                                   <thead className="bg-muted/50 text-[10px] text-muted-foreground font-black uppercase tracking-wider">
+                                          <tr>
+                                                 <th className="px-6 py-4 text-left w-12">{t('rank')}</th>
+                                                 <th className="px-6 py-4 text-left">{t('pairs')}</th>
+                                                 <th className="px-4 py-4 text-center w-20 bg-[var(--primary)]/10 text-[var(--primary)]">{t('points_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12">{t('played_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12">{t('won_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12">{t('lost_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12">{t('draw_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12 opacity-50">{t('sets_for_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12 opacity-50">{t('sets_against_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12">{t('games_for_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-12">{t('games_against_short')}</th>
+                                                 <th className="px-4 py-4 text-center w-16 font-black">{t('diff_short')}</th>
+                                          </tr>
+                                   </thead>
+                                   <tbody className="divide-y divide-border/50">
+                                          {sortedTeams.map((team: any, i: number) => {
+                                                 const diff = team.gamesFor - team.gamesAgainst
+                                                 return (
+                                                        <tr key={team.id} className="hover:bg-muted/5 transition-colors">
+                                                               <td className="px-6 py-4 text-center">
+                                                                      <span className={cn(
+                                                                             "w-7 h-7 rounded-full flex items-center justify-center font-black text-xs",
+                                                                             i === 0 ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/20" :
+                                                                             i === 1 ? "bg-slate-400/20 text-slate-400 border border-slate-400/20" :
+                                                                             i === 2 ? "bg-orange-600/20 text-orange-600 border border-orange-600/20" :
+                                                                             "text-muted-foreground"
+                                                                      )}>
+                                                                             {i + 1}
+                                                                      </span>
+                                                               </td>
+                                                               <td className="px-6 py-4">
+                                                                      <div className="flex flex-col">
+                                                                             <span className="font-bold text-foreground">{team.name}</span>
+                                                                             <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">ID: {team.id.substring(0, 8)}</span>
+                                                                      </div>
+                                                               </td>
+                                                               <td className="px-4 py-4 text-center font-black text-[var(--primary)] text-lg bg-[var(--primary)]/5">{team.points}</td>
+                                                               <td className="px-4 py-4 text-center font-bold">{team.matchesPlayed}</td>
+                                                               <td className="px-4 py-4 text-center text-emerald-500 font-bold">{team.won}</td>
+                                                               <td className="px-4 py-4 text-center text-red-500 font-bold">{team.lost}</td>
+                                                               <td className="px-4 py-4 text-center text-orange-500 font-bold">{team.draw}</td>
+                                                               <td className="px-4 py-4 text-center text-muted-foreground/60">{team.setsFor}</td>
+                                                               <td className="px-4 py-4 text-center text-muted-foreground/60">{team.setsAgainst}</td>
+                                                               <td className="px-4 py-4 text-center font-medium">{team.gamesFor}</td>
+                                                               <td className="px-4 py-4 text-center font-medium">{team.gamesAgainst}</td>
+                                                               <td className={cn("px-4 py-4 text-center font-black", diff > 0 ? "text-emerald-500" : diff < 0 ? "text-red-500" : "text-muted-foreground")}>
+                                                                      {diff > 0 ? `+${diff}` : diff}
+                                                               </td>
+                                                        </tr>
+                                                 )
+                                          })}
+                                   </tbody>
+                            </table>
                      </div>
               </div>
        )
