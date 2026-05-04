@@ -175,9 +175,14 @@ export default function PublicBookingInterface({ club }: Props) {
                                    <div className="min-w-0">
                                           <h1 className="font-bold text-[15px] tracking-tight leading-none truncate">{club.name}</h1>
                                           {club.address && (
-                                                 <p className="text-[11px] text-white/40 mt-1 flex items-center gap-1 truncate">
+                                                 <a
+                                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.address)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[11px] text-white/40 mt-1 flex items-center gap-1 truncate hover:text-white/60 transition-colors active:scale-95"
+                                                 >
                                                         <MapPin size={10} className="shrink-0" /> {club.address}
-                                                 </p>
+                                                 </a>
                                           )}
                                    </div>
                             </div>
@@ -709,10 +714,15 @@ export default function PublicBookingInterface({ club }: Props) {
                                                                )}
 
                                                                {club.address && (
-                                                                      <div className="flex items-center justify-center gap-1.5 text-[11px] text-white/30">
+                                                                      <a
+                                                                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.address)}`}
+                                                                             target="_blank"
+                                                                             rel="noopener noreferrer"
+                                                                             className="flex items-center justify-center gap-1.5 text-[11px] text-white/30 hover:text-white/50 transition-colors active:scale-95"
+                                                                      >
                                                                              <MapPin size={11} />
                                                                              <span>{club.address}</span>
-                                                                      </div>
+                                                                      </a>
                                                                )}
                                                         </motion.div>
 

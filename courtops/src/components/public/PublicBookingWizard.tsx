@@ -526,10 +526,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 				timeStr: selectedSlot.time,
 				courtId: selectedSlot.courtId
 			})
-			const hasPaymentOptions =
-				mode === 'guest' &&
-				(canUseOnlinePayments || club.mpAlias || club.mpCvu || club.phone)
-			goToStep(hasPaymentOptions ? 'payment' : 3)
+			const hasPaymentMethods = canUseOnlinePayments || club.mpAlias || club.mpCvu
+			const depositRequired = (club.bookingDeposit ?? 0) > 0
+			const shouldShowPayment = hasPaymentMethods && (depositRequired || mode === 'guest')
+			goToStep(shouldShowPayment ? 'payment' : 3)
 		} else {
 			setBookingError(res.error || 'Error al crear la reserva. Intentá de nuevo.')
 		}
@@ -744,10 +744,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								<CreditCard size={22} className="text-primary" />
 							</div>
 							<h2 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
-								Pagá la seña
+								{(club.bookingDeposit ?? 0) > 0 ? `Pagá la seña de ${formatArs(club.bookingDeposit!)}` : 'Pagá la seña'}
 							</h2>
 							<p className="text-sm font-semibold text-slate-500 dark:text-zinc-400">
-								Confirmá tu turno enviando el pago ahora
+								{(club.bookingDeposit ?? 0) > 0
+									? 'El pago de la seña es obligatorio para confirmar tu turno'
+									: 'Confirmá tu turno enviando el pago ahora'}
 							</p>
 						</div>
 
@@ -867,14 +869,26 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							</a>
 						)}
 
-						{/* Skip */}
-						<button
-							type="button"
-							onClick={() => goToStep(3)}
-							className="w-full py-3 text-[11px] font-bold text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors"
-						>
-							Saltar por ahora →
-						</button>
+						{/* Skip — only when no deposit is required */}
+						{!((club.bookingDeposit ?? 0) > 0) && (
+							<button
+								type="button"
+								onClick={() => goToStep(3)}
+								className="w-full py-3 text-[11px] font-bold text-slate-400 dark:text-zinc-600 hover:text-slate-600 dark:hover:text-zinc-400 transition-colors"
+							>
+								Saltar por ahora →
+							</button>
+						)}
+
+						{/* Mandatory notice when deposit is required */}
+						{(club.bookingDeposit ?? 0) > 0 && (
+							<div className="flex items-start gap-2.5 p-3 bg-amber-500/[0.08] border border-amber-500/15 rounded-2xl">
+								<Lock size={13} className="text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+								<p className="text-[11px] text-amber-700 dark:text-amber-300/80 font-semibold leading-relaxed">
+									Tu turno no está confirmado hasta que se acredite el pago de la seña. Si no pagás, el club puede liberar el horario.
+								</p>
+							</div>
+						)}
 					</motion.div>
 				</main>
 			</div>
@@ -2266,7 +2280,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								) : (
 									<>
 										<ShieldCheck size={18} />
-										Confirmar Reserva
+										{((canUseOnlinePayments || club.mpAlias || club.mpCvu) && ((club.bookingDeposit ?? 0) > 0 || mode === 'guest'))
+											? 'Continuar al pago'
+											: 'Confirmar Reserva'}
 									</>
 								)}
 							</button>

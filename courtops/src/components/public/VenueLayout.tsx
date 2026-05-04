@@ -210,10 +210,15 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                 transition={{ delay: 0.2 }}
                 className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-3"
               >
-                <div className="flex items-center gap-1 text-white/60 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.address || club.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-white/60 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5 hover:bg-white/10 hover:text-white/80 transition-colors active:scale-95"
+                >
                   <MapPin size={10} className="text-primary" />
                   <span className="truncate">{club.address?.split(',')[0] || 'Ubicación no disponible'}</span>
-                </div>
+                </a>
                 <div className="flex items-center gap-1 text-white/40 text-[10px] font-black uppercase tracking-widest">
                   <Clock size={10} />
                   <span>{club.openTime} - {club.closeTime}</span>
