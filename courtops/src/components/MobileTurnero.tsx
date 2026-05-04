@@ -278,7 +278,7 @@ export default function MobileTurnero({ date, onDateChange, onBookingClick, onBa
        return (
               <div className="flex flex-col h-full bg-background relative overflow-hidden font-sans transition-colors duration-300">
                      {/* MODERN HEADER */}
-                     <div className="flex flex-col border-b border-border bg-background/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
+                     <div className="flex flex-col border-b border-border bg-background/90 backdrop-blur-xl sticky top-0 z-50 transition-all pt-[env(safe-area-inset-top)]">
                             <div className="flex items-center justify-between px-4 py-3">
                                    <button
                                           onClick={onBack}
