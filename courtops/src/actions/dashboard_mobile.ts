@@ -157,7 +157,7 @@ export async function getMobileDashboardData() {
               })
 
               // 4. Alerts
-              const alerts = []
+              const alerts: { type: string; title: string; message: string }[] = []
               const pendingBookings = bookingsToday.filter(b => {
                      const itemsTotal = b.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
                      const total = b.price + itemsTotal
