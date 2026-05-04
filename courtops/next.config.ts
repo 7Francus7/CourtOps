@@ -5,7 +5,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 const withPWA = withPWAInit({
   dest: "public",
   cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
+  aggressiveFrontEndNavCaching: false,
   reloadOnOnline: true,
   customWorkerSrc: "worker",
   disable: process.env.NODE_ENV === "development",
@@ -14,6 +14,12 @@ const withPWA = withPWAInit({
   },
   workboxOptions: {
     disableDevLogs: true,
+    runtimeCaching: [
+      {
+        urlPattern: /^\/api\//,
+        handler: 'NetworkOnly',
+      },
+    ],
   },
 });
 

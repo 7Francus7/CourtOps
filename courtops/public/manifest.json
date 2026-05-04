@@ -3,6 +3,7 @@
   "short_name": "CourtOps",
   "description": "Gestión profesional de canchas de pádel",
   "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#111111",
   "theme_color": "#00e676",
