@@ -168,29 +168,30 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const handleValidateDeposit = async () => {
               if (!booking?.id) return
               
-              confirm({
+              const confirmed = await confirm({
                      title: 'Validar Transferencia',
                      description: '¿Confirmas que el dinero de la seña ya ingresó a la cuenta del club?',
-                     confirmText: 'Sí, validar',
-                     cancelText: 'Cancelar',
-                     onConfirm: async () => {
-                            setLocalLoading(true)
-                            try {
-                                   const res = await validateBookingDeposit(booking.id)
-                                   if (res.success) {
-                                          toast.success('Transferencia validada correctamente')
-                                          refreshBooking()
-                                          onUpdate()
-                                   } else {
-                                          toast.error(res.error || 'Error al validar la transferencia')
-                                   }
-                            } catch {
-                                   toast.error('Ocurrió un error inesperado')
-                            } finally {
-                                   setLocalLoading(false)
-                            }
-                     }
+                     confirmLabel: 'Sí, validar',
+                     cancelLabel: 'Cancelar',
               })
+
+              if (confirmed) {
+                     setLocalLoading(true)
+                     try {
+                            const res = await validateBookingDeposit(booking.id)
+                            if (res.success) {
+                                   toast.success('Transferencia validada correctamente')
+                                   refreshBooking()
+                                   onUpdate()
+                            } else {
+                                   toast.error(res.error || 'Error al validar la transferencia')
+                            }
+                     } catch {
+                            toast.error('Ocurrió un error inesperado')
+                     } finally {
+                            setLocalLoading(false)
+                     }
+              }
        }
 
        const handleSendReminder = async () => {
