@@ -167,8 +167,8 @@ export default async function Home() {
     <div className={`${fontSans.variable} ${fontSerif.variable} min-h-screen bg-[#f4faf7] font-sans text-zinc-950 selection:bg-emerald-300/30 selection:text-zinc-950 dark:bg-[#07090b] dark:text-white dark:selection:text-white`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav className="fixed inset-x-0 top-0 z-50 border-b border-zinc-950/10 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-[#07090b]/72">
-        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-zinc-950/10 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-[#07090b]/72 pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
           <Link href="/" className="flex items-center" aria-label="CourtOps">
             <CourtOpsLogoAuto className="h-9 w-auto" />
           </Link>
@@ -194,7 +194,7 @@ export default async function Home() {
       </nav>
 
       <main>
-        <section className="relative flex min-h-[100svh] items-end overflow-hidden px-5 pb-10 pt-28 md:px-10 md:pb-14">
+        <section className="relative flex min-h-[100svh] items-end overflow-hidden px-5 pb-10 pt-[calc(7rem+env(safe-area-inset-top))] md:px-10 md:pb-14">
           <img
             src="https://images.pexels.com/photos/32474981/pexels-photo-32474981.jpeg?auto=compress&cs=tinysrgb&w=2200"
             alt="Cancha de pádel indoor con piso azul"
