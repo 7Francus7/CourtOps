@@ -14,7 +14,7 @@ export default async function ClientsPage() {
 
        return (
               <div className="flex flex-col h-full bg-background">
-                     <div className="flex-1 min-h-0 px-4 lg:px-8 pt-4 lg:pt-6 pb-4 max-w-[1600px] mx-auto w-full flex flex-col">
+                     <div className="flex-1 min-h-0 px-4 lg:px-8 pt-[max(env(safe-area-inset-top),1rem)] lg:pt-6 pb-4 max-w-[1600px] mx-auto w-full flex flex-col">
                             <ClientsDashboard initialData={clients} />
                      </div>
               </div>
