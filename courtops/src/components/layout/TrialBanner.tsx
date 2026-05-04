@@ -23,7 +23,7 @@ export const TrialBanner = ({ subscriptionStatus, nextBillingDate, plan }: Trial
        if (subscriptionStatus === 'TRIAL') {
               if (daysRemaining < 0) {
                      return (
-                            <div className="relative z-50 border-b border-red-500/20 bg-gradient-to-r from-red-950 via-red-900 to-red-950 px-4 py-2.5 text-white shadow-lg sm:py-3">
+                            <div className="relative z-50 border-b border-red-500/20 bg-gradient-to-r from-red-950 via-red-900 to-red-950 px-4 pb-2.5 pt-[max(env(safe-area-inset-top),0.625rem)] text-white shadow-lg sm:pb-3 sm:pt-[max(env(safe-area-inset-top),0.75rem)]">
                                    <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
                                           <div className="flex min-w-0 items-center gap-2.5 sm:items-start sm:gap-3">
                                                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10 sm:mt-0.5 sm:h-9 sm:w-9 sm:rounded-2xl">
@@ -47,7 +47,7 @@ export const TrialBanner = ({ subscriptionStatus, nextBillingDate, plan }: Trial
               }
 
               return (
-                     <div className="relative z-50 border-b border-primary/20 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 px-4 py-2.5 text-white shadow-lg animate-in slide-in-from-top-full duration-500 sm:py-3">
+                     <div className="relative z-50 border-b border-primary/20 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 px-4 pb-2.5 pt-[max(env(safe-area-inset-top),0.625rem)] text-white shadow-lg animate-in slide-in-from-top-full duration-500 sm:pb-3 sm:pt-[max(env(safe-area-inset-top),0.75rem)]">
                             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
                                    <div className="flex min-w-0 items-center gap-2.5 sm:items-start sm:gap-3">
                                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:mt-0.5 sm:h-9 sm:w-9 sm:rounded-2xl">
@@ -74,7 +74,7 @@ export const TrialBanner = ({ subscriptionStatus, nextBillingDate, plan }: Trial
 
        if (subscriptionStatus === 'ACTIVE' && daysRemaining <= 5 && daysRemaining >= 0) {
               return (
-                     <div className="relative z-50 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-foreground animate-in slide-in-from-top-full duration-500 sm:py-3">
+                     <div className="relative z-50 border-b border-amber-500/20 bg-amber-500/10 px-4 pb-2.5 pt-[max(env(safe-area-inset-top),0.625rem)] text-foreground animate-in slide-in-from-top-full duration-500 sm:pb-3 sm:pt-[max(env(safe-area-inset-top),0.75rem)]">
                             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
                                    <div className="flex min-w-0 items-center gap-2.5 sm:items-start sm:gap-3">
                                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500 sm:mt-0.5 sm:h-9 sm:w-9 sm:rounded-2xl">

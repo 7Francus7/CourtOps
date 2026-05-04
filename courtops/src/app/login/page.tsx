@@ -114,7 +114,7 @@ export default function LoginPage() {
 			</div>
 
 			{/* ── Back link ─── */}
-			<div className="absolute top-5 left-5 z-20">
+			<div className="absolute top-[max(env(safe-area-inset-top),1.25rem)] left-5 z-20">
 				<Link
 					href="/"
 					className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm transition-all hover:opacity-80"
@@ -129,7 +129,7 @@ export default function LoginPage() {
 			</div>
 
 			{/* ── Theme toggle ─── */}
-			<div className="absolute top-4 right-5 z-20">
+			<div className="absolute top-[max(env(safe-area-inset-top),1rem)] right-5 z-20">
 				<div
 					className="rounded-full backdrop-blur-sm"
 					style={{
