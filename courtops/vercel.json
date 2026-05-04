@@ -23,6 +23,10 @@
               {
                      "path": "/api/cron/webhook-retry",
                      "schedule": "0 4 * * *"
+              },
+              {
+                     "path": "/api/cron/cancel-unpaid",
+                     "schedule": "*/30 * * * *"
               }
        ]
 }
