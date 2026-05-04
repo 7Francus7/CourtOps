@@ -76,6 +76,12 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
        socialTwitter?: string
        socialTiktok?: string
        hasOnlinePayments?: boolean
+       depositType?: string
+       depositMethods?: string
+       depositTimeLimitHours?: number
+       bankAlias?: string
+       bankCvu?: string
+       bankAccountName?: string
 }) => {
        // Encrypt sensitive token if provided (skip masked values from getSettings)
        if (data.mpAccessToken && data.mpAccessToken.trim() !== '') {

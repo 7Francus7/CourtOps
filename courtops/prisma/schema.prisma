@@ -64,6 +64,22 @@ model Club {
   platformPlan        PlatformPlan? @relation(fields: [platformPlanId], references: [id])
   pendingPlanId       String?  // Plan pendiente en caso de downgrade (se aplica al vencer el período)
   pendingBillingCycle String?  // "monthly" | "yearly"
+  
+  subscriptionMethod  String?   @default("MERCADOPAGO") // TRANSFER, MERCADOPAGO, STRIPE
+  subscriptionStart   DateTime?
+  subscriptionEnd     DateTime?
+  subscriptionReference String?   // Reference for transfer SaaS payment
+  subscriptionReceiptUrl String?  // URL of the transfer receipt for SaaS
+  
+  // Custom Deposit & Payment Settings
+  depositType           String    @default("FIXED") // FIXED, PERCENTAGE
+  depositMethods        String    @default("MERCADOPAGO") // Comma-separated: "TRANSFER,MERCADOPAGO"
+  depositTimeLimitHours Int       @default(2) // Cuánto tiempo tienen para pagar la seña antes de cancelar el turno
+  bankAlias             String?
+  bankCvu               String?
+  bankAccountName       String?
+
+  subscriptionPayments SubscriptionPayment[]
 
   cashRegisters    CashRegister[]
   clients          Client[]
@@ -239,6 +255,8 @@ model Booking {
   status        String
   paymentStatus String
   paymentMethod String?
+  paymentReference String? // Ref para transferencias o ID de MP
+  receiptUrl    String?   // URL del comprobante subido
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
@@ -826,4 +844,32 @@ model ClassEnrollment {
   @@index([clubId])
   @@index([clientId])
   @@map("ClassEnrollment")
+}
+
+// --- SUBSCRIPTION PAYMENTS (Multi-Provider) ---
+
+model SubscriptionPayment {
+  id              String   @id @default(uuid())
+  clubId          String
+  planId          String
+  amount          Float
+  method          String   // TRANSFER, MERCADOPAGO, STRIPE
+  status          String   @default("PENDING_VALIDATION") // PENDING_VALIDATION, APPROVED, REJECTED, CANCELLED
+  paymentDate     DateTime @default(now())
+  receiptUrl      String?  // Para transferencias
+  reference       String?  // Alias desde donde transfirieron, o payment_id de MP
+  notes           String?
+  billingCycle    String   // "monthly" | "yearly"
+  
+  validatedAt     DateTime?
+  validatedBy     String?  // ID del Super Admin que aprobó
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  club            Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  
+  @@index([clubId])
+  @@index([status])
+  @@map("SubscriptionPayment")
 }

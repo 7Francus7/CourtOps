@@ -57,7 +57,13 @@ export async function GET(
                                           phone: true,
                                           mpAlias: true,
                                           mpCvu: true,
-                                          bookingDeposit: true
+                                          bookingDeposit: true,
+                                          depositType: true,
+                                          depositMethods: true,
+                                          depositTimeLimitHours: true,
+                                          bankAlias: true,
+                                          bankCvu: true,
+                                          bankAccountName: true
                                    }
                             }
                      }

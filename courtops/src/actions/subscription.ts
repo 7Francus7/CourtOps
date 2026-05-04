@@ -533,3 +533,22 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 		throw error
 	}
 }
+
+export async function submitSaaSReceipt(planId: string, billingCycle: 'monthly' | 'yearly', receiptUrl: string, reference: string) {
+	const clubId = await getCurrentClubId()
+	
+	await prisma.club.update({
+		where: { id: clubId },
+		data: {
+			subscriptionStatus: 'PENDING_VALIDATION',
+			subscriptionMethod: 'TRANSFER',
+			subscriptionReference: reference,
+			subscriptionReceiptUrl: receiptUrl,
+			pendingPlanId: planId,
+			pendingBillingCycle: billingCycle
+		}
+	})
+
+	revalidatePath('/dashboard/suscripcion')
+	return { success: true }
+}

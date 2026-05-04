@@ -30,6 +30,11 @@ export interface PaymentProviderAdapter {
     clubId: string
     redirectPath: string
     baseUrl: string
+    payer?: {
+      email?: string
+      name?: string
+      phone?: string
+    }
   }): Promise<CheckoutResult>
 
   createSubscriptionCheckout(params: {

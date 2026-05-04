@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import { Bell, BellOff, BellRing, CalendarClock, CreditCard, Loader2, Package, Smartphone, XCircle } from 'lucide-react'
+import { Bell, BellOff, BellRing, CalendarClock, CreditCard, Loader2, Package, Smartphone, XCircle, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 import {
@@ -224,7 +224,7 @@ export default function PushPreferencesCard() {
 			</div>
 
 			{/* Subscription status row */}
-			{pushSupported && (
+			{pushSupported ? (
 				<div className="mt-4 flex items-center justify-between rounded-2xl border border-border/70 bg-background/60 px-4 py-3">
 					<div className="flex items-center gap-3">
 						<div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${subscribed ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
@@ -257,6 +257,24 @@ export default function PushPreferencesCard() {
 							<><Bell size={13} /> Activar</>
 						)}
 					</button>
+				</div>
+			) : !loading && (
+				<div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-4">
+					<div className="flex gap-3">
+						<AlertCircle className="h-5 w-5 shrink-0 text-amber-500" />
+						<div className="space-y-1">
+							<p className="text-xs font-black uppercase tracking-widest text-amber-500">
+								Notificaciones no disponibles
+							</p>
+							<p className="text-[11px] leading-relaxed text-muted-foreground">
+								{!VAPID_PUBLIC_KEY ? (
+									'Falta la configuración de notificaciones en el servidor. Contactá a soporte.'
+								) : (
+									'Tu navegador o dispositivo no parece soportar notificaciones push. Si estás en iPhone, asegurate de haber "Añadido a Inicio" (instalar la PWA) para activarlas.'
+								)}
+							</p>
+						</div>
+					</div>
 				</div>
 			)}
 

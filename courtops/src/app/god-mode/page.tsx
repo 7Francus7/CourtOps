@@ -1,4 +1,4 @@
-import { getAllClubs, getPlatformPlans, getGodModeStats, getSystemNotifications, getClubNetwork } from '@/actions/super-admin'
+import { getAllClubs, getPlatformPlans, getGodModeStats, getSystemNotifications, getClubNetwork, getPendingSaaSTransfers } from '@/actions/super-admin'
 import CreateClubForm from '@/components/super-admin/CreateClubForm'
 import ClubList from '@/components/super-admin/ClubList'
 import DiagnosticTool from '@/components/super-admin/DiagnosticTool'
@@ -7,6 +7,7 @@ import BroadcastForm from '@/components/super-admin/BroadcastForm'
 import PlanManager from '@/components/super-admin/PlanManager'
 import GodModeTutorial from '@/components/super-admin/GodModeTutorial'
 import SqlExplorer from '@/components/super-admin/SqlExplorer'
+import PendingSaaSValidations from '@/components/super-admin/PendingSaaSValidations'
 import { DatabaseZap, Users, Calendar, Activity, Building2, CreditCard, Plus, TrendingUp } from 'lucide-react'
 import { getServerSession } from "next-auth"
 import { authOptions, isSuperAdmin } from "@/lib/auth"
@@ -97,12 +98,13 @@ export default async function GodModePage() {
 		redirect('/login')
 	}
 
-	const [clubs, plans, stats, notifications, networkResult] = await Promise.all([
+	const [clubs, plans, stats, notifications, networkResult, pendingSaaS] = await Promise.all([
 		getAllClubs(),
 		getPlatformPlans(),
 		getGodModeStats(),
 		getSystemNotifications(),
 		getClubNetwork(),
+		getPendingSaaSTransfers(),
 	])
 
 	const networks = networkResult.success ? (networkResult.networks ?? []) : []
@@ -123,6 +125,8 @@ export default async function GodModePage() {
 
 	return (
 		<div className="space-y-8 pt-6">
+
+			<PendingSaaSValidations initialPending={pendingSaaS} />
 
 			{/* ── Hero ─────────────────────────────────────────────────── */}
 			<div className="relative bg-[#0f172a] border border-white/[0.06] rounded-2xl overflow-hidden">

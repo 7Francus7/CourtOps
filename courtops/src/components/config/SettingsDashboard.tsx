@@ -144,7 +144,13 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               mpPublicKey: club.mpPublicKey || '',
               bookingDeposit: club.bookingDeposit || 0,
               mpAlias: club.mpAlias || '',
-              mpCvu: club.mpCvu || ''
+              mpCvu: club.mpCvu || '',
+              bankAlias: club.bankAlias || '',
+              bankCvu: club.bankCvu || '',
+              bankAccountName: club.bankAccountName || '',
+              depositType: club.depositType || 'FIXED',
+              depositMethods: club.depositMethods || 'MERCADOPAGO',
+              depositTimeLimitHours: club.depositTimeLimitHours || 2
        })
 
        const setMpForm = useCallback((v: typeof mpForm | ((prev: typeof mpForm) => typeof mpForm)) => {
@@ -465,6 +471,12 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
               setIsLoading(true)
               const payload: Record<string, unknown> = {
                      bookingDeposit: Number(mpForm.bookingDeposit),
+                     bankAlias: mpForm.bankAlias,
+                     bankCvu: mpForm.bankCvu,
+                     bankAccountName: mpForm.bankAccountName,
+                     depositType: mpForm.depositType,
+                     depositMethods: mpForm.depositMethods,
+                     depositTimeLimitHours: Number(mpForm.depositTimeLimitHours),
               }
 
               payload.mpAccessToken = mpForm.mpAccessToken

@@ -592,3 +592,36 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
               return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
        }
 }
+
+export async function submitPublicTransfer(bookingId: number, data: {
+       receiptUrl?: string,
+       reference: string
+}) {
+       try {
+              const booking = await prisma.booking.findUnique({
+                     where: { id: bookingId }
+              });
+
+              if (!booking) {
+                     return { success: false, error: 'Reserva no encontrada' };
+              }
+
+              await prisma.booking.update({
+                     where: { id: bookingId },
+                     data: {
+                            paymentStatus: 'PENDING_VALIDATION',
+                            paymentMethod: 'TRANSFER',
+                            paymentReference: data.reference,
+                            receiptUrl: data.receiptUrl
+                     }
+              });
+
+              revalidatePath('/');
+              revalidatePath(`/pay/${bookingId}`);
+
+              return { success: true };
+       } catch (error) {
+              console.error("[submitPublicTransfer] Error:", error);
+              return { success: false, error: 'Error al procesar el pago' };
+       }
+}

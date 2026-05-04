@@ -691,3 +691,88 @@ export async function getClubNetwork() {
        }))
        return { success: true, networks, allClubs: clubs }
 }
+export async function getPendingSaaSTransfers() {
+	if (!(await checkOnlyDellorsif())) return []
+	try {
+		const pending = await prisma.club.findMany({
+			where: { subscriptionStatus: 'PENDING_VALIDATION' },
+			include: { 
+				platformPlan: true, 
+				users: { where: { role: 'ADMIN' }, take: 1 } 
+			}
+		})
+		
+		// Map to include pending plan info if available
+		const enriched = await Promise.all(pending.map(async (club) => {
+			let targetPlan = club.platformPlan;
+			if (club.pendingPlanId) {
+				const p = await prisma.platformPlan.findUnique({ where: { id: club.pendingPlanId } });
+				if (p) targetPlan = p;
+			}
+			return { ...club, targetPlan };
+		}));
+
+		return JSON.parse(JSON.stringify(enriched))
+	} catch (error) {
+		console.error("Error fetching pending SaaS transfers:", error)
+		return []
+	}
+}
+
+export async function validateSaaSTransfer(clubId: string, action: 'approve' | 'reject', reason?: string) {
+	if (!(await checkOnlyDellorsif())) return { success: false, error: 'Unauthorized' }
+	
+	try {
+		if (action === 'reject') {
+			await prisma.club.update({
+				where: { id: clubId },
+				data: {
+					subscriptionStatus: 'cancelled',
+					subscriptionReference: null,
+					subscriptionReceiptUrl: null
+				}
+			})
+			revalidatePath('/god-mode')
+			return { success: true, message: 'Transferencia rechazada' }
+		}
+
+		const club = await prisma.club.findUnique({
+			where: { id: clubId }
+		})
+
+		if (!club) throw new Error("Club no encontrado")
+
+		const planId = club.pendingPlanId || club.platformPlanId
+		if (!planId) throw new Error("No hay un plan objetivo definido")
+
+		const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
+		if (!plan) throw new Error("Plan no encontrado")
+
+		const features = getPlanFeatures(plan.name)
+		const months = club.pendingBillingCycle === 'yearly' ? 12 : 1
+		
+		const nextDate = new Date()
+		nextDate.setMonth(nextDate.getMonth() + months)
+
+		await prisma.club.update({
+			where: { id: clubId },
+			data: {
+				subscriptionStatus: 'authorized',
+				platformPlanId: plan.id,
+				nextBillingDate: nextDate,
+				mpPreapprovalId: `TRANSFER_${Date.now()}`,
+				subscriptionReference: null,
+				subscriptionReceiptUrl: null,
+				pendingPlanId: null,
+				pendingBillingCycle: null,
+				...features
+			}
+		})
+
+		revalidatePath('/god-mode')
+		return { success: true, message: `Plan ${plan.name} activado hasta ${nextDate.toLocaleDateString()}` }
+	} catch (error: any) {
+		console.error("Validate SaaS Transfer Error:", error)
+		return { success: false, error: error.message }
+	}
+}

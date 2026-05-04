@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Check, Loader2, CreditCard, Calendar, AlertCircle, CheckCircle2, ChevronRight, Shield, Building2, Zap, Rocket, Clock, X, QrCode, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
-import { initiateSubscription, cancelSubscription, changePlan, cancelPendingDowngrade } from '@/actions/subscription'
+import { initiateSubscription, cancelSubscription, changePlan, cancelPendingDowngrade, submitSaaSReceipt } from '@/actions/subscription'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
@@ -70,6 +70,9 @@ export default function SubscriptionManager({
 }: SubscriptionManagerProps) {
 	const router = useRouter()
 	const [loadingId, setLoadingId] = useState<string | null>(null)
+	const [paymentMethod, setPaymentMethod] = useState<'MERCADOPAGO' | 'TRANSFER'>('MERCADOPAGO')
+	const [transferRef, setTransferRef] = useState('')
+	const [transferReceipt, setTransferReceipt] = useState('')
 	const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 	const [showCancelModal, setShowCancelModal] = useState(false)
 	const [showPlanModal, setShowPlanModal] = useState(false)
@@ -97,10 +100,26 @@ export default function SubscriptionManager({
 	const handlePlanChange = async () => {
 		if (!selectedPlan) return
 
+		if (paymentMethod === 'TRANSFER' && !transferRef) {
+			toast.error("Por favor, ingresá el número de referencia o comprobante")
+			return
+		}
+
 		setLoadingId(selectedPlan.id)
 		setShowPlanModal(false)
 
 		try {
+			if (paymentMethod === 'TRANSFER') {
+				const res = await submitSaaSReceipt(selectedPlan.id, billingCycle, transferReceipt, transferRef)
+				if (res.success) {
+					toast.success("Comprobante enviado. Activaremos tu plan en breve.")
+					router.refresh()
+				} else {
+					toast.error("Error al enviar el comprobante")
+				}
+				return
+			}
+
 			if (planAction === 'new') {
 				const res = await initiateSubscription(selectedPlan.id, billingCycle) as SubscriptionActionResult
 				if (res.success && res.init_point) {
@@ -122,7 +141,7 @@ export default function SubscriptionManager({
 					router.refresh()
 				}
 			}
-		} catch (err: unknown) {
+		} catch (err) {
 			console.error('[SubscriptionManager] Error inesperado:', err)
 			const message = err instanceof Error ? err.message : 'Error de conexión'
 			toast.error(message)
@@ -227,6 +246,25 @@ export default function SubscriptionManager({
 					</span>
 				</button>
 			</div>
+
+			
+			{subscriptionStatus === 'PENDING_VALIDATION' && (
+				<div className="flex flex-col md:flex-row items-center gap-4 rounded-2xl border border-blue-500/30 bg-blue-500/5 p-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+					<div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+						<Clock className="text-blue-500 w-6 h-6 animate-pulse" />
+					</div>
+					<div className="flex-1 text-center md:text-left">
+						<p className="text-lg font-bold text-blue-400">Validación en proceso</p>
+						<p className="text-sm text-blue-400/70 mt-1">
+							Hemos recibido tu comprobante de transferencia. 
+							Un administrador revisará el pago y activará tu cuenta en las próximas horas.
+						</p>
+					</div>
+					<div className="bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
+						<span className="text-xs font-black text-blue-400 uppercase tracking-widest">Pendiente</span>
+					</div>
+				</div>
+			)}
 
 			{pendingPlan && (
 				<div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
@@ -551,22 +589,86 @@ export default function SubscriptionManager({
 			)}
 
 			<Dialog open={showPlanModal} onOpenChange={setShowPlanModal}>
-				<DialogContent>
+				<DialogContent className="max-w-md">
 					<DialogHeader>
 						<DialogTitle>
 							{planAction === 'upgrade' ? `Mejorar a ${selectedPlan?.name}` : planAction === 'downgrade' ? `Bajar a ${selectedPlan?.name}` : `Comenzar con ${selectedPlan?.name}`}
 						</DialogTitle>
 						<DialogDescription>
-							{(planAction === 'upgrade' || planAction === 'new') && (
-								<>{planAction === 'new' && !setupFeeAlreadyPaid ? 'Primero vas a pagar el alta única. Después vas a autorizar la suscripción del plan.' : `Serás redirigido a MercadoPago para autorizar el cobro ${billingCycle === 'yearly' ? 'anual' : 'mensual'}. Los cobros siguientes son automáticos.`}</>
-							)}
-							{planAction === 'downgrade' && (
+							{planAction === 'upgrade' || planAction === 'new' ? (
+								<>Elegí cómo querés pagar tu plan {billingCycle === 'yearly' ? 'anual' : 'mensual'}.</>
+							) : (
 								<>Tu plan actual continúa hasta que venza el período. El nuevo plan arranca en la próxima fecha de facturación.</>
 							)}
 						</DialogDescription>
 					</DialogHeader>
 
-					{selectedPlan && planAction !== 'downgrade' && (
+					{(planAction === 'upgrade' || planAction === 'new') && (
+						<div className="grid grid-cols-2 gap-3 my-4">
+							<button
+								onClick={() => setPaymentMethod('MERCADOPAGO')}
+								className={cn(
+									"flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all",
+									paymentMethod === 'MERCADOPAGO' 
+										? "border-primary bg-primary/5 ring-1 ring-primary" 
+										: "border-border hover:bg-muted"
+								)}
+							>
+								<Smartphone className={cn("w-6 h-6", paymentMethod === 'MERCADOPAGO' ? "text-primary" : "text-muted-foreground")} />
+								<span className="text-xs font-bold">MercadoPago</span>
+								<span className="text-[10px] text-muted-foreground">Automático</span>
+							</button>
+							<button
+								onClick={() => setPaymentMethod('TRANSFER')}
+								className={cn(
+									"flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all",
+									paymentMethod === 'TRANSFER' 
+										? "border-primary bg-primary/5 ring-1 ring-primary" 
+										: "border-border hover:bg-muted"
+								)}
+							>
+								<Building2 className={cn("w-6 h-6", paymentMethod === 'TRANSFER' ? "text-primary" : "text-muted-foreground")} />
+								<span className="text-xs font-bold">Transferencia</span>
+								<span className="text-[10px] text-muted-foreground">Manual</span>
+							</button>
+						</div>
+					)}
+
+					{paymentMethod === 'TRANSFER' && selectedPlan && (planAction === 'upgrade' || planAction === 'new') && (
+						<div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 my-4 space-y-4">
+							<div className="space-y-1">
+								<p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Datos Bancarios</p>
+								<p className="text-sm font-bold text-foreground">CourtOps S.A.S.</p>
+								<p className="text-xs text-muted-foreground">Alias: <span className="text-foreground font-mono">courtops.admin</span></p>
+								<p className="text-xs text-muted-foreground">CVU: <span className="text-foreground font-mono">0000003100012345678901</span></p>
+							</div>
+							
+							<div className="pt-2 border-t border-blue-500/10 space-y-3">
+								<div className="space-y-1.5">
+									<label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Nro de Referencia o Comprobante</label>
+									<input 
+										type="text" 
+										placeholder="Ej: 123456789"
+										value={transferRef}
+										onChange={(e) => setTransferRef(e.target.value)}
+										className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+									/>
+								</div>
+								<div className="space-y-1.5">
+									<label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">URL del comprobante (opcional)</label>
+									<input 
+										type="text" 
+										placeholder="https://link-a-tu-foto.com"
+										value={transferReceipt}
+										onChange={(e) => setTransferReceipt(e.target.value)}
+										className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{paymentMethod === 'MERCADOPAGO' && selectedPlan && planAction !== 'downgrade' && (
 						<div className="bg-muted/50 rounded-xl p-4 my-4 space-y-2">
 							<div className="flex justify-between items-center">
 								<span className="text-sm text-muted-foreground">
@@ -583,42 +685,18 @@ export default function SubscriptionManager({
 								<div className="flex justify-between items-center text-xs text-muted-foreground">
 									<span>Equivale a</span>
 									<span className="text-emerald-500 font-medium">
-										{formatPrice(Math.round(selectedPlan.price * 0.8))}/mes · ahorrás {formatPrice(selectedPlan.price * 12 - getPrice(selectedPlan))}
+										{formatPrice(Math.round(selectedPlan.price * 0.8))}/mes
 									</span>
 								</div>
-							)}
-							<p className="text-xs text-muted-foreground pt-1">
-								MercadoPago debitará automáticamente en cada período.
-							</p>
-							{planAction === 'new' && !setupFeeAlreadyPaid && (selectedPlan.setupFee ?? 0) > 0 && (
-								<p className="text-xs text-muted-foreground">
-									+ {formatPrice(selectedPlan.setupFee ?? 0)} pago único inicial. Ese pago bonifica el primer mes; luego se cobra la mensualidad.
-								</p>
 							)}
 						</div>
 					)}
 
-					{selectedPlan && planAction === 'downgrade' && (
-						<div className="space-y-3 my-4">
-							<div className="bg-muted/50 rounded-xl p-4">
-								<div className="flex justify-between items-center">
-									<span className="text-sm text-muted-foreground">Nuevo cargo {billingCycle === 'yearly' ? 'anual' : 'mensual'}</span>
-									<span className="text-lg font-bold">
-										{formatPrice(getPrice(selectedPlan))}
-										<span className="text-sm font-normal text-muted-foreground ml-1">{billingCycle === 'yearly' ? '/año' : '/mes'}</span>
-									</span>
-								</div>
-								{nextBillingDate && (
-									<p className="text-xs text-muted-foreground mt-2">
-										Efectivo a partir del {new Date(nextBillingDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
-									</p>
-								)}
-							</div>
-							<div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-								<AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-								<p className="text-xs text-amber-400">
-									No se reembolsa la diferencia del período actual. Tu plan {currentPlan?.name} sigue activo hasta la próxima fecha de facturación.
-								</p>
+					{planAction === 'downgrade' && selectedPlan && (
+						<div className="bg-muted/50 rounded-xl p-4 my-4">
+							<div className="flex justify-between items-center">
+								<span className="text-sm text-muted-foreground">Nuevo cargo</span>
+								<span className="text-lg font-bold">{formatPrice(getPrice(selectedPlan))}</span>
 							</div>
 						</div>
 					)}
@@ -641,7 +719,7 @@ export default function SubscriptionManager({
 							)}
 						>
 							{loadingId === selectedPlan?.id && <Loader2 className="w-4 h-4 animate-spin" />}
-							{planAction === 'upgrade' ? 'Ir a MercadoPago' : planAction === 'downgrade' ? 'Programar cambio' : 'Ir a MercadoPago'}
+							{paymentMethod === 'TRANSFER' ? 'Confirmar Envío' : 'Ir a MercadoPago'}
 						</button>
 					</DialogFooter>
 				</DialogContent>

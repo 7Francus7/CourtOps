@@ -9,7 +9,8 @@ import {
        manageSplitPlayers,
        updateBookingClient,
        sendManualReminder,
-       chargePlayer
+       chargePlayer,
+       validateBookingDeposit
 } from '@/actions/manageBooking'
 import { markNoShow, revertNoShow } from '@/actions/no-show'
 import { toggleOpenMatch } from '@/actions/matchmaking'
@@ -50,6 +51,7 @@ import {
        BellOff,
         Shield,
         Zap,
+        ArrowLeftRight
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -161,6 +163,34 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               } finally {
                      setLocalLoading(false)
               }
+       }
+
+       const handleValidateDeposit = async () => {
+              if (!booking?.id) return
+              
+              confirm({
+                     title: 'Validar Transferencia',
+                     description: '¿Confirmas que el dinero de la seña ya ingresó a la cuenta del club?',
+                     confirmText: 'Sí, validar',
+                     cancelText: 'Cancelar',
+                     onConfirm: async () => {
+                            setLocalLoading(true)
+                            try {
+                                   const res = await validateBookingDeposit(booking.id)
+                                   if (res.success) {
+                                          toast.success('Transferencia validada correctamente')
+                                          refreshBooking()
+                                          onUpdate()
+                                   } else {
+                                          toast.error(res.error || 'Error al validar la transferencia')
+                                   }
+                            } catch {
+                                   toast.error('Ocurrió un error inesperado')
+                            } finally {
+                                   setLocalLoading(false)
+                            }
+                     }
+              })
        }
 
        const handleSendReminder = async () => {
@@ -422,6 +452,11 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
        const paymentPercent = pricing.total > 0 ? Math.min((pricing.paid / pricing.total) * 100, 100) : 100
        const durationLabel = `${schedule.duration} min`
        const hasPhone = Boolean(client.phone?.trim())
+       
+       const depositTransaction = adaptedBooking.transactions.find((t: any) => 
+              t.category === 'BOOKING_DEPOSIT' || 
+              t.description?.toLowerCase().includes('seña')
+       )
 
        const tabs = [
               { key: 'gestion' as const, label: t('overview'), icon: Banknote, color: 'primary' },
@@ -810,14 +845,24 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                     <span className="text-[11px] text-slate-400 dark:text-zinc-500">Lo importante es cuánto falta cobrar.</span>
                                                                              </div>
                                                                       </div>
-                                                                      <span className={cn(
-                                                                             "text-[10px] font-semibold px-2.5 py-1 rounded-lg",
-                                                                             isPaid
-                                                                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
-                                                                                    : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400"
-                                                                      )}>
-                                                                             {isPaid ? 'PAGADO' : 'PENDIENTE'}
-                                                                      </span>
+                                                                      <div className="flex gap-2">
+                                                                             {depositTransaction && !isPaid && (
+                                                                                    <span className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 flex items-center gap-1.5 animate-in fade-in zoom-in duration-500">
+                                                                                           <Zap size={10} className="fill-current" />
+                                                                                           SEÑA PAGADA
+                                                                                    </span>
+                                                                             )}
+                                                                             <span className={cn(
+                                                                                    "text-[10px] font-semibold px-2.5 py-1 rounded-lg",
+                                                                                    isPaid
+                                                                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                                                                            : booking.paymentStatus === 'PENDING_VALIDATION'
+                                                                                                   ? "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400"
+                                                                                                   : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400"
+                                                                             )}>
+                                                                                    {booking.paymentStatus === 'PENDING_VALIDATION' ? 'VALIDACIÓN PENDIENTE' : isPaid ? 'PAGADO' : 'PENDIENTE'}
+                                                                             </span>
+                                                                      </div>
                                                                </div>
 
                                                                <div className="flex items-end gap-3">
@@ -856,8 +901,58 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                         </div>
 
                                                         {/* ── Payment Actions ── */}
-                                                        {balance > 0 && (
-                                                               <PaymentActions
+                                                        {/* ── Pending Validation Actions ── */}
+
+                                                        {booking.paymentStatus === 'PENDING_VALIDATION' && (
+
+                                                            <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200/60 dark:border-blue-500/20 rounded-2xl p-5 md:p-6 space-y-4 mb-4">
+
+                                                                <div className="flex items-center gap-3 mb-2">
+
+                                                                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+
+                                                                        <ArrowLeftRight size={18} />
+
+                                                                    </div>
+
+                                                                    <div>
+
+                                                                        <h3 className="text-sm font-bold text-blue-900 dark:text-blue-300">Transferencia enviada</h3>
+
+                                                                        <p className="text-xs text-blue-700/80 dark:text-blue-400/80 mt-0.5">
+
+                                                                            Ref: {booking.paymentReference || 'Sin ref'}
+
+                                                                        </p>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                                {booking.receiptUrl && (
+
+                                                                    <a href={booking.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline block mb-2">Ver comprobante</a>
+
+                                                                )}
+
+                                                                <button onClick={handleValidateDeposit} disabled={loading} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
+
+                                                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+
+                                                                    Validar Pago
+
+                                                                </button>
+
+                                                            </div>
+
+                                                        )}
+
+
+                                                        {/* ── Payment Actions ── */}
+
+                                                        {balance > 0 && booking.paymentStatus !== 'PENDING_VALIDATION' && (
+
+                                                            <PaymentActions
                                                                       bookingId={adaptedBooking.id}
                                                                       balance={balance}
                                                                       onPaymentSuccess={() => {
@@ -1030,6 +1125,41 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                       </div>
                                                                </div>
                                                         </div>
+
+                                                        {/* ── Payment History ── */}
+                                                        {adaptedBooking.transactions.length > 0 && (
+                                                               <div className="space-y-3">
+                                                                      <h3 className="text-xs font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider px-1">Historial de pagos</h3>
+                                                                      <div className="bg-slate-50 dark:bg-white/[0.02] rounded-xl overflow-hidden border border-slate-200/60 dark:border-white/[0.04] divide-y divide-slate-100 dark:divide-white/[0.04]">
+                                                                             {adaptedBooking.transactions.map((tx) => (
+                                                                                    <div key={tx.id} className="p-3 flex justify-between items-center group">
+                                                                                           <div className="flex items-center gap-3">
+                                                                                                  <div className={cn(
+                                                                                                         "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                                                                                                         tx.category === 'BOOKING_DEPOSIT' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500" : "bg-blue-50 dark:bg-blue-500/10 text-blue-500"
+                                                                                                  )}>
+                                                                                                         {tx.category === 'BOOKING_DEPOSIT' ? <Zap size={14} /> : <CircleDollarSign size={14} />}
+                                                                                                  </div>
+                                                                                                  <div>
+                                                                                                         <p className="text-[12px] font-medium text-slate-800 dark:text-zinc-200">
+                                                                                                                {tx.category === 'BOOKING_DEPOSIT' ? 'Seña recibida' : 'Pago registrado'}
+                                                                                                         </p>
+                                                                                                         <div className="flex items-center gap-1.5 mt-0.5">
+                                                                                                                <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium uppercase">{tx.method}</span>
+                                                                                                                <span className="text-[9px] text-slate-300 dark:text-zinc-700">•</span>
+                                                                                                                <span className="text-[9px] text-slate-400 dark:text-zinc-600 font-medium">{format(new Date(tx.createdAt), "d MMM, HH:mm", { locale: es })}</span>
+                                                                                                         </div>
+                                                                                                  </div>
+                                                                                           </div>
+                                                                                           <div className="text-right">
+                                                                                                  <p className="text-[13px] font-bold text-slate-900 dark:text-white">${tx.amount.toLocaleString()}</p>
+                                                                                                  {tx.description && <p className="text-[9px] text-slate-400 dark:text-zinc-600 truncate max-w-[120px] text-ellipsis">{tx.description}</p>}
+                                                                                           </div>
+                                                                                    </div>
+                                                                             ))}
+                                                                      </div>
+                                                               </div>
+                                                        )}
 
                                                         {/* Mobile Cancel */}
                                                         <div className="md:hidden pt-2 pb-8">

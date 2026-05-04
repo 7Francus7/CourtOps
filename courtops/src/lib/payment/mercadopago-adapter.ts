@@ -17,6 +17,11 @@ export class MercadoPagoAdapter implements PaymentProviderAdapter {
     clubId: string
     redirectPath: string
     baseUrl: string
+    payer?: {
+      email?: string
+      name?: string
+      phone?: string
+    }
   }): Promise<CheckoutResult> {
     const client = new MercadoPagoConfig({ accessToken: this.accessToken })
     const preference = new Preference(client)
@@ -49,6 +54,12 @@ export class MercadoPagoAdapter implements PaymentProviderAdapter {
         notification_url: `${params.baseUrl}/api/webhooks/mercadopago?clubId=${params.clubId}`,
         auto_return: 'approved',
         statement_descriptor: 'COURTOPS',
+        binary_mode: true,
+        payer: params.payer ? {
+          email: params.payer.email,
+          name: params.payer.name,
+          phone: params.payer.phone ? { number: params.payer.phone } : undefined
+        } : undefined,
         shipments: {
           mode: 'not_specified'
         }

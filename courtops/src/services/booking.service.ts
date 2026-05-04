@@ -464,7 +464,7 @@ export class BookingService {
               const now = new Date()
               const limit = new Date(booking.startTime.getTime() - (cancelHours * 60 * 60 * 1000))
 
-              const isAdmin = performedByUser.role === 'ADMIN' || performedByUser.role === 'OWNER' || performedByUser.role === 'SUPER_ADMIN'
+              const isAdmin = ['ADMIN', 'OWNER', 'SUPER_ADMIN', 'GOD'].includes(performedByUser.role)
               const isLate = now > limit
 
               if (!isAdmin && isLate) {

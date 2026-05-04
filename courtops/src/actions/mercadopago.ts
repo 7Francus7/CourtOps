@@ -11,7 +11,7 @@ export async function createPreference(bookingId: number, redirectPath: string =
        try {
               const booking = await prisma.booking.findUnique({
                      where: { id: bookingId },
-                     include: { club: true, court: true }
+                     include: { club: true, court: true, client: true }
               })
 
               if (!booking) throw new Error("Reserva no encontrada")
@@ -68,7 +68,12 @@ export async function createPreference(bookingId: number, redirectPath: string =
                      currency: club.currency || 'ARS',
                      clubId: club.id,
                      redirectPath,
-                     baseUrl
+                     baseUrl,
+                     payer: {
+                            email: booking.client?.email || undefined,
+                            name: booking.client?.name || booking.guestName || undefined,
+                            phone: booking.client?.phone || booking.guestPhone || undefined
+                     }
               })
 
               return { success: true, init_point: result.checkoutUrl, preferenceId: result.id }

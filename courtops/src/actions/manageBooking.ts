@@ -549,3 +549,23 @@ export async function sendManualReminder(bookingId: number) {
               return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }
        }
 }
+
+export async function validateBookingDeposit(bookingId: number) {
+       try {
+              const clubId = await getCurrentClubId()
+              if (!clubId) return { success: false, error: 'No tienes permiso' }
+
+              const { BookingDepositService } = await import('@/services/BookingDepositService')
+              const res = await BookingDepositService.validateDeposit(bookingId, "ADMIN")
+              
+              if (res.success) {
+                     revalidatePath('/')
+                     return { success: true }
+              } else {
+                     return { success: false, error: 'Error al validar' }
+              }
+       } catch (error) {
+              console.error('[validateBookingDeposit] Error:', error)
+              return { success: false, error: error instanceof Error ? error.message : 'Error al validar' }
+       }
+}

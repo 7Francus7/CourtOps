@@ -92,6 +92,8 @@ export interface BookingTransaction {
        id: number
        amount: number
        method: PaymentMethodType
+       category?: string
+       description?: string
        createdAt: Date
        notes?: string | null
        reference?: string | null

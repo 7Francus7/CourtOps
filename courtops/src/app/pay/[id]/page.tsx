@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { submitPublicTransfer } from '@/actions/public-booking'
+
 export default function PaymentPage() {
   const params = useParams()
   const bookingId = params.id as string
@@ -21,7 +23,8 @@ export default function PaymentPage() {
   const [cancelling, setCancelling] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [cancelled, setCancelled] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<'MERCADOPAGO' | 'CASH'>('MERCADOPAGO')
+  const [paymentMethod, setPaymentMethod] = useState<'MERCADOPAGO' | 'CASH' | 'TRANSFER'>('MERCADOPAGO')
+  const [transferRef, setTransferRef] = useState('')
   const paymentLockRef = useRef(false)
 
   const loadBooking = async () => {
@@ -46,9 +49,10 @@ export default function PaymentPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingId])
 
-  const handlePayment = async () => {
+  const handlePayment = async (balance: number) => {
     if (paymentLockRef.current) return
     paymentLockRef.current = true
+    
     if (paymentMethod === 'MERCADOPAGO') {
       setProcessing(true)
 
@@ -73,6 +77,28 @@ export default function PaymentPage() {
         }
       } catch {
         toast.error('Error al procesar el pago')
+        setProcessing(false)
+        paymentLockRef.current = false
+      }
+    } else if (paymentMethod === 'TRANSFER') {
+      if (!transferRef.trim()) {
+        toast.error('Por favor ingresa el número de referencia del comprobante')
+        paymentLockRef.current = false
+        return
+      }
+
+      setProcessing(true)
+      try {
+        const res = await submitPublicTransfer(Number(bookingId), { reference: transferRef.trim() })
+        if (res.success) {
+          toast.success('Comprobante enviado. Esperando validación del club.')
+          loadBooking() // recargar la reserva para ver el nuevo estado
+        } else {
+          toast.error(res.error || 'Error al enviar comprobante')
+        }
+      } catch {
+        toast.error('Error del servidor')
+      } finally {
         setProcessing(false)
         paymentLockRef.current = false
       }
@@ -158,16 +184,34 @@ export default function PaymentPage() {
   }
 
   const totalPaid = (booking.transactions as { amount: number }[])?.reduce((sum: number, t: { amount: number }) => sum + t.amount, 0) || 0
-  const balance = (booking.price as number) - totalPaid
-  const isPaid = balance <= 0
+  const isPaid = booking.paymentStatus === 'PAID' || booking.paymentStatus === 'PARTIAL' || totalPaid >= (booking.price as number)
+  const isPendingValidation = booking.paymentStatus === 'PENDING_VALIDATION'
   const price = booking.price as number
   const paymentProgress = price > 0 ? Math.min((totalPaid / price) * 100, 100) : 0
+  
+  const club = booking.club as Record<string, any> | undefined
+  const clubName = club?.name
+  const clubAddress = club?.address
+
+  // Depósito (Seña) logic
+  let requiredDeposit = price
+  if (club?.bookingDeposit && club.bookingDeposit > 0) {
+      if (club.depositType === "PERCENTAGE") {
+          requiredDeposit = (price * club.bookingDeposit) / 100
+      } else {
+          requiredDeposit = club.bookingDeposit
+      }
+  }
+  requiredDeposit = Math.min(requiredDeposit, price)
+  const balance = totalPaid >= requiredDeposit ? (price - totalPaid) : requiredDeposit - totalPaid
+  
+  const depositMethods = club?.depositMethods ? club.depositMethods.split(',') : ['MERCADOPAGO']
+  const canTransfer = depositMethods.includes('TRANSFER')
+  const canMP = depositMethods.includes('MERCADOPAGO')
 
   const formattedDate = format(new Date(booking.startTime as string), "EEEE d 'de' MMMM", { locale: es })
   const formattedTime = format(new Date(booking.startTime as string), "HH:mm")
 
-  const clubName = (booking.club as Record<string, unknown>)?.name as string | undefined
-  const clubAddress = (booking.club as Record<string, unknown>)?.address as string | undefined
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex items-center justify-center p-4 py-8">
@@ -183,10 +227,10 @@ export default function PaymentPage() {
             <CreditCard className="w-7 h-7 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
-            {isPaid ? '¡Reserva Confirmada!' : cancelled ? 'Reserva Cancelada' : 'Confirmar Reserva'}
+            {isPaid ? '¡Reserva Confirmada!' : cancelled ? 'Reserva Cancelada' : isPendingValidation ? 'Validando Pago...' : 'Confirmar Reserva'}
           </h1>
-          {!isPaid && !cancelled && (
-            <p className="text-sm text-slate-500 dark:text-zinc-400">Completá el pago para asegurar tu turno</p>
+          {!isPaid && !cancelled && !isPendingValidation && (
+            <p className="text-sm text-slate-500 dark:text-zinc-400">Completá la seña o el total para asegurar tu turno</p>
           )}
           {clubName && (
             <p className="text-xs font-medium text-primary mt-1.5">{clubName}</p>
@@ -277,7 +321,7 @@ export default function PaymentPage() {
 
             <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 dark:border-white/[0.06]">
               <span className="text-sm font-bold text-slate-900 dark:text-white">
-                {isPaid ? 'Pagado' : 'Falta abonar'}
+                {isPaid ? 'Pagado' : totalPaid < requiredDeposit ? 'Seña a abonar' : 'Falta abonar'}
               </span>
               <span className={`text-2xl font-bold tracking-tight ${isPaid ? 'text-emerald-500' : 'text-primary'}`}>
                 ${isPaid ? totalPaid.toLocaleString() : balance.toLocaleString()}
@@ -324,7 +368,8 @@ export default function PaymentPage() {
               {/* Payment Methods */}
               <div className="bg-white dark:bg-white/[0.02] rounded-2xl border border-slate-200/60 dark:border-white/[0.06] p-5">
                 <p className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-3">Método de Pago</p>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className={`grid gap-2.5 ${canMP && canTransfer ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                  {canMP && (
                   <button
                     onClick={() => setPaymentMethod('MERCADOPAGO')}
                     className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2.5 ${
@@ -344,9 +389,37 @@ export default function PaymentPage() {
                       <p className={`text-[12px] font-semibold ${
                         paymentMethod === 'MERCADOPAGO' ? 'text-primary' : 'text-slate-700 dark:text-zinc-300'
                       }`}>Mercado Pago</p>
-                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">Tarjeta o cuenta</p>
+                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">Automático</p>
                     </div>
                   </button>
+                  )}
+
+                  {canTransfer && (
+                  <button
+                    onClick={() => setPaymentMethod('TRANSFER')}
+                    className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2.5 ${
+                      paymentMethod === 'TRANSFER'
+                        ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                        : 'border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.1]'
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      paymentMethod === 'TRANSFER'
+                        ? 'bg-blue-500/15'
+                        : 'bg-slate-100 dark:bg-white/[0.04]'
+                    }`}>
+                      <Banknote className={`w-5 h-5 ${
+                        paymentMethod === 'TRANSFER' ? 'text-blue-500' : 'text-slate-400 dark:text-zinc-500'
+                      }`} />
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-[12px] font-semibold ${
+                        paymentMethod === 'TRANSFER' ? 'text-primary' : 'text-slate-700 dark:text-zinc-300'
+                      }`}>Transferencia</p>
+                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">Envía tu ref</p>
+                    </div>
+                  </button>
+                  )}
 
                   <button
                     onClick={() => setPaymentMethod('CASH')}
@@ -361,23 +434,51 @@ export default function PaymentPage() {
                         ? 'bg-emerald-500/15'
                         : 'bg-slate-100 dark:bg-white/[0.04]'
                     }`}>
-                      <Banknote className={`w-5 h-5 ${
+                      <MapPin className={`w-5 h-5 ${
                         paymentMethod === 'CASH' ? 'text-emerald-500' : 'text-slate-400 dark:text-zinc-500'
                       }`} />
                     </div>
                     <div className="text-center">
                       <p className={`text-[12px] font-semibold ${
                         paymentMethod === 'CASH' ? 'text-primary' : 'text-slate-700 dark:text-zinc-300'
-                      }`}>Efectivo</p>
-                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">Pagá en el club</p>
+                      }`}>En Club</p>
+                      <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5">Efectivo</p>
                     </div>
                   </button>
                 </div>
               </div>
 
+              {/* Transfer Details Form */}
+              {paymentMethod === 'TRANSFER' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="bg-blue-500/5 dark:bg-blue-500/10 rounded-2xl p-5 border border-blue-500/20"
+                >
+                  <p className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 mb-2">Datos Bancarios del Club</p>
+                  <div className="space-y-2 mb-4 bg-white/50 dark:bg-black/20 p-3 rounded-xl text-sm text-slate-700 dark:text-zinc-300">
+                    {club?.bankAlias && <p><span className="font-semibold">Alias:</span> {club.bankAlias}</p>}
+                    {club?.bankCvu && <p><span className="font-semibold">CVU/CBU:</span> {club.bankCvu}</p>}
+                    {club?.bankAccountName && <p><span className="font-semibold">Titular:</span> {club.bankAccountName}</p>}
+                  </div>
+                  
+                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">Número de comprobante / Referencia</label>
+                  <input
+                    type="text"
+                    value={transferRef}
+                    onChange={(e) => setTransferRef(e.target.value)}
+                    placeholder="Ej: 12345678"
+                    className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  />
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-500 mt-2">
+                    Una vez enviado, el club verificará la transferencia para confirmar tu turno.
+                  </p>
+                </motion.div>
+              )}
+
               {/* Pay Button */}
               <button
-                onClick={handlePayment}
+                onClick={() => handlePayment(balance)}
                 disabled={processing}
                 className="w-full h-14 bg-slate-900 dark:bg-white text-white dark:text-black font-bold rounded-xl text-sm tracking-wide transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2.5 shadow-lg shadow-slate-900/10 dark:shadow-white/5"
               >
