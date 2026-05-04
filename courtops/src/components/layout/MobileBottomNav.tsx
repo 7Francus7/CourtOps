@@ -227,7 +227,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
 
       {/* Bottom bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none"
+        className="fixed bottom-3 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none"
         aria-label="Navegación principal"
       >
         <div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">

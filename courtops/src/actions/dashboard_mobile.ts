@@ -165,13 +165,7 @@ export async function getMobileDashboardData() {
                      return (total - paid) > 0 && b.status === 'CONFIRMED'
               })
 
-              if (pendingBookings.length > 0) {
-                     alerts.push({
-                            type: 'warning',
-                            title: 'Cobros Pendientes',
-                            message: `${pendingBookings.length} reservas sin pagar hoy`
-                     })
-              }
+              // Cobros pendientes shown via recovery card — no alert needed
 
               // 5. Club already fetched above (with slug, features)
 

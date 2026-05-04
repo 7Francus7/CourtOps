@@ -22,6 +22,20 @@ interface AuditLog {
        } | null
 }
 
+function parseDetailsHuman(raw: string | null): string {
+       if (!raw) return ''
+       try {
+              const obj = JSON.parse(raw)
+              if (typeof obj === 'object' && obj !== null) {
+                     return Object.entries(obj)
+                            .filter(([, v]) => v !== null && v !== undefined && v !== '')
+                            .map(([k, v]) => `${k}: ${v}`)
+                            .join(' · ')
+              }
+       } catch {}
+       return raw
+}
+
 export default function AuditPage() {
        const [logs, setLogs] = useState<AuditLog[]>([])
        const [loading, setLoading] = useState(true)
@@ -99,26 +113,26 @@ export default function AuditPage() {
                      </header>
 
                      {/* Stats Overview */}
-                     <div className="grid grid-cols-3 gap-3 md:gap-6">
+                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                             {[
-                                   { label: 'Eventos Semanales', value: logs.length * 4 + 12, icon: History, color: 'text-blue-500' },
-                                   { label: 'Base de Datos', value: 'Conectada', icon: Database, color: 'text-emerald-500' },
-                                   { label: 'Integridad', value: '100%', icon: CheckCircle2, color: 'text-indigo-500' },
+                                   { label: 'Eventos Semanales', value: logs.length * 4 + 12, icon: History, color: 'text-blue-500', span: '' },
+                                   { label: 'Base de Datos', value: 'Conectada', icon: Database, color: 'text-emerald-500', span: '' },
+                                   { label: 'Integridad', value: '100%', icon: CheckCircle2, color: 'text-indigo-500', span: 'col-span-2 md:col-span-1' },
                             ].map((stat, i) => (
                                    <motion.div
                                           key={stat.label}
                                           initial={{ opacity: 0, y: 20 }}
                                           animate={{ opacity: 1, y: 0 }}
                                           transition={{ delay: i * 0.1 }}
-                                          className="glass-card p-3 md:p-6 rounded-2xl md:rounded-3xl flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-5 group hover:border-primary/30 transition-all duration-500"
+                                          className={cn("glass-card p-3 md:p-6 rounded-2xl md:rounded-3xl flex flex-row md:flex-row items-center gap-3 md:gap-5 group hover:border-primary/30 transition-all duration-500", stat.span)}
                                    >
-                                          <div className={cn("p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-background/80 shadow-sm transition-transform group-hover:scale-110 duration-500", stat.color)}>
-                                                 <stat.icon size={20} className="md:hidden" />
+                                          <div className={cn("p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-background/80 shadow-sm transition-transform group-hover:scale-110 duration-500 shrink-0", stat.color)}>
+                                                 <stat.icon size={18} className="md:hidden" />
                                                  <stat.icon size={24} className="hidden md:block" />
                                           </div>
-                                          <div className="text-center md:text-left">
-                                                 <p className="section-label !text-[8px] md:!text-[9px]">{stat.label}</p>
-                                                 <h3 className="text-lg md:text-2xl font-black mt-0.5">{stat.value}</h3>
+                                          <div className="min-w-0">
+                                                 <p className="section-label !text-[8px] md:!text-[9px] truncate">{stat.label}</p>
+                                                 <h3 className="text-lg md:text-2xl font-black mt-0.5 truncate">{stat.value}</h3>
                                           </div>
                                    </motion.div>
                             ))}

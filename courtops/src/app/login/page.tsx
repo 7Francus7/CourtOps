@@ -20,7 +20,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { CourtOpsLogoFull } from '@/components/ui/CourtOpsLogo'
+import { CourtOpsLogoFull, CourtOpsLogoAuto } from '@/components/ui/CourtOpsLogo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const features = [
 	{ icon: CalendarCheck, text: 'Agenda digital en tiempo real' },
@@ -125,6 +126,19 @@ export default function LoginPage() {
 				>
 					<ArrowLeft size={13} /> Volver al inicio
 				</Link>
+			</div>
+
+			{/* ── Theme toggle ─── */}
+			<div className="absolute top-4 right-5 z-20">
+				<div
+					className="rounded-full backdrop-blur-sm"
+					style={{
+						background: 'color-mix(in srgb, var(--co-card) 85%, transparent)',
+						border: '1px solid var(--co-border)',
+					}}
+				>
+					<ThemeToggle />
+				</div>
 			</div>
 
 			{/* ── Main card ─── */}
@@ -236,7 +250,7 @@ export default function LoginPage() {
 						{/* Mobile logo */}
 						<div className="lg:hidden mb-10">
 							<Link href="/" className="hover:opacity-80 transition-opacity inline-block" aria-label="CourtOps">
-								<CourtOpsLogoFull className="h-7 w-auto" darkBg={false} />
+								<CourtOpsLogoAuto className="h-7 w-auto" />
 							</Link>
 						</div>
 
