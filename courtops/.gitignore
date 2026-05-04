@@ -80,3 +80,6 @@ eslint-report.json
 /backups
 public/fallback-*.js
 public/*.js.map
+
+# video-docs-builder generated media (heavy files)
+.video-docs/output/

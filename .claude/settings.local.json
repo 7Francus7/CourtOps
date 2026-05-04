@@ -58,7 +58,29 @@
       "Bash(wc:*)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
       "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application/**)",
-      "WebFetch(domain:stitch.withgoogle.com)"
+      "WebFetch(domain:stitch.withgoogle.com)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npm run *)",
+      "Bash(npx next *)",
+      "Bash(winget install *)",
+      "Read(//c/Users/dello/.agents/skills/video-docs-builder/**)",
+      "Bash(npm install *)",
+      "Bash(npx playwright *)",
+      "Bash(bash tools/piper-tts/setup.sh)",
+      "Bash(pip install *)",
+      "Bash(curl -L -o es_AR-daniela-high.onnx \"https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_AR/daniela/high/es_AR-daniela-high.onnx\")",
+      "Bash(npx tsx *)",
+      "Bash(bash scripts/run-all.sh \"C:\\\\Users\\\\dello\\\\OneDrive\\\\Desktop\\\\SISTEMAS\\\\SISTEMA CANCHA PADEL\\\\courtops\\\\.video-docs\\\\flows\\\\01-registro-dashboard.json\")",
+      "Bash(python -m piper --help)",
+      "Bash(python3 -m piper --help)",
+      "Bash(where python *)",
+      "PowerShell(Copy-Item \"C:\\\\Python311\\\\python.exe\" \"C:\\\\Python311\\\\python3.exe\" -Force)",
+      "PowerShell(python3 --version)",
+      "PowerShell(if \\($?\\) { \"done\" } else { \"failed\" })",
+      "Bash(python3 -m pip install piper-tts)",
+      "Bash(python3 -c \"import piper; from piper import PiperVoice; import onnxruntime; print\\('all ok'\\)\")"
     ]
   }
 }
