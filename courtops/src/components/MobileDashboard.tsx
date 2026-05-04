@@ -165,10 +165,11 @@ export default function MobileDashboard({
                      if (!document.hidden) {
                             fetchData()
                      }
-              }, 10000)
+              }, 30000)
 
               return () => clearInterval(interval)
-       }, [fetchData, isMobileViewport, refreshKey])
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+       }, [isMobileViewport, refreshKey])
 
        if (loading && !data) {
               return (
@@ -282,12 +283,9 @@ export default function MobileDashboard({
                             </header>
 
                             <main className="flex-1 overflow-y-auto px-4 pb-32 space-y-3 no-scrollbar relative z-10">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }} className="space-y-3">
 
-                                   <motion.section
-                                          initial={{ opacity: 0, y: 12 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          className="rounded-[1.55rem] border border-border/60 bg-card/90 p-3.5 shadow-[0_16px_45px_rgba(0,0,0,0.12)] backdrop-blur-xl"
-                                   >
+                                   <section className="rounded-[1.55rem] border border-border/60 bg-card/90 p-3.5 shadow-[0_16px_45px_rgba(0,0,0,0.12)] backdrop-blur-sm">
                                           <div className="flex items-start justify-between gap-3">
                                                  <div className="min-w-0 flex-1">
                                                         <div className="mb-2 flex items-center gap-2">
@@ -347,14 +345,9 @@ export default function MobileDashboard({
                                                         <span className="text-[11px] font-black uppercase tracking-wide">Link</span>
                                                  </button>
                                           </div>
-                                   </motion.section>
+                                   </section>
 
-                                    <motion.section
-                                           initial={{ opacity: 0, y: 12 }}
-                                           animate={{ opacity: 1, y: 0 }}
-                                           transition={{ delay: 0.03 }}
-                                           className="rounded-[1.35rem] border border-border/60 bg-card/85 p-3 shadow-sm backdrop-blur-xl"
-                                    >
+                                    <section className="rounded-[1.35rem] border border-border/60 bg-card/85 p-3 shadow-sm">
                                            <div className="grid grid-cols-3 divide-x divide-border/60">
                                                   <Link href="/caja" className="px-1 active:scale-[0.98]">
                                                          <Banknote size={14} className="mb-1.5 text-emerald-500" />
@@ -384,13 +377,10 @@ export default function MobileDashboard({
                                                          ${totalRevenueToday.toLocaleString()}
                                                   </span>
                                            </div>
-                                    </motion.section>
+                                    </section>
 
                                     {shouldShowRecoveryCard && (
-                                           <motion.button
-                                                  initial={{ opacity: 0, y: 12 }}
-                                                  animate={{ opacity: 1, y: 0 }}
-                                                  transition={{ delay: 0.04 }}
+                                           <button
                                                   type="button"
                                                   onClick={() => { window.location.href = '/clientes' }}
                                                   className="flex w-full items-center justify-between gap-3 rounded-[1.35rem] border border-amber-500/20 bg-amber-500/10 px-3.5 py-3 text-left shadow-sm active:scale-[0.98]"
@@ -408,14 +398,10 @@ export default function MobileDashboard({
                                                          </p>
                                                   </div>
                                                   <ArrowUpRight size={18} className="shrink-0 text-amber-600 dark:text-amber-400" />
-                                           </motion.button>
+                                           </button>
                                     )}
                                     {loadError && (
-                                           <motion.div
-                                                  initial={{ opacity: 0, y: 8 }}
-                                                  animate={{ opacity: 1, y: 0 }}
-                                                  className="rounded-[1.35rem] border border-amber-500/20 bg-amber-500/10 px-4 py-3 flex items-center justify-between gap-3"
-                                           >
+                                           <div className="rounded-[1.35rem] border border-amber-500/20 bg-amber-500/10 px-4 py-3 flex items-center justify-between gap-3">
                                                   <div className="min-w-0">
                                                          <p className="text-xs font-black text-amber-500">Panel sin actualizar</p>
                                                          <p className="text-[11px] text-muted-foreground truncate">{loadError}</p>
@@ -426,17 +412,12 @@ export default function MobileDashboard({
                                                   >
                                                          Reintentar
                                                   </button>
-                                           </motion.div>
+                                           </div>
                                     )}
 
                                     {/* COURTS STATUS */}
                                     {data?.courts && data.courts.length > 0 && (
-                                           <motion.div
-                                                  initial={{ opacity: 0, y: 12 }}
-                                                  animate={{ opacity: 1, y: 0 }}
-                                                  transition={{ delay: 0.05 }}
-                                                  className="bg-card/85 backdrop-blur-xl border border-border/60 rounded-[1.45rem] p-3 shadow-sm overflow-hidden"
-                                           >
+                                           <div className="bg-card/85 border border-border/60 rounded-[1.45rem] p-3 shadow-sm overflow-hidden">
                                                   <div className="flex items-center justify-between mb-2.5">
                                                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.18em]">Estado de canchas</p>
                                                          <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">{freeCourtsCount} libres</span>
@@ -493,17 +474,12 @@ export default function MobileDashboard({
                                                                 )
                                                          })}
                                                   </div>
-                                           </motion.div>
+                                           </div>
                                     )}
 
                                     {/* ALERTS / ANNOUNCEMENTS */}
                                     {data?.alerts && data.alerts.length > 0 && (
-                                           <motion.div
-                                                  initial={{ opacity: 0, y: 12 }}
-                                                  animate={{ opacity: 1, y: 0 }}
-                                                  transition={{ delay: 0.12 }}
-                                                  className="space-y-2"
-                                           >
+                                           <div className="space-y-2">
                                                   {data.alerts.slice(0, 2).map((alert, i) => (
                                                          <div
                                                                 key={i}
@@ -527,18 +503,13 @@ export default function MobileDashboard({
                                                                 </div>
                                                          </div>
                                                   ))}
-                                           </motion.div>
+                                           </div>
                                     )}
 
                                     {/* DEBTS */}
                                     {data?.debts && data.debts.totalCount > 0 && (
-                                           <motion.div
-                                                  initial={{ opacity: 0, y: 12 }}
-                                                  animate={{ opacity: 1, y: 0 }}
-                                                  transition={{ delay: 0.15 }}
-                                                  className="bg-card/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden"
-                                           >
-                                                  <div className="absolute top-0 left-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl -ml-16 -mt-16 pointer-events-none" />
+                                           <div className="bg-card/40 border border-border/60 rounded-[1.45rem] p-5 shadow-sm relative overflow-hidden">
+                                                  <div className="hidden" />
                                                   <div className="flex items-center justify-between mb-5 relative z-10 gap-2">
                                                          <div className="flex items-center gap-2 min-w-0 shrink-0">
                                                                 <div className="p-1.5 rounded-lg bg-red-500/10 shrink-0">
@@ -582,16 +553,12 @@ export default function MobileDashboard({
                                                   >
                                                          Ver Todos los Clientes <ChevronRight size={12} />
                                                   </Link>
-                                           </motion.div>
+                                           </div>
                                     )}
 
                                    {/* END-OF-DAY */}
                                    {data?.endOfDay && new Date().getHours() >= 20 && (
-                                          <motion.div
-                                                 initial={{ opacity: 0, y: 12 }}
-                                                 animate={{ opacity: 1, y: 0 }}
-                                                 className="bg-card border border-border rounded-2xl p-4"
-                                          >
+                                          <div className="bg-card border border-border rounded-2xl p-4">
                                                  <div className="flex items-center gap-2 mb-3">
                                                         <TrendingUp size={14} className="text-primary" />
                                                         <span className="text-[10px] font-bold text-muted-foreground uppercase">Resumen del Día</span>
@@ -616,16 +583,11 @@ export default function MobileDashboard({
                                                  >
                                                         Ir a Cerrar Caja <ChevronRight size={14} />
                                                  </Link>
-                                          </motion.div>
+                                          </div>
                                    )}
 
                                     {/* TIMELINE */}
-                                    <motion.section
-                                           initial={{ opacity: 0, y: 12 }}
-                                           animate={{ opacity: 1, y: 0 }}
-                                           transition={{ delay: 0.2 }}
-                                           className="pt-2 pb-10"
-                                    >
+                                    <section className="pt-2 pb-10">
                                            <div className="flex items-center justify-between mb-4 px-1">
                                                   <div className="flex flex-col">
                                                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Agenda</span>
@@ -641,8 +603,9 @@ export default function MobileDashboard({
                                                   bookings={data?.timeline || []}
                                                   onOpenBooking={onOpenBooking}
                                            />
-                                    </motion.section>
+                                    </section>
 
+                            </motion.div>
                             </main>
                      </div>
 

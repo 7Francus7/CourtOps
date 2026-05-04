@@ -322,9 +322,9 @@ export default function TurneroGrid({
                             throw err
                      }
               },
-              refetchInterval: 10000,
-              refetchOnWindowFocus: true,
-              staleTime: 0,
+              refetchInterval: 30000,
+              refetchOnWindowFocus: false,
+              staleTime: 20000,
               gcTime: 600000,
               retry: 1,
               refetchOnMount: true
