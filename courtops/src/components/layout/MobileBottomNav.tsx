@@ -100,7 +100,6 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
       label: 'Cuenta',
       items: [
         { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion') },
-        { href: '/configuracion?tab=CUENTA', icon: Bell,     label: 'Notificaciones', active: pathname.startsWith('/configuracion') && searchParams.get('tab') === 'CUENTA' },
         { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria') },
         { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') && !searchParams.get('tab') },
         { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',         active: isHelpOpen, isHelp: true },

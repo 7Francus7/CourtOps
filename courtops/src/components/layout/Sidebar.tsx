@@ -54,7 +54,6 @@ const NAV_SECTIONS = [
     label: 'Cuenta',
     items: [
       { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción'  },
-      { href: '/configuracion?tab=CUENTA', icon: Bell,     label: 'Notificaciones'},
       { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad'    },
       { href: '/configuracion',         icon: Settings,    label: 'Configuración'},
     ],
