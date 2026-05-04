@@ -77,7 +77,7 @@ export default function MobileKiosco({ isOpen, onClose }: Props) {
                      className="fixed inset-0 z-[100] bg-slate-50 dark:bg-zinc-950 flex flex-col h-screen w-screen overflow-hidden antialiased"
               >
                      {/* Mobile Header */}
-                     <header className="shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl px-4 py-4 flex items-center justify-between border-b border-slate-200 dark:border-white/5 sticky top-0 z-40">
+                     <header className="shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl px-4 pb-4 pt-[max(env(safe-area-inset-top),1rem)] flex items-center justify-between border-b border-slate-200 dark:border-white/5 sticky top-0 z-40">
                             <div className="flex items-center gap-3">
                                    <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-white/5 rounded-full text-slate-500 dark:text-zinc-400">
                                           <ChevronLeft size={20} />

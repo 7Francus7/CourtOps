@@ -153,7 +153,7 @@ export default function PublicBookingInterface({ club }: Props) {
               <div className="flex flex-col h-full bg-[#09090b] text-white font-sans relative">
 
                      {/* HEADER */}
-                     <header className="relative px-5 pt-5 pb-4 flex items-center justify-between sticky top-0 z-20">
+                     <header className="relative px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-4 flex items-center justify-between sticky top-0 z-20">
                             <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-[#09090b] border-b border-white/[0.04]" />
                             <div className="flex items-center gap-3.5 relative z-10 min-w-0">
                                    {club.logoUrl ? (

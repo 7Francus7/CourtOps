@@ -28,10 +28,10 @@ export default function LandingHeader() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-xl ${scrolled ? 'shadow-sm' : ''}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-xl pt-[env(safe-area-inset-top)] ${scrolled ? 'shadow-sm' : ''}`}
       style={{ background: 'color-mix(in srgb, var(--co-bg) 75%, transparent)' }}
     >
-      <div className="flex justify-between items-center max-w-7xl mx-auto px-6 md:px-8 h-20">
+      <div className="flex justify-between items-center max-w-7xl mx-auto px-6 md:px-8 min-h-20">
 
         {/* Logo */}
         <Link href="/" className="hover:opacity-80 transition-opacity inline-block" aria-label="CourtOps">

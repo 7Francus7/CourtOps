@@ -200,7 +200,7 @@ export default function PublicBookingPage() {
                      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-primary/8 rounded-full blur-[120px] pointer-events-none -z-10 opacity-60 dark:opacity-20" />
 
                      {/* Header */}
-                     <header className="w-full max-w-md sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border px-5 py-3.5 flex items-center justify-between">
+                     <header className="w-full max-w-md sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border px-5 pb-3.5 pt-[max(env(safe-area-inset-top),0.875rem)] flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                    {step > 1 && step < 3 && (
                                           <button onClick={() => setStep(step - 1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-all active:scale-95">

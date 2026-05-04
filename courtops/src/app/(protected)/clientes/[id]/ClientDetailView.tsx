@@ -412,7 +412,7 @@ export default function ClientDetailView({ client, plans = [] }: { client: any, 
                      {/* ================= MOBILE VIEW ================= */}
                      <div className="md:hidden">
                             {/* Mobile Header */}
-                            <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-white/5">
+                            <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md px-4 pb-3 pt-[max(env(safe-area-inset-top),0.75rem)] flex items-center justify-between border-b border-white/5">
                                    <div className="flex items-center gap-3">
                                           <button onClick={() => router.back()} className="text-slate-400 active:scale-95 transition-transform"><ChevronLeft /></button>
                                           <h1 className="text-lg font-bold text-white tracking-tight">Perfil de Cliente</h1>

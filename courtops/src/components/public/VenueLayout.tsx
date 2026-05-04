@@ -98,7 +98,7 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-primary/20">
       {/* Sticky Header - Minimalist */}
-      <header className="sticky top-0 z-[60] bg-white/80 dark:bg-zinc-950/20 backdrop-blur-3xl px-4 h-14 flex items-center justify-between border-b border-slate-200/60 dark:border-white/[0.03] transition-colors duration-300">
+      <header className="sticky top-0 z-[60] bg-white/80 dark:bg-zinc-950/20 backdrop-blur-3xl px-4 min-h-14 pt-[env(safe-area-inset-top)] flex items-center justify-between border-b border-slate-200/60 dark:border-white/[0.03] transition-colors duration-300">
         <div className="flex items-center gap-3">
           {onBack && (
             <button

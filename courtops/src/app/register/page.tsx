@@ -129,7 +129,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-white">
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 px-6 py-4 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
+      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 px-6 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href="/" aria-label="CourtOps inicio" className="hover:opacity-80 transition-opacity inline-flex">
             <CourtOpsLogoAuto className="h-8 w-auto" />

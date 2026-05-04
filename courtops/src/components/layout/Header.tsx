@@ -17,7 +17,7 @@ export function Header({ title, backHref, minimal = false }: { title?: string; b
 
   return (
     <>
-      <header className="h-14 md:h-16 flex items-center justify-between px-4 md:px-6 bg-card border-b border-border sticky top-0 z-40 shrink-0">
+      <header className="min-h-14 md:min-h-16 flex items-center justify-between px-4 md:px-6 bg-card border-b border-border sticky top-0 z-40 shrink-0 pt-[env(safe-area-inset-top)]">
         {/* Left: breadcrumbs / back / title */}
         <div className="flex items-center gap-3 min-w-0">
           {backHref && (
