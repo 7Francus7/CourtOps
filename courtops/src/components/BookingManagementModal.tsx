@@ -170,7 +170,7 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
               
               const confirmed = await confirm({
                      title: 'Validar Transferencia',
-                     description: '¿Confirmas que el dinero de la seña ya ingresó a la cuenta del club?',
+                     description: '¿Confirmas que el pago de la seña ya ingresó a la cuenta del club?',
                      confirmLabel: 'Sí, validar',
                      cancelLabel: 'Cancelar',
               })
