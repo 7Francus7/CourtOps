@@ -119,7 +119,7 @@ export class BookingDepositService {
                 paymentStatus: "UNPAID",
                 paymentReference: null,
                 receiptUrl: null,
-                notes: (booking.notes || "") + `\n[Rechazo de transferencia]: ${reason}`
+                description: (booking.description || "") + `\n[Rechazo de transferencia]: ${reason}`
             }
         });
 
