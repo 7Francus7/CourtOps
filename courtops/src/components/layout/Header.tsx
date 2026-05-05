@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, Search, ArrowLeft, Moon, Sun } from 'lucide-react'
+import { Bell, ArrowLeft, Moon, Sun } from 'lucide-react'
 import { useNotifications } from '@/hooks/useNotifications'
 import NotificationsSheet from '@/components/NotificationsSheet'
 import { useState } from 'react'
@@ -39,40 +39,11 @@ export function Header({ title, backHref, minimal = false }: { title?: string; b
           </div>
         </div>
 
-        {/* Center: search (desktop) */}
-        {!minimal && (
-          <div className="hidden lg:flex flex-1 max-w-xs mx-6">
-            <div
-              className="relative w-full cursor-pointer group"
-              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-            >
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-              <input
-                readOnly
-                aria-label="Buscar"
-                className="w-full pl-9 pr-20 py-1.5 bg-muted/60 border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 outline-none cursor-pointer"
-                placeholder="Buscar..."
-                type="text"
-              />
-              <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-0.5 px-1.5 py-0.5 border border-border rounded bg-background text-[10px] font-bold text-muted-foreground/60 select-none">
-                Ctrl+K
-              </kbd>
-            </div>
-          </div>
-        )}
+        {/* Center: spacer */}
+        <div className="flex-1" />
 
         {/* Right: actions */}
         <div className="flex items-center gap-1 shrink-0">
-          {!minimal && (
-            <button
-              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
-              className="lg:hidden w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-              aria-label="Buscar"
-            >
-              <Search size={17} />
-            </button>
-          )}
-
           {!minimal && (
             <button
               onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
