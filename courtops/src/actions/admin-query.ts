@@ -72,8 +72,12 @@ export async function executeReadOnlyQuery(sql: string): Promise<{
     const hasLimit = /\bLIMIT\b/i.test(trimmed)
     const queryWithLimit = hasLimit ? trimmed : `${trimmed} LIMIT ${MAX_ROWS + 1}`
 
+    // Read-only transaction enforces at DB level — defense-in-depth against keyword bypass
     const result = await Promise.race([
-      prisma.$queryRawUnsafe(queryWithLimit) as Promise<Record<string, unknown>[]>,
+      prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SET TRANSACTION READ ONLY`
+        return tx.$queryRawUnsafe(queryWithLimit) as Promise<Record<string, unknown>[]>
+      }),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error(`Query timeout (${QUERY_TIMEOUT_MS / 1000}s)`)), QUERY_TIMEOUT_MS)
       ),

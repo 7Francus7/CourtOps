@@ -82,8 +82,19 @@ export async function getReferralStats() {
 }
 
 export async function completeReferral(code: string, referredClientId: number) {
+  const clubId = await getCurrentClubId()
+
   const referral = await prisma.referral.findUnique({ where: { code } })
   if (!referral || referral.status !== 'PENDING') return { success: false }
+
+  // Ensure referral and referred client belong to the current club
+  if (referral.clubId !== clubId) return { success: false }
+
+  const referredClient = await prisma.client.findFirst({
+    where: { id: referredClientId, clubId },
+    select: { id: true },
+  })
+  if (!referredClient) return { success: false }
 
   await prisma.referral.update({
     where: { code },

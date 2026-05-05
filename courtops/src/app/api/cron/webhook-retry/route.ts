@@ -119,9 +119,10 @@ async function runRetry() {
 }
 
 function verifyCronSecret(request: Request) {
+       if (!process.env.CRON_SECRET) return false
        const auth = request.headers.get('authorization')
        const secret = auth?.replace('Bearer ', '') ?? request.headers.get('x-cron-secret')
-       return secret === process.env.CRON_SECRET || process.env.NODE_ENV !== 'production'
+       return secret === process.env.CRON_SECRET
 }
 
 export async function GET(request: Request) {

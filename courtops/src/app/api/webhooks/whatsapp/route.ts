@@ -24,9 +24,27 @@ export async function GET(request: NextRequest) {
   return new NextResponse('Forbidden', { status: 403 })
 }
 
+async function verifyWhatsAppSignature(request: NextRequest, rawBody: string): Promise<boolean> {
+  const appSecret = process.env.WHATSAPP_APP_SECRET
+  if (!appSecret) return true // Skip if not configured
+
+  const signature = request.headers.get('x-hub-signature-256')
+  if (!signature) return false
+
+  const { createHmac } = await import('crypto')
+  const expected = 'sha256=' + createHmac('sha256', appSecret).update(rawBody).digest('hex')
+  return signature === expected
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const rawBody = await request.text()
+
+    if (!(await verifyWhatsAppSignature(request, rawBody))) {
+      return new NextResponse('Forbidden', { status: 403 })
+    }
+
+    const body = JSON.parse(rawBody)
 
     const entries = body?.entry || []
     for (const entry of entries) {
