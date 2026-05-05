@@ -160,7 +160,7 @@ export default function CashRegisterPage() {
        // STATE: NO REGISTER or CLOSED
        if (status?.status === 'NO_REGISTER' || status?.status === 'CLOSED') {
               return (
-                     <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                     <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-8 animate-in fade-in zoom-in-95 duration-500 pt-[env(safe-area-inset-top)]">
                             <div className="relative">
                                    <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full" />
                                    <div className="relative w-32 h-32 bg-card/80 backdrop-blur-xl border border-border/50 rounded-full flex items-center justify-center shadow-2xl">
@@ -237,7 +237,7 @@ export default function CashRegisterPage() {
        const summary = status!.summary!
        const register = status!.register!
 return (
-               <div className="max-w-7xl mx-auto space-y-4 md:space-y-8 pt-3 md:pt-8 px-3 md:px-4">
+               <div className="max-w-7xl mx-auto space-y-4 md:space-y-8 pt-[max(env(safe-area-inset-top),0.75rem)] md:pt-8 px-3 md:px-4">
                       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                              <div>
                                     <h1 className="text-xl sm:text-2xl font-black flex items-center gap-2">

@@ -20,6 +20,7 @@ import {
   HelpCircle,
   Crown,
   Bell,
+  Activity,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -27,6 +28,8 @@ import { useEmployee } from '@/contexts/EmployeeContext'
 import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import HelpSheet from '@/components/onboarding/HelpSheet'
+import NotificationsSheet from '@/components/NotificationsSheet'
+import { useNotifications } from '@/hooks/useNotifications'
 
 type MobileBottomNavClub = {
   hasTournaments?: boolean
@@ -40,8 +43,10 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
   const router        = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isHelpOpen, setIsHelpOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const { activeEmployee, logoutEmployee } = useEmployee()
   const { data: session } = useSession()
+  const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
 
   const isBookingsView = searchParams.get('view') === 'bookings'
   const displayedName  = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
@@ -83,6 +88,8 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
     active: boolean
     locked?: boolean
     isHelp?: boolean
+    isNotifications?: boolean
+    badge?: number
   }
 
   const menuSections: { label: string; items: MenuItem[] }[] = [
@@ -91,6 +98,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
       items: [
         { href: '/clientes',              icon: Users,        label: 'Clientes',   active: pathname.startsWith('/clientes') },
         { href: '/dashboard/membresias',  icon: Crown,        label: 'Membresías', active: pathname.startsWith('/dashboard/membresias') },
+        { href: '/actividad',             icon: Activity,     label: 'Actividad',  active: pathname.startsWith('/actividad') },
         { href: '/torneos',               icon: Trophy,       label: 'Torneos',    active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments },
         { href: '?modal=kiosco',          icon: ShoppingCart, label: 'Kiosco',     active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
         { href: '/reportes',              icon: FileBarChart, label: 'Reportes',   active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
@@ -99,6 +107,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
     {
       label: 'Cuenta',
       items: [
+        { href: '#notifications',         icon: Bell,        label: 'Notificaciones', active: isNotificationsOpen, isNotifications: true, badge: unreadCount || undefined },
         { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion') },
         { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria') },
         { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') && !searchParams.get('tab') },
@@ -183,6 +192,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                               if (item.locked) return
                               setIsMenuOpen(false)
                               if (item.isHelp) setIsHelpOpen(true)
+                              else if (item.isNotifications) setIsNotificationsOpen(true)
                               else router.push(item.href)
                             }}
                             className={cn(
@@ -202,9 +212,14 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                                 </span>
                               )}
                             </div>
-                            <span className={cn('text-sm', item.active ? 'font-semibold' : 'font-medium')}>
+                            <span className={cn('text-sm flex-1', item.active ? 'font-semibold' : 'font-medium')}>
                               {item.label}
                             </span>
+                            {item.badge && item.badge > 0 && (
+                              <span className="ml-auto text-[10px] font-black bg-primary text-primary-foreground rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                                {item.badge > 99 ? '99+' : item.badge}
+                              </span>
+                            )}
                           </button>
                         ))}
                       </div>
@@ -223,6 +238,14 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
         onRestartTutorial={() => setIsHelpOpen(false)}
+      />
+
+      <NotificationsSheet
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkAllAsRead={markAllAsRead}
+        isLoading={notificationsLoading}
       />
 
       {/* Bottom bar */}
@@ -265,14 +288,19 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                       transition={{ type: 'spring', stiffness: 420, damping: 38 }}
                     />
                   )}
-                  <item.icon
-                    size={19}
-                    strokeWidth={isActive ? 2.5 : 1.8}
-                    className={cn(
-                      'relative transition-colors duration-150',
-                      isActive ? 'text-primary' : 'text-muted-foreground'
+                  <div className="relative">
+                    <item.icon
+                      size={19}
+                      strokeWidth={isActive ? 2.5 : 1.8}
+                      className={cn(
+                        'transition-colors duration-150',
+                        isActive ? 'text-primary' : 'text-muted-foreground'
+                      )}
+                    />
+                    {item.isMenu && unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-card" />
                     )}
-                  />
+                  </div>
                   <span className={cn(
                     'relative text-[9px] font-semibold transition-colors duration-150',
                     isActive ? 'text-primary' : 'text-muted-foreground'

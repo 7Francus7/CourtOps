@@ -102,13 +102,13 @@ export default function LoginPage() {
 						backgroundSize: '64px 64px',
 					}}
 				/>
-				{/* Orbs */}
+				{/* Orbs — hidden on mobile (GPU cost not worth it) */}
 				<div
-					className="absolute top-[-15%] left-[-5%] w-[700px] h-[700px] rounded-full blur-[160px]"
+					className="hidden sm:block absolute top-[-15%] left-[-5%] w-[700px] h-[700px] rounded-full blur-[160px]"
 					style={{ background: 'var(--co-green-10)' }}
 				/>
 				<div
-					className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[160px] opacity-60"
+					className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[160px] opacity-60"
 					style={{ background: 'var(--co-green-10)' }}
 				/>
 			</div>
@@ -143,9 +143,9 @@ export default function LoginPage() {
 
 			{/* ── Main card ─── */}
 			<motion.div
-				initial={{ opacity: 0, y: 16 }}
+				initial={{ opacity: 0, y: 8 }}
 				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
+				transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
 				className="relative z-10 w-full max-w-[980px] rounded-[2rem] overflow-hidden"
 				style={{
 					border: '1px solid var(--co-border)',
