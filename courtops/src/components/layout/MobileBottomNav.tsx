@@ -81,6 +81,20 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
     },
   ]
 
+  // Inline styles so Tailwind purge doesn't strip dynamic color strings
+  const IC: Record<string, { bg: string; fg: string }> = {
+    blue:    { bg: 'rgba(59,130,246,.15)',   fg: '#60a5fa' },
+    amber:   { bg: 'rgba(245,158,11,.15)',   fg: '#fbbf24' },
+    emerald: { bg: 'rgba(16,185,129,.15)',   fg: '#34d399' },
+    purple:  { bg: 'rgba(168,85,247,.15)',   fg: '#c084fc' },
+    orange:  { bg: 'rgba(249,115,22,.15)',   fg: '#fb923c' },
+    cyan:    { bg: 'rgba(6,182,212,.15)',    fg: '#22d3ee' },
+    red:     { bg: 'rgba(239,68,68,.15)',    fg: '#f87171' },
+    slate:   { bg: 'rgba(100,116,139,.15)',  fg: '#94a3b8' },
+    violet:  { bg: 'rgba(139,92,246,.15)',   fg: '#a78bfa' },
+    primary: { bg: 'hsl(var(--primary)/.15)', fg: 'hsl(var(--primary))' },
+  }
+
   interface MenuItem {
     href: string
     icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
@@ -90,30 +104,29 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
     isHelp?: boolean
     isNotifications?: boolean
     badge?: number
-    iconBg: string
-    iconColor: string
+    color: string
   }
 
   const menuSections: { label: string; items: MenuItem[] }[] = [
     {
       label: 'Gestión',
       items: [
-        { href: '/clientes',             icon: Users,        label: 'Clientes',   active: pathname.startsWith('/clientes'),                                        iconBg: 'bg-blue-500/15',    iconColor: 'text-blue-400' },
-        { href: '/dashboard/membresias', icon: Crown,        label: 'Membresías', active: pathname.startsWith('/dashboard/membresias'),                            iconBg: 'bg-amber-500/15',   iconColor: 'text-amber-400' },
-        { href: '/actividad',            icon: Activity,     label: 'Actividad',  active: pathname.startsWith('/actividad'),                                       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-400' },
-        { href: '/torneos',              icon: Trophy,       label: 'Torneos',    active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments,          iconBg: 'bg-purple-500/15',  iconColor: 'text-purple-400' },
-        { href: '?modal=kiosco',         icon: ShoppingCart, label: 'Kiosco',     active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco,        iconBg: 'bg-orange-500/15',  iconColor: 'text-orange-400' },
-        { href: '/reportes',             icon: FileBarChart, label: 'Reportes',   active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports,     iconBg: 'bg-cyan-500/15',    iconColor: 'text-cyan-400' },
+        { href: '/clientes',             icon: Users,        label: 'Clientes',   active: pathname.startsWith('/clientes'),                                     color: 'blue' },
+        { href: '/dashboard/membresias', icon: Crown,        label: 'Membresías', active: pathname.startsWith('/dashboard/membresias'),                         color: 'amber' },
+        { href: '/actividad',            icon: Activity,     label: 'Actividad',  active: pathname.startsWith('/actividad'),                                    color: 'emerald' },
+        { href: '/torneos',              icon: Trophy,       label: 'Torneos',    active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments,       color: 'purple' },
+        { href: '?modal=kiosco',         icon: ShoppingCart, label: 'Kiosco',     active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco,     color: 'orange' },
+        { href: '/reportes',             icon: FileBarChart, label: 'Reportes',   active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports,  color: 'cyan' },
       ],
     },
     {
       label: 'Cuenta',
       items: [
-        { href: '#notifications',         icon: Bell,        label: 'Notificaciones', active: isNotificationsOpen, isNotifications: true, badge: unreadCount || undefined, iconBg: unreadCount > 0 ? 'bg-red-500/15' : 'bg-slate-500/15',   iconColor: unreadCount > 0 ? 'text-red-400' : 'text-slate-400' },
-        { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion'),                        iconBg: 'bg-primary/15',     iconColor: 'text-primary' },
-        { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria'),                                    iconBg: 'bg-blue-500/15',    iconColor: 'text-blue-400' },
-        { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') && !searchParams.get('tab'),    iconBg: 'bg-slate-500/15',   iconColor: 'text-slate-400' },
-        { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',         active: isHelpOpen, isHelp: true,                                             iconBg: 'bg-violet-500/15',  iconColor: 'text-violet-400' },
+        { href: '#notifications',         icon: Bell,        label: 'Notificaciones', active: isNotificationsOpen, isNotifications: true, badge: unreadCount || undefined, color: unreadCount > 0 ? 'red' : 'slate' },
+        { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion'),                     color: 'primary' },
+        { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria'),                                 color: 'blue' },
+        { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') && !searchParams.get('tab'), color: 'slate' },
+        { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',         active: isHelpOpen, isHelp: true,                                          color: 'violet' },
       ],
     },
   ]
@@ -202,15 +215,14 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                             )}
                           >
                             {/* Colored icon */}
-                            <div className={cn(
-                              'w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0 relative',
-                              item.active ? 'bg-primary/20' : item.locked ? 'bg-muted' : item.iconBg
-                            )}>
-                              <item.icon
-                                size={16}
-                                strokeWidth={2}
-                                className={item.active ? 'text-primary' : item.locked ? 'text-muted-foreground/40' : item.iconColor}
-                              />
+                            <div
+                              className="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0 relative"
+                              style={{ background: item.locked ? undefined : IC[item.color]?.bg }}
+                            >
+                              <span style={{ color: item.locked ? undefined : item.active ? 'hsl(var(--primary))' : IC[item.color]?.fg }}
+                                className={item.locked ? 'text-muted-foreground/30' : ''}>
+                                <item.icon size={16} strokeWidth={2} />
+                              </span>
                               {item.locked && (
                                 <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-card rounded-full flex items-center justify-center border border-border/60">
                                   <Lock size={7} className="text-amber-500" />
