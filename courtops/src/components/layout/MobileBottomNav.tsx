@@ -90,28 +90,30 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
     isHelp?: boolean
     isNotifications?: boolean
     badge?: number
+    iconBg: string
+    iconColor: string
   }
 
   const menuSections: { label: string; items: MenuItem[] }[] = [
     {
       label: 'Gestión',
       items: [
-        { href: '/clientes',              icon: Users,        label: 'Clientes',   active: pathname.startsWith('/clientes') },
-        { href: '/dashboard/membresias',  icon: Crown,        label: 'Membresías', active: pathname.startsWith('/dashboard/membresias') },
-        { href: '/actividad',             icon: Activity,     label: 'Actividad',  active: pathname.startsWith('/actividad') },
-        { href: '/torneos',               icon: Trophy,       label: 'Torneos',    active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments },
-        { href: '?modal=kiosco',          icon: ShoppingCart, label: 'Kiosco',     active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco },
-        { href: '/reportes',              icon: FileBarChart, label: 'Reportes',   active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports },
+        { href: '/clientes',             icon: Users,        label: 'Clientes',   active: pathname.startsWith('/clientes'),                                        iconBg: 'bg-blue-500/15',    iconColor: 'text-blue-400' },
+        { href: '/dashboard/membresias', icon: Crown,        label: 'Membresías', active: pathname.startsWith('/dashboard/membresias'),                            iconBg: 'bg-amber-500/15',   iconColor: 'text-amber-400' },
+        { href: '/actividad',            icon: Activity,     label: 'Actividad',  active: pathname.startsWith('/actividad'),                                       iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-400' },
+        { href: '/torneos',              icon: Trophy,       label: 'Torneos',    active: pathname.startsWith('/torneos'),  locked: !club?.hasTournaments,          iconBg: 'bg-purple-500/15',  iconColor: 'text-purple-400' },
+        { href: '?modal=kiosco',         icon: ShoppingCart, label: 'Kiosco',     active: searchParams.get('modal') === 'kiosco', locked: !club?.hasKiosco,        iconBg: 'bg-orange-500/15',  iconColor: 'text-orange-400' },
+        { href: '/reportes',             icon: FileBarChart, label: 'Reportes',   active: pathname.startsWith('/reportes'), locked: !club?.hasAdvancedReports,     iconBg: 'bg-cyan-500/15',    iconColor: 'text-cyan-400' },
       ],
     },
     {
       label: 'Cuenta',
       items: [
-        { href: '#notifications',         icon: Bell,        label: 'Notificaciones', active: isNotificationsOpen, isNotifications: true, badge: unreadCount || undefined },
-        { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion') },
-        { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria') },
-        { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') && !searchParams.get('tab') },
-        { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',         active: isHelpOpen, isHelp: true },
+        { href: '#notifications',         icon: Bell,        label: 'Notificaciones', active: isNotificationsOpen, isNotifications: true, badge: unreadCount || undefined, iconBg: unreadCount > 0 ? 'bg-red-500/15' : 'bg-slate-500/15',   iconColor: unreadCount > 0 ? 'text-red-400' : 'text-slate-400' },
+        { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción',   active: pathname.startsWith('/dashboard/suscripcion'),                        iconBg: 'bg-primary/15',     iconColor: 'text-primary' },
+        { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad',     active: pathname.startsWith('/auditoria'),                                    iconBg: 'bg-blue-500/15',    iconColor: 'text-blue-400' },
+        { href: '/configuracion',         icon: Settings,    label: 'Configuración', active: pathname.startsWith('/configuracion') && !searchParams.get('tab'),    iconBg: 'bg-slate-500/15',   iconColor: 'text-slate-400' },
+        { href: '#help',                  icon: HelpCircle,  label: 'Ayuda',         active: isHelpOpen, isHelp: true,                                             iconBg: 'bg-violet-500/15',  iconColor: 'text-violet-400' },
       ],
     },
   ]
@@ -140,52 +142,47 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
             >
               <div className="bg-card border-t border-x border-border rounded-t-3xl shadow-2xl overflow-hidden pb-[env(safe-area-inset-bottom)]">
                 {/* Handle */}
-                <div className="flex justify-center pt-3 pb-1">
-                  <div className="w-10 h-1 bg-muted-foreground/20 rounded-full" />
+                <div className="flex justify-center pt-2.5 pb-0">
+                  <div className="w-9 h-[3px] bg-muted-foreground/25 rounded-full" />
                 </div>
 
                 {/* User row */}
-                <div className="flex items-center gap-3 px-5 py-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary font-bold text-sm shrink-0 overflow-hidden relative">
+                <div className="flex items-center gap-3 px-4 pt-3 pb-3">
+                  <div className="w-11 h-11 rounded-2xl bg-primary/15 border border-primary/20 flex items-center justify-center text-primary font-black text-sm shrink-0 overflow-hidden relative">
                     {session?.user?.image
-                      ? <Image src={session.user.image} alt="User" fill sizes="40px" className="object-cover rounded-xl" />
+                      ? <Image src={session.user.image} alt="User" fill sizes="44px" className="object-cover" />
                       : displayedName.substring(0, 2).toUpperCase()
                     }
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{displayedName}</p>
-                    <p className="text-[11px] text-muted-foreground">{roleLabel}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{displayedName}</p>
+                    <p className="text-[11px] font-medium text-muted-foreground">{roleLabel}</p>
                   </div>
                   <button
-                    onClick={() => {
-                      if (activeEmployee) logoutEmployee()
-                      else signOut()
-                    }}
-                    className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
+                    onClick={() => { if (activeEmployee) logoutEmployee(); else signOut() }}
+                    className="w-8 h-8 flex items-center justify-center text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                     aria-label="Cerrar sesión"
                   >
-                    <LogOut size={16} />
+                    <LogOut size={15} />
                   </button>
                   <button
                     onClick={() => setIsMenuOpen(false)}
-                    className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
+                    className="w-8 h-8 flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                     aria-label="Cerrar menú"
                   >
-                    <X size={16} />
+                    <X size={15} />
                   </button>
                 </div>
 
-                <div className="h-px bg-border mx-5" />
-
                 {/* Nav sections */}
-                <div className="px-3 py-3 space-y-4">
+                <div className="px-3 pb-2 space-y-3">
                   {menuSections.map(section => (
                     <div key={section.label}>
-                      <p className="px-3 mb-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+                      <p className="px-1 mb-1.5 text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.18em]">
                         {section.label}
                       </p>
-                      <div className="space-y-0.5">
-                        {section.items.map(item => (
+                      <div className="bg-muted/40 rounded-2xl overflow-hidden divide-y divide-border/40">
+                        {section.items.map((item, idx) => (
                           <button
                             key={item.label}
                             onClick={() => {
@@ -196,30 +193,45 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                               else router.push(item.href)
                             }}
                             className={cn(
-                              'w-full flex items-center gap-3 h-11 px-3 rounded-xl transition-colors',
+                              'w-full flex items-center gap-3 h-12 px-3 transition-colors active:scale-[0.98]',
                               item.active
-                                ? 'bg-primary/10 text-primary'
+                                ? 'bg-primary/10'
                                 : item.locked
-                                  ? 'text-muted-foreground/30 cursor-not-allowed'
-                                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                  ? 'opacity-35 cursor-not-allowed'
+                                  : 'hover:bg-muted/60'
                             )}
                           >
-                            <div className="relative shrink-0">
-                              <item.icon size={18} strokeWidth={item.active ? 2.5 : 2} />
+                            {/* Colored icon */}
+                            <div className={cn(
+                              'w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0 relative',
+                              item.active ? 'bg-primary/20' : item.locked ? 'bg-muted' : item.iconBg
+                            )}>
+                              <item.icon
+                                size={16}
+                                strokeWidth={2}
+                                className={item.active ? 'text-primary' : item.locked ? 'text-muted-foreground/40' : item.iconColor}
+                              />
                               {item.locked && (
-                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-card rounded-full flex items-center justify-center border border-border">
-                                  <Lock size={6} className="text-amber-500" />
+                                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-card rounded-full flex items-center justify-center border border-border/60">
+                                  <Lock size={7} className="text-amber-500" />
                                 </span>
                               )}
                             </div>
-                            <span className={cn('text-sm flex-1', item.active ? 'font-semibold' : 'font-medium')}>
+
+                            <span className={cn(
+                              'text-[13.5px] flex-1 text-left',
+                              item.active ? 'font-semibold text-primary' : item.locked ? 'text-muted-foreground/40 font-medium' : 'font-medium text-foreground'
+                            )}>
                               {item.label}
                             </span>
-                            {item.badge && item.badge > 0 && (
-                              <span className="ml-auto text-[10px] font-black bg-primary text-primary-foreground rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+
+                            {item.badge && item.badge > 0 ? (
+                              <span className="text-[10px] font-black bg-red-500 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                                 {item.badge > 99 ? '99+' : item.badge}
                               </span>
-                            )}
+                            ) : item.active ? (
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                            ) : null}
                           </button>
                         ))}
                       </div>
@@ -227,7 +239,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                   ))}
                 </div>
 
-                <div className="h-4" />
+                <div className="h-3" />
               </div>
             </motion.div>
           </div>
