@@ -1,5 +1,16 @@
 
 import React from 'react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Política de Privacidad',
+  description: 'Conocé cómo CourtOps recopila, usa y protege tu información personal y la de tu club deportivo.',
+  alternates: { canonical: '/legal/privacy' },
+  openGraph: {
+    title: 'Política de Privacidad | CourtOps',
+    description: 'Conocé cómo CourtOps recopila, usa y protege tu información personal y la de tu club deportivo.',
+  },
+}
 
 export default function PrivacyPage() {
        return (

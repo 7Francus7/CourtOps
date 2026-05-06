@@ -1,5 +1,16 @@
 
 import React from 'react'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Términos y Condiciones',
+  description: 'Leé los términos y condiciones de uso de CourtOps, el software de gestión para clubes deportivos.',
+  alternates: { canonical: '/legal/terms' },
+  openGraph: {
+    title: 'Términos y Condiciones | CourtOps',
+    description: 'Leé los términos y condiciones de uso de CourtOps, el software de gestión para clubes deportivos.',
+  },
+}
 
 export default function TermsPage() {
        return (

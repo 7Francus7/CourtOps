@@ -24,6 +24,7 @@ import { CourtOpsLogoAuto } from "@/components/ui/CourtOpsLogo"
 import LandingPricing from "@/components/landing/LandingPricing"
 import { ScrollReveal, StaggerReveal } from "@/components/landing/ScrollReveal"
 import { AnimatedCounter } from "@/components/landing/AnimatedCounter"
+import { getBaseUrl } from "@/lib/utils"
 
 const fontSerif = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader" })
 const fontSans = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
@@ -158,16 +159,45 @@ export default async function Home() {
     redirect("/dashboard")
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "CourtOps",
-    url: "https://courtops.net",
-  }
+  const base = getBaseUrl()
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "CourtOps",
+      url: base,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${base}/reservar?q={search_term_string}` },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "CourtOps",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: base,
+      description: "Sistema de gestión para clubes de pádel: reservas online, caja, kiosco, torneos y métricas.",
+      offers: { "@type": "Offer", priceCurrency: "ARS", availability: "https://schema.org/InStock" },
+      aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "1" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "CourtOps",
+      url: base,
+      logo: `${base}/icon-512.png`,
+      contactPoint: { "@type": "ContactPoint", email: "ventas@courtops.net", contactType: "sales" },
+      sameAs: [],
+    },
+  ]
 
   return (
     <div className={`${fontSans.variable} ${fontSerif.variable} min-h-screen bg-[#f4faf7] font-sans text-zinc-950 selection:bg-emerald-300/30 selection:text-zinc-950 dark:bg-[#07090b] dark:text-white dark:selection:text-white`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
 
       <nav className="fixed inset-x-0 top-0 z-50 border-b border-zinc-950/10 bg-white/78 backdrop-blur-2xl dark:border-white/10 dark:bg-[#07090b]/72 pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
