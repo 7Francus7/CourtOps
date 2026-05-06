@@ -22,6 +22,8 @@ import WhatsAppButton from "@/components/WhatsAppButton"
 import MobileNavMenu from "@/components/landing/MobileNavMenu"
 import { CourtOpsLogoAuto } from "@/components/ui/CourtOpsLogo"
 import LandingPricing from "@/components/landing/LandingPricing"
+import { ScrollReveal, StaggerReveal } from "@/components/landing/ScrollReveal"
+import { AnimatedCounter } from "@/components/landing/AnimatedCounter"
 
 const fontSerif = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader" })
 const fontSans = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
@@ -204,7 +206,7 @@ export default async function Home() {
           <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#07090b] to-transparent" />
 
           <div className="relative z-10 mx-auto grid w-full max-w-[1440px] items-end gap-10 lg:grid-cols-[1fr_560px]">
-            <div className="max-w-5xl">
+            <ScrollReveal direction="up" delay={0.1} distance={40} className="max-w-5xl">
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
                 <Sparkles size={14} />
                 Link público, WhatsApp y métricas para clubes
@@ -226,25 +228,34 @@ export default async function Home() {
                   <ChevronRight size={19} />
                 </a>
               </div>
-            </div>
-            <BookingBoard />
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.3} distance={40}>
+              <BookingBoard />
+            </ScrollReveal>
           </div>
         </section>
 
         <section id="experiencia" className="border-y border-zinc-950/10 bg-white dark:border-white/10 dark:bg-[#0b1014]">
-          <div className="mx-auto grid max-w-[1440px] grid-cols-2 gap-px bg-zinc-950/10 dark:bg-white/10 md:grid-cols-4">
+          <StaggerReveal
+            className="mx-auto grid max-w-[1440px] grid-cols-2 gap-px bg-zinc-950/10 dark:bg-white/10 md:grid-cols-4"
+            stagger={0.1}
+            direction="up"
+            distance={20}
+          >
             {metrics.map(([value, label]) => (
               <div key={label} className="bg-white px-5 py-8 dark:bg-[#0b1014] md:px-8 md:py-10">
-                <p className="text-4xl font-black tracking-tight text-emerald-600 dark:text-emerald-300 md:text-5xl">{value}</p>
+                <p className="text-4xl font-black tracking-tight text-emerald-600 dark:text-emerald-300 md:text-5xl">
+                  <AnimatedCounter value={value} />
+                </p>
                 <p className="mt-3 max-w-52 text-sm font-semibold leading-6 text-zinc-600 dark:text-zinc-400">{label}</p>
               </div>
             ))}
-          </div>
+          </StaggerReveal>
         </section>
 
         <section className="bg-[#f4faf7] px-5 py-20 dark:bg-[#07090b] md:px-10 md:py-32">
           <div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="lg:sticky lg:top-28 lg:h-fit">
+            <ScrollReveal direction="left" delay={0} className="lg:sticky lg:top-28 lg:h-fit">
               <p className="text-sm font-black uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Del link a la caja</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
                 El link público tiene que trabajar como un vendedor del club.
@@ -252,9 +263,9 @@ export default async function Home() {
               <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-700 dark:text-zinc-400">
                 No alcanza con mostrar horarios. CourtOps arma un recorrido completo: capta jugadores, reduce conversaciones repetidas, recupera demanda cuando no hay lugar y deja números claros para el dueño.
               </p>
-            </div>
+            </ScrollReveal>
 
-            <div className="space-y-6">
+            <StaggerReveal className="space-y-6" stagger={0.12} direction="up" distance={30}>
               {operatingFlow.map((item, index) => (
                 <div key={item.title} className="group grid gap-6 rounded-2xl border border-zinc-950/10 bg-white p-5 shadow-sm transition hover:border-emerald-500/40 hover:bg-emerald-50/60 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-emerald-300/40 dark:hover:bg-white/[0.06] md:grid-cols-[88px_1fr] md:p-8">
                   <div className="flex items-center gap-4 md:block">
@@ -269,13 +280,13 @@ export default async function Home() {
                   </div>
                 </div>
               ))}
-            </div>
+            </StaggerReveal>
           </div>
         </section>
 
         <section id="operacion" className="overflow-hidden bg-[#e9f2ef] text-zinc-950">
           <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-20 md:px-10 md:py-32 lg:grid-cols-[1fr_1fr]">
-            <div>
+            <ScrollReveal direction="left" delay={0}>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Crecimiento operativo</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
                 Lo que CourtReserve instaló como estándar, CourtOps lo lleva al día a día del club.
@@ -283,9 +294,9 @@ export default async function Home() {
               <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-700">
                 La prioridad es simple: que reservar desde el celular sea fácil, que WhatsApp deje de ser una planilla improvisada y que cada canal de adquisición se pueda medir.
               </p>
-            </div>
+            </ScrollReveal>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <StaggerReveal className="grid gap-4 sm:grid-cols-2" stagger={0.08} direction="up" distance={24}>
               {features.map((feature) => (
                 <div key={feature.title} className="rounded-2xl border border-zinc-950/10 bg-white p-6 shadow-sm">
                   <div className="mb-5 grid h-12 w-12 place-items-center rounded-xl bg-zinc-950 text-emerald-300">
@@ -295,33 +306,35 @@ export default async function Home() {
                   <p className="mt-3 text-sm leading-6 text-zinc-600">{feature.text}</p>
                 </div>
               ))}
-            </div>
+            </StaggerReveal>
           </div>
         </section>
 
         <section id="impacto" className="relative overflow-hidden bg-[#eff7f3] px-5 py-20 dark:bg-[#080b0e] md:px-10 md:py-32">
           <div className="mx-auto grid max-w-[1440px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="relative min-h-[520px] overflow-hidden rounded-2xl border border-white/10">
-              <img
-                src="https://www.padelfip.com/wp-content/uploads/2024/10/Final_web-1024x576.jpg"
-                alt="Agustín Tapia y Arturo Coello en acción en la final de Roland Garros 2024"
-                className="absolute inset-0 h-full w-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-200">Experiencia del jugador</p>
-                <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight tracking-tight text-white md:text-5xl">
-                  Si el jugador llega desde Instagram, tiene que poder terminar la reserva en el momento.
-                </h3>
+            <ScrollReveal direction="left" delay={0}>
+              <div className="relative min-h-[520px] overflow-hidden rounded-2xl border border-white/10">
+                <img
+                  src="https://www.padelfip.com/wp-content/uploads/2024/10/Final_web-1024x576.jpg"
+                  alt="Agustín Tapia y Arturo Coello en acción en la final de Roland Garros 2024"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+                  <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-200">Experiencia del jugador</p>
+                  <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight tracking-tight text-white md:text-5xl">
+                    Si el jugador llega desde Instagram, tiene que poder terminar la reserva en el momento.
+                  </h3>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
-            <div>
+            <ScrollReveal direction="right" delay={0.15}>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-amber-700 dark:text-amber-200">Métricas accionables</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
                 El club necesita saber dónde se gana plata y dónde se escapan turnos.
               </h2>
-              <div className="mt-8 space-y-5">
+              <StaggerReveal className="mt-8 space-y-5" stagger={0.1} direction="up" distance={20}>
                 {[
                   "Ocupación por día y horario para ajustar precios y promociones.",
                   "Reservas, lista de espera y referidos medidos por canal.",
@@ -332,26 +345,28 @@ export default async function Home() {
                     <p className="text-lg leading-8 text-zinc-700 dark:text-zinc-300">{item}</p>
                   </div>
                 ))}
-              </div>
-            </div>
+              </StaggerReveal>
+            </ScrollReveal>
           </div>
         </section>
 
         <LandingPricing />
 
         <section className="bg-zinc-950 px-5 py-16 text-white dark:bg-[#07090b] md:px-10 md:py-24">
-          <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 md:flex-row md:items-center">
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-300">CourtOps</p>
-              <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-tight md:text-6xl">
-                Convertí tu club en una operación que se ve, se cobra y se controla.
-              </h2>
+          <ScrollReveal direction="up" delay={0} distance={28}>
+            <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-300">CourtOps</p>
+                <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-tight md:text-6xl">
+                  Convertí tu club en una operación que se ve, se cobra y se controla.
+                </h2>
+              </div>
+              <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-7 py-4 text-base font-black text-zinc-950 transition hover:bg-emerald-200">
+                Empezar ahora
+                <ArrowRight size={19} />
+              </Link>
             </div>
-            <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-7 py-4 text-base font-black text-zinc-950 transition hover:bg-emerald-200">
-              Empezar ahora
-              <ArrowRight size={19} />
-            </Link>
-          </div>
+          </ScrollReveal>
         </section>
       </main>
 
