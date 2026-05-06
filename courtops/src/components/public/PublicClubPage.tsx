@@ -5,6 +5,7 @@ import { getPublicClubBySlug } from '@/actions/public-booking'
 import { getOpenMatches } from '@/actions/open-matches'
 import { nowInArg } from '@/lib/date-utils'
 import CookieConsent from '@/components/CookieConsent'
+import { InstallPrompt } from '@/components/pwa/InstallPrompt'
 import PublicBookingWizard from './PublicBookingWizard'
 
 function hexToRgb(hex: string) {
@@ -146,6 +147,7 @@ export default async function PublicClubPage({ slug }: { slug: string }) {
                      >
                             <PublicBookingWizard club={club} initialDateStr={today} openMatches={openMatches} />
                      </Suspense>
+                     <InstallPrompt />
                      <CookieConsent />
               </>
        )

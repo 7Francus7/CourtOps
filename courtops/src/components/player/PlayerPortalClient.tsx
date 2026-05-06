@@ -1,23 +1,33 @@
 'use client'
+/* eslint-disable @next/next/no-img-element */
 
-import { useState, useTransition, useRef, useEffect } from 'react'
+import { useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { sendPlayerOTP, verifyPlayerOTP, cancelPlayerBooking, logoutPlayer } from '@/actions/player-portal'
+import { QRCodeCanvas } from 'qrcode.react'
 import { toast } from 'sonner'
 import {
+  AlertCircle,
   Calendar,
-  Clock,
   ChevronDown,
   ChevronUp,
-  LogOut,
-  Shield,
-  X,
-  CheckCircle,
+  Clock,
+  Copy,
+  Download,
   Loader2,
+  LogOut,
+  QrCode,
+  Shield,
   Trophy,
-  AlertCircle,
 } from 'lucide-react'
+
+import { cancelPlayerBooking, logoutPlayer, sendPlayerOTP, verifyPlayerOTP } from '@/actions/player-portal'
+import { InstallPrompt } from '@/components/pwa/InstallPrompt'
 import { PhoneInput } from '@/components/ui/PhoneInput'
+import {
+  buildPlayerBookingPath,
+  buildRepeatReservationDate,
+  getPlayerBookingStateMeta,
+} from '@/lib/player-portal'
 
 type BookingItem = {
   id: number
@@ -26,11 +36,21 @@ type BookingItem = {
   price: number
   status: string
   paymentStatus: string
+  canceledAt: string | null
   court: { name: string }
 }
 
+type ClubData = {
+  id: string
+  name: string
+  themeColor: string | null
+  logoUrl: string | null
+  slug: string
+  cancelHours: number
+}
+
 type DashboardData = {
-  club: { id: string; name: string; themeColor: string | null; logoUrl: string | null; slug: string; cancelHours: number }
+  club: ClubData
   authenticated: true
   client: { id: number; name: string; membershipStatus: string; membershipExpiresAt: string | null } | null
   phone: string
@@ -39,7 +59,7 @@ type DashboardData = {
 }
 
 type UnauthData = {
-  club: { id: string; name: string; themeColor: string | null; logoUrl: string | null; slug: string; cancelHours: number }
+  club: ClubData
   authenticated: false
 }
 
@@ -49,136 +69,161 @@ type Props = {
 }
 
 function formatDateTime(iso: string) {
-  const d = new Date(iso)
-  const day = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
-  const time = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-  return { day, time }
+  const date = new Date(iso)
+  return {
+    day: date.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }),
+    fullDay: date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }),
+    time: date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+  }
 }
 
-function formatPrice(n: number) {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
+function formatPrice(amount: number) {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0,
+  }).format(amount)
 }
 
-// ─── OTP Input ────────────────────────────────────────────────────────────────
-function OTPInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function buildPublicUrl(path: string) {
+  if (typeof window === 'undefined') return path
+  return new URL(path, window.location.origin).toString()
+}
+
+function OTPInput({ value, onChange }: { value: string; onChange: (_value: string) => void }) {
   const inputs = useRef<(HTMLInputElement | null)[]>([])
 
-  function handleKey(i: number, e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Backspace' && !value[i] && i > 0) inputs.current[i - 1]?.focus()
+  function handleKey(index: number, event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Backspace' && !value[index] && index > 0) {
+      inputs.current[index - 1]?.focus()
+    }
   }
 
-  function handleChange(i: number, val: string) {
-    const digit = val.replace(/\D/g, '').slice(-1)
-    const arr = value.padEnd(6, ' ').split('')
-    arr[i] = digit || ' '
-    const next = arr.join('').trimEnd()
-    onChange(next)
-    if (digit && i < 5) inputs.current[i + 1]?.focus()
+  function handleChange(index: number, inputValue: string) {
+    const digit = inputValue.replace(/\D/g, '').slice(-1)
+    const nextValue = value.padEnd(6, ' ').split('')
+    nextValue[index] = digit || ' '
+    onChange(nextValue.join('').trimEnd())
+
+    if (digit && index < 5) {
+      inputs.current[index + 1]?.focus()
+    }
   }
 
   return (
-    <div className="flex gap-2 justify-center">
-      {Array.from({ length: 6 }).map((_, i) => (
+    <div className="flex justify-center gap-2">
+      {Array.from({ length: 6 }).map((_, index) => (
         <input
-          key={i}
-          ref={(el) => { inputs.current[i] = el }}
+          key={index}
+          ref={(element) => {
+            inputs.current[index] = element
+          }}
           type="text"
           inputMode="numeric"
           maxLength={1}
-          value={value[i]?.trim() || ''}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKey(i, e)}
-          className="w-11 h-14 text-center text-xl font-bold rounded-xl border-2 border-white/10 bg-white/5 focus:border-[var(--club-color)] focus:outline-none transition-colors"
+          value={value[index]?.trim() || ''}
+          onChange={(event) => handleChange(index, event.target.value)}
+          onKeyDown={(event) => handleKey(index, event)}
+          className="h-14 w-11 rounded-xl border-2 border-white/10 bg-white/5 text-center text-xl font-bold text-white transition-colors focus:border-[var(--club-color)] focus:outline-none"
         />
       ))}
     </div>
   )
 }
 
-// ─── Auth Flow ─────────────────────────────────────────────────────────────────
-function AuthFlow({ club, clubSlug }: { club: UnauthData['club']; clubSlug: string }) {
+function AuthFlow({ club, clubSlug }: { club: ClubData; clubSlug: string }) {
   const router = useRouter()
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [simulated, setSimulated] = useState(false)
+  const [debugCode, setDebugCode] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const bookingHref = buildPlayerBookingPath(clubSlug)
 
-  function submitPhone(e: React.FormEvent) {
-    e.preventDefault()
+  function submitPhone(event: React.FormEvent) {
+    event.preventDefault()
     startTransition(async () => {
-      const res = await sendPlayerOTP(phone, clubSlug)
-      if ('error' in res) { toast.error(res.error); return }
-      setSimulated(!!res.simulated)
+      const response = await sendPlayerOTP(phone, clubSlug)
+      if ('error' in response) {
+        toast.error(response.error)
+        return
+      }
+
+      setSimulated(!!response.simulated)
+      setDebugCode(response.debugCode || null)
       setStep('otp')
     })
   }
 
-  function submitOTP(e: React.FormEvent) {
-    e.preventDefault()
+  function submitOTP(event: React.FormEvent) {
+    event.preventDefault()
     startTransition(async () => {
-      const res = await verifyPlayerOTP(phone, clubSlug, otp)
-      if ('error' in res) { toast.error(res.error); return }
+      const response = await verifyPlayerOTP(phone, clubSlug, otp)
+      if ('error' in response) {
+        toast.error(response.error)
+        return
+      }
       router.refresh()
     })
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
-      {/* Logo */}
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
       <div className="mb-8 text-center">
         {club.logoUrl ? (
-          <img src={club.logoUrl} alt={club.name} className="h-16 w-auto mx-auto mb-4 rounded-xl" />
+          <img src={club.logoUrl} alt={club.name} className="mx-auto mb-4 h-16 w-auto rounded-xl" />
         ) : (
           <div
-            className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl font-bold"
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold"
             style={{ backgroundColor: club.themeColor ?? '#00e676', color: '#000' }}
           >
             {club.name[0]}
           </div>
         )}
         <h1 className="text-xl font-bold text-white">{club.name}</h1>
-        <p className="text-sm text-white/50 mt-1">Portal del jugador</p>
+        <p className="mt-1 text-sm text-white/50">Portal del jugador y reservas desde el celular</p>
       </div>
 
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm space-y-4">
         {step === 'phone' ? (
-          <form onSubmit={submitPhone} className="space-y-4">
+          <form onSubmit={submitPhone} className="space-y-4 rounded-[1.75rem] border border-white/8 bg-white/5 p-5">
             <div>
-              <label className="block text-sm text-white/60 mb-2">Tu número de WhatsApp</label>
+              <label className="mb-2 block text-sm text-white/60">Tu numero de WhatsApp</label>
               <PhoneInput
                 value={phone}
                 onChange={setPhone}
                 placeholder="351 123 4567"
                 required
-                className="w-full py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white transition-colors"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 text-white transition-colors"
               />
-              <p className="text-xs text-white/40 mt-2">
-                Te enviamos un código por WhatsApp para verificar tu identidad.
+              <p className="mt-2 text-xs text-white/40">
+                Te enviamos un codigo de acceso para ver tus reservas y volver a reservar rapido.
               </p>
             </div>
             <button
               type="submit"
               disabled={pending || phone.length < 6}
-              className="w-full py-3.5 rounded-2xl font-semibold text-black transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-semibold text-black transition-opacity disabled:opacity-40"
               style={{ backgroundColor: club.themeColor ?? '#00e676' }}
             >
-              {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              Recibir código
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Recibir codigo
             </button>
           </form>
         ) : (
-          <form onSubmit={submitOTP} className="space-y-6">
+          <form onSubmit={submitOTP} className="space-y-6 rounded-[1.75rem] border border-white/8 bg-white/5 p-5">
             <div className="text-center">
-              <Shield className="w-10 h-10 mx-auto mb-3" style={{ color: club.themeColor ?? '#00e676' }} />
-              <h2 className="font-semibold text-white text-lg">Ingresá el código</h2>
+              <Shield className="mx-auto mb-3 h-10 w-10" style={{ color: club.themeColor ?? '#00e676' }} />
+              <h2 className="text-lg font-semibold text-white">Ingresa el codigo</h2>
               {simulated ? (
-                <p className="text-xs text-amber-400 mt-1 flex items-center justify-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> WhatsApp no configurado — código de prueba: {otp || '??????'}
+                <p className="mt-1 flex items-center justify-center gap-1 text-xs text-amber-400">
+                  <AlertCircle className="h-3 w-3" />
+                  Modo simulacion{debugCode ? ` - codigo: ${debugCode}` : ''}
                 </p>
               ) : (
-                <p className="text-sm text-white/50 mt-1">
-                  Enviamos 6 dígitos a <span className="text-white">{phone}</span>
+                <p className="mt-1 text-sm text-white/50">
+                  Enviamos 6 digitos a <span className="text-white">{phone}</span>
                 </p>
               )}
             </div>
@@ -186,27 +231,36 @@ function AuthFlow({ club, clubSlug }: { club: UnauthData['club']; clubSlug: stri
             <button
               type="submit"
               disabled={pending || otp.trim().length < 6}
-              className="w-full py-3.5 rounded-2xl font-semibold text-black transition-opacity disabled:opacity-40 flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-semibold text-black transition-opacity disabled:opacity-40"
               style={{ backgroundColor: club.themeColor ?? '#00e676' }}
             >
-              {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Verificar
             </button>
             <button
               type="button"
-              onClick={() => { setStep('phone'); setOtp('') }}
-              className="w-full text-sm text-white/40 hover:text-white/60 transition-colors"
+              onClick={() => {
+                setStep('phone')
+                setOtp('')
+              }}
+              className="w-full text-sm text-white/40 transition-colors hover:text-white/60"
             >
-              Cambiar número
+              Cambiar numero
             </button>
           </form>
         )}
+
+        <a
+          href={bookingHref}
+          className="block rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-center text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
+        >
+          Ver disponibilidad publica del club
+        </a>
       </div>
     </div>
   )
 }
 
-// ─── Booking Card ──────────────────────────────────────────────────────────────
 function BookingCard({
   booking,
   cancelHours,
@@ -216,107 +270,122 @@ function BookingCard({
   booking: BookingItem
   cancelHours: number
   clubSlug: string
-  onCanceled: (id: number) => void
+  onCanceled: (_id: number) => void
 }) {
   const [confirming, setConfirming] = useState(false)
   const [pending, startTransition] = useTransition()
+  const [renderedAt] = useState(() => Date.now())
   const { day, time } = formatDateTime(booking.startTime)
   const { time: endTime } = formatDateTime(booking.endTime)
-
-  const isFuture = new Date(booking.startTime) > new Date()
-  const hoursUntil = (new Date(booking.startTime).getTime() - Date.now()) / 3_600_000
+  const stateMeta = getPlayerBookingStateMeta(booking.status, booking.paymentStatus)
+  const isFuture = new Date(booking.startTime).getTime() > renderedAt
+  const hoursUntil = (new Date(booking.startTime).getTime() - renderedAt) / 3_600_000
   const canCancel = isFuture && hoursUntil >= cancelHours
+  const repeatHref = buildPlayerBookingPath(
+    clubSlug,
+    buildRepeatReservationDate(booking.startTime),
+  )
 
   function handleCancel() {
     startTransition(async () => {
-      const res = await cancelPlayerBooking(booking.id, clubSlug)
-      if ('error' in res) { toast.error(res.error); setConfirming(false); return }
+      const response = await cancelPlayerBooking(booking.id, clubSlug)
+      if ('error' in response) {
+        toast.error(response.error)
+        setConfirming(false)
+        return
+      }
       toast.success('Reserva cancelada')
       onCanceled(booking.id)
     })
   }
 
-  const statusBadge: Record<string, string> = {
-    CONFIRMED: 'text-emerald-400',
-    PENDING: 'text-amber-400',
-    CANCELED: 'text-red-400',
-  }
-
   return (
-    <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+    <div className="rounded-[1.5rem] border border-white/8 bg-white/5 p-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-white truncate">{booking.court.name}</span>
-            <span className={`text-xs font-medium ${statusBadge[booking.status] ?? 'text-white/50'}`}>
-              {booking.status === 'CONFIRMED' ? 'Confirmada' : booking.status === 'PENDING' ? 'Pendiente' : 'Cancelada'}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="truncate font-semibold text-white">{booking.court.name}</span>
+            <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${stateMeta.reservationTone}`}>
+              {stateMeta.reservationLabel}
             </span>
           </div>
-          <div className="flex items-center gap-3 mt-1.5 text-sm text-white/60">
+          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-white/60">
             <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" />
+              <Calendar className="h-3.5 w-3.5" />
               {day}
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              {time}–{endTime}
+              <Clock className="h-3.5 w-3.5" />
+              {time}-{endTime}
             </span>
           </div>
         </div>
-        <div className="text-right shrink-0">
-          <span className="font-bold text-white">{formatPrice(booking.price)}</span>
-          <p className={`text-xs mt-0.5 ${booking.paymentStatus === 'PAID' ? 'text-emerald-400' : 'text-white/40'}`}>
-            {booking.paymentStatus === 'PAID' ? 'Pagada' : 'Pendiente de pago'}
-          </p>
+        <div className="shrink-0 text-right">
+          <p className="font-bold text-white">{formatPrice(booking.price)}</p>
+          <p className={`mt-0.5 text-xs ${stateMeta.paymentTone}`}>{stateMeta.paymentLabel}</p>
         </div>
       </div>
 
-      {isFuture && (
-        <div className="mt-3 pt-3 border-t border-white/5">
-          {confirming ? (
-            <div className="flex gap-2">
+      <div className="mt-3 flex gap-2">
+        <a
+          href={repeatHref}
+          className="flex-1 rounded-xl bg-white/6 px-3 py-2 text-center text-xs font-semibold text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          Volver a reservar
+        </a>
+        {isFuture ? (
+          confirming ? (
+            <>
               <button
                 onClick={() => setConfirming(false)}
-                className="flex-1 py-2 rounded-xl text-sm text-white/60 bg-white/5 hover:bg-white/10 transition-colors"
+                className="flex-1 rounded-xl bg-white/6 px-3 py-2 text-xs text-white/70 transition-colors hover:bg-white/10"
               >
-                No, volver
+                Volver
               </button>
               <button
                 onClick={handleCancel}
                 disabled={pending}
-                className="flex-1 py-2 rounded-xl text-sm font-medium text-red-400 bg-red-400/10 hover:bg-red-400/20 transition-colors flex items-center justify-center gap-1.5"
+                className="flex-1 rounded-xl bg-rose-500/12 px-3 py-2 text-xs font-semibold text-rose-300 transition-colors hover:bg-rose-500/20 disabled:opacity-50"
               >
-                {pending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                Confirmar
+                {pending ? 'Cancelando...' : 'Confirmar cancelacion'}
               </button>
-            </div>
+            </>
           ) : canCancel ? (
             <button
               onClick={() => setConfirming(true)}
-              className="w-full py-2 rounded-xl text-sm text-red-400/80 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+              className="flex-1 rounded-xl bg-rose-500/12 px-3 py-2 text-xs font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
             >
               Cancelar reserva
             </button>
           ) : (
-            <p className="text-xs text-white/30 text-center">
-              No se puede cancelar (menos de {cancelHours}h)
-            </p>
-          )}
-        </div>
-      )}
+            <div className="flex-1 rounded-xl bg-white/4 px-3 py-2 text-center text-xs text-white/35">
+              No se puede cancelar con menos de {cancelHours}h
+            </div>
+          )
+        ) : null}
+      </div>
     </div>
   )
 }
 
-// ─── Dashboard ─────────────────────────────────────────────────────────────────
 function Dashboard({ data, clubSlug }: { data: DashboardData; clubSlug: string }) {
   const router = useRouter()
   const [showPast, setShowPast] = useState(false)
   const [upcomingList, setUpcomingList] = useState(data.upcoming)
   const [pending, startTransition] = useTransition()
+  const nextBooking = upcomingList[0] || null
+  const repeatSource = nextBooking || data.past.find((booking) => !['CANCELED', 'CANCELLED'].includes(booking.status)) || null
+  const reservePath = buildPlayerBookingPath(clubSlug)
+  const repeatPath = buildPlayerBookingPath(
+    clubSlug,
+    buildRepeatReservationDate(repeatSource?.startTime || null),
+  )
+  const publicUrl = useMemo(() => buildPublicUrl(reservePath), [reservePath])
+  const displayName = data.client?.name || data.phone
+  const nextBookingMeta = nextBooking ? getPlayerBookingStateMeta(nextBooking.status, nextBooking.paymentStatus) : null
 
   function handleCanceled(id: number) {
-    setUpcomingList((prev) => prev.filter((b) => b.id !== id))
+    setUpcomingList((current) => current.filter((booking) => booking.id !== id))
   }
 
   function handleLogout() {
@@ -326,143 +395,267 @@ function Dashboard({ data, clubSlug }: { data: DashboardData; clubSlug: string }
     })
   }
 
-  const displayName = data.client?.name || data.phone
+  async function copyBookingLink() {
+    try {
+      await navigator.clipboard.writeText(publicUrl)
+      toast.success('Link de reservas copiado')
+    } catch {
+      toast.error('No se pudo copiar el link')
+    }
+  }
+
+  async function shareBookingLink() {
+    const shareText = `Reserva tu proximo turno en ${data.club.name}`
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: data.club.name,
+          text: shareText,
+          url: publicUrl,
+        })
+        return
+      } catch {
+        return
+      }
+    }
+
+    await copyBookingLink()
+  }
 
   return (
-    <div className="max-w-md mx-auto px-4 pb-24 pt-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {data.club.logoUrl ? (
-            <img src={data.club.logoUrl} alt={data.club.name} className="h-9 w-auto rounded-lg" />
-          ) : (
+    <div className="mx-auto max-w-md px-4 pb-28 pt-6">
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {data.club.logoUrl ? (
+              <img src={data.club.logoUrl} alt={data.club.name} className="h-10 w-auto rounded-lg" />
+            ) : (
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-black"
+                style={{ backgroundColor: data.club.themeColor ?? '#00e676' }}
+              >
+                {data.club.name[0]}
+              </div>
+            )}
+            <div>
+              <p className="text-xs text-white/40">{data.club.name}</p>
+              <p className="max-w-[180px] truncate font-semibold text-white">{displayName}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            disabled={pending}
+            className="rounded-xl p-2 text-white/40 transition-colors hover:bg-white/5 hover:text-white/70"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+
+        <section className="rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-white/9 to-white/[0.03] p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/35">Proximo paso</p>
+              {nextBooking ? (
+                <>
+                  <h2 className="mt-2 text-xl font-black text-white">{nextBooking.court.name}</h2>
+                  <p className="mt-1 text-sm text-white/55">
+                    {formatDateTime(nextBooking.startTime).fullDay} a las {formatDateTime(nextBooking.startTime).time}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="mt-2 text-xl font-black text-white">Reserva tu proximo turno</h2>
+                  <p className="mt-1 text-sm text-white/55">
+                    Entra rapido, ve disponibilidad y vuelve a reservar sin depender de mensajes manuales.
+                  </p>
+                </>
+              )}
+            </div>
+            {nextBookingMeta ? (
+              <span className={`rounded-full border px-3 py-1 text-[11px] font-bold ${nextBookingMeta.reservationTone}`}>
+                {nextBookingMeta.reservationLabel}
+              </span>
+            ) : null}
+          </div>
+
+          {data.client?.membershipStatus === 'ACTIVE' ? (
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-black"
+              className="mt-4 rounded-2xl border px-4 py-3"
+              style={{
+                backgroundColor: `${data.club.themeColor ?? '#00e676'}18`,
+                borderColor: `${data.club.themeColor ?? '#00e676'}40`,
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <Trophy className="h-5 w-5 shrink-0" style={{ color: data.club.themeColor ?? '#00e676' }} />
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: data.club.themeColor ?? '#00e676' }}>
+                    Membresia activa
+                  </p>
+                  {data.client.membershipExpiresAt ? (
+                    <p className="text-xs text-white/50">
+                      Vence el {new Date(data.client.membershipExpiresAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <a
+              href={reservePath}
+              className="rounded-2xl px-3 py-3 text-center text-xs font-bold text-black"
               style={{ backgroundColor: data.club.themeColor ?? '#00e676' }}
             >
-              {data.club.name[0]}
-            </div>
-          )}
-          <div>
-            <p className="text-xs text-white/40">{data.club.name}</p>
-            <p className="font-semibold text-white leading-tight truncate max-w-[160px]">{displayName}</p>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          disabled={pending}
-          className="p-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Membership Badge */}
-      {data.client?.membershipStatus === 'ACTIVE' && (
-        <div
-          className="flex items-center gap-3 p-4 rounded-2xl"
-          style={{ backgroundColor: `${data.club.themeColor ?? '#00e676'}18`, border: `1px solid ${data.club.themeColor ?? '#00e676'}40` }}
-        >
-          <Trophy className="w-5 h-5 shrink-0" style={{ color: data.club.themeColor ?? '#00e676' }} />
-          <div>
-            <p className="text-sm font-semibold" style={{ color: data.club.themeColor ?? '#00e676' }}>
-              Membresía activa
-            </p>
-            {data.client.membershipExpiresAt && (
-              <p className="text-xs text-white/50">
-                Vence el{' '}
-                {new Date(data.client.membershipExpiresAt).toLocaleDateString('es-AR', {
-                  day: 'numeric',
-                  month: 'long',
-                })}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Upcoming Bookings */}
-      <section>
-        <h2 className="text-sm font-semibold text-white/40 uppercase tracking-wider mb-3">
-          Próximas reservas
-        </h2>
-        {upcomingList.length === 0 ? (
-          <div className="text-center py-10 rounded-2xl bg-white/3 border border-white/5">
-            <Calendar className="w-8 h-8 mx-auto mb-2 text-white/20" />
-            <p className="text-sm text-white/30">Sin reservas próximas</p>
-            <a
-              href={`/p/${data.club.slug}`}
-              className="inline-block mt-3 text-sm font-medium px-4 py-2 rounded-xl"
-              style={{ backgroundColor: data.club.themeColor ?? '#00e676', color: '#000' }}
-            >
-              Reservar cancha
+              Reservar ahora
             </a>
+            <a
+              href={repeatPath}
+              className="rounded-2xl border border-white/10 bg-white/6 px-3 py-3 text-center text-xs font-bold text-white/80 transition-colors hover:bg-white/10"
+            >
+              Volver a reservar
+            </a>
+            <button
+              onClick={shareBookingLink}
+              className="rounded-2xl border border-white/10 bg-white/6 px-3 py-3 text-center text-xs font-bold text-white/80 transition-colors hover:bg-white/10"
+            >
+              Compartir
+            </button>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {upcomingList.map((b) => (
-              <BookingCard
-                key={b.id}
-                booking={b}
-                cancelHours={data.club.cancelHours}
-                clubSlug={clubSlug}
-                onCanceled={handleCanceled}
-              />
-            ))}
+        </section>
+
+        <section className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/35">Acceso rapido</p>
+              <p className="mt-1 text-sm text-white/55">Escanea o copia el link del club para reservar desde cualquier celu.</p>
+            </div>
+            <QrCode className="h-5 w-5 text-white/30" />
           </div>
-        )}
-      </section>
 
-      {/* Reserve CTA */}
-      {upcomingList.length > 0 && (
-        <a
-          href={`/p/${data.club.slug}`}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-semibold text-sm text-black"
-          style={{ backgroundColor: data.club.themeColor ?? '#00e676' }}
-        >
-          <CheckCircle className="w-4 h-4" />
-          Reservar otra cancha
-        </a>
-      )}
+          <div className="flex items-center gap-4 rounded-[1.5rem] border border-white/8 bg-[#050505] p-4">
+            <div className="rounded-2xl bg-white p-2">
+              <QRCodeCanvas id="player-portal-booking-qr" value={publicUrl} size={92} level="M" includeMargin />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-white">Reservas online</p>
+              <p className="mt-1 truncate text-xs text-white/40">{publicUrl}</p>
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={copyBookingLink}
+                  className="inline-flex items-center gap-1 rounded-xl bg-white/6 px-3 py-2 text-xs font-semibold text-white/75 transition-colors hover:bg-white/10"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  Copiar
+                </button>
+                <a
+                  href={publicUrl}
+                  className="inline-flex items-center gap-1 rounded-xl bg-white/6 px-3 py-2 text-xs font-semibold text-white/75 transition-colors hover:bg-white/10"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Abrir
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      {/* Past Bookings */}
-      {data.past.length > 0 && (
         <section>
-          <button
-            onClick={() => setShowPast((s) => !s)}
-            className="w-full flex items-center justify-between text-sm font-semibold text-white/40 uppercase tracking-wider mb-3"
-          >
-            Historial ({data.past.length})
-            {showPast ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-          {showPast && (
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-white/35">Proximas reservas</h2>
+            <span className="text-xs text-white/35">{upcomingList.length}</span>
+          </div>
+
+          {upcomingList.length === 0 ? (
+            <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] px-4 py-10 text-center">
+              <Calendar className="mx-auto mb-3 h-8 w-8 text-white/20" />
+              <p className="text-sm text-white/35">No tienes reservas proximas</p>
+              <a
+                href={reservePath}
+                className="mt-4 inline-block rounded-2xl px-4 py-2.5 text-sm font-semibold text-black"
+                style={{ backgroundColor: data.club.themeColor ?? '#00e676' }}
+              >
+                Ver disponibilidad
+              </a>
+            </div>
+          ) : (
             <div className="space-y-3">
-              {data.past.map((b) => (
-                <div key={b.id} className="bg-white/3 rounded-2xl p-4 border border-white/5 opacity-60">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-white">{b.court.name}</p>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
-                        <span>{formatDateTime(b.startTime).day}</span>
-                        <span>{formatDateTime(b.startTime).time}–{formatDateTime(b.endTime).time}</span>
-                      </div>
-                    </div>
-                    <span className="font-semibold text-white/60 shrink-0">{formatPrice(b.price)}</span>
-                  </div>
-                </div>
+              {upcomingList.map((booking) => (
+                <BookingCard
+                  key={booking.id}
+                  booking={booking}
+                  cancelHours={data.club.cancelHours}
+                  clubSlug={clubSlug}
+                  onCanceled={handleCanceled}
+                />
               ))}
             </div>
           )}
         </section>
-      )}
+
+        {data.past.length > 0 ? (
+          <section>
+            <button
+              onClick={() => setShowPast((current) => !current)}
+              className="mb-3 flex w-full items-center justify-between text-sm font-semibold uppercase tracking-[0.18em] text-white/35"
+            >
+              Historial y canceladas ({data.past.length})
+              {showPast ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+
+            {showPast ? (
+              <div className="space-y-3">
+                {data.past.map((booking) => {
+                  const stateMeta = getPlayerBookingStateMeta(booking.status, booking.paymentStatus)
+                  return (
+                    <div key={booking.id} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-semibold text-white">{booking.court.name}</p>
+                            <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${stateMeta.reservationTone}`}>
+                              {stateMeta.reservationLabel}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-white/45">
+                            {formatDateTime(booking.startTime).day} - {formatDateTime(booking.startTime).time}-{formatDateTime(booking.endTime).time}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-white/75">{formatPrice(booking.price)}</p>
+                          <p className={`mt-0.5 text-xs ${stateMeta.paymentTone}`}>{stateMeta.paymentLabel}</p>
+                        </div>
+                      </div>
+                      <a
+                        href={buildPlayerBookingPath(clubSlug, buildRepeatReservationDate(booking.startTime))}
+                        className="mt-3 inline-flex rounded-xl bg-white/6 px-3 py-2 text-xs font-semibold text-white/75 transition-colors hover:bg-white/10"
+                      >
+                        Repetir este horario
+                      </a>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+      </div>
+
+      <InstallPrompt />
     </div>
   )
 }
 
-// ─── Root ──────────────────────────────────────────────────────────────────────
 export default function PlayerPortalClient({ data, clubSlug }: Props) {
   if (!data.authenticated) {
-    return <AuthFlow club={data.club} clubSlug={clubSlug} />
+    return (
+      <>
+        <AuthFlow club={data.club} clubSlug={clubSlug} />
+        <InstallPrompt />
+      </>
+    )
   }
+
   return <Dashboard data={data} clubSlug={clubSlug} />
 }

@@ -8,6 +8,7 @@ import { es } from 'date-fns/locale'
 import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking, createPublicWaitingList } from '@/actions/public-booking'
 import { trackPublicBookingEvent } from '@/actions/public-growth'
 import { createPreference } from '@/actions/mercadopago'
+import { getPublicBookingStateMeta } from '@/lib/public-booking'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { OpenMatch } from '@/actions/open-matches'
@@ -152,6 +153,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [paymentError, setPaymentError] = useState('')
 	const [createdBookingId, setCreatedBookingId] = useState<number | null>(null)
 	const [cancelToken, setCancelToken] = useState<string | null>(null)
+	const [createdBookingStatus, setCreatedBookingStatus] = useState<string | null>(null)
+	const [createdPaymentStatus, setCreatedPaymentStatus] = useState<string | null>(null)
 	const [isPaying, setIsPaying] = useState(false)
 	const [createOpenMatch, setCreateOpenMatch] = useState(false)
 	const [matchLevel, setMatchLevel] = useState('6ta')
@@ -298,6 +301,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 					if (booking && booking.court) {
 						setStep(3)
 						setCreatedBookingId(booking.id)
+						setCreatedBookingStatus(booking.status)
+						setCreatedPaymentStatus(booking.paymentStatus)
 						setMode(booking.guestName ? 'guest' : 'premium')
 						const date = new Date(booking.startTime)
 						setSelectedDate(date)
@@ -520,6 +525,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		if (res.success && res.bookingId) {
 			setCreatedBookingId(res.bookingId)
 			if (res.publicToken) setCancelToken(res.publicToken)
+			if (res.bookingStatus) setCreatedBookingStatus(res.bookingStatus)
+			if (res.paymentStatus) setCreatedPaymentStatus(res.paymentStatus)
 			rememberCurrentPlayer()
 			trackFunnelEvent('booking_created', {
 				dateStr: format(selectedDate, 'yyyy-MM-dd'),
@@ -898,6 +905,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	if (step === 3 && selectedSlot) {
 		const isGuest = mode === 'guest'
 		const playerName = `${clientData.name} ${clientData.lastname}`.trim()
+		const bookingState = getPublicBookingStateMeta(createdBookingStatus, createdPaymentStatus, isGuest)
+		const playerPortalHref = `/jugador/${club.slug}`
 
 		const calendarHref = (() => {
 			const startDate = new Date(selectedDate)
@@ -920,6 +929,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 		const repeatDate = addDays(selectedDate, 7)
 		const repeatDateLabel = format(repeatDate, 'EEEE d/M', { locale: es })
+		const bookingAgendaHref = `/p/${club.slug}?date=${format(selectedDate, 'yyyy-MM-dd')}`
 		const buildPlayerShareUrl = () => {
 			const origin = typeof window !== 'undefined' ? window.location.origin : ''
 			const url = new URL(`/p/${club.slug}`, origin || 'https://courtops.app')
@@ -948,6 +958,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			setSelectedSlot(null)
 			setCreatedBookingId(null)
 			setCancelToken(null)
+			setCreatedBookingStatus(null)
+			setCreatedPaymentStatus(null)
 			setPaymentError('')
 			setBookingError('')
 			setCopiedPaymentField(null)
@@ -961,6 +973,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			setSelectedSlot(null)
 			setCreatedBookingId(null)
 			setCancelToken(null)
+			setCreatedBookingStatus(null)
+			setCreatedPaymentStatus(null)
 			setPaymentError('')
 			setBookingError('')
 			setCopiedPaymentField(null)
@@ -1006,6 +1020,41 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 						className="w-full space-y-3"
 					>
 						{/* ── Ticket ── */}
+						<motion.div
+							initial={{ opacity: 0, y: 12 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.18 }}
+							className="overflow-hidden rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-lg shadow-slate-200/50 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95 dark:shadow-black/30"
+						>
+							<div className="flex items-start justify-between gap-3">
+								<div className="min-w-0 space-y-1">
+									<p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">
+										{bookingState.headline}
+									</p>
+									<h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+										{selectedSlot.courtName} · {selectedSlot.time} hs
+									</h1>
+									<p className="text-sm font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
+										{bookingState.helper}
+									</p>
+								</div>
+								<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+									<ShieldCheck size={20} />
+								</div>
+							</div>
+
+							<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+								<div className={cn('rounded-2xl border px-3 py-3', bookingState.reservationTone)}>
+									<p className="text-[9px] font-black uppercase tracking-[0.18em] opacity-75">Reserva</p>
+									<p className="mt-1 text-sm font-black">{bookingState.reservationLabel}</p>
+								</div>
+								<div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 dark:border-zinc-800 dark:bg-zinc-800/70">
+									<p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-zinc-500">Pago</p>
+									<p className={cn('mt-1 text-sm font-black', bookingState.paymentTone)}>{bookingState.paymentLabel}</p>
+								</div>
+							</div>
+						</motion.div>
+
 						<div className="w-full rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/60">
 
 							{/* Header — compact */}
@@ -1123,7 +1172,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 								{/* Guest pending */}
 								{isGuest && (
-									<div className="flex items-center justify-center gap-2 py-2 bg-amber-50 dark:bg-amber-500/[0.08] rounded-xl border border-amber-200 dark:border-amber-500/20">
+									<div className={cn('flex items-center justify-center gap-2 rounded-xl border py-2', bookingState.reservationTone)}>
 										<Lock size={11} className="text-amber-500 dark:text-amber-400" />
 										<span className="text-[10px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
 											Pendiente de Confirmación
@@ -1163,6 +1212,20 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								<Share2 size={14} />
 								Compartir
 							</button>
+							<a
+								href={bookingAgendaHref}
+								className="flex items-center justify-center gap-2 h-11 bg-white dark:bg-zinc-900 rounded-2xl font-bold text-[10px] uppercase tracking-widest text-slate-500 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 hover:border-primary/40 hover:text-primary active:scale-[0.98] transition-all cursor-pointer"
+							>
+								<Calendar size={14} className="text-primary shrink-0" />
+								Ver agenda
+							</a>
+							<a
+								href={playerPortalHref}
+								className="flex items-center justify-center gap-2 h-11 bg-slate-950 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-slate-950/20 hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer dark:bg-primary dark:text-primary-foreground"
+							>
+								<Smartphone size={14} />
+								Mi portal
+							</a>
 						</motion.div>
 
 						{/* ── Next play — compact inline ── */}
@@ -1222,6 +1285,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									</a>
 								</p>
 							)}
+							<p className="text-center text-[10px] font-semibold text-slate-400 dark:text-zinc-500">
+								Tip: guarda este acceso para reservar de nuevo en segundos desde tu celular.
+							</p>
 						</motion.div>
 					</motion.div>
 				</main>

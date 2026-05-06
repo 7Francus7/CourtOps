@@ -1,0 +1,96 @@
+{
+  "project": "CourtOps",
+  "title": "Registrate y empezá a gestionar tu club",
+  "category": "Primeros pasos",
+  "description": "Cómo crear una cuenta en CourtOps y ver el panel del club.",
+  "steps_summary": [
+    "Elegir plan gratis",
+    "Completar el formulario de registro",
+    "Ver el dashboard del club"
+  ],
+  "output_name": "01-registro-subs",
+  "viewport": { "width": 390, "height": 844 },
+  "use_setup_login": false,
+  "show_cursor": true,
+  "steps": [
+    {
+      "id": "open_register",
+      "action": "navigate",
+      "value": "https://www.courtops.net/register",
+      "action_ms": 2500,
+      "wait_for": "button.bg-emerald-500"
+    },
+    {
+      "id": "show_intro",
+      "action": "wait",
+      "narration": "Registrate en CourtOps. Gratis y en menos de un minuto.",
+      "action_ms": 0
+    },
+    {
+      "id": "click_free_plan",
+      "action": "click",
+      "selector": "button.bg-emerald-500",
+      "action_ms": 1200,
+      "wait_for": "input[placeholder='Ej: Arena Padel']"
+    },
+    {
+      "id": "show_form",
+      "action": "wait",
+      "narration": "Completamos el formulario de registro.",
+      "action_ms": 0
+    },
+    {
+      "id": "fill_club",
+      "action": "fill",
+      "selector": "input[placeholder='Ej: Arena Padel']",
+      "value": "Demo Padel Club",
+      "action_ms": 600
+    },
+    {
+      "id": "fill_name",
+      "action": "fill",
+      "selector": "input[placeholder='Franco Rossi']",
+      "value": "Franco Demo",
+      "action_ms": 500
+    },
+    {
+      "id": "fill_email",
+      "action": "fill",
+      "selector": "input[type='email']",
+      "value": "demo.subs@courtops.net",
+      "action_ms": 500
+    },
+    {
+      "id": "fill_pass",
+      "action": "fill",
+      "selector": "input[type='password']",
+      "value": "Demo1234!",
+      "action_ms": 400
+    },
+    {
+      "id": "show_pre_submit",
+      "action": "wait",
+      "narration": "Tocamos Crear cuenta.",
+      "action_ms": 0
+    },
+    {
+      "id": "submit",
+      "action": "click",
+      "selector": "button[type='submit']",
+      "action_ms": 5000,
+      "wait_for_url": "/setup"
+    },
+    {
+      "id": "show_inside",
+      "action": "wait",
+      "narration": "Ya estamos adentro. El panel del club, listo desde el primer minuto.",
+      "action_ms": 0
+    },
+    {
+      "id": "show_final",
+      "action": "wait",
+      "narration": "Reservas, pagos y clientes, todo desde el celular. Probalo gratis en courtops.net",
+      "action_ms": 0
+    }
+  ]
+}

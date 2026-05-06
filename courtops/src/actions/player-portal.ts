@@ -55,7 +55,11 @@ export async function sendPlayerOTP(phone: string, clubSlug: string) {
     return { error: 'No se pudo enviar el código. Intentá de nuevo.' }
   }
 
-  return { ok: true, simulated: result.simulated }
+  return {
+    ok: true,
+    simulated: result.simulated,
+    debugCode: result.simulated && process.env.NODE_ENV !== 'production' ? code : undefined,
+  }
 }
 
 export async function verifyPlayerOTP(phone: string, clubSlug: string, code: string) {
@@ -139,7 +143,6 @@ export async function getPlayerDashboard(clubSlug: string) {
     where: {
       clubId: club.id,
       deletedAt: null,
-      status: { not: 'CANCELED' },
       OR: [
         client ? { clientId: client.id } : { id: -1 },
         { guestPhone: { contains: phoneLastDigits } },
@@ -152,6 +155,7 @@ export async function getPlayerDashboard(clubSlug: string) {
       price: true,
       status: true,
       paymentStatus: true,
+      canceledAt: true,
       court: { select: { name: true } },
     },
     orderBy: { startTime: 'desc' },
@@ -159,21 +163,23 @@ export async function getPlayerDashboard(clubSlug: string) {
   })
 
   const upcoming = bookings
-    .filter((b) => b.startTime > now)
+    .filter((b) => b.startTime > now && !['CANCELED', 'CANCELLED'].includes(b.status))
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     .map((b) => ({
       ...b,
       startTime: fromUTC(b.startTime).toISOString(),
       endTime: fromUTC(b.endTime).toISOString(),
+      canceledAt: b.canceledAt ? fromUTC(b.canceledAt).toISOString() : null,
     }))
 
   const past = bookings
-    .filter((b) => b.startTime <= now)
+    .filter((b) => b.startTime <= now || ['CANCELED', 'CANCELLED'].includes(b.status))
     .slice(0, 15)
     .map((b) => ({
       ...b,
       startTime: fromUTC(b.startTime).toISOString(),
       endTime: fromUTC(b.endTime).toISOString(),
+      canceledAt: b.canceledAt ? fromUTC(b.canceledAt).toISOString() : null,
     }))
 
   return {

@@ -454,7 +454,13 @@ export async function createPublicBooking(data: PublicBookingInput) {
               revalidatePath('/')
               revalidatePath(`/p/${club.slug}`)
               revalidatePath(`/${club.slug}`)
-              return { success: true, bookingId: booking.id, publicToken: booking.publicToken as string }
+              return {
+                     success: true,
+                     bookingId: booking.id,
+                     publicToken: booking.publicToken as string,
+                     bookingStatus: booking.status,
+                     paymentStatus: booking.paymentStatus
+              }
        } catch (error: unknown) {
               console.error("ERROR CREATING PUBLIC BOOKING:", error)
               return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' }

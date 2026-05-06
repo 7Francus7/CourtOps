@@ -1,0 +1,14 @@
+{
+  "app_name": "CourtOps",
+  "base_url": "https://courtops.net",
+  "credentials": {
+    "demo": {
+      "email": "demo.reel@courtops.net",
+      "password": "Demo1234!"
+    }
+  },
+  "setup_login": {
+    "email": "demo.reel@courtops.net",
+    "password": "Demo1234!"
+  }
+}

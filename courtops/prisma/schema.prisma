@@ -94,6 +94,7 @@ model Club {
   tournaments      Tournament[]
   transactions     Transaction[]
   notifications    Notification[]
+  whatsAppCampaigns WhatsAppCampaign[]
   waivers          Waiver[]
   referrals        Referral[]
   teachers         Teacher[]
@@ -666,6 +667,59 @@ model Notification {
   @@index([clubId, isRead])
   @@index([clubId, createdAt])
   @@map("Notification")
+}
+
+model WhatsAppCampaign {
+  id              String   @id @default(uuid())
+  clubId          String
+  createdById     String?
+  segment         String
+  deliveryType    String   @default("TEXT") // TEXT, TEMPLATE
+  templateName    String?
+  templateLanguage String?
+  status          String   @default("DRAFT") // DRAFT, SENDING, SENT, PARTIAL, FAILED, BLOCKED_DUPLICATE
+  messageTemplate String
+  previewMessage  String
+  reservationLink String?
+  dedupeKey       String
+  reachableCount  Int      @default(0)
+  sentCount       Int      @default(0)
+  failedCount     Int      @default(0)
+  simulatedCount  Int      @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  club       Club                       @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  recipients WhatsAppCampaignRecipient[]
+
+  @@index([clubId, createdAt])
+  @@index([clubId, dedupeKey, createdAt])
+  @@map("WhatsAppCampaign")
+}
+
+model WhatsAppCampaignRecipient {
+  id                  String   @id @default(uuid())
+  campaignId          String
+  clubId              String
+  clientId            Int?
+  clientName          String
+  phone               String
+  personalizedMessage String
+  status              String   @default("PENDING") // PENDING, SENT, FAILED, SIMULATED
+  messageId           String?
+  error               String?
+  simulated           Boolean  @default(false)
+  sentAt              DateTime?
+  createdAt           DateTime @default(now())
+
+  campaign WhatsAppCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, phone])
+  @@index([clubId, status])
+  @@index([campaignId, status])
+  @@map("WhatsAppCampaignRecipient")
 }
 
 model PushSubscription {

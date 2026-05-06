@@ -80,7 +80,9 @@
       "PowerShell(python3 --version)",
       "PowerShell(if \\($?\\) { \"done\" } else { \"failed\" })",
       "Bash(python3 -m pip install piper-tts)",
-      "Bash(python3 -c \"import piper; from piper import PiperVoice; import onnxruntime; print\\('all ok'\\)\")"
+      "Bash(python3 -c \"import piper; from piper import PiperVoice; import onnxruntime; print\\('all ok'\\)\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:www.dondejuegoapp.com)"
     ]
   }
 }

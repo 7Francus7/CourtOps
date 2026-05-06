@@ -24,6 +24,10 @@ function getConfig() {
   return { token, phoneId, configured: !!(token && phoneId) }
 }
 
+export function getWhatsAppConfigState() {
+  return getConfig()
+}
+
 /** Normalize Argentine phone numbers to international E.164 format */
 export function normalizePhone(phone: string): string {
   let clean = phone.replace(/\D/g, '')

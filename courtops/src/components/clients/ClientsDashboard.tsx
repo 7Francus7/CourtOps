@@ -2,23 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { getClients, updateClient, deleteClient, createClient, bulkImportClients } from '@/actions/clients'
-import { getCampaignRecipients, sendWhatsAppCampaign, type CampaignSegment } from '@/actions/campaigns'
 import { MessagingService } from '@/lib/messaging'
-import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, ArrowLeft, Phone, Mail, MoreVertical, LayoutGrid, List, Filter, Upload, FileText, CheckCircle, AlertTriangle, Send, Megaphone } from 'lucide-react'
+import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, Phone, LayoutGrid, List, Upload, FileText, CheckCircle, AlertTriangle, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import { useConfirmation } from '@/components/providers/ConfirmationProvider'
+import WhatsAppCampaignModal from '@/components/clients/WhatsAppCampaignModal'
 
 type Props = {
        initialData?: any[]
 }
 
 export default function ClientsDashboard({ initialData = [] }: Props) {
-       const router = useRouter()
        const confirm = useConfirmation()
        const [clients, setClients] = useState<any[]>(initialData)
        const [loading, setLoading] = useState(initialData.length === 0)
@@ -33,13 +31,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const [isCreating, setIsCreating] = useState(false)
        const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', category: '', notes: '' })
 
-       // WhatsApp Campaign State
        const [isCampaign, setIsCampaign] = useState(false)
-       const [campaignSegment, setCampaignSegment] = useState<CampaignSegment>('ALL')
-       const [campaignMessage, setCampaignMessage] = useState('')
-       const [campaignRecipients, setCampaignRecipients] = useState<{ id: number; name: string; phone: string | null }[]>([])
-       const [campaignLoading, setCampaignLoading] = useState(false)
-       const [campaignResult, setCampaignResult] = useState<{ sent: number; failed: number; total: number } | null>(null)
 
        // CSV Import State
        const [isImporting, setIsImporting] = useState(false)
@@ -61,7 +53,7 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               if (initialData.length === 0) {
                      loadClients()
               }
-       }, [])
+       }, [initialData.length])
 
        const handleDelete = async (id: number) => {
               if (!await confirm({ title: '¿Eliminar cliente?', description: 'Esta acción no se puede deshacer. Se eliminarán todos los datos asociados.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
@@ -91,32 +83,6 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
               } else {
                      toast.error(res.error || 'Error al crear cliente')
               }
-       }
-
-       const handleOpenCampaign = async () => {
-              setIsCampaign(true)
-              setCampaignResult(null)
-              setCampaignMessage('')
-              setCampaignLoading(true)
-              const r = await getCampaignRecipients('ALL')
-              setCampaignRecipients(r)
-              setCampaignLoading(false)
-       }
-
-       const handleSegmentChange = async (seg: CampaignSegment) => {
-              setCampaignSegment(seg)
-              setCampaignLoading(true)
-              const r = await getCampaignRecipients(seg)
-              setCampaignRecipients(r)
-              setCampaignLoading(false)
-       }
-
-       const handleSendCampaign = async () => {
-              if (!campaignMessage.trim() || campaignRecipients.length === 0) return
-              setCampaignLoading(true)
-              const res = await sendWhatsAppCampaign(campaignSegment, campaignMessage)
-              setCampaignLoading(false)
-              if (res) setCampaignResult(res)
        }
 
        const handleCsvFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,7 +195,7 @@ const filtered = clients.filter(c => {
                              </div>
                              <div className="flex items-center gap-2">
                                     <button
-                                           onClick={handleOpenCampaign}
+                                           onClick={() => setIsCampaign(true)}
                                            className="px-3 py-2 sm:px-4 sm:py-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 font-bold rounded-xl hover:bg-[#25D366]/20 transition-all flex items-center gap-2 text-xs sm:text-sm"
                                     >
                                            <Megaphone size={16} />
@@ -649,7 +615,8 @@ const filtered = clients.filter(c => {
                                    </div>
                             )}
                      </AnimatePresence>
-                     {/* WHATSAPP CAMPAIGN MODAL */}
+                     <WhatsAppCampaignModal open={isCampaign} onClose={() => setIsCampaign(false)} />
+                     {/* WHATSAPP CAMPAIGN MODAL LEGACY
                      <AnimatePresence>
                             {isCampaign && (
                                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
