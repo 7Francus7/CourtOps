@@ -46,6 +46,7 @@ export const generalTour: TourDefinition = {
     {
       id: 'dashboard-stats',
       target: '[data-tour="dashboard-stats"]',
+      mobileTarget: null,
       category: 'Métricas',
       icon: TrendingUp,
       title: 'Pulso de tu negocio',
@@ -56,6 +57,7 @@ export const generalTour: TourDefinition = {
       padding: 8,
       borderRadius: 20,
       waitForElement: true,
+      scrollIntoView: true,
     },
     {
       id: 'turnero-grid',

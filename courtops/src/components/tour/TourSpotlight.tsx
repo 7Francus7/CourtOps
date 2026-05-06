@@ -27,7 +27,7 @@ interface Rect {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TOOLTIP_W_BASE = 348
-const TOOLTIP_H      = 260
+const TOOLTIP_H      = 440   // generous estimate; proTip cards reach ~400px
 const ARROW_SIZE     = 9
 const VP_PAD         = 16
 
@@ -90,6 +90,10 @@ function computeTooltipPos(
     left = rect.x - padding - tooltipW - ARROW_SIZE - 10
   if (position === 'left' && left < VP_PAD)
     left = rect.x + rect.width + padding + ARROW_SIZE + 10
+
+  // Hard clamp — tooltip must always be within viewport
+  top  = clamp(top,  VP_PAD, vh - TOOLTIP_H - VP_PAD)
+  left = clamp(left, VP_PAD, vw - tooltipW  - VP_PAD)
 
   return { top: Math.round(top), left: Math.round(left) }
 }
