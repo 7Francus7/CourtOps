@@ -39,65 +39,33 @@ type FlyerCanvasProps = Omit<FlyerGeneratorProps, 'isOpen' | 'onClose'> & {
     storyUrl: string | null
 }
 
-const STORY_WIDTH = 258
-const STORY_HEIGHT = 493
+// 9:16 exacto → ×4 = 1080×1920 (Instagram Story nativo)
+const STORY_WIDTH = 270
+const STORY_HEIGHT = 480
 
 const THEMES: ThemeOption[] = [
-    {
-        id: 'midnight-photo',
-        label: 'Midnight',
-        desc: 'Foto nocturna · premium',
-        accent: '#4de2d1',
-        chip: 'Hero',
-    },
-    {
-        id: 'club-minimal',
-        label: 'Studio',
-        desc: 'Limpio · editorial claro',
-        accent: '#ff7a00',
-        chip: 'Clean',
-    },
-    {
-        id: 'glass-night',
-        label: 'Glass',
-        desc: 'Vidrio · moderno',
-        accent: '#73c7ff',
-        chip: 'Glass',
-    },
-    {
-        id: 'scoreboard',
-        label: 'Score',
-        desc: 'Sport · tablero',
-        accent: '#c6ff4d',
-        chip: 'Sport',
-    },
-    {
-        id: 'sunset-editorial',
-        label: 'Sunset',
-        desc: 'Calido · aspiracional',
-        accent: '#ffb36b',
-        chip: 'Warm',
-    },
-    {
-        id: 'court-blueprint',
-        label: 'Blueprint',
-        desc: 'Geometrico · cancha',
-        accent: '#69f0d1',
-        chip: 'Grid',
-    },
+    { id: 'midnight-photo', label: 'Midnight',  desc: 'Foto nocturna · premium',     accent: '#4de2d1', chip: 'Hero'  },
+    { id: 'club-minimal',   label: 'Studio',    desc: 'Limpio · editorial claro',     accent: '#ff7a00', chip: 'Clean' },
+    { id: 'glass-night',    label: 'Glass',     desc: 'Oscuro · panel nítido',         accent: '#73c7ff', chip: 'Glass' },
+    { id: 'scoreboard',     label: 'Score',     desc: 'Sport · tablero',               accent: '#c6ff4d', chip: 'Sport' },
+    { id: 'sunset-editorial', label: 'Sunset', desc: 'Cálido · aspiracional',          accent: '#ffb36b', chip: 'Warm'  },
+    { id: 'court-blueprint', label: 'Blueprint', desc: 'Geométrico · cancha',          accent: '#69f0d1', chip: 'Grid'  },
 ]
 
+// ─── Court SVG pattern ─────────────────────────────────────────────────────────
 const COURT_PATTERN = `data:image/svg+xml;utf8,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" width="258" height="493" viewBox="0 0 258 493" fill="none">
-  <rect x="15" y="15" width="228" height="463" rx="24" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
-  <rect x="48" y="74" width="162" height="345" rx="14" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
-  <line x1="129" y1="74" x2="129" y2="419" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
-  <line x1="48" y1="246.5" x2="210" y2="246.5" stroke="rgba(255,255,255,0.12)" stroke-width="2"/>
-  <line x1="15" y1="38" x2="243" y2="38" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
-  <line x1="15" y1="455" x2="243" y2="455" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="270" height="480" viewBox="0 0 270 480" fill="none">
+  <rect x="18" y="18" width="234" height="444" rx="22" stroke="rgba(105,240,209,0.22)" stroke-width="1.5"/>
+  <rect x="50" y="72" width="170" height="336" rx="12" stroke="rgba(105,240,209,0.14)" stroke-width="1.5"/>
+  <line x1="135" y1="72" x2="135" y2="408" stroke="rgba(105,240,209,0.12)" stroke-width="1.5"/>
+  <line x1="50" y1="240" x2="220" y2="240" stroke="rgba(105,240,209,0.12)" stroke-width="1.5"/>
+  <line x1="18" y1="40" x2="252" y2="40" stroke="rgba(105,240,209,0.08)" stroke-width="1.5"/>
+  <line x1="18" y1="440" x2="252" y2="440" stroke="rgba(105,240,209,0.08)" stroke-width="1.5"/>
+  <circle cx="135" cy="240" r="30" stroke="rgba(105,240,209,0.12)" stroke-width="1.5" fill="none"/>
 </svg>
 `)}`
 
+// ─── Utilities ─────────────────────────────────────────────────────────────────
 function toAbsoluteUrl(url: string): string {
     if (!url) return url
     if (url.startsWith('data:') || url.startsWith('http')) return url
@@ -109,16 +77,14 @@ function getClubInitial(clubName: string): string {
 }
 
 function getSafeFilename(value: string): string {
-    return value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
+    return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 
 function getStoryUrl(clubSlug?: string): string | null {
     return clubSlug ? `courtops.com/p/${clubSlug}` : null
 }
 
+// ─── Shared sub-components ────────────────────────────────────────────────────
 function BrandBlock({
     clubName,
     logoUrl,
@@ -131,8 +97,8 @@ function BrandBlock({
     darkText?: boolean
 }) {
     const absLogo = logoUrl ? toAbsoluteUrl(logoUrl) : null
-    const primary = darkText ? '#0d1726' : '#ffffff'
-    const secondary = darkText ? 'rgba(13,23,38,0.56)' : 'rgba(255,255,255,0.58)'
+    const primary   = darkText ? '#0d1726' : '#ffffff'
+    const secondary = darkText ? 'rgba(13,23,38,0.52)' : 'rgba(255,255,255,0.54)'
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -140,48 +106,26 @@ function BrandBlock({
                 <img
                     src={absLogo}
                     alt={clubName}
-                    style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 12 }}
+                    style={{ width: 38, height: 38, objectFit: 'contain', borderRadius: 11 }}
                 />
             ) : (
                 <div
                     style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: darkText ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.12)',
-                        border: `1px solid ${darkText ? 'rgba(13,23,38,0.12)' : 'rgba(255,255,255,0.18)'}`,
-                        color: accent,
-                        fontSize: 16,
-                        fontWeight: 900,
+                        width: 38, height: 38, borderRadius: 12,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: darkText ? 'rgba(13,23,38,0.10)' : 'rgba(255,255,255,0.14)',
+                        border: `1px solid ${darkText ? 'rgba(13,23,38,0.14)' : 'rgba(255,255,255,0.20)'}`,
+                        color: accent, fontSize: 15, fontWeight: 900,
                     }}
                 >
                     {getClubInitial(clubName)}
                 </div>
             )}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span
-                    style={{
-                        fontSize: 8,
-                        fontWeight: 800,
-                        letterSpacing: '0.34em',
-                        textTransform: 'uppercase',
-                        color: secondary,
-                    }}
-                >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <span style={{ fontSize: 7, fontWeight: 800, letterSpacing: '0.34em', textTransform: 'uppercase', color: secondary }}>
                     Club de padel
                 </span>
-                <span
-                    style={{
-                        fontSize: 15,
-                        fontWeight: 800,
-                        lineHeight: 1.1,
-                        color: primary,
-                    }}
-                >
+                <span style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.15, color: primary }}>
                     {clubName}
                 </span>
             </div>
@@ -189,55 +133,27 @@ function BrandBlock({
     )
 }
 
-function StoryLink({
-    storyUrl,
-    color,
-    align = 'left',
-}: {
-    storyUrl: string | null
-    color: string
-    align?: React.CSSProperties['textAlign']
-}) {
+function UrlLine({ storyUrl, color }: { storyUrl: string | null; color: string }) {
     if (!storyUrl) return null
-
     return (
-        <p
-            style={{
-                margin: 0,
-                fontSize: 8,
-                fontWeight: 700,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color,
-                textAlign: align,
-            }}
-        >
+        <p style={{ margin: 0, fontSize: 8, fontWeight: 700, letterSpacing: '0.20em', textTransform: 'uppercase', color }}>
             {storyUrl}
         </p>
     )
 }
 
-function StorySurface({
-    children,
-    background,
-    border,
-    color = '#fff',
-}: {
+// Surface wrapper — sets font, clipping, base background
+function StorySurface({ children, background, color = '#fff' }: {
     children: React.ReactNode
     background: string
-    border?: string
     color?: string
 }) {
     return (
         <div
             style={{
-                position: 'absolute',
-                inset: 0,
-                overflow: 'hidden',
-                background,
-                color,
-                fontFamily: '"Space Grotesk", "Inter", system-ui, sans-serif',
-                border: border ?? 'none',
+                position: 'absolute', inset: 0, overflow: 'hidden',
+                background, color,
+                fontFamily: '"Space Grotesk","Inter",system-ui,sans-serif',
             }}
         >
             {children}
@@ -245,1225 +161,592 @@ function StorySurface({
     )
 }
 
-function FlyerMidnightPhoto({
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    bgUrl,
-    storyUrl,
-}: FlyerCanvasProps) {
+// ─── Template 1: Midnight Photo ───────────────────────────────────────────────
+function FlyerMidnightPhoto({ slotTime, courtName, clubName, logoUrl, bgUrl, storyUrl }: FlyerCanvasProps) {
     return (
         <StorySurface background="#06090f">
-            <img
-                src={bgUrl}
-                alt=""
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 0.9,
-                    transform: 'scale(1.12)',
-                    filter: 'saturate(0.95) contrast(1.05)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background:
-                        'linear-gradient(180deg, rgba(5,10,18,0.22) 0%, rgba(4,9,16,0.76) 42%, rgba(2,6,11,0.96) 100%)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: -60,
-                    right: -50,
-                    width: 220,
-                    height: 220,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(77,226,209,0.35) 0%, rgba(77,226,209,0) 70%)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 18,
-                    borderRadius: 28,
-                    border: '1px solid rgba(255,255,255,0.08)',
-                }}
-            />
+            {/* Background photo — no transform, overflow hidden handles crop */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+                <img
+                    src={bgUrl} alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: 0.88 }}
+                />
+            </div>
+            {/* Gradient overlay — top light, bottom heavy */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(180deg, rgba(5,10,18,0.18) 0%, rgba(4,9,16,0.55) 38%, rgba(2,6,11,0.96) 100%)',
+            }} />
+            {/* Accent glow top-right */}
+            <div style={{
+                position: 'absolute', top: -60, right: -50, width: 200, height: 200, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(77,226,209,0.30) 0%, rgba(77,226,209,0) 70%)',
+            }} />
+            {/* Inner border */}
+            <div style={{ position: 'absolute', inset: 16, borderRadius: 26, border: '1px solid rgba(255,255,255,0.08)' }} />
 
-            <div
-                style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '24px 22px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                }}
-            >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ position: 'relative', height: '100%', padding: '22px 20px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                {/* Top: brand + badge */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
                     <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#4de2d1" />
-                    <div
-                        style={{
-                            padding: '9px 12px',
-                            borderRadius: 999,
-                            background: 'rgba(255,255,255,0.09)',
-                            border: '1px solid rgba(255,255,255,0.12)',
-                            fontSize: 9,
-                            fontWeight: 800,
-                            letterSpacing: '0.24em',
-                            textTransform: 'uppercase',
-                            color: '#d8fffb',
-                        }}
-                    >
+                    <div style={{
+                        padding: '8px 11px', borderRadius: 999,
+                        background: 'rgba(77,226,209,0.14)', border: '1px solid rgba(77,226,209,0.28)',
+                        fontSize: 8, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase',
+                        color: '#c0fff8',
+                    }}>
                         Turno libre
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <div>
-                        <p
-                            style={{
-                                margin: 0,
-                                fontSize: 11,
-                                fontWeight: 700,
-                                letterSpacing: '0.32em',
-                                textTransform: 'uppercase',
-                                color: 'rgba(255,255,255,0.72)',
-                            }}
-                        >
-                            Disponible hoy
-                        </p>
-                        <h2
-                            style={{
-                                margin: '10px 0 0',
-                                fontSize: 84,
-                                lineHeight: 0.88,
-                                fontWeight: 900,
-                                letterSpacing: '-0.08em',
-                            }}
-                        >
-                            {slotTime}
-                        </h2>
-                    </div>
+                {/* Bottom content block */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {/* Label */}
+                    <p style={{ margin: 0, fontSize: 10, fontWeight: 700, letterSpacing: '0.30em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)' }}>
+                        Disponible hoy
+                    </p>
+                    {/* BIG time */}
+                    <h2 style={{ margin: 0, fontSize: 88, lineHeight: 0.86, fontWeight: 900, letterSpacing: '-0.08em', color: '#ffffff' }}>
+                        {slotTime}
+                    </h2>
 
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 10,
-                            padding: '18px 18px 16px',
-                            borderRadius: 24,
-                            background: 'rgba(10,18,28,0.55)',
-                            backdropFilter: 'blur(14px)',
-                            border: '1px solid rgba(255,255,255,0.12)',
-                            boxShadow: '0 18px 60px rgba(0,0,0,0.35)',
-                        }}
-                    >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                    {/* Info card — solid background, NO backdropFilter */}
+                    <div style={{
+                        padding: '16px 16px 14px',
+                        borderRadius: 22,
+                        background: 'rgba(5,12,22,0.90)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        boxShadow: '0 16px 48px rgba(0,0,0,0.40)',
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                             <div>
-                                <p
-                                    style={{
-                                        margin: 0,
-                                        fontSize: 8,
-                                        fontWeight: 800,
-                                        letterSpacing: '0.28em',
-                                        textTransform: 'uppercase',
-                                        color: 'rgba(255,255,255,0.52)',
-                                    }}
-                                >
+                                <p style={{ margin: 0, fontSize: 7, fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)' }}>
                                     Cancha
                                 </p>
-                                <p style={{ margin: '6px 0 0', fontSize: 24, fontWeight: 800 }}>{courtName}</p>
+                                <p style={{ margin: '5px 0 0', fontSize: 22, fontWeight: 800, color: '#fff' }}>{courtName}</p>
                             </div>
-                            <div
-                                style={{
-                                    width: 42,
-                                    height: 42,
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#061015',
-                                    background: '#4de2d1',
-                                    fontWeight: 900,
-                                    fontSize: 20,
-                                }}
-                            >
-                                +
+                            <div style={{
+                                padding: '10px 16px', borderRadius: 999,
+                                background: '#4de2d1', color: '#03141a',
+                                fontSize: 9, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
+                            }}>
+                                Reservar
                             </div>
                         </div>
-
-                        <div
-                            style={{
-                                padding: '14px 16px',
-                                borderRadius: 18,
-                                background: '#ffffff',
-                                color: '#0b1320',
-                                fontSize: 12,
-                                fontWeight: 900,
-                                letterSpacing: '0.16em',
-                                textTransform: 'uppercase',
-                                textAlign: 'center',
-                            }}
-                        >
-                            Reserva desde el link
-                        </div>
+                        {storyUrl && (
+                            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.10)' }}>
+                                <UrlLine storyUrl={storyUrl} color="rgba(255,255,255,0.40)" />
+                            </div>
+                        )}
                     </div>
-
-                    <StoryLink storyUrl={storyUrl} color="rgba(255,255,255,0.44)" />
                 </div>
             </div>
         </StorySurface>
     )
 }
 
-function FlyerClubMinimal({
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    bgUrl,
-    storyUrl,
-}: FlyerCanvasProps) {
+// ─── Template 2: Club Minimal / Studio ────────────────────────────────────────
+function FlyerClubMinimal({ slotTime, courtName, clubName, logoUrl, bgUrl, storyUrl }: FlyerCanvasProps) {
+    const photoH = 200
     return (
-        <StorySurface background="#f3ecde" color="#0d1726">
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 12,
-                    borderRadius: 28,
-                    background: '#fbf7ef',
-                    boxShadow: '0 22px 60px rgba(16,20,26,0.16)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: '12px 12px auto 12px',
-                    height: 178,
-                    overflow: 'hidden',
-                    borderRadius: '28px 28px 22px 22px',
-                }}
-            >
+        <StorySurface background="#f5f0e8" color="#0d1726">
+            {/* Photo section — top 42% */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: photoH, overflow: 'hidden', borderRadius: '0 0 0 0' }}>
                 <img
-                    src={bgUrl}
-                    alt=""
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        filter: 'saturate(0.95) brightness(1.02)',
-                        transform: 'scale(1.16)',
-                    }}
+                    src={bgUrl} alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                 />
-                <div
-                    style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'linear-gradient(180deg, rgba(7,12,18,0.12) 0%, rgba(7,12,18,0.56) 100%)',
-                    }}
-                />
+                {/* Subtle bottom gradient on photo */}
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'linear-gradient(180deg, rgba(7,12,18,0.08) 0%, rgba(7,12,18,0.48) 100%)',
+                }} />
+                {/* Brand block inside photo */}
+                <div style={{ position: 'absolute', top: 18, left: 20 }}>
+                    <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#ff7a00" />
+                </div>
+                {/* Pill badge top-right */}
+                <div style={{
+                    position: 'absolute', top: 18, right: 20,
+                    padding: '7px 11px', borderRadius: 999,
+                    background: 'rgba(255,255,255,0.88)',
+                    fontSize: 8, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#7a5a3a',
+                }}>
+                    Hoy
+                </div>
             </div>
 
-            <div
-                style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '26px 22px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div
-                        style={{
-                            padding: '8px 10px',
-                            borderRadius: 999,
-                            background: 'rgba(255,255,255,0.82)',
-                            fontSize: 8,
-                            fontWeight: 800,
-                            letterSpacing: '0.24em',
-                            textTransform: 'uppercase',
-                            color: '#6a5946',
-                        }}
-                    >
-                        Story lista
-                    </div>
-                    <div
-                        style={{
-                            width: 38,
-                            height: 38,
-                            borderRadius: '50%',
-                            background: '#ff7a00',
-                            color: '#fff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 12,
-                            fontWeight: 900,
-                            letterSpacing: '0.1em',
-                        }}
-                    >
-                        09
-                    </div>
-                </div>
+            {/* White content card */}
+            <div style={{
+                position: 'absolute', top: photoH - 18, left: 14, right: 14, bottom: 14,
+                borderRadius: 24,
+                background: '#ffffff',
+                boxShadow: '0 -4px 32px rgba(16,20,26,0.12)',
+                padding: '22px 20px 18px',
+                display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            }}>
+                {/* Top label */}
+                <p style={{ margin: 0, fontSize: 9, fontWeight: 800, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(13,23,38,0.42)' }}>
+                    Horario libre
+                </p>
 
-                <div style={{ marginTop: 116 }}>
-                    <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#ff7a00" darkText />
-                </div>
+                {/* Big time */}
+                <h2 style={{ margin: 0, fontSize: 82, lineHeight: 0.88, fontWeight: 900, letterSpacing: '-0.07em', color: '#0d1726' }}>
+                    {slotTime}
+                </h2>
 
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto',
-                            gap: 12,
-                            alignItems: 'end',
-                        }}
-                    >
-                        <div>
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 10,
-                                    fontWeight: 800,
-                                    letterSpacing: '0.26em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(13,23,38,0.54)',
-                                }}
-                            >
-                                Horario libre
-                            </p>
-                            <h2
-                                style={{
-                                    margin: '6px 0 0',
-                                    fontSize: 78,
-                                    lineHeight: 0.9,
-                                    fontWeight: 900,
-                                    letterSpacing: '-0.08em',
-                                }}
-                            >
-                                {slotTime}
-                            </h2>
-                        </div>
-
-                        <div
-                            style={{
-                                padding: '12px 12px 10px',
-                                borderRadius: 18,
-                                background: '#0d1726',
-                                color: '#fff',
-                                minWidth: 82,
-                            }}
-                        >
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 700,
-                                    letterSpacing: '0.24em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,255,255,0.48)',
-                                }}
-                            >
+                {/* Court + CTA */}
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                        <div style={{ padding: '12px 14px', borderRadius: 16, background: '#0d1726', minWidth: 90 }}>
+                            <p style={{ margin: 0, fontSize: 7, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)' }}>
                                 Cancha
                             </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 14, fontWeight: 800 }}>{courtName}</p>
+                            <p style={{ margin: '5px 0 0', fontSize: 15, fontWeight: 800, color: '#fff' }}>{courtName}</p>
+                        </div>
+                        <div style={{
+                            padding: '14px 18px', borderRadius: 999,
+                            background: '#ff7a00', color: '#fff',
+                            fontSize: 9, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
+                            flex: 1, textAlign: 'center',
+                        }}>
+                            Reservar ya
                         </div>
                     </div>
+                    <UrlLine storyUrl={storyUrl} color="rgba(13,23,38,0.36)" />
+                </div>
+            </div>
+        </StorySurface>
+    )
+}
 
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto',
-                            gap: 12,
-                            paddingTop: 14,
-                            borderTop: '1px solid rgba(13,23,38,0.12)',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <StoryLink storyUrl={storyUrl} color="rgba(13,23,38,0.46)" />
-                        <div
-                            style={{
-                                padding: '10px 14px',
-                                borderRadius: 999,
-                                background: '#ff7a00',
-                                color: '#fff',
-                                fontSize: 9,
-                                fontWeight: 900,
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                            }}
-                        >
+// ─── Template 3: Glass Night ──────────────────────────────────────────────────
+// NO backdropFilter — panel usa background sólido rgba
+function FlyerGlassNight({ slotTime, courtName, clubName, logoUrl, bgUrl, storyUrl }: FlyerCanvasProps) {
+    return (
+        <StorySurface background="#08111a">
+            {/* BG photo full bleed */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+                <img
+                    src={bgUrl} alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: 0.55 }}
+                />
+            </div>
+            {/* Overlay */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(180deg, rgba(5,12,22,0.38) 0%, rgba(4,10,19,0.68) 30%, rgba(5,10,18,0.94) 100%)',
+            }} />
+            {/* Glow */}
+            <div style={{
+                position: 'absolute', top: 30, right: -40, width: 180, height: 180, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(115,199,255,0.28) 0%, rgba(115,199,255,0) 72%)',
+            }} />
+
+            <div style={{ position: 'relative', height: '100%', padding: '22px 20px 20px', display: 'flex', flexDirection: 'column' }}>
+                {/* Top brand */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                    <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#73c7ff" />
+                    <div style={{
+                        width: 34, height: 34, borderRadius: '50%',
+                        border: '1px solid rgba(115,199,255,0.30)',
+                        background: 'rgba(115,199,255,0.12)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#c2e8ff', fontWeight: 900, fontSize: 17,
+                    }}>+</div>
+                </div>
+
+                {/* Main card — solid background, NO backdropFilter */}
+                <div style={{
+                    marginTop: 32,
+                    padding: '20px 18px 16px',
+                    borderRadius: 26,
+                    background: 'rgba(6,14,24,0.92)',
+                    border: '1px solid rgba(115,199,255,0.20)',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+                }}>
+                    <p style={{ margin: 0, fontSize: 9, fontWeight: 800, letterSpacing: '0.30em', textTransform: 'uppercase', color: 'rgba(115,199,255,0.68)' }}>
+                        Turno disponible
+                    </p>
+                    <h2 style={{ margin: '12px 0 10px', fontSize: 84, lineHeight: 0.86, fontWeight: 900, letterSpacing: '-0.08em', color: '#ffffff' }}>
+                        {slotTime}
+                    </h2>
+                    <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+                        borderTop: '1px solid rgba(255,255,255,0.10)', paddingTop: 14,
+                    }}>
+                        <div>
+                            <p style={{ margin: 0, fontSize: 7, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.42)' }}>
+                                Cancha
+                            </p>
+                            <p style={{ margin: '5px 0 0', fontSize: 19, fontWeight: 800 }}>{courtName}</p>
+                        </div>
+                        <div style={{
+                            padding: '10px 16px', borderRadius: 999,
+                            background: '#73c7ff', color: '#071019',
+                            fontSize: 9, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
+                        }}>
                             Reservar
                         </div>
                     </div>
                 </div>
-            </div>
-        </StorySurface>
-    )
-}
 
-function FlyerGlassNight({
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    bgUrl,
-    storyUrl,
-}: FlyerCanvasProps) {
-    return (
-        <StorySurface background="#08111a">
-            <img
-                src={bgUrl}
-                alt=""
-                style={{
-                    position: 'absolute',
-                    inset: -20,
-                    width: 'calc(100% + 40px)',
-                    height: 'calc(100% + 40px)',
-                    objectFit: 'cover',
-                    filter: 'blur(8px) saturate(1.05)',
-                    opacity: 0.7,
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background:
-                        'linear-gradient(180deg, rgba(5,12,22,0.42) 0%, rgba(4,10,19,0.74) 28%, rgba(5,10,18,0.96) 100%)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 16,
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                    borderRadius: 30,
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)',
-                    border: '1px solid rgba(255,255,255,0.16)',
-                    backdropFilter: 'blur(12px)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 48,
-                    right: -44,
-                    width: 180,
-                    height: 180,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(115,199,255,0.32) 0%, rgba(115,199,255,0) 72%)',
-                }}
-            />
-
-            <div
-                style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '26px 24px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                    <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#73c7ff" />
-                    <div
-                        style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            border: '1px solid rgba(255,255,255,0.24)',
-                            color: '#d7f3ff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontWeight: 900,
-                        }}
-                    >
-                        +
-                    </div>
-                </div>
-
-                <div
-                    style={{
-                        marginTop: 40,
-                        padding: '18px 18px 16px',
-                        borderRadius: 26,
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.14)',
-                        boxShadow: '0 20px 60px rgba(0,0,0,0.22)',
-                    }}
-                >
-                    <p
-                        style={{
-                            margin: 0,
-                            fontSize: 10,
-                            fontWeight: 800,
-                            letterSpacing: '0.3em',
-                            textTransform: 'uppercase',
-                            color: 'rgba(255,255,255,0.62)',
-                        }}
-                    >
-                        Turno disponible
-                    </p>
-                    <h2
-                        style={{
-                            margin: '14px 0 10px',
-                            fontSize: 82,
-                            lineHeight: 0.88,
-                            fontWeight: 900,
-                            letterSpacing: '-0.08em',
-                        }}
-                    >
-                        {slotTime}
-                    </h2>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            gap: 12,
-                            borderTop: '1px solid rgba(255,255,255,0.14)',
-                            paddingTop: 14,
-                        }}
-                    >
-                        <div>
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 700,
-                                    letterSpacing: '0.24em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,255,255,0.5)',
-                                }}
-                            >
-                                Cancha
-                            </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 20, fontWeight: 800 }}>{courtName}</p>
-                        </div>
-                        <div
-                            style={{
-                                padding: '10px 14px',
-                                borderRadius: 999,
-                                background: '#73c7ff',
-                                color: '#071019',
-                                fontSize: 9,
-                                fontWeight: 900,
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                            }}
-                        >
-                            Link listo
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    style={{
-                        marginTop: 'auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 12,
-                    }}
-                >
-                    <div
-                        style={{
-                            padding: '16px 18px',
-                            borderRadius: 24,
-                            background: 'rgba(255,255,255,0.06)',
-                            border: '1px solid rgba(255,255,255,0.12)',
-                        }}
-                    >
-                        <p
-                            style={{
-                                margin: 0,
-                                fontSize: 9,
-                                fontWeight: 700,
-                                letterSpacing: '0.22em',
-                                textTransform: 'uppercase',
-                                color: 'rgba(255,255,255,0.46)',
-                            }}
-                        >
-                            Compartilo en historias
-                        </p>
-                        <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 700, color: '#f4fbff' }}>
-                            Visual limpio, noche de club y lectura inmediata.
+                {/* Bottom section */}
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {/* Accent strip */}
+                    <div style={{
+                        padding: '14px 16px',
+                        borderRadius: 20,
+                        background: 'rgba(115,199,255,0.10)',
+                        border: '1px solid rgba(115,199,255,0.18)',
+                    }}>
+                        <p style={{ margin: 0, fontSize: 9, fontWeight: 700, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(115,199,255,0.62)' }}>
+                            Reservá desde el link del club
                         </p>
                     </div>
-                    <StoryLink storyUrl={storyUrl} color="rgba(255,255,255,0.44)" />
+                    <UrlLine storyUrl={storyUrl} color="rgba(255,255,255,0.38)" />
                 </div>
             </div>
         </StorySurface>
     )
 }
 
-function FlyerScoreboard({
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    storyUrl,
-}: FlyerCanvasProps) {
+// ─── Template 4: Scoreboard ───────────────────────────────────────────────────
+function FlyerScoreboard({ slotTime, courtName, clubName, logoUrl, storyUrl }: FlyerCanvasProps) {
     return (
-        <StorySurface background="linear-gradient(180deg, #091109 0%, #050805 100%)">
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background:
-                        'linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(180deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
-                    backgroundSize: '32px 32px',
-                    opacity: 0.34,
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 18,
-                    borderRadius: 28,
-                    border: '1px solid rgba(198,255,77,0.28)',
-                    boxShadow: 'inset 0 0 0 1px rgba(198,255,77,0.08)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 42,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 190,
-                    height: 190,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(198,255,77,0.15) 0%, rgba(198,255,77,0) 72%)',
-                }}
-            />
+        <StorySurface background="#070d07">
+            {/* Grid lines */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                backgroundImage: 'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
+                backgroundSize: '28px 28px',
+            }} />
+            {/* Inner border */}
+            <div style={{ position: 'absolute', inset: 16, borderRadius: 26, border: '1px solid rgba(198,255,77,0.24)' }} />
+            {/* Glow center */}
+            <div style={{
+                position: 'absolute', top: 60, left: '50%',
+                width: 200, height: 200, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(198,255,77,0.12) 0%, rgba(198,255,77,0) 70%)',
+                transform: 'translateX(-50%)',
+            }} />
 
-            <div
-                style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '24px 22px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr auto',
-                        gap: 12,
-                        alignItems: 'center',
-                    }}
-                >
+            <div style={{ position: 'relative', height: '100%', padding: '22px 20px 20px', display: 'flex', flexDirection: 'column' }}>
+                {/* Top */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                     <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#c6ff4d" />
-                    <div
-                        style={{
-                            padding: '8px 10px',
-                            borderRadius: 12,
-                            border: '1px solid rgba(198,255,77,0.28)',
-                            color: '#e7ffc1',
-                            fontSize: 9,
-                            fontWeight: 900,
-                            letterSpacing: '0.16em',
-                        }}
-                    >
-                        LIVE
-                    </div>
+                    <div style={{
+                        padding: '7px 10px', borderRadius: 10,
+                        border: '1px solid rgba(198,255,77,0.30)',
+                        color: '#e7ffc1', fontSize: 8, fontWeight: 900, letterSpacing: '0.18em',
+                    }}>LIVE</div>
                 </div>
 
-                <div
-                    style={{
-                        marginTop: 34,
-                        padding: '16px 18px 18px',
-                        borderRadius: 24,
-                        background: 'rgba(4,7,4,0.74)',
-                        border: '1px solid rgba(198,255,77,0.18)',
-                    }}
-                >
-                    <p
-                        style={{
-                            margin: 0,
-                            fontSize: 9,
-                            fontWeight: 800,
-                            letterSpacing: '0.34em',
-                            textTransform: 'uppercase',
-                            color: 'rgba(198,255,77,0.68)',
-                        }}
-                    >
+                {/* Score-style time box */}
+                <div style={{
+                    marginTop: 28,
+                    padding: '18px 18px 16px',
+                    borderRadius: 24,
+                    background: 'rgba(3,6,3,0.80)',
+                    border: '1px solid rgba(198,255,77,0.18)',
+                }}>
+                    <p style={{ margin: 0, fontSize: 8, fontWeight: 800, letterSpacing: '0.34em', textTransform: 'uppercase', color: 'rgba(198,255,77,0.65)' }}>
                         Turno libre
                     </p>
-                    <div
-                        style={{
-                            marginTop: 14,
-                            display: 'grid',
-                            gridTemplateColumns: '1fr',
-                            gap: 10,
-                        }}
-                    >
-                        <div
-                            style={{
-                                padding: '14px 12px 8px',
-                                borderRadius: 18,
-                                background: '#0b0f0b',
-                                border: '1px solid rgba(198,255,77,0.14)',
-                                textAlign: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-                                    fontSize: 74,
-                                    lineHeight: 0.92,
-                                    letterSpacing: '-0.08em',
-                                    color: '#d4ff79',
-                                    fontWeight: 800,
-                                    textShadow: '0 0 22px rgba(198,255,77,0.18)',
-                                }}
-                            >
-                                {slotTime}
-                            </div>
-                            <p
-                                style={{
-                                    margin: '10px 0 0',
-                                    fontSize: 8,
-                                    fontWeight: 800,
-                                    letterSpacing: '0.32em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,255,255,0.42)',
-                                }}
-                            >
-                                Disponible para reservar
-                            </p>
-                        </div>
+                    {/* Monospaced time */}
+                    <div style={{
+                        marginTop: 12,
+                        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+                        fontSize: 80, lineHeight: 0.90,
+                        letterSpacing: '-0.04em',
+                        color: '#d4ff79',
+                        fontWeight: 800,
+                        textShadow: '0 0 28px rgba(198,255,77,0.22)',
+                    }}>
+                        {slotTime}
                     </div>
-                </div>
-
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: 10,
-                        }}
-                    >
-                        <div
-                            style={{
-                                padding: '14px 14px 12px',
-                                borderRadius: 20,
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(255,255,255,0.08)',
-                            }}
-                        >
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 700,
-                                    letterSpacing: '0.22em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,255,255,0.44)',
-                                }}
-                            >
-                                Cancha
-                            </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 18, fontWeight: 800 }}>{courtName}</p>
-                        </div>
-                        <div
-                            style={{
-                                padding: '14px 14px 12px',
-                                borderRadius: 20,
-                                background: '#c6ff4d',
-                                color: '#091109',
-                            }}
-                        >
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 800,
-                                    letterSpacing: '0.24em',
-                                    textTransform: 'uppercase',
-                                    opacity: 0.72,
-                                }}
-                            >
-                                Accion
-                            </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 900 }}>Reserva ya</p>
-                        </div>
-                    </div>
-                    <StoryLink storyUrl={storyUrl} color="rgba(255,255,255,0.38)" />
-                </div>
-            </div>
-        </StorySurface>
-    )
-}
-
-function FlyerSunsetEditorial({
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    bgUrl,
-    storyUrl,
-}: FlyerCanvasProps) {
-    return (
-        <StorySurface background="#140c09">
-            <img
-                src={bgUrl}
-                alt=""
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 0.62,
-                    transform: 'scale(1.18)',
-                    filter: 'sepia(0.18) saturate(1.05)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background:
-                        'linear-gradient(180deg, rgba(255,183,107,0.22) 0%, rgba(91,42,18,0.28) 24%, rgba(18,10,7,0.82) 62%, rgba(10,7,6,0.98) 100%)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: -70,
-                    left: -30,
-                    width: 180,
-                    height: 180,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(255,179,107,0.45) 0%, rgba(255,179,107,0) 72%)',
-                }}
-            />
-
-            <div
-                style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '24px 22px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#ffb36b" />
-
-                <div style={{ marginTop: 36 }}>
-                    <p
-                        style={{
-                            margin: 0,
-                            maxWidth: 140,
-                            fontSize: 12,
-                            lineHeight: 1.35,
-                            color: 'rgba(255,240,224,0.86)',
-                        }}
-                    >
-                        Una historia calida para mostrar turnos libres sin ruido visual.
+                    <p style={{ margin: '12px 0 0', fontSize: 8, fontWeight: 800, letterSpacing: '0.30em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.36)' }}>
+                        Disponible para reservar
                     </p>
                 </div>
 
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 18 }}>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto',
-                            gap: 12,
-                            alignItems: 'end',
-                        }}
-                    >
-                        <div>
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 10,
-                                    fontWeight: 800,
-                                    letterSpacing: '0.22em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,222,191,0.68)',
-                                }}
-                            >
-                                Hoy hay lugar
+                {/* Bottom cards */}
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                        <div style={{
+                            flex: 1, padding: '13px 13px 11px', borderRadius: 18,
+                            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                        }}>
+                            <p style={{ margin: 0, fontSize: 7, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.40)' }}>
+                                Cancha
                             </p>
-                            <h2
-                                style={{
-                                    margin: '8px 0 0',
-                                    fontSize: 84,
-                                    lineHeight: 0.88,
-                                    fontWeight: 900,
-                                    letterSpacing: '-0.08em',
-                                    color: '#fff6ec',
-                                }}
-                            >
-                                {slotTime}
-                            </h2>
+                            <p style={{ margin: '5px 0 0', fontSize: 17, fontWeight: 800 }}>{courtName}</p>
                         </div>
-                        <div
-                            style={{
-                                writingMode: 'vertical-rl',
-                                transform: 'rotate(180deg)',
-                                fontSize: 10,
-                                fontWeight: 800,
-                                letterSpacing: '0.32em',
-                                textTransform: 'uppercase',
-                                color: 'rgba(255,222,191,0.56)',
-                            }}
-                        >
-                            Disponible
+                        <div style={{
+                            flex: 1, padding: '13px 13px 11px', borderRadius: 18,
+                            background: '#c6ff4d', color: '#091109',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                        }}>
+                            <p style={{ margin: 0, fontSize: 7, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.68 }}>
+                                Acción
+                            </p>
+                            <p style={{ margin: '5px 0 0', fontSize: 15, fontWeight: 900 }}>Reserva ya</p>
                         </div>
                     </div>
-
-                    <div
-                        style={{
-                            padding: '18px 18px 16px',
-                            borderRadius: 24,
-                            background: 'rgba(255,245,234,0.10)',
-                            border: '1px solid rgba(255,255,255,0.14)',
-                            backdropFilter: 'blur(10px)',
-                        }}
-                    >
-                        <p
-                            style={{
-                                margin: 0,
-                                fontSize: 8,
-                                fontWeight: 800,
-                                letterSpacing: '0.26em',
-                                textTransform: 'uppercase',
-                                color: 'rgba(255,222,191,0.56)',
-                            }}
-                        >
-                            Cancha asignada
-                        </p>
-                        <p style={{ margin: '7px 0 14px', fontSize: 24, fontWeight: 800 }}>{courtName}</p>
-                        <div
-                            style={{
-                                display: 'inline-flex',
-                                padding: '10px 14px',
-                                borderRadius: 999,
-                                background: '#ffb36b',
-                                color: '#2a140a',
-                                fontSize: 9,
-                                fontWeight: 900,
-                                letterSpacing: '0.18em',
-                                textTransform: 'uppercase',
-                            }}
-                        >
-                            Reserva en segundos
-                        </div>
-                    </div>
-
-                    <StoryLink storyUrl={storyUrl} color="rgba(255,228,205,0.52)" />
+                    <UrlLine storyUrl={storyUrl} color="rgba(255,255,255,0.34)" />
                 </div>
             </div>
         </StorySurface>
     )
 }
 
-function FlyerCourtBlueprint({
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    storyUrl,
-}: FlyerCanvasProps) {
+// ─── Template 5: Sunset Editorial ─────────────────────────────────────────────
+function FlyerSunsetEditorial({ slotTime, courtName, clubName, logoUrl, bgUrl, storyUrl }: FlyerCanvasProps) {
     return (
-        <StorySurface background="linear-gradient(180deg, #06141b 0%, #082029 100%)">
-            <img
-                src={COURT_PATTERN}
-                alt=""
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: 0.88,
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 40,
-                    right: -40,
-                    width: 170,
-                    height: 170,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(105,240,209,0.26) 0%, rgba(105,240,209,0) 72%)',
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    bottom: 70,
-                    left: -30,
-                    width: 140,
-                    height: 140,
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(105,240,209,0.16) 0%, rgba(105,240,209,0) 72%)',
-                }}
-            />
+        <StorySurface background="#130c08">
+            {/* BG photo full bleed — no scale transform */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+                <img
+                    src={bgUrl} alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: 0.70 }}
+                />
+            </div>
+            {/* Warm gradient overlay */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(180deg, rgba(255,178,90,0.18) 0%, rgba(88,40,14,0.26) 22%, rgba(16,9,6,0.76) 58%, rgba(8,5,4,0.97) 100%)',
+            }} />
+            {/* Warm glow top-left */}
+            <div style={{
+                position: 'absolute', top: -60, left: -30, width: 180, height: 180, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,172,80,0.40) 0%, rgba(255,172,80,0) 72%)',
+            }} />
 
-            <div
-                style={{
-                    position: 'relative',
-                    height: '100%',
-                    padding: '24px 22px 22px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start' }}>
+            <div style={{ position: 'relative', height: '100%', padding: '22px 20px 20px', display: 'flex', flexDirection: 'column' }}>
+                {/* Top brand */}
+                <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#ffb36b" />
+
+                {/* Time section */}
+                <div style={{ marginTop: 'auto', marginBottom: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <p style={{ margin: 0, fontSize: 10, fontWeight: 700, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'rgba(255,214,170,0.72)' }}>
+                        Hoy hay lugar
+                    </p>
+                    <h2 style={{ margin: 0, fontSize: 90, lineHeight: 0.84, fontWeight: 900, letterSpacing: '-0.08em', color: '#fff6ec' }}>
+                        {slotTime}
+                    </h2>
+                </div>
+
+                {/* Info card — solid background, NO backdropFilter */}
+                <div style={{
+                    padding: '16px 16px 14px',
+                    borderRadius: 22,
+                    background: 'rgba(245,235,220,0.12)',
+                    border: '1px solid rgba(255,200,140,0.22)',
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.30)',
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                        <div>
+                            <p style={{ margin: 0, fontSize: 7, fontWeight: 800, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(255,210,160,0.60)' }}>
+                                Cancha
+                            </p>
+                            <p style={{ margin: '5px 0 0', fontSize: 22, fontWeight: 800 }}>{courtName}</p>
+                        </div>
+                        <div style={{
+                            padding: '11px 16px', borderRadius: 999,
+                            background: '#ffb36b', color: '#2a140a',
+                            fontSize: 9, fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase',
+                        }}>
+                            Reservar
+                        </div>
+                    </div>
+                    {storyUrl && (
+                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,200,140,0.16)' }}>
+                            <UrlLine storyUrl={storyUrl} color="rgba(255,220,180,0.50)" />
+                        </div>
+                    )}
+                </div>
+            </div>
+        </StorySurface>
+    )
+}
+
+// ─── Template 6: Court Blueprint ──────────────────────────────────────────────
+function FlyerCourtBlueprint({ slotTime, courtName, clubName, logoUrl, storyUrl }: FlyerCanvasProps) {
+    return (
+        <StorySurface background="#05121a">
+            {/* Vertical gradient */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #06141b 0%, #08202c 100%)' }} />
+            {/* Court SVG pattern */}
+            <img
+                src={COURT_PATTERN} alt=""
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
+            />
+            {/* Glow spots */}
+            <div style={{
+                position: 'absolute', top: 36, right: -36, width: 160, height: 160, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(105,240,209,0.22) 0%, rgba(105,240,209,0) 72%)',
+            }} />
+            <div style={{
+                position: 'absolute', bottom: 80, left: -28, width: 130, height: 130, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(105,240,209,0.14) 0%, rgba(105,240,209,0) 72%)',
+            }} />
+
+            <div style={{ position: 'relative', height: '100%', padding: '22px 20px 20px', display: 'flex', flexDirection: 'column' }}>
+                {/* Top */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
                     <BrandBlock clubName={clubName} logoUrl={logoUrl} accent="#69f0d1" />
-                    <div
-                        style={{
-                            padding: '8px 10px',
-                            borderRadius: 999,
-                            background: 'rgba(105,240,209,0.10)',
-                            border: '1px solid rgba(105,240,209,0.24)',
-                            color: '#b9fff0',
-                            fontSize: 8,
-                            fontWeight: 800,
-                            letterSpacing: '0.26em',
-                            textTransform: 'uppercase',
-                        }}
-                    >
+                    <div style={{
+                        padding: '7px 10px', borderRadius: 999,
+                        background: 'rgba(105,240,209,0.10)',
+                        border: '1px solid rgba(105,240,209,0.24)',
+                        color: '#b9fff0', fontSize: 8, fontWeight: 800, letterSpacing: '0.24em', textTransform: 'uppercase',
+                    }}>
                         Court map
                     </div>
                 </div>
 
-                <div
-                    style={{
-                        marginTop: 54,
-                        padding: '18px 18px 16px',
-                        borderRadius: 28,
-                        background: 'rgba(5,18,24,0.76)',
-                        border: '1px solid rgba(255,255,255,0.10)',
-                    }}
-                >
-                    <p
-                        style={{
-                            margin: 0,
-                            fontSize: 8,
-                            fontWeight: 800,
-                            letterSpacing: '0.34em',
-                            textTransform: 'uppercase',
-                            color: 'rgba(185,255,240,0.68)',
-                        }}
-                    >
+                {/* Main card */}
+                <div style={{
+                    marginTop: 44,
+                    padding: '18px 18px 16px',
+                    borderRadius: 26,
+                    background: 'rgba(4,16,22,0.86)',
+                    border: '1px solid rgba(105,240,209,0.18)',
+                }}>
+                    <p style={{ margin: 0, fontSize: 8, fontWeight: 800, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'rgba(185,255,240,0.64)' }}>
                         Slot libre
                     </p>
-                    <h2
-                        style={{
-                            margin: '12px 0 10px',
-                            fontSize: 80,
-                            lineHeight: 0.88,
-                            fontWeight: 900,
-                            letterSpacing: '-0.08em',
-                        }}
-                    >
+                    <h2 style={{ margin: '12px 0 10px', fontSize: 82, lineHeight: 0.86, fontWeight: 900, letterSpacing: '-0.08em', color: '#ffffff' }}>
                         {slotTime}
                     </h2>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto',
-                            gap: 12,
-                            alignItems: 'center',
-                            borderTop: '1px solid rgba(255,255,255,0.08)',
-                            paddingTop: 14,
-                        }}
-                    >
+                    <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+                        borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 14,
+                    }}>
                         <div>
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 700,
-                                    letterSpacing: '0.24em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,255,255,0.42)',
-                                }}
-                            >
+                            <p style={{ margin: 0, fontSize: 7, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)' }}>
                                 Cancha
                             </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 21, fontWeight: 800 }}>{courtName}</p>
+                            <p style={{ margin: '5px 0 0', fontSize: 20, fontWeight: 800 }}>{courtName}</p>
                         </div>
-                        <div
-                            style={{
-                                width: 42,
-                                height: 42,
-                                borderRadius: 14,
-                                background: '#69f0d1',
-                                color: '#082029',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 900,
-                                fontSize: 18,
-                            }}
-                        >
-                            +
-                        </div>
+                        <div style={{
+                            width: 40, height: 40, borderRadius: 13,
+                            background: '#69f0d1', color: '#08202c',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 900, fontSize: 20,
+                        }}>+</div>
                     </div>
                 </div>
 
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: 10,
-                        }}
-                    >
-                        <div
-                            style={{
-                                padding: '14px 14px 12px',
-                                borderRadius: 20,
-                                border: '1px solid rgba(255,255,255,0.10)',
-                                background: 'rgba(255,255,255,0.04)',
-                            }}
-                        >
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 800,
-                                    letterSpacing: '0.2em',
-                                    textTransform: 'uppercase',
-                                    color: 'rgba(255,255,255,0.44)',
-                                }}
-                            >
-                                Ideal para
+                {/* Bottom */}
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                        <div style={{
+                            flex: 1, padding: '12px 14px', borderRadius: 18,
+                            border: '1px solid rgba(105,240,209,0.14)',
+                            background: 'rgba(105,240,209,0.06)',
+                        }}>
+                            <p style={{ margin: 0, fontSize: 8, fontWeight: 800, letterSpacing: '0.20em', textTransform: 'uppercase', color: 'rgba(185,255,240,0.54)' }}>
+                                Reservá online
                             </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 700 }}>Historia rapida</p>
+                            <p style={{ margin: '4px 0 0', fontSize: 13, fontWeight: 700 }}>Sin llamadas</p>
                         </div>
-                        <div
-                            style={{
-                                padding: '14px 14px 12px',
-                                borderRadius: 20,
-                                background: '#ffffff',
-                                color: '#082029',
-                            }}
-                        >
-                            <p
-                                style={{
-                                    margin: 0,
-                                    fontSize: 8,
-                                    fontWeight: 800,
-                                    letterSpacing: '0.2em',
-                                    textTransform: 'uppercase',
-                                    opacity: 0.56,
-                                }}
-                            >
+                        <div style={{
+                            flex: 1, padding: '12px 14px', borderRadius: 18,
+                            background: '#ffffff', color: '#08202c',
+                        }}>
+                            <p style={{ margin: 0, fontSize: 8, fontWeight: 800, letterSpacing: '0.20em', textTransform: 'uppercase', opacity: 0.52 }}>
                                 CTA
                             </p>
-                            <p style={{ margin: '6px 0 0', fontSize: 15, fontWeight: 900 }}>Reserva online</p>
+                            <p style={{ margin: '4px 0 0', fontSize: 13, fontWeight: 900 }}>Reservar ya</p>
                         </div>
                     </div>
-                    <StoryLink storyUrl={storyUrl} color="rgba(255,255,255,0.38)" />
+                    <UrlLine storyUrl={storyUrl} color="rgba(185,255,240,0.36)" />
                 </div>
             </div>
         </StorySurface>
     )
 }
 
+// ─── Template registry ────────────────────────────────────────────────────────
 const TEMPLATE_COMPONENTS: Record<ThemeId, React.ComponentType<FlyerCanvasProps>> = {
-    'midnight-photo': FlyerMidnightPhoto,
-    'club-minimal': FlyerClubMinimal,
-    'glass-night': FlyerGlassNight,
-    scoreboard: FlyerScoreboard,
-    'sunset-editorial': FlyerSunsetEditorial,
-    'court-blueprint': FlyerCourtBlueprint,
+    'midnight-photo':    FlyerMidnightPhoto,
+    'club-minimal':      FlyerClubMinimal,
+    'glass-night':       FlyerGlassNight,
+    'scoreboard':        FlyerScoreboard,
+    'sunset-editorial':  FlyerSunsetEditorial,
+    'court-blueprint':   FlyerCourtBlueprint,
 }
 
+// ─── Phone Mockup ─────────────────────────────────────────────────────────────
 function PhoneMockup({ children }: { children: React.ReactNode }) {
     return (
-        <div
-            style={{
-                width: 292,
-                padding: 10,
-                borderRadius: 42,
-                background: 'linear-gradient(180deg, #171717 0%, #050505 100%)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 30px 90px rgba(0,0,0,0.72), inset 0 0 0 1px rgba(255,255,255,0.04)',
-                position: 'relative',
-            }}
-        >
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 18,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 90,
-                    height: 28,
-                    background: '#101010',
-                    borderRadius: 18,
-                    zIndex: 10,
-                }}
-            />
-            <div style={{ borderRadius: 34, overflow: 'hidden', background: '#000' }}>{children}</div>
-            <div
-                style={{
-                    position: 'absolute',
-                    bottom: 16,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 92,
-                    height: 4,
-                    borderRadius: 999,
-                    background: 'rgba(255,255,255,0.20)',
-                }}
-            />
+        <div style={{
+            width: 304,
+            padding: 13,
+            borderRadius: 44,
+            background: 'linear-gradient(180deg, #191919 0%, #060606 100%)',
+            border: '1px solid rgba(255,255,255,0.09)',
+            boxShadow: '0 32px 96px rgba(0,0,0,0.76), inset 0 0 0 1px rgba(255,255,255,0.04)',
+            position: 'relative',
+        }}>
+            {/* Notch */}
+            <div style={{
+                position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)',
+                width: 88, height: 26, background: '#111', borderRadius: 18, zIndex: 10,
+            }} />
+            {/* Screen */}
+            <div style={{ borderRadius: 32, overflow: 'hidden', background: '#000' }}>
+                {children}
+            </div>
+            {/* Home bar */}
+            <div style={{
+                position: 'absolute', bottom: 18, left: '50%', transform: 'translateX(-50%)',
+                width: 88, height: 4, borderRadius: 999, background: 'rgba(255,255,255,0.22)',
+            }} />
         </div>
     )
 }
 
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function FlyerGenerator({
-    isOpen,
-    onClose,
-    slotTime,
-    courtName,
-    clubName,
-    logoUrl,
-    clubSlug,
+    isOpen, onClose, slotTime, courtName, clubName, logoUrl, clubSlug,
 }: FlyerGeneratorProps) {
-    const flyerRef = useRef<HTMLDivElement>(null)
+    const flyerRef       = useRef<HTMLDivElement>(null)
     const [isGenerating, setIsGenerating] = useState(false)
     const [generatedImage, setGeneratedImage] = useState<string | null>(null)
-    const [theme, setTheme] = useState<ThemeId>('midnight-photo')
+    const [theme, setTheme]  = useState<ThemeId>('midnight-photo')
 
-    const activeTheme = THEMES.find(item => item.id === theme) ?? THEMES[0]
-    const FlyerCanvas = TEMPLATE_COMPONENTS[theme]
-    const bgUrl = toAbsoluteUrl('/flyer-bg.png')
-    const storyUrl = getStoryUrl(clubSlug)
+    const activeTheme  = THEMES.find(t => t.id === theme) ?? THEMES[0]
+    const FlyerCanvas  = TEMPLATE_COMPONENTS[theme]
+    const bgUrl        = toAbsoluteUrl('/flyer-bg.png')
+    const storyUrl     = getStoryUrl(clubSlug)
 
     const handleGenerate = async () => {
         if (!flyerRef.current) return
-
         setIsGenerating(true)
         try {
-            await new Promise(resolve => setTimeout(resolve, 300))
+            // Wait for all images inside the canvas to finish loading
+            const imgs = Array.from(flyerRef.current.querySelectorAll('img'))
+            await Promise.all(
+                imgs.map(img =>
+                    img.complete
+                        ? Promise.resolve()
+                        : new Promise<void>(res => {
+                              img.onload  = () => res()
+                              img.onerror = () => res()
+                          }),
+                ),
+            )
+            // Two animation frames to let the browser repaint
+            await new Promise<void>(res => requestAnimationFrame(() => requestAnimationFrame(() => res())))
+            await new Promise(res => setTimeout(res, 120))
+
+            // pixelRatio 4 → 1080×1920 nativo para Instagram
             const dataUrl = await toPng(flyerRef.current, {
                 quality: 1,
-                pixelRatio: 3,
-                cacheBust: true,
+                pixelRatio: 4,
+                skipFonts: false,
             })
             setGeneratedImage(dataUrl)
             toast.success('Story lista para compartir')
@@ -1477,7 +760,6 @@ export default function FlyerGenerator({
 
     const handleDownload = () => {
         if (!generatedImage) return
-
         const a = document.createElement('a')
         a.download = `story-${getSafeFilename(slotTime)}-${getSafeFilename(courtName)}.png`
         a.href = generatedImage
@@ -1487,44 +769,29 @@ export default function FlyerGenerator({
 
     const handleShare = async () => {
         if (!generatedImage) return
-
         try {
-            const response = await fetch(generatedImage)
-            const blob = await response.blob()
+            const blob = await (await fetch(generatedImage)).blob()
             const file = new File([blob], `story-${getSafeFilename(slotTime)}.png`, { type: 'image/png' })
-
             if (navigator.share && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: `Turno libre ${slotTime} - ${clubName}`,
-                })
+                await navigator.share({ files: [file], title: `Turno libre ${slotTime} - ${clubName}` })
                 return
             }
-
             handleDownload()
-        } catch {
-            handleDownload()
-        }
+        } catch { handleDownload() }
     }
 
     const handleWhatsApp = async () => {
         if (!generatedImage) return
-
         try {
-            const response = await fetch(generatedImage)
-            const blob = await response.blob()
+            const blob = await (await fetch(generatedImage)).blob()
             const file = new File([blob], `story-${getSafeFilename(slotTime)}.png`, { type: 'image/png' })
-
             if (navigator.share && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file] })
                 return
             }
-
             handleDownload()
             window.open('https://web.whatsapp.com', '_blank')
-        } catch {
-            handleDownload()
-        }
+        } catch { handleDownload() }
     }
 
     if (!isOpen) return null
@@ -1540,7 +807,7 @@ export default function FlyerGenerator({
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.96, y: 24 }}
                     transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                    className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden md:flex-row"
+                    className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden md:flex-row"
                     style={{
                         background: 'linear-gradient(180deg, #0c1016 0%, #080b10 100%)',
                         border: '1px solid rgba(255,255,255,0.08)',
@@ -1548,193 +815,103 @@ export default function FlyerGenerator({
                         boxShadow: '0 40px 120px rgba(0,0,0,0.72)',
                     }}
                 >
+                    {/* Close */}
                     <button
                         onClick={onClose}
                         className="absolute right-4 top-4 z-20 flex items-center justify-center transition-colors"
                         style={{
-                            width: 38,
-                            height: 38,
-                            borderRadius: '50%',
-                            background: 'rgba(255,255,255,0.06)',
-                            border: '1px solid rgba(255,255,255,0.08)',
+                            width: 38, height: 38, borderRadius: '50%',
+                            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
                             color: 'rgba(255,255,255,0.56)',
                         }}
                     >
                         <X size={16} />
                     </button>
 
+                    {/* ── Left panel: controls ── */}
                     <div className="flex-1 overflow-y-auto p-8 md:p-10">
-                        <div className="mx-auto flex max-w-2xl flex-col gap-8">
-                            <div className="flex flex-col gap-4">
-                                <div
-                                    style={{
-                                        display: 'inline-flex',
-                                        width: 'fit-content',
-                                        alignItems: 'center',
-                                        gap: 10,
-                                        padding: '9px 12px',
-                                        borderRadius: 999,
-                                        background: 'rgba(255,255,255,0.04)',
-                                        border: '1px solid rgba(255,255,255,0.08)',
-                                    }}
-                                >
-                                    <div
-                                        style={{
-                                            width: 9,
-                                            height: 9,
-                                            borderRadius: '50%',
-                                            background: activeTheme.accent,
-                                            boxShadow: `0 0 18px ${activeTheme.accent}`,
-                                        }}
-                                    />
-                                    <span
-                                        style={{
-                                            fontSize: 9,
-                                            fontWeight: 800,
-                                            letterSpacing: '0.3em',
-                                            textTransform: 'uppercase',
-                                            color: 'rgba(255,255,255,0.46)',
-                                        }}
-                                    >
+                        <div className="mx-auto flex max-w-xl flex-col gap-8">
+
+                            {/* Header */}
+                            <div className="flex flex-col gap-3">
+                                <div style={{
+                                    display: 'inline-flex', width: 'fit-content', alignItems: 'center', gap: 10,
+                                    padding: '8px 12px', borderRadius: 999,
+                                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                                }}>
+                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: activeTheme.accent, boxShadow: `0 0 14px ${activeTheme.accent}` }} />
+                                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.30em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.44)' }}>
                                         Story generator
                                     </span>
                                 </div>
-
-                                <div>
-                                    <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
-                                        Historias mucho mas fuertes
-                                    </h2>
-                                    <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">
-                                        Seis plantillas limpias, mas editoriales y con mejor presencia para Instagram o
-                                        WhatsApp. Elegi una base y genera la story en un click.
-                                    </p>
-                                </div>
+                                <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
+                                    Historias para Instagram
+                                </h2>
+                                <p className="max-w-sm text-sm leading-6 text-white/50">
+                                    6 plantillas premium listas para postear. Elegí un estilo y generá la story en un clic.
+                                </p>
                             </div>
 
-                            <div
-                                style={{
-                                    background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid rgba(255,255,255,0.06)',
-                                    borderRadius: 24,
-                                    padding: 20,
-                                }}
-                            >
+                            {/* Slot info */}
+                            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 18 }}>
                                 <div className="grid gap-4 md:grid-cols-3">
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/35">
-                                            Horario
-                                        </p>
-                                        <p className="mt-2 text-2xl font-black text-white">{slotTime}hs</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/35">
-                                            Cancha
-                                        </p>
-                                        <p className="mt-2 text-lg font-bold text-white">{courtName}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/35">
-                                            Club
-                                        </p>
-                                        <p className="mt-2 text-lg font-bold text-white">{clubName}</p>
-                                    </div>
+                                    {[
+                                        { label: 'Horario', value: `${slotTime}hs` },
+                                        { label: 'Cancha',  value: courtName },
+                                        { label: 'Club',    value: clubName  },
+                                    ].map(({ label, value }) => (
+                                        <div key={label}>
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/32">{label}</p>
+                                            <p className="mt-1.5 text-base font-black text-white">{value}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
+                            {/* Theme picker */}
                             <div>
                                 <div className="mb-3 flex items-center justify-between gap-4">
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/35">
-                                        Modelos visuales
-                                    </p>
-                                    <p className="text-xs text-white/38">6 estilos listos para usar</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.30em] text-white/32">Modelos visuales</p>
+                                    <p className="text-xs text-white/35">6 estilos disponibles</p>
                                 </div>
-
-                                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
                                     {THEMES.map(option => (
                                         <button
                                             key={option.id}
-                                            onClick={() => {
-                                                setTheme(option.id)
-                                                setGeneratedImage(null)
-                                            }}
-                                            className="rounded-3xl p-4 text-left transition-all"
+                                            onClick={() => { setTheme(option.id); setGeneratedImage(null) }}
+                                            className="rounded-2xl p-3.5 text-left transition-all"
                                             style={{
-                                                background:
-                                                    theme === option.id
-                                                        ? 'rgba(255,255,255,0.08)'
-                                                        : 'rgba(255,255,255,0.03)',
-                                                border:
-                                                    theme === option.id
-                                                        ? `1.5px solid ${option.accent}`
-                                                        : '1px solid rgba(255,255,255,0.06)',
-                                                boxShadow:
-                                                    theme === option.id
-                                                        ? `0 16px 40px ${option.accent}18`
-                                                        : 'none',
+                                                background: theme === option.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                                                border: theme === option.id ? `1.5px solid ${option.accent}` : '1px solid rgba(255,255,255,0.06)',
+                                                boxShadow: theme === option.id ? `0 14px 36px ${option.accent}18` : 'none',
                                             }}
                                         >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div
-                                                    style={{
-                                                        width: 44,
-                                                        height: 44,
-                                                        borderRadius: 16,
-                                                        background: `linear-gradient(135deg, ${option.accent} 0%, rgba(255,255,255,0.08) 100%)`,
-                                                        opacity: theme === option.id ? 1 : 0.82,
-                                                    }}
-                                                />
-                                                <span
-                                                    style={{
-                                                        padding: '7px 9px',
-                                                        borderRadius: 999,
-                                                        background: 'rgba(255,255,255,0.04)',
-                                                        color: theme === option.id ? '#fff' : 'rgba(255,255,255,0.46)',
-                                                        fontSize: 9,
-                                                        fontWeight: 800,
-                                                        letterSpacing: '0.18em',
-                                                        textTransform: 'uppercase',
-                                                    }}
-                                                >
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div style={{
+                                                    width: 40, height: 40, borderRadius: 14,
+                                                    background: `linear-gradient(135deg, ${option.accent} 0%, rgba(255,255,255,0.06) 100%)`,
+                                                    opacity: theme === option.id ? 1 : 0.78,
+                                                }} />
+                                                <span style={{
+                                                    padding: '6px 8px', borderRadius: 999,
+                                                    background: 'rgba(255,255,255,0.04)',
+                                                    color: theme === option.id ? '#fff' : 'rgba(255,255,255,0.42)',
+                                                    fontSize: 8, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase',
+                                                }}>
                                                     {option.chip}
                                                 </span>
                                             </div>
-                                            <div className="mt-4">
+                                            <div className="mt-3">
                                                 <p className="text-sm font-black text-white">{option.label}</p>
-                                                <p className="mt-1 text-xs leading-5 text-white/45">{option.desc}</p>
+                                                <p className="mt-1 text-xs leading-5 text-white/42">{option.desc}</p>
                                             </div>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            <div
-                                style={{
-                                    background: 'rgba(255,255,255,0.02)',
-                                    border: '1px solid rgba(255,255,255,0.06)',
-                                    borderRadius: 24,
-                                    padding: 18,
-                                }}
-                            >
-                                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/35">
-                                    Seleccion actual
-                                </p>
-                                <div className="mt-3 flex items-center justify-between gap-4">
-                                    <div>
-                                        <p className="text-lg font-black text-white">{activeTheme.label}</p>
-                                        <p className="mt-1 text-sm text-white/50">{activeTheme.desc}</p>
-                                    </div>
-                                    <div
-                                        style={{
-                                            minWidth: 54,
-                                            height: 54,
-                                            borderRadius: 18,
-                                            background: `linear-gradient(135deg, ${activeTheme.accent} 0%, rgba(255,255,255,0.08) 100%)`,
-                                        }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="mt-auto flex flex-col gap-3">
+                            {/* CTA buttons */}
+                            <div className="flex flex-col gap-2.5">
                                 {!generatedImage ? (
                                     <button
                                         onClick={handleGenerate}
@@ -1745,10 +922,7 @@ export default function FlyerGenerator({
                                         {isGenerating ? (
                                             <div className="h-5 w-5 animate-spin rounded-full border-[3px] border-black/20 border-t-black" />
                                         ) : (
-                                            <>
-                                                <Zap size={18} strokeWidth={2.5} />
-                                                Generar story
-                                            </>
+                                            <><Zap size={18} strokeWidth={2.5} />Generar story</>
                                         )}
                                     </button>
                                 ) : (
@@ -1759,39 +933,29 @@ export default function FlyerGenerator({
                                                 className="flex items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black uppercase tracking-[0.12em] transition-all"
                                                 style={{ background: activeTheme.accent, color: '#071019' }}
                                             >
-                                                <Share2 size={16} strokeWidth={2.5} />
-                                                Compartir
+                                                <Share2 size={16} strokeWidth={2.5} />Compartir
                                             </button>
                                             <button
                                                 onClick={handleWhatsApp}
                                                 className="flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] py-3.5 text-sm font-black uppercase tracking-[0.12em] text-white transition-all"
                                             >
-                                                <MessageCircle size={16} strokeWidth={2.5} />
-                                                WhatsApp
+                                                <MessageCircle size={16} strokeWidth={2.5} />WhatsApp
                                             </button>
                                         </div>
                                         <div className="grid gap-2 sm:grid-cols-2">
                                             <button
                                                 onClick={handleDownload}
-                                                className="flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-white/78 transition-all"
-                                                style={{
-                                                    background: 'rgba(255,255,255,0.06)',
-                                                    border: '1px solid rgba(255,255,255,0.08)',
-                                                }}
+                                                className="flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-white/72 transition-all"
+                                                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
                                             >
-                                                <Download size={15} />
-                                                Descargar
+                                                <Download size={15} />Descargar
                                             </button>
                                             <button
                                                 onClick={() => setGeneratedImage(null)}
-                                                className="flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-white/55 transition-all"
-                                                style={{
-                                                    background: 'rgba(255,255,255,0.03)',
-                                                    border: '1px solid rgba(255,255,255,0.06)',
-                                                }}
+                                                className="flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-white/50 transition-all"
+                                                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                                             >
-                                                <RefreshCw size={15} />
-                                                Probar otro modelo
+                                                <RefreshCw size={15} />Otro modelo
                                             </button>
                                         </div>
                                     </>
@@ -1800,9 +964,8 @@ export default function FlyerGenerator({
                         </div>
                     </div>
 
-                    <div
-                        className="flex items-center justify-center border-l border-white/5 bg-[#05070b] p-8 md:w-[420px] md:p-10"
-                    >
+                    {/* ── Right panel: preview ── */}
+                    <div className="flex items-center justify-center border-l border-white/5 bg-[#05070b] p-8 md:w-[400px] md:p-10">
                         <AnimatePresence mode="wait">
                             {generatedImage ? (
                                 <motion.div
@@ -1810,13 +973,13 @@ export default function FlyerGenerator({
                                     initial={{ opacity: 0, scale: 0.96 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.96 }}
-                                    transition={{ duration: 0.22 }}
+                                    transition={{ duration: 0.20 }}
                                 >
                                     <PhoneMockup>
                                         <img
                                             src={generatedImage}
                                             alt="Story generada"
-                                            style={{ width: '100%', display: 'block', height: STORY_HEIGHT }}
+                                            style={{ width: STORY_WIDTH, height: STORY_HEIGHT, display: 'block' }}
                                         />
                                     </PhoneMockup>
                                 </motion.div>
@@ -1826,7 +989,7 @@ export default function FlyerGenerator({
                                     initial={{ opacity: 0, scale: 0.96 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.96 }}
-                                    transition={{ duration: 0.22 }}
+                                    transition={{ duration: 0.20 }}
                                 >
                                     <PhoneMockup>
                                         <div
@@ -1844,9 +1007,9 @@ export default function FlyerGenerator({
                                                 courtName={courtName}
                                                 clubName={clubName}
                                                 logoUrl={logoUrl}
-                                                clubSlug={clubSlug}
                                                 bgUrl={bgUrl}
                                                 storyUrl={storyUrl}
+                                                clubSlug={clubSlug}
                                             />
                                         </div>
                                     </PhoneMockup>
