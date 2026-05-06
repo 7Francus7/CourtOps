@@ -26,10 +26,10 @@ interface Rect {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TOOLTIP_W  = 348
-const TOOLTIP_H  = 260
-const ARROW_SIZE = 9
-const VP_PAD     = 16
+const TOOLTIP_W_BASE = 348
+const TOOLTIP_H      = 260
+const ARROW_SIZE     = 9
+const VP_PAD         = 16
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
@@ -51,6 +51,7 @@ function computeTooltipPos(
   rect: Rect,
   position: TourPosition,
   padding: number,
+  tooltipW: number,
 ): { top: number; left: number } {
   const vw = window.innerWidth
   const vh = window.innerHeight
@@ -61,11 +62,11 @@ function computeTooltipPos(
   switch (position) {
     case 'bottom':
       top  = rect.y + rect.height + padding + ARROW_SIZE + 10
-      left = clamp(cx - TOOLTIP_W / 2, VP_PAD, vw - TOOLTIP_W - VP_PAD)
+      left = clamp(cx - tooltipW / 2, VP_PAD, vw - tooltipW - VP_PAD)
       break
     case 'top':
       top  = rect.y - padding - TOOLTIP_H - ARROW_SIZE - 10
-      left = clamp(cx - TOOLTIP_W / 2, VP_PAD, vw - TOOLTIP_W - VP_PAD)
+      left = clamp(cx - tooltipW / 2, VP_PAD, vw - tooltipW - VP_PAD)
       break
     case 'right':
       top  = clamp(cy - TOOLTIP_H / 2, VP_PAD, vh - TOOLTIP_H - VP_PAD)
@@ -73,11 +74,11 @@ function computeTooltipPos(
       break
     case 'left':
       top  = clamp(cy - TOOLTIP_H / 2, VP_PAD, vh - TOOLTIP_H - VP_PAD)
-      left = rect.x - padding - TOOLTIP_W - ARROW_SIZE - 10
+      left = rect.x - padding - tooltipW - ARROW_SIZE - 10
       break
     default:
       top  = vh / 2 - TOOLTIP_H / 2
-      left = vw / 2 - TOOLTIP_W / 2
+      left = vw / 2 - tooltipW / 2
   }
 
   // Auto-flip if clipping
@@ -85,8 +86,8 @@ function computeTooltipPos(
     top = rect.y - padding - TOOLTIP_H - ARROW_SIZE - 10
   if (position === 'top' && top < VP_PAD)
     top = rect.y + rect.height + padding + ARROW_SIZE + 10
-  if (position === 'right' && left + TOOLTIP_W > vw - VP_PAD)
-    left = rect.x - padding - TOOLTIP_W - ARROW_SIZE - 10
+  if (position === 'right' && left + tooltipW > vw - VP_PAD)
+    left = rect.x - padding - tooltipW - ARROW_SIZE - 10
   if (position === 'left' && left < VP_PAD)
     left = rect.x + rect.width + padding + ARROW_SIZE + 10
 
@@ -242,7 +243,7 @@ function CenteredCard({
       animate={{ opacity: 1, scale: 1,    y: 0  }}
       exit={{    opacity: 0, scale: 0.95,  y: 16 }}
       transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-      style={{ position: 'fixed', zIndex: 10001, width: 388 }}
+      style={{ position: 'fixed', zIndex: 10001, width: Math.min(388, window.innerWidth - VP_PAD * 2) }}
       className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       // inline style needed for centering via Framer + fixed
       // Use a wrapper div for actual centering
@@ -363,6 +364,7 @@ function TooltipCard({
   posStyle,
   isFirst,
   isLast,
+  tooltipW,
   onNext,
   onPrev,
   onSkip,
@@ -377,6 +379,7 @@ function TooltipCard({
   posStyle: React.CSSProperties
   isFirst: boolean
   isLast: boolean
+  tooltipW: number
   onNext: () => void
   onPrev: () => void
   onSkip: () => void
@@ -397,7 +400,7 @@ function TooltipCard({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{    opacity: 0, y: -enterFrom * 0.5, scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-      style={{ ...posStyle, position: 'fixed', width: TOOLTIP_W, zIndex: 10001 }}
+      style={{ ...posStyle, position: 'fixed', width: tooltipW, zIndex: 10001 }}
       className="bg-card border border-border rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.50)] overflow-hidden"
     >
       {/* Progress bar */}
@@ -540,8 +543,19 @@ export function TourSpotlight() {
     goToStep,
   } = useTourContext()
 
-  const [targetRect, setTargetRect] = useState<Rect | null>(null)
-  const rafRef = useRef<number | null>(null)
+  const [targetRect,    setTargetRect]    = useState<Rect | null>(null)
+  const [isMobile,      setIsMobile]      = useState(false)
+  const [targetNotFound, setTargetNotFound] = useState(false)
+  const rafRef       = useRef<number | null>(null)
+  const touchStartX  = useRef<number | null>(null)
+
+  // ── Mobile detection ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   // ── Measure target element ────────────────────────────────────────────────
 
@@ -550,19 +564,20 @@ export function TourSpotlight() {
     wait: boolean,
     scroll: boolean,
   ) => {
-    if (!selector) { setTargetRect(null); return }
+    if (!selector) { setTargetRect(null); setTargetNotFound(false); return }
 
     let el: Element | null = wait
       ? await waitForElement(selector)
       : document.querySelector(selector)
 
-    if (!el) { setTargetRect(null); return }
+    if (!el) { setTargetRect(null); setTargetNotFound(true); return }
+    setTargetNotFound(false)
 
     if (scroll) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
       await new Promise(r => setTimeout(r, 450))
       el = document.querySelector(selector)
-      if (!el) { setTargetRect(null); return }
+      if (!el) { setTargetRect(null); setTargetNotFound(true); return }
     }
 
     const r = el.getBoundingClientRect()
@@ -570,15 +585,23 @@ export function TourSpotlight() {
   }, [])
 
   useEffect(() => {
-    if (!currentStep || !isRunning) { setTargetRect(null); return }
-    measureTarget(currentStep.target, currentStep.waitForElement ?? false, currentStep.scrollIntoView ?? false)
-  }, [currentStep, isRunning, measureTarget])
+    if (!currentStep || !isRunning) { setTargetRect(null); setTargetNotFound(false); return }
+    // On mobile use mobileTarget when explicitly provided (even if null = centered)
+    const effectiveSel = isMobile && 'mobileTarget' in currentStep
+      ? currentStep.mobileTarget
+      : currentStep.target
+    measureTarget(effectiveSel, currentStep.waitForElement ?? false, currentStep.scrollIntoView ?? false)
+  }, [currentStep, isRunning, isMobile, measureTarget])
 
   // Re-measure on resize/scroll
   useEffect(() => {
-    if (!currentStep?.target || !isRunning) return
+    if (!isRunning || !currentStep) return
+    const effectiveSel = isMobile && 'mobileTarget' in currentStep
+      ? currentStep.mobileTarget
+      : currentStep.target
+    if (!effectiveSel) return
     const update = () => {
-      const el = document.querySelector(currentStep.target!)
+      const el = document.querySelector(effectiveSel)
       if (!el) return
       const r = el.getBoundingClientRect()
       setTargetRect({ x: r.x, y: r.y, width: r.width, height: r.height })
@@ -594,7 +617,7 @@ export function TourSpotlight() {
       window.removeEventListener('scroll', onEvent, true)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [currentStep, isRunning])
+  }, [currentStep, isRunning, isMobile])
 
   // Keyboard navigation
   useEffect(() => {
@@ -610,17 +633,25 @@ export function TourSpotlight() {
 
   if (!isRunning || !currentStep || !activeTour) return null
 
-  const isCentered = !currentStep.target
-  const isFirst    = currentStepIndex === 0
-  const isLast     = currentStepIndex === totalSteps - 1
+  // Resolve effective target/position for current device
+  const effectiveTarget: string | null | undefined = isMobile && 'mobileTarget' in currentStep
+    ? currentStep.mobileTarget
+    : currentStep.target
+  const effectivePosition: TourPosition = (!effectiveTarget || targetNotFound)
+    ? 'center'
+    : (isMobile && currentStep.mobilePosition !== undefined
+        ? currentStep.mobilePosition
+        : (currentStep.position ?? 'bottom'))
+
+  const isCentered   = !effectiveTarget || targetNotFound
+  const isFirst      = currentStepIndex === 0
+  const isLast       = currentStepIndex === totalSteps - 1
   const padding      = currentStep.padding      ?? 10
   const borderRadius = currentStep.borderRadius ?? 14
-  const position: TourPosition = isCentered
-    ? 'center'
-    : (currentStep.position ?? 'bottom')
+  const tooltipW     = Math.min(TOOLTIP_W_BASE, window.innerWidth - VP_PAD * 2)
 
   const posStyle: React.CSSProperties = targetRect
-    ? computeTooltipPos(targetRect, position, padding)
+    ? computeTooltipPos(targetRect, effectivePosition, padding, tooltipW)
     : { top: -9999, left: -9999 }
 
   const sharedProps = {
@@ -637,6 +668,19 @@ export function TourSpotlight() {
     onDotClick: goToStep,
   }
 
+  // Touch swipe: left = next, right = prev
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return
+    const delta = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(delta) < 50) return
+    if (delta < 0) nextStep()
+    else prevStep()
+  }
+
   return createPortal(
     <div
       role="dialog"
@@ -644,12 +688,14 @@ export function TourSpotlight() {
       aria-label={`Tour: ${activeTour.title} — ${currentStep.title}`}
       style={{ position: 'fixed', inset: 0, zIndex: 9997, pointerEvents: 'none' }}
     >
-      {/* ── Click blocker (non-centered steps) ── */}
+      {/* ── Click + swipe blocker (non-centered steps) ── */}
       {!isCentered && (
         <div
           className="fixed inset-0"
           style={{ zIndex: 9997, pointerEvents: 'auto' }}
           aria-hidden
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         />
       )}
 
@@ -662,6 +708,8 @@ export function TourSpotlight() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           aria-hidden
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         />
       )}
 
@@ -698,27 +746,38 @@ export function TourSpotlight() {
             <TooltipCard
               key={currentStep.id}
               {...sharedProps}
-              position={position}
+              position={effectivePosition}
               posStyle={posStyle}
+              tooltipW={tooltipW}
             />
           </div>
         )}
       </AnimatePresence>
 
-      {/* ── ESC hint (bottom center) ── */}
+      {/* ── Nav hint (bottom center) ── */}
       {!isCentered && (
         <motion.div
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 bg-black/60 border border-white/10 rounded-full backdrop-blur-sm pointer-events-none"
+          className={`fixed ${isMobile ? 'bottom-28' : 'bottom-6'} left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 bg-black/60 border border-white/10 rounded-full backdrop-blur-sm pointer-events-none`}
           style={{ zIndex: 10001 }}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <kbd className="text-[9px] font-black text-white/50 bg-white/10 px-1.5 py-0.5 rounded border border-white/10">ESC</kbd>
-          <span className="text-[10px] text-white/40">salir</span>
-          <span className="text-white/20 mx-1">·</span>
-          <kbd className="text-[9px] font-black text-white/50 bg-white/10 px-1.5 py-0.5 rounded border border-white/10">→</kbd>
-          <span className="text-[10px] text-white/40">siguiente</span>
+          {isMobile ? (
+            <>
+              <span className="text-[10px] text-white/50">←</span>
+              <span className="text-[10px] text-white/40">deslizá para navegar</span>
+              <span className="text-[10px] text-white/50">→</span>
+            </>
+          ) : (
+            <>
+              <kbd className="text-[9px] font-black text-white/50 bg-white/10 px-1.5 py-0.5 rounded border border-white/10">ESC</kbd>
+              <span className="text-[10px] text-white/40">salir</span>
+              <span className="text-white/20 mx-1">·</span>
+              <kbd className="text-[9px] font-black text-white/50 bg-white/10 px-1.5 py-0.5 rounded border border-white/10">→</kbd>
+              <span className="text-[10px] text-white/40">siguiente</span>
+            </>
+          )}
         </motion.div>
       )}
     </div>,

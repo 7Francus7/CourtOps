@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -48,6 +48,15 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
   const { data: session } = useSession()
   const { notifications, unreadCount, markAllAsRead, loading: notificationsLoading } = useNotifications()
 
+  const [externalSheetOpen, setExternalSheetOpen] = useState(false)
+  useEffect(() => {
+    const obs = new MutationObserver(() => {
+      setExternalSheetOpen(document.body.classList.contains('notifications-open'))
+    })
+    obs.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
+
   const isBookingsView = searchParams.get('view') === 'bookings'
   const displayedName  = activeEmployee ? activeEmployee.name : (session?.user?.name || 'Usuario')
   const roleLabel      = activeEmployee ? 'Operador' : 'Administrador'
@@ -64,13 +73,15 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
       icon: CalendarDays,
       label: 'Turnos',
       active: isBookingsView || pathname.startsWith('/reservas'),
+      dataTour: 'mobile-nav-turnos',
     },
-    { href: '#fab', icon: Plus, label: 'Nuevo', isFab: true, active: false },
+    { href: '#fab', icon: Plus, label: 'Nuevo', isFab: true, active: false, dataTour: 'mobile-fab' },
     {
       href: '/caja',
       icon: Banknote,
       label: 'Caja',
       active: pathname.startsWith('/caja'),
+      dataTour: 'mobile-nav-caja',
     },
     {
       href: '#more',
@@ -274,7 +285,8 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
 
       {/* Bottom bar */}
       <nav
-        className={`fixed bottom-3 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none transition-opacity duration-200 ${isNotificationsOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        data-tour="mobile-bottom-nav"
+        className={`fixed bottom-3 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none transition-opacity duration-200 ${isNotificationsOpen || externalSheetOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
         aria-label="Navegación principal"
       >
         <div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
@@ -284,6 +296,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                 return (
                   <button
                     key="fab"
+                    data-tour={item.dataTour}
                     onClick={() => router.push('/dashboard?action=new_booking')}
                     className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.24)] active:scale-95 transition-transform"
                     aria-label="Nueva reserva"
@@ -298,6 +311,7 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
               return (
                 <button
                   key={item.label}
+                  data-tour={(item as { dataTour?: string }).dataTour}
                   aria-label={item.label}
                   onClick={() => {
                     if (item.isMenu) setIsMenuOpen(!isMenuOpen)

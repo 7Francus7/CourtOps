@@ -6,6 +6,8 @@ import {
   Plus,
   Users,
   BarChart3,
+  Banknote,
+  Settings,
   HelpCircle,
 } from 'lucide-react'
 import type { TourDefinition } from '../types'
@@ -13,8 +15,8 @@ import type { TourDefinition } from '../types'
 export const generalTour: TourDefinition = {
   id: 'general',
   title: 'Tour General',
-  description: 'Conoce las funciones principales del sistema en 7 pasos',
-  localStorageKey: 'courtops_tour_general_v1',
+  description: 'Conoce las funciones principales del sistema en 10 pasos',
+  localStorageKey: 'courtops_tour_general_v2',
   steps: [
     {
       id: 'welcome',
@@ -28,13 +30,15 @@ export const generalTour: TourDefinition = {
     {
       id: 'sidebar-nav',
       target: '[data-tour="sidebar-nav"]',
+      mobileTarget: '[data-tour="mobile-bottom-nav"]',
       category: 'Navegación',
       icon: LayoutDashboard,
       title: 'Tu centro de control',
       description:
-        'El menú lateral es tu punto de partida. Desde acá accedés a Reservas, Clientes, Kiosco, Caja, Reportes y Configuración con un solo clic.',
-      proTip: 'En pantallas pequeñas el menú colapsa a íconos para maximizar el espacio. Pasá el cursor para ver las etiquetas.',
+        'La barra de navegación es tu punto de partida. Desde acá accedés a Reservas, Clientes, Kiosco, Caja, Reportes y Configuración con un solo toque.',
+      proTip: 'En desktop el menú lateral colapsa a íconos para maximizar el espacio. En móvil, el botón "Más" abre todas las opciones.',
       position: 'right',
+      mobilePosition: 'top',
       padding: 8,
       borderRadius: 16,
       waitForElement: true,
@@ -61,7 +65,7 @@ export const generalTour: TourDefinition = {
       title: 'La grilla de canchas',
       description:
         'El corazón del sistema. Cada columna es una cancha, cada fila es un horario. Los colores indican el estado de pago: verde (pagado), amarillo (señado), rojo (deuda).',
-      proTip: 'Hacé clic en cualquier espacio vacío para crear una reserva ahí mismo, sin necesidad de completar formularios adicionales.',
+      proTip: 'Tocá cualquier espacio vacío para crear una reserva ahí mismo, sin pasos adicionales.',
       position: 'top',
       padding: 6,
       borderRadius: 24,
@@ -71,12 +75,14 @@ export const generalTour: TourDefinition = {
     {
       id: 'new-booking',
       target: '[data-tour="new-booking-btn"]',
+      mobileTarget: '[data-tour="mobile-fab"]',
+      mobilePosition: 'top',
       category: 'Acción rápida',
       icon: Plus,
       title: 'Nueva reserva en segundos',
       description:
         'Creá una reserva eligiendo cancha, horario y cliente. Podés cobrar en el momento o dejar deuda pendiente. Todo queda registrado automáticamente.',
-      proTip: 'Atajo de teclado: presioná "N" desde cualquier parte del dashboard para abrir el modal de nueva reserva al instante.',
+      proTip: 'En desktop: presioná "N" desde cualquier parte del dashboard para abrir el modal de nueva reserva al instante.',
       position: 'bottom',
       padding: 8,
       borderRadius: 14,
@@ -85,6 +91,7 @@ export const generalTour: TourDefinition = {
     {
       id: 'nav-clientes',
       target: '[data-tour="nav-clientes"]',
+      mobileTarget: null,
       category: 'Clientes',
       icon: Users,
       title: 'Ficha completa por jugador',
@@ -97,8 +104,25 @@ export const generalTour: TourDefinition = {
       waitForElement: true,
     },
     {
+      id: 'nav-caja',
+      target: '[data-tour="nav-caja"]',
+      mobileTarget: '[data-tour="mobile-nav-caja"]',
+      mobilePosition: 'top',
+      category: 'Finanzas',
+      icon: Banknote,
+      title: 'Control de caja diaria',
+      description:
+        'Abrí y cerrá la caja del día, registrá ingresos y egresos manuales, y generá el arqueo al final de la jornada. Todo queda auditado automáticamente.',
+      proTip: 'La caja se abre sola cuando registrás la primer transacción del día. No necesitás acordarte de abrirla manualmente.',
+      position: 'right',
+      padding: 6,
+      borderRadius: 12,
+      waitForElement: true,
+    },
+    {
       id: 'nav-reportes',
       target: '[data-tour="nav-reportes"]',
+      mobileTarget: null,
       category: 'Analytics',
       icon: BarChart3,
       title: 'Decisiones basadas en datos',
@@ -111,12 +135,27 @@ export const generalTour: TourDefinition = {
       waitForElement: true,
     },
     {
+      id: 'nav-configuracion',
+      target: '[data-tour="nav-configuracion"]',
+      mobileTarget: null,
+      category: 'Configuración',
+      icon: Settings,
+      title: 'Personalizá tu club',
+      description:
+        'Nombre, logo, colores de marca, canchas, horarios y precios por turno. Tus clientes verán estos datos en tu link público de reservas online.',
+      proTip: 'Tu link público es tu mayor diferenciador: los jugadores pueden reservar desde su celular sin llamarte, las 24 horas.',
+      position: 'right',
+      padding: 6,
+      borderRadius: 12,
+      waitForElement: true,
+    },
+    {
       id: 'finish',
       target: null,
       icon: HelpCircle,
       title: '¡Ya estás listo para operar!',
       description:
-        'Exploraste las funciones clave de CourtOps. Si necesitás profundizar en Kiosco, Reservas, Clientes o Reportes, tenés tours específicos disponibles.',
+        'Exploraste las funciones clave de CourtOps. Si querés profundizar en Reservas, Clientes, Kiosco o Reportes, tenés tours específicos disponibles desde el menú de ayuda.',
       position: 'center',
     },
   ],

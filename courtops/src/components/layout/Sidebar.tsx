@@ -45,9 +45,9 @@ const NAV_SECTIONS = [
   {
     label: 'Finanzas',
     items: [
-      { href: '?modal=kiosco', icon: ShoppingCart,  label: 'Kiosco',   featureKey: 'hasKiosco', isModal: true, dataTour: 'nav-kiosco'   },
-      { href: '/caja',          icon: Banknote,      label: 'Caja'      },
-      { href: '/reportes',      icon: FileBarChart,  label: 'Reportes', featureKey: 'hasAdvancedReports', dataTour: 'nav-reportes' },
+      { href: '?modal=kiosco', icon: ShoppingCart,  label: 'Kiosco',        featureKey: 'hasKiosco', isModal: true, dataTour: 'nav-kiosco'        },
+      { href: '/caja',          icon: Banknote,      label: 'Caja',         dataTour: 'nav-caja'         },
+      { href: '/reportes',      icon: FileBarChart,  label: 'Reportes',     featureKey: 'hasAdvancedReports', dataTour: 'nav-reportes'  },
     ],
   },
   {
@@ -55,7 +55,7 @@ const NAV_SECTIONS = [
     items: [
       { href: '/dashboard/suscripcion', icon: CreditCard,  label: 'Suscripción'  },
       { href: '/auditoria',             icon: ShieldCheck, label: 'Seguridad'    },
-      { href: '/configuracion',         icon: Settings,    label: 'Configuración'},
+      { href: '/configuracion',         icon: Settings,    label: 'Configuración', dataTour: 'nav-configuracion' },
     ],
   },
 ]
