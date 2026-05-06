@@ -27,10 +27,15 @@ export default function NotificationsSheet({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
+      document.body.classList.add('notifications-open')
     } else {
       document.body.style.overflow = ''
+      document.body.classList.remove('notifications-open')
     }
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.classList.remove('notifications-open')
+    }
   }, [isOpen])
 
   const filteredNotifications = notifications.filter(n => {

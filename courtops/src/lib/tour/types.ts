@@ -16,6 +16,10 @@ export interface TourStep {
   proTip?: string
   /** Where to render the tooltip relative to the target */
   position?: TourPosition
+  /** On mobile (<768px), use this target instead. null = centered overlay */
+  mobileTarget?: string | null
+  /** On mobile (<768px), use this position instead */
+  mobilePosition?: TourPosition
   /** Extra space around the spotlight cutout (px) */
   padding?: number
   /** Border radius of the spotlight cutout (px) */
