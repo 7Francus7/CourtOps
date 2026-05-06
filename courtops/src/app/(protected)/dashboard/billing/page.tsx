@@ -10,15 +10,15 @@ export default function BillingPage() {
        const plans = [
               {
                      name: 'Base',
-                     monthlyPrice: 45000,
+                     monthlyPrice: 69000,
                      description: 'Ideal para clubes pequeños que recién comienzan su digitalización.',
-                     features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Soporte por Email L-V'],
+                     features: ['Hasta 2 Canchas', 'Turnero Digital Inteligente', 'Caja Básica', 'Setup incluido', 'Soporte por Email L-V'],
                      highlight: false,
                      color: 'blue'
               },
               {
                      name: 'Pro',
-                     monthlyPrice: 79000,
+                     monthlyPrice: 99000,
                      description: 'Perfecto para clubes en expansión que buscan automatización total.',
                      features: ['Hasta 8 Canchas', 'Kiosco / Punto de Venta Integrado', 'Gestión Completa de Torneos', 'Control de Stock y Proveedores', 'Reportes Financieros Avanzados', 'Soporte Prioritario WhatsApp 24/7'],
                      highlight: true,
@@ -27,9 +27,9 @@ export default function BillingPage() {
               },
               {
                      name: 'Max',
-                     monthlyPrice: 119000,
+                     monthlyPrice: 149000,
                      description: 'Potencia absoluta y escalabilidad sin límites para grandes complejos.',
-                     features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Módulo de Torneos Pro', 'Acceso a API y Webhooks', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
+                     features: ['Canchas Ilimitadas', 'Gestión de Múltiples Sedes', 'Dominio Personalizado', 'Módulo de Torneos Pro', 'Roles y Permisos Granulares', 'Ejecutivo de Cuenta Dedicado'],
                      highlight: false,
                      color: 'purple'
               },
@@ -54,7 +54,7 @@ export default function BillingPage() {
                                           Mejora la gestión de tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-600 dark:from-emerald-400 dark:to-cyan-500">Club Deportivo</span>
                                    </h1>
                                    <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto text-lg">
-                                          Elegí el plan que mejor se adapte a tus necesidades. Pago único inicial de $150.000 con el primer mes bonificado. Después se cobra la mensualidad.
+                                          Elegí el plan que mejor se adapte a tus necesidades. Sin costos de instalación, sin setup fee. Solo una mensualidad con todo incluido.
                                    </p>
 
                                    {/* Billing Cycle Toggle */}

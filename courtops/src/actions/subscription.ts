@@ -2,15 +2,11 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { createSubscriptionPreference, createSetupFeePreference, cancelSubscriptionMP, getPlatformPayment, getSubscription } from './mercadopago'
+import { createSubscriptionPreference, cancelSubscriptionMP, getSubscription } from './mercadopago'
 import { revalidatePath } from 'next/cache'
 import { getPlanFeatures } from '@/lib/plan-features'
 import { syncOfficialPlatformPlans } from '@/lib/platform-plans'
 import { logger } from '@/lib/app-logger'
-
-function hasPaidSetupFee(club: { setupFeePaidAt?: Date | null; setupFeePaymentId?: string | null; mpPreapprovalId?: string | null }) {
-	return Boolean(club.setupFeePaidAt || club.setupFeePaymentId || club.mpPreapprovalId)
-}
 
 function getPlanBilling(planPrice: number, billingCycle: 'monthly' | 'yearly') {
 	if (billingCycle === 'yearly') {
@@ -18,12 +14,6 @@ function getPlanBilling(planPrice: number, billingCycle: 'monthly' | 'yearly') {
 	}
 
 	return { price: planPrice, frequency: 1, frequencyType: 'months' }
-}
-
-function getFirstRecurringStartDate(setupFeePaidAt?: Date | null) {
-	const startDate = new Date(setupFeePaidAt || Date.now())
-	startDate.setDate(startDate.getDate() + 30)
-	return startDate
 }
 
 export async function getSubscriptionDetails() {
@@ -85,7 +75,6 @@ export async function getSubscriptionDetails() {
 		currentPlan: club.platformPlan,
 		subscriptionStatus: club.subscriptionStatus,
 		nextBillingDate: club.nextBillingDate,
-		setupFeePaidAt: club.setupFeePaidAt,
 		availablePlans: safePlans,
 		pendingPlan: pendingPlanDetails,
 		pendingBillingCycle: club.pendingBillingCycle as 'monthly' | 'yearly' | null,
@@ -115,61 +104,30 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 			return { success: false, error: "Plan no válido" }
 		}
 
-		log.info("Iniciando suscripción", { 
-			clubId, 
-			planName: plan.name, 
-			price: plan.price,
-			setupFee: plan.setupFee 
-		})
+		log.info("Iniciando suscripción", { clubId, planName: plan.name, price: plan.price })
 
 		const features = getPlanFeatures(plan.name)
 		const courtCount = await prisma.court.count({ where: { clubId, deletedAt: null } })
 		if (courtCount > features.maxCourts) {
 			log.warn("Exceso de canchas para el plan", { clubId, courtCount, maxCourts: features.maxCourts })
-			return { 
-				success: false, 
-				error: `El plan ${plan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas desde Configuración o elegí un plan superior.` 
+			return {
+				success: false,
+				error: `El plan ${plan.name} permite hasta ${features.maxCourts} canchas, pero tenés ${courtCount} registradas. Por favor, eliminá canchas desde Configuración o elegí un plan superior.`
 			}
 		}
 
 		const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
-
 		const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
 		const payerEmail = adminUser?.email || 'admin@courtops.com'
-		const setupFee = plan.setupFee ?? 0
-		const shouldChargeSetupFee = setupFee > 0 && !hasPaidSetupFee(club)
 
-		// Check platform configuration
 		if (!process.env.MP_ACCESS_TOKEN) {
 			log.warn("MP_ACCESS_TOKEN no configurada, usando modo demo", { clubId })
-			if (shouldChargeSetupFee) {
-				await prisma.club.update({
-					where: { id: clubId },
-					data: {
-						setupFeePaidAt: new Date(),
-						setupFeePaymentId: `DEV_SETUP_${clubId}:${planId}:${billingCycle}`,
-					},
-				})
-			}
-
 			const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 			const fakeId = `DEV_${clubId}:${planId}:${billingCycle}`
-
 			return {
 				success: true,
 				init_point: `${baseUrl}/dashboard/suscripcion/status?preapproval_id=${fakeId}&status=authorized`
 			}
-		}
-
-		if (shouldChargeSetupFee) {
-			log.info("Creando preferencia de Setup Fee", { clubId, setupFee })
-			return createSetupFeePreference(
-				clubId,
-				plan.name,
-				setupFee,
-				payerEmail,
-				`SETUP:${clubId}:${planId}:${billingCycle}`
-			)
 		}
 
 		if (club.mpPreapprovalId && (club.subscriptionStatus === 'authorized' || club.subscriptionStatus === 'ACTIVE')) {
@@ -182,7 +140,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 		}
 
 		log.info("Creando preferencia de suscripción recurrente", { clubId, price, frequency })
-		const result = await createSubscriptionPreference(
+		return createSubscriptionPreference(
 			clubId,
 			plan.name,
 			price,
@@ -190,10 +148,7 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 			`${clubId}:${planId}:${billingCycle}`,
 			frequency,
 			frequencyType,
-			!club.mpPreapprovalId && hasPaidSetupFee(club) ? getFirstRecurringStartDate(club.setupFeePaidAt) : undefined
 		)
-
-		return result
 	} catch (error: any) {
 		log.error("Error crítico en initiateSubscription", { 
 			message: error?.message, 
@@ -203,75 +158,6 @@ export async function initiateSubscription(planId: string, billingCycle: 'monthl
 			success: false, 
 			error: error instanceof Error ? error.message : "Error interno del servidor al procesar la suscripción" 
 		}
-	}
-}
-
-export async function handleSetupFeeSuccess(paymentId: string) {
-	const log = logger.child({ paymentId, action: 'handleSetupFeeSuccess' })
-	
-	try {
-		const clubId = await getCurrentClubId()
-		if (!paymentId) throw new Error("No se pudo verificar el pago inicial")
-
-		const payment = await getPlatformPayment(paymentId)
-		if (!payment) {
-			log.error("No se encontró el pago en MercadoPago", { paymentId })
-			throw new Error("No se pudo verificar el pago inicial")
-		}
-
-		if (payment.status !== 'approved') {
-			log.warn("Pago inicial no aprobado", { paymentId, status: payment.status })
-			throw new Error("El pago inicial todavía no fue aprobado")
-		}
-
-		const [kind, refClubId, refPlanId, cycle = 'monthly'] = (payment.external_reference || '').split(':')
-
-		if (kind !== 'SETUP' || refClubId !== clubId || !refPlanId) {
-			log.error("Referencia de pago inválida", { external_reference: payment.external_reference, clubId })
-			throw new Error("La referencia del pago inicial no coincide con tu club")
-		}
-
-		const billingCycle = cycle === 'yearly' ? 'yearly' : 'monthly'
-		const club = await prisma.club.findUnique({
-			where: { id: clubId },
-			include: { users: true }
-		})
-		const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
-
-		if (!club || !plan) {
-			log.error("Club o Plan no encontrado tras pago", { clubId, refPlanId })
-			throw new Error("No se pudo preparar la suscripción")
-		}
-
-		if (!hasPaidSetupFee(club)) {
-			log.info("Marcando Setup Fee como pagado", { clubId, paymentId })
-			await prisma.club.update({
-				where: { id: clubId },
-				data: {
-					setupFeePaidAt: new Date(),
-					setupFeePaymentId: String(payment.id),
-				}
-			})
-		}
-
-		const adminUser = club.users.find(u => u.role === 'ADMIN' || u.role === 'OWNER') || club.users[0]
-		const payerEmail = adminUser?.email || 'admin@courtops.com'
-		const { price, frequency, frequencyType } = getPlanBilling(plan.price, billingCycle)
-
-		log.info("Creando preferencia de suscripción recurrente post-setup", { clubId, planName: plan.name })
-		return createSubscriptionPreference(
-			clubId,
-			plan.name,
-			price,
-			payerEmail,
-			`${clubId}:${refPlanId}:${billingCycle}`,
-			frequency,
-			frequencyType,
-			getFirstRecurringStartDate(new Date())
-		)
-	} catch (error: any) {
-		log.error("Error en handleSetupFeeSuccess", { message: error?.message })
-		throw error
 	}
 }
 

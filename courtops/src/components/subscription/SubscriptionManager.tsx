@@ -38,7 +38,6 @@ interface SubscriptionManagerProps {
 	currentPlan: CurrentPlan | null
 	subscriptionStatus: string | null
 	nextBillingDate: Date | string | null
-	setupFeePaidAt?: Date | string | null
 	availablePlans: Plan[]
 	pendingPlan?: Plan | null
 	pendingBillingCycle?: 'monthly' | 'yearly' | null
@@ -62,7 +61,6 @@ export default function SubscriptionManager({
 	currentPlan,
 	subscriptionStatus,
 	nextBillingDate,
-	setupFeePaidAt,
 	availablePlans,
 	pendingPlan,
 	pendingBillingCycle,
@@ -89,7 +87,6 @@ export default function SubscriptionManager({
 
 	const isActive = subscriptionStatus?.toLowerCase() === 'authorized' || subscriptionStatus?.toLowerCase() === 'active'
 	const hasPaidSubscription = Boolean(currentPlan && isActive)
-	const setupFeeAlreadyPaid = Boolean(setupFeePaidAt || currentPlan?.setupFeePaidAt || currentPlan?.setupFeePaymentId || hasPaidSubscription)
 
 	const openPlanModal = (plan: Plan, action: 'upgrade' | 'downgrade' | 'new') => {
 		setSelectedPlan(plan)
@@ -343,11 +340,9 @@ export default function SubscriptionManager({
 									<span className="text-2xl font-black text-foreground tabular-nums">{formatPrice(price)}</span>
 									<span className="text-sm text-muted-foreground">{billingCycle === 'yearly' ? '/año' : '/mes'}</span>
 								</div>
-								{(plan.setupFee ?? 0) > 0 && (
-									<p className="text-[11px] text-muted-foreground mt-0.5">
-										+ {formatPrice(plan.setupFee ?? 0)} licencia única al inicio
-									</p>
-								)}
+								<p className="text-[11px] text-emerald-500/80 font-medium mt-0.5">
+									Sin costo de instalación
+								</p>
 								{billingCycle === 'yearly' && (
 									<p className="text-[11px] text-emerald-500 font-medium mt-0.5">
 										equivale a {formatPrice(Math.round(plan.price * 0.8))}/mes
@@ -404,7 +399,6 @@ export default function SubscriptionManager({
 					const colors = PLAN_COLORS[plan.name] || PLAN_COLORS['Base']
 					const price = getPrice(plan)
 					const isUpgrade = hasPaidSubscription && currentPlan ? plan.price > currentPlan.price : true
-					const showSetupFee = !setupFeeAlreadyPaid && (plan.setupFee ?? 0) > 0
 					const isRecommended = plan.name.toLowerCase() === 'pro'
 
 					return (
@@ -446,11 +440,9 @@ export default function SubscriptionManager({
 								<span className="text-xs text-muted-foreground">
 									{billingCycle === 'yearly' ? '/año' : '/mes'}
 								</span>
-								{showSetupFee && (
-									<div className="text-[10px] text-muted-foreground">
-										+ {formatPrice(plan.setupFee ?? 0)} pago único inicial. Primer mes bonificado.
-									</div>
-								)}
+								<div className="text-[10px] text-emerald-500/80 font-medium">
+									Sin costo de instalación
+								</div>
 								{billingCycle === 'yearly' && (
 									<div className="text-[10px] text-emerald-500 font-medium">
 										equivale a {formatPrice(Math.round(plan.price * 0.8))}/mes

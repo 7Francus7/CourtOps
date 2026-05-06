@@ -3,8 +3,8 @@ import type { PrismaClient } from '@prisma/client'
 export const OFFICIAL_PLATFORM_PLANS = [
 	{
 		name: 'Base',
-		price: 45000,
-		setupFee: 150000,
+		price: 69000,
+		setupFee: 0,
 		legacyNames: ['Arranque', 'Básico', 'Basico', 'Inicial'],
 		features: [
 			'Hasta 2 canchas de padel',
@@ -13,13 +13,14 @@ export const OFFICIAL_PLATFORM_PLANS = [
 			'Turnero digital en tiempo real',
 			'Caja diaria (apertura y cierre)',
 			'QR Check-in',
+			'Setup incluido sin costo',
 			'Soporte por email L-V',
 		],
 	},
 	{
 		name: 'Pro',
-		price: 79000,
-		setupFee: 150000,
+		price: 99000,
+		setupFee: 0,
 		legacyNames: ['Élite', 'Elite', 'Profesional'],
 		features: [
 			'Hasta 8 canchas de padel',
@@ -36,13 +37,14 @@ export const OFFICIAL_PLATFORM_PLANS = [
 	},
 	{
 		name: 'Max',
-		price: 119000,
-		setupFee: 150000,
+		price: 149000,
+		setupFee: 0,
 		legacyNames: ['VIP', 'Empresarial', 'Enterprise'],
 		features: [
 			'Canchas ilimitadas',
 			'Usuarios ilimitados',
 			'Todo lo del plan Pro',
+			'Multi-sucursal (hasta 3 sedes)',
 			'Dominio personalizado (ej: tuclub.com)',
 			'Gestor de cuenta dedicado',
 		],

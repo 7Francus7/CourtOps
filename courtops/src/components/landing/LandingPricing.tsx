@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Check,
+  X,
   Zap,
   Shield,
   Headphones,
@@ -11,7 +12,7 @@ import {
   ArrowRight,
   Sparkles,
   ChevronRight,
-  Settings2,
+  Globe,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -24,7 +25,7 @@ const planes = [
     nombre: 'Base',
     badge: null,
     subtitulo: 'Para clubes que quieren empezar ordenados sin complejidad.',
-    precio: 45000,
+    precio: 69000,
     cta: 'Empezar con Base',
     destacado: false,
     funciones: [
@@ -35,6 +36,7 @@ const planes = [
       { texto: 'Gestión completa de clientes', nueva: true },
       { texto: 'Caja diaria con apertura y cierre', nueva: true },
       { texto: 'QR Check-in para control de acceso', nueva: true },
+      { texto: 'Setup y configuración incluidos', nueva: true },
       { texto: 'Soporte por email (Lun–Vie)', nueva: false },
     ],
   },
@@ -43,7 +45,7 @@ const planes = [
     nombre: 'Pro',
     badge: 'Más popular',
     subtitulo: 'La operación completa para vender, cobrar y automatizar.',
-    precio: 79000,
+    precio: 99000,
     cta: 'Empezar con Pro',
     destacado: true,
     funciones: [
@@ -65,7 +67,7 @@ const planes = [
     nombre: 'Max',
     badge: null,
     subtitulo: 'Para complejos premium que necesitan escala total.',
-    precio: 119000,
+    precio: 149000,
     cta: 'Empezar con Max',
     destacado: false,
     funciones: [
@@ -83,10 +85,12 @@ const planes = [
 ]
 
 const garantias = [
-  { icon: Settings2, texto: 'Configuración inicial incluida' },
-  { icon: Headphones, texto: 'Soporte personalizado' },
-  { icon: Shield, texto: 'Sin contratos largos' },
-  { icon: RefreshCw, texto: 'Actualizaciones constantes' },
+  { icon: Zap, texto: 'Sin costo de instalación' },
+  { icon: Headphones, texto: 'Soporte incluido' },
+  { icon: Shield, texto: 'Cancelá cuando quieras' },
+  { icon: RefreshCw, texto: 'Actualizaciones automáticas' },
+  { icon: Globe, texto: 'Acceso desde cualquier dispositivo' },
+  { icon: Check, texto: 'Todo incluido desde el día uno' },
 ]
 
 /* ─── Utils ──────────────────────────────────────────────────────────────────── */
@@ -121,7 +125,6 @@ function PlanCard({
         plan.destacado && 'md:-mt-4 md:z-10',
       )}
     >
-      {/* Glow behind PRO card */}
       {plan.destacado && (
         <div
           className="pointer-events-none absolute -inset-px rounded-[28px] blur-2xl opacity-30"
@@ -138,14 +141,12 @@ function PlanCard({
             : 'bg-zinc-900/60 shadow-[0_0_0_1px_rgba(255,255,255,0.06)] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.1)]',
         )}
       >
-        {/* Top emerald accent stripe on PRO */}
         {plan.destacado && (
           <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
         )}
 
         <div className={cn('flex flex-col flex-1 p-7 md:p-8', plan.destacado && 'md:py-10')}>
 
-          {/* Badge */}
           {plan.badge ? (
             <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-400/10 border border-emerald-400/25 px-3 py-1">
               <Sparkles size={11} className="text-emerald-400" />
@@ -157,7 +158,6 @@ function PlanCard({
             <div className="mb-4 h-[26px]" />
           )}
 
-          {/* Plan name + subtitle */}
           <h3 className="text-2xl font-black tracking-tight text-white">
             {plan.nombre}
           </h3>
@@ -165,8 +165,7 @@ function PlanCard({
             {plan.subtitulo}
           </p>
 
-          {/* Price block */}
-          <div className="mt-7 mb-7">
+          <div className="mt-7 mb-2">
             <AnimatePresence mode="wait">
               <motion.div
                 key={esAnual ? `${plan.id}-anual` : `${plan.id}-mensual`}
@@ -192,15 +191,13 @@ function PlanCard({
                 <span className="mb-1.5 text-sm text-zinc-500">/mes</span>
               </motion.div>
             </AnimatePresence>
-            <p className="mt-1.5 text-xs text-zinc-600">
-              + $150.000 pago único inicial · Primer mes bonificado
+            <p className="mt-2 text-[11px] font-semibold text-emerald-500/80">
+              Sin costo de instalación · Acceso inmediato
             </p>
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-white/[0.06] mb-6" />
+          <div className="h-px bg-white/[0.06] mb-6 mt-5" />
 
-          {/* Features */}
           <ul className="space-y-3 flex-grow mb-8">
             {plan.funciones.map((f, j) => (
               <li key={j} className="flex items-start gap-3">
@@ -234,7 +231,6 @@ function PlanCard({
             ))}
           </ul>
 
-          {/* CTA */}
           {plan.destacado ? (
             <motion.button
               whileHover={{ scale: 1.015 }}
@@ -273,19 +269,16 @@ export default function LandingPricing() {
       id="planes"
       className="relative overflow-hidden bg-[#09090b] py-24 md:py-36 px-5 md:px-8"
     >
-      {/* Background decoration */}
       <div
         className="pointer-events-none absolute inset-0 -z-10"
         aria-hidden
       >
-        {/* Center top radial glow */}
         <div
           className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 opacity-[0.07]"
           style={{
             background: 'radial-gradient(ellipse at 50% 0%, #34d399 0%, transparent 70%)',
           }}
         />
-        {/* Subtle dot grid */}
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -308,7 +301,7 @@ export default function LandingPricing() {
           >
             <Zap size={12} className="text-emerald-400" />
             <span className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">
-              Planes
+              Planes simples
             </span>
           </motion.div>
 
@@ -319,9 +312,9 @@ export default function LandingPricing() {
             transition={{ duration: 0.5, delay: 0.06 }}
             className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.05]"
           >
-            Tu club en modo
+            Solo una mensualidad.
             <br />
-            <span className="text-emerald-400">profesional.</span>
+            <span className="text-emerald-400">Sin costos ocultos.</span>
           </motion.h2>
 
           <motion.p
@@ -331,8 +324,8 @@ export default function LandingPricing() {
             transition={{ duration: 0.5, delay: 0.12 }}
             className="mt-5 text-base md:text-lg text-zinc-400 max-w-lg mx-auto leading-relaxed"
           >
-            Sin contratos largos ni complicaciones.
-            Empezá en minutos y escalá cuando el negocio lo pida.
+            Sin setup fee ni contratos. Empezá hoy, cancelá cuando quieras.
+            Todo incluido desde el primer día.
           </motion.p>
 
           {/* Toggle mensual / anual */}
@@ -384,23 +377,87 @@ export default function LandingPricing() {
           ))}
         </div>
 
+        {/* ── Antes vs Ahora ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mt-14 md:mt-20"
+        >
+          <div className="text-center mb-8">
+            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-zinc-600">
+              Nueva estructura de precio
+            </span>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            {/* ANTES */}
+            <div className="rounded-2xl border border-red-500/15 bg-red-500/[0.04] p-6">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/15">
+                  <X size={11} className="text-red-400" />
+                </div>
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-red-400">Antes</span>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  'Pago inicial de $150.000',
+                  'Setup fee obligatorio',
+                  'Primer mes "bonificado"',
+                  'Barrera de entrada alta',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-500 line-through decoration-red-400/40">
+                    <X size={12} className="text-red-400/50 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* AHORA */}
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/15">
+                  <Check size={11} className="text-emerald-400" />
+                </div>
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-emerald-400">Ahora</span>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  'Sin costo de instalación',
+                  'Setup incluido en todos los planes',
+                  'Acceso inmediato desde el día uno',
+                  'Solo pagás la mensualidad',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-200">
+                    <Check size={12} className="text-emerald-400 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+
         {/* ── Trust badges ── */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-14 md:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4"
+          className="mt-12 md:mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
         >
           {garantias.map(({ icon: Icon, texto }, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-3.5"
+              className="flex flex-col items-center gap-2.5 rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-4 text-center"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 border border-emerald-400/15">
                 <Icon size={14} className="text-emerald-400" />
               </div>
-              <span className="text-sm font-semibold text-zinc-300 leading-tight">
+              <span className="text-xs font-semibold text-zinc-400 leading-tight">
                 {texto}
               </span>
             </div>
@@ -415,8 +472,7 @@ export default function LandingPricing() {
           transition={{ duration: 0.4, delay: 0.3 }}
           className="mt-8 text-center text-xs text-zinc-600"
         >
-          Todos los planes incluyen pago único inicial de $150.000 con el primer mes bonificado.
-          Podés cambiar de plan en cualquier momento.
+          Suscripción mensual. Sin contratos de permanencia. Podés cambiar o cancelar cuando quieras.
         </motion.p>
       </div>
     </section>

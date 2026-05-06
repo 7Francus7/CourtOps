@@ -8,9 +8,8 @@ const planes = [
     id: 'base',
     nombre: 'Base',
     subtitulo: 'Para clubes que quieren ordenar reservas y operar prolijos desde el día uno.',
-    precio: 45000,
-    precioAnual: 36000,
-    licencia: 150000,
+    precio: 69000,
+    precioAnual: 55200,
     funciones: [
       'Hasta 2 canchas de padel',
       'Hasta 3 empleados en el sistema',
@@ -18,6 +17,7 @@ const planes = [
       'Turnero digital en tiempo real',
       'Caja diaria (apertura y cierre)',
       'QR Check-in',
+      'Setup incluido sin costo',
       'Soporte por email L-V',
     ],
     cta: 'Empezar Base',
@@ -28,9 +28,8 @@ const planes = [
     id: 'pro',
     nombre: 'Pro',
     subtitulo: 'Para clubes en crecimiento que quieren vender, cobrar y automatizar más.',
-    precio: 79000,
-    precioAnual: 63200,
-    licencia: 150000,
+    precio: 99000,
+    precioAnual: 79200,
     funciones: [
       'Hasta 8 canchas de padel',
       'Hasta 10 empleados en el sistema',
@@ -51,13 +50,13 @@ const planes = [
     id: 'max',
     nombre: 'Max',
     subtitulo: 'Para complejos que necesitan flexibilidad total y atención dedicada.',
-    precio: 119000,
-    precioAnual: 95200,
-    licencia: 150000,
+    precio: 149000,
+    precioAnual: 119200,
     funciones: [
       'Canchas ilimitadas',
       'Usuarios ilimitados',
       'Todo lo del plan Pro',
+      'Multi-sucursal (hasta 3 sedes)',
       'Dominio personalizado (ej: tuclub.com)',
       'Gestor de cuenta dedicado',
     ],
@@ -126,14 +125,14 @@ export default function PricingKinetic() {
               {plan.subtitulo}
             </p>
 
-            <div className={`text-5xl font-bold mb-10 tracking-tighter flex items-end gap-2 ${plan.destacado ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
+            <div className={`text-5xl font-bold mb-4 tracking-tighter flex items-end gap-2 ${plan.destacado ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
               <div className="relative">
                  ${fmt(esAnual ? plan.precioAnual : plan.precio)}
               </div>
               <span className={`text-xl font-normal mb-1 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>/mes</span>
             </div>
-            <p className={`text-sm -mt-6 mb-8 ${plan.destacado ? 'text-zinc-400' : 'text-zinc-500'}`}>
-              + ${fmt(plan.licencia)} pago único inicial. Primer mes bonificado.
+            <p className={`text-sm mb-8 ${plan.destacado ? 'text-green-400 dark:text-[#72ff70]' : 'text-green-600 dark:text-green-500'}`}>
+              Sin costo de instalación · Setup incluido
             </p>
 
             <ul className={`space-y-5 mb-14 flex-grow ${plan.destacado ? 'text-white' : ''}`}>
