@@ -122,6 +122,7 @@ export interface BookingMetadata {
        updatedAt: Date
        createdBy?: string
        reminderSent?: boolean
+       publicToken?: string | null
 }
 
 export interface Booking {

@@ -533,7 +533,10 @@ export async function sendManualReminder(bookingId: number) {
                             },
                             'reminder'
                      )
-                     await MessagingService.sendWhatsApp(phone, message)
+                     const result = await MessagingService.sendWhatsApp(phone, message)
+                     if (!result.success && !result.simulated) {
+                            return { success: false, error: result.error || 'No se pudo enviar el mensaje por WhatsApp' }
+                     }
 
                      // Mark as sent
                      await prisma.booking.update({

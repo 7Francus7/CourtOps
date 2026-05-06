@@ -113,7 +113,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
 			<div className="space-y-2.5">
 				<div>
 					<span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2 block">¿Quién consume?</span>
-					<div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+					<div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
 						<button
 							onClick={() => setSelectedPlayer(undefined)}
 							className={cn(
@@ -147,7 +147,7 @@ export function KioskTab({ products, items, loading, onAddItem, onRemoveItem, on
 				</div>
 
 				{categories.length > 2 && (
-					<div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+					<div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory">
 						{categories.map(cat => (
 							<button
 								key={cat}

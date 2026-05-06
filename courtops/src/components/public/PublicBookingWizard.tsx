@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { format, addDays, isSameDay } from 'date-fns'
@@ -282,6 +282,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const goToStep = (newStep: PublicStep) => {
 		setStep(newStep)
 	}
+
+	useLayoutEffect(() => {
+		window.scrollTo(0, 0)
+	}, [step])
 
 	const handleBack = () => {
 		if (step === 1) goToStep(2)
@@ -966,8 +970,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			setCreateOpenMatch(false)
 			setLayoutTab('booking')
 			goToStep(0)
-			setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
-		}
+			}
 
 		const handleBookAnother = () => {
 			setSelectedSlot(null)
@@ -981,8 +984,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			setCreateOpenMatch(false)
 			setLayoutTab('booking')
 			goToStep(0)
-			setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
-		}
+			}
 
 		return (
 			<div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
@@ -1413,7 +1415,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</span>
 									</div>
 								</div>
-								<div className="flex gap-3 overflow-x-auto py-2 no-scrollbar -mx-4 px-4 snap-x">
+								<div className="flex gap-3 overflow-x-auto py-2 no-scrollbar -mx-4 px-4 snap-x snap-mandatory">
 									{days.map(date => {
 										const isSelected = isSameDay(date, selectedDate)
 										return (

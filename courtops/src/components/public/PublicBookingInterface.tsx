@@ -201,7 +201,7 @@ export default function PublicBookingInterface({ club }: Props) {
                             <p className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-3 capitalize">
                                    {format(selectedDate, "MMMM yyyy", { locale: es })}
                             </p>
-                            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 snap-x snap-mandatory">
                                    {dates.map((date) => {
                                           const isSelected = isSameDay(date, selectedDate)
                                           const isToday = isSameDay(date, startOfToday())

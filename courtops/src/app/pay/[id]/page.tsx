@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -15,7 +15,9 @@ import { submitPublicTransfer } from '@/actions/public-booking'
 
 export default function PaymentPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const bookingId = params.id as string
+  const publicToken = searchParams.get('token')
 
   const [booking, setBooking] = useState<Record<string, unknown> | null>(null)
   const [loading, setLoading] = useState(true)
@@ -29,7 +31,8 @@ export default function PaymentPage() {
 
   const loadBooking = async () => {
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/public`)
+      const tokenParam = publicToken ? `?token=${publicToken}` : ''
+      const res = await fetch(`/api/bookings/${bookingId}/public${tokenParam}`)
       const data = await res.json()
 
       if (data.success) {
@@ -114,7 +117,7 @@ export default function PaymentPage() {
       const res = await fetch(`/api/bookings/${bookingId}/cancel-public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+        body: JSON.stringify({ token: publicToken })
       })
       const data = await res.json()
 

@@ -360,7 +360,7 @@ export function PlayersTab({ bookingId, totalAmount, baseBookingPrice, kioskItem
 			{/* Payment Modal */}
 			<AnimatePresence>
 				{showPaymentModal && (
-					<div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+					<div className="fixed inset-0 z-[95] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
 						<motion.div
 							initial={{ scale: 0.96, opacity: 0, y: 16 }}
 							animate={{ scale: 1, opacity: 1, y: 0 }}

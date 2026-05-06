@@ -198,7 +198,7 @@ export default function ClientsList({ initialClients }: ClientsListProps) {
                             </div>
 
                             {/* MOBILE FILTERS */}
-                            <div className="flex md:hidden overflow-x-auto gap-2 mb-2 no-scrollbar">
+                            <div className="flex md:hidden overflow-x-auto gap-2 mb-2 no-scrollbar snap-x snap-mandatory">
                                    <MobileFilterButton label="TODOS" active={filter === 'all'} onClick={() => setFilter('all')} />
                                    <MobileFilterButton label="DEUDORES" active={filter === 'debtors'} onClick={() => setFilter('debtors')} />
                                    <MobileFilterButton label="DEUDA +$5K" active={filter === 'high_debt'} onClick={() => setFilter('high_debt')} />

@@ -430,6 +430,7 @@ export class BookingService {
                             createdAt: true,
                             updatedAt: true,
                             reminderSent: true,
+                            publicToken: true,
                             client: { select: { id: true, name: true, phone: true, email: true } },
                             court: { select: { id: true, name: true } },
                             items: { include: { product: true } },

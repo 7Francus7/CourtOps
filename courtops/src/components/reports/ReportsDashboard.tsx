@@ -13,12 +13,12 @@ import {
   CalendarRange,
   Clock3,
   Download,
+  Inbox,
   ShieldAlert,
   Trophy,
   Users,
   UserPlus,
   Wallet,
-  XCircle,
 } from 'lucide-react'
 import {
   Area,
@@ -668,9 +668,11 @@ function StatusTile(props: {
 
 function ChartFallback({ text }: { text: string }) {
   return (
-    <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
-      <XCircle className="h-9 w-9 text-muted-foreground/50" />
-      <p className="mt-3 max-w-sm text-sm text-muted-foreground">{text}</p>
+    <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-border/40 bg-muted/20 px-6 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60">
+        <Inbox className="h-5 w-5 text-muted-foreground/60" />
+      </div>
+      <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground/70">{text}</p>
     </div>
   )
 }

@@ -387,7 +387,8 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      metadata: {
                             createdAt: new Date(booking.createdAt),
                             updatedAt: new Date(booking.updatedAt || booking.createdAt),
-                            reminderSent: booking.reminderSent
+                            reminderSent: booking.reminderSent,
+                            publicToken: booking.publicToken as string | null
                      }
               }
        }, [booking, splitPlayers])
@@ -413,7 +414,21 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                      const baseUrl = window.location.origin
                      const formattedDate = format(schedule.startTime, "EEEE d 'de' MMMM", { locale: es })
                      const formattedTime = format(schedule.startTime, "HH:mm")
-                     const text = `Hola ${firstName}! 👋 Te dejo los detalles de tu reserva:\n\n📅 *${formattedDate}*\n⏰ *${formattedTime}hs*\n📍 *${schedule.courtName}*\n💰 *Total: $${pricing.total.toLocaleString()}*\n⚠️ *Falta abonar: $${pricing.balance.toLocaleString()}*\n\n📲 *Confirmá tu turno acá:*\n${baseUrl}/pay/${adaptedBooking.id}`
+                     const token = adaptedBooking.metadata.publicToken
+                     const payUrl = token
+                            ? `${baseUrl}/pay/${adaptedBooking.id}?token=${token}`
+                            : `${baseUrl}/pay/${adaptedBooking.id}`
+                     const lines = [
+                            `Hola ${firstName}! Tu turno:`,
+                            ``,
+                            `*${formattedDate} · ${formattedTime}hs*`,
+                            `${schedule.courtName}`,
+                            ``,
+                            pricing.balance > 0
+                                   ? `Total: $${pricing.total.toLocaleString()} · Resta pagar: *$${pricing.balance.toLocaleString()}*\n\n${payUrl}`
+                                   : `Turno pagado. Nos vemos!`,
+                     ]
+                     const text = lines.join('\n')
                      const url = MessagingService.getWhatsAppUrl(phone, text)
                      window.open(url, '_blank')
               } else {
