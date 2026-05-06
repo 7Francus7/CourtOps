@@ -62,10 +62,18 @@ function PlanPrice({ plan, isYearly }: { plan: (typeof PLANS)[number]; isYearly:
   if (plan.price === 0)
     return <span className="text-4xl font-bold tracking-tight text-emerald-500">Gratis</span>
   const price = isYearly ? Math.round(plan.price * 0.8) : plan.price
+  const annualTotal = Math.round(plan.price * 0.8) * 12
   return (
-    <div className="flex items-baseline gap-1">
-      <span className="text-4xl font-bold tracking-tight">${new Intl.NumberFormat('es-AR').format(price)}</span>
-      <span className="text-sm text-zinc-400">{plan.period}</span>
+    <div>
+      <div className="flex items-baseline gap-1">
+        <span className="text-4xl font-bold tracking-tight">${new Intl.NumberFormat('es-AR').format(price)}</span>
+        <span className="text-sm text-zinc-400">{plan.period}</span>
+      </div>
+      {isYearly && (
+        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+          Facturado ${new Intl.NumberFormat('es-AR').format(annualTotal)} al año
+        </p>
+      )}
     </div>
   )
 }
