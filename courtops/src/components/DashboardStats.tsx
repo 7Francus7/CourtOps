@@ -13,9 +13,9 @@ function KpiTooltip({ text }: { text: string }) {
        return (
               <div className="relative group/tip inline-flex items-center ml-1">
                      <Info size={10} className="text-muted-foreground/25 hover:text-muted-foreground/60 cursor-help transition-colors" />
-                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-popover text-popover-foreground text-[10px] px-3 py-2 rounded-xl border border-border shadow-xl invisible group-hover/tip:visible opacity-0 group-hover/tip:opacity-100 transition-all z-50 leading-relaxed font-medium pointer-events-none">
+                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-popover text-popover-foreground text-[10px] px-3 py-2 rounded-xl border border-border shadow-xl invisible group-hover/tip:visible opacity-0 group-hover/tip:opacity-100 transition-all z-50 leading-relaxed font-medium pointer-events-none">
                             {text}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-border" />
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-border" />
                      </div>
               </div>
        )
