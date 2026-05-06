@@ -236,241 +236,259 @@ export default function PublicBookingGrowthKit({
        const bestSourceLabel = bestSource ? `${bestSource.source} / ${bestSource.medium}` : 'Sin datos'
 
        return (
-              <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-                     <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-2xl">
-                            <div className="flex items-center justify-between border-b border-border bg-card px-5 py-4">
+              <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm">
+                     <div className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-2xl">
+
+                            {/* Header */}
+                            <div className="flex shrink-0 items-center justify-between border-b border-border bg-card px-5 py-4">
                                    <div>
                                           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
                                                  Booking publico
                                           </p>
-                                          <h2 className="mt-1 text-xl font-black text-foreground">
+                                          <h2 className="mt-0.5 text-xl font-black text-foreground">
                                                  Canales y conversion
                                           </h2>
                                    </div>
                                    <button
                                           onClick={onClose}
-                                          className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors hover:text-foreground"
+                                          className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors hover:text-foreground"
                                    >
-                                          <X size={18} />
+                                          <X size={17} />
                                    </button>
                             </div>
 
-                            <div className="grid flex-1 overflow-y-auto lg:grid-cols-[1.1fr_0.9fr]">
-                                   <div className="space-y-5 border-b border-border p-5 lg:border-b-0 lg:border-r">
-                                          <div className="grid gap-2 sm:grid-cols-2">
-                                                 {CHANNELS.map(channel => {
-                                                        const Icon = channel.icon
-                                                        const isActive = channel.id === selectedChannelId
-                                                        return (
-                                                               <button
-                                                                      key={channel.id}
-                                                                      type="button"
-                                                                      onClick={() => setSelectedChannelId(channel.id)}
-                                                                      className={cn(
-                                                                             'flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors',
-                                                                             isActive
-                                                                                    ? 'border-primary/30 bg-primary/10 text-primary'
-                                                                                    : 'border-border bg-card text-foreground hover:border-primary/20'
-                                                                      )}
-                                                               >
-                                                                      <Icon size={18} className="mt-0.5 shrink-0" />
-                                                                      <span>
-                                                                             <span className="block text-sm font-black">{channel.label}</span>
-                                                                             <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                                                                                    {channel.helper}
-                                                                             </span>
-                                                                      </span>
-                                                               </button>
-                                                        )
-                                                 })}
-                                          </div>
+                            {/* Body — two-column on lg, single-column below */}
+                            <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
 
-                                          <div className="rounded-2xl border border-border bg-card p-4">
-                                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                                        <div className="min-w-0">
-                                                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                                                                      Link trackeado
-                                                               </p>
-                                                               <p className="mt-2 break-all rounded-xl bg-muted px-3 py-2 text-xs font-bold text-foreground">
+                                   {/* Left column */}
+                                   <div className="flex-1 min-w-0 overflow-y-auto border-b border-border lg:border-b-0 lg:border-r">
+                                          <div className="space-y-4 p-5">
+
+                                                 {/* Channel selector */}
+                                                 <div className="grid gap-2 sm:grid-cols-2">
+                                                        {CHANNELS.map(channel => {
+                                                               const Icon = channel.icon
+                                                               const isActive = channel.id === selectedChannelId
+                                                               return (
+                                                                      <button
+                                                                             key={channel.id}
+                                                                             type="button"
+                                                                             onClick={() => setSelectedChannelId(channel.id)}
+                                                                             className={cn(
+                                                                                    'flex items-start gap-3 rounded-2xl border p-3.5 text-left transition-colors',
+                                                                                    isActive
+                                                                                           ? 'border-primary/30 bg-primary/10 text-primary'
+                                                                                           : 'border-border bg-card text-foreground hover:border-primary/20'
+                                                                             )}
+                                                                      >
+                                                                             <Icon size={16} className="mt-0.5 shrink-0" />
+                                                                             <span className="min-w-0">
+                                                                                    <span className="block text-sm font-black">{channel.label}</span>
+                                                                                    <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                                                                                           {channel.helper}
+                                                                                    </span>
+                                                                             </span>
+                                                                      </button>
+                                                               )
+                                                        })}
+                                                 </div>
+
+                                                 {/* Tracked link */}
+                                                 <div className="rounded-2xl border border-border bg-card p-4">
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
+                                                               Link trackeado
+                                                        </p>
+                                                        <div className="flex items-start gap-2">
+                                                               <p className="min-w-0 flex-1 break-all rounded-xl bg-muted px-3 py-2 text-xs font-mono font-bold text-foreground">
                                                                       {selectedUrl || 'Generando link...'}
                                                                </p>
-                                                        </div>
-                                                        <div className="flex shrink-0 gap-2">
-                                                               <button
-                                                                      onClick={() => copyText(selectedUrl, 'Link')}
-                                                                      disabled={!selectedUrl}
-                                                                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:text-primary disabled:opacity-40"
-                                                                      title="Copiar link"
-                                                               >
-                                                                      <Copy size={16} />
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => selectedUrl && window.open(selectedUrl, '_blank', 'noopener,noreferrer')}
-                                                                      disabled={!selectedUrl}
-                                                                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:text-primary disabled:opacity-40"
-                                                                      title="Abrir link"
-                                                               >
-                                                                      <ExternalLink size={16} />
-                                                               </button>
+                                                               <div className="flex shrink-0 gap-1.5">
+                                                                      <button
+                                                                             onClick={() => copyText(selectedUrl, 'Link')}
+                                                                             disabled={!selectedUrl}
+                                                                             className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:text-primary disabled:opacity-40"
+                                                                             title="Copiar link"
+                                                                      >
+                                                                             <Copy size={15} />
+                                                                      </button>
+                                                                      <button
+                                                                             onClick={() => selectedUrl && window.open(selectedUrl, '_blank', 'noopener,noreferrer')}
+                                                                             disabled={!selectedUrl}
+                                                                             className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-colors hover:text-primary disabled:opacity-40"
+                                                                             title="Abrir link"
+                                                                      >
+                                                                             <ExternalLink size={15} />
+                                                                      </button>
+                                                               </div>
                                                         </div>
                                                  </div>
-                                          </div>
 
-                                          <div className="grid gap-4 sm:grid-cols-[190px_1fr]">
-                                                 <div className="rounded-2xl border border-border bg-white p-4">
-                                                        {selectedUrl && (
-                                                               <QRCodeCanvas
-                                                                      id="public-booking-growth-qr"
-                                                                      value={selectedUrl}
-                                                                      size={158}
-                                                                      level="H"
-                                                                      includeMargin
-                                                               />
-                                                        )}
-                                                 </div>
-                                                 <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-                                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                                                               Acciones rapidas
-                                                        </p>
-                                                       <div className="flex flex-wrap gap-2">
-                                                               <button
-                                                                      onClick={shareSelectedLink}
-                                                                      disabled={!selectedUrl}
-                                                                      className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 dark:bg-white dark:text-slate-950"
-                                                               >
-                                                                      <Share2 size={14} />
-                                                                      Compartir
-                                                               </button>
-                                                               <a
-                                                                      href={whatsappShareUrl || undefined}
-                                                                      target="_blank"
-                                                                      rel="noopener noreferrer"
-                                                                      aria-disabled={!selectedUrl}
-                                                                      className={cn(
-                                                                             'inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition-opacity',
-                                                                             !selectedUrl && 'pointer-events-none opacity-40'
-                                                                      )}
-                                                               >
-                                                                      <MessageCircle size={14} />
-                                                                      WhatsApp
-                                                               </a>
-                                                               <button
-                                                                      onClick={downloadQr}
-                                                                      disabled={!selectedUrl}
-                                                                      className="inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-black uppercase tracking-widest text-primary-foreground transition-opacity disabled:opacity-40"
-                                                               >
-                                                                      <Download size={14} />
-                                                                      Descargar QR
-                                                               </button>
-                                                               <button
-                                                                      onClick={() => copyText(selectedShareText, 'Texto')}
-                                                                      disabled={!selectedShareText}
-                                                                      className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs font-black uppercase tracking-widest text-foreground transition-colors hover:text-primary disabled:opacity-40"
-                                                               >
-                                                                      <Link2 size={14} />
-                                                                      Texto para publicar
-                                                               </button>
+                                                 {/* QR + actions */}
+                                                 <div className="flex gap-4">
+                                                        {/* QR */}
+                                                        <div className="shrink-0 rounded-2xl border border-border bg-white p-3">
+                                                               {selectedUrl ? (
+                                                                      <QRCodeCanvas
+                                                                             id="public-booking-growth-qr"
+                                                                             value={selectedUrl}
+                                                                             size={130}
+                                                                             level="H"
+                                                                             includeMargin
+                                                                      />
+                                                               ) : (
+                                                                      <div className="h-[130px] w-[130px] animate-pulse rounded-xl bg-muted" />
+                                                               )}
                                                         </div>
-                                                        <p className="text-xs font-semibold leading-relaxed text-foreground">
-                                                               {selectedShareText || 'Generando texto para publicar...'}
-                                                        </p>
-                                                        <p className="text-xs leading-relaxed text-muted-foreground">
-                                                               Siguiente paso: {selectedChannel.helper}
-                                                        </p>
-                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                                               Link directo: {plainPublicUrl || 'generando...'}
-                                                        </p>
-                                                        <p className="sr-only">
-                                                               {shareText}
-                                                        </p>
+
+                                                        {/* Actions */}
+                                                        <div className="min-w-0 flex-1 space-y-3 rounded-2xl border border-border bg-card p-4">
+                                                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                                                      Acciones rapidas
+                                                               </p>
+                                                               <div className="flex flex-wrap gap-2">
+                                                                      <button
+                                                                             onClick={shareSelectedLink}
+                                                                             disabled={!selectedUrl}
+                                                                             className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition-opacity disabled:opacity-40 dark:bg-white dark:text-slate-950"
+                                                                      >
+                                                                             <Share2 size={13} />
+                                                                             Compartir
+                                                                      </button>
+                                                                      <a
+                                                                             href={whatsappShareUrl || undefined}
+                                                                             target="_blank"
+                                                                             rel="noopener noreferrer"
+                                                                             aria-disabled={!selectedUrl}
+                                                                             className={cn(
+                                                                                    'inline-flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition-opacity',
+                                                                                    !selectedUrl && 'pointer-events-none opacity-40'
+                                                                             )}
+                                                                      >
+                                                                             <MessageCircle size={13} />
+                                                                             WhatsApp
+                                                                      </a>
+                                                                      <button
+                                                                             onClick={downloadQr}
+                                                                             disabled={!selectedUrl}
+                                                                             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-black uppercase tracking-widest text-primary-foreground transition-opacity disabled:opacity-40"
+                                                                      >
+                                                                             <Download size={13} />
+                                                                             Descargar QR
+                                                                      </button>
+                                                                      <button
+                                                                             onClick={() => copyText(selectedShareText, 'Texto')}
+                                                                             disabled={!selectedShareText}
+                                                                             className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-xs font-black uppercase tracking-widest text-foreground transition-colors hover:text-primary disabled:opacity-40"
+                                                                      >
+                                                                             <Link2 size={13} />
+                                                                             Texto para publicar
+                                                                      </button>
+                                                               </div>
+                                                               <p className="text-xs font-semibold leading-relaxed text-foreground line-clamp-3">
+                                                                      {selectedShareText || 'Generando texto...'}
+                                                               </p>
+                                                               <p className="text-xs leading-relaxed text-muted-foreground">
+                                                                      {selectedChannel.helper}
+                                                               </p>
+                                                               <p className="truncate text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                                                      {plainPublicUrl || 'generando...'}
+                                                               </p>
+                                                               <p className="sr-only">{shareText}</p>
+                                                        </div>
                                                  </div>
                                           </div>
                                    </div>
 
-                                   <div className="space-y-5 p-5">
-                                          <div className="flex items-center justify-between">
-                                                 <div>
-                                                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
-                                                               Ultimos 14 dias
-                                                        </p>
-                                                        <h3 className="mt-1 text-lg font-black text-foreground">Embudo publico</h3>
+                                   {/* Right column — Embudo */}
+                                   <div className="w-full lg:w-72 xl:w-80 shrink-0 overflow-y-auto">
+                                          <div className="space-y-4 p-5">
+                                                 <div className="flex items-center justify-between">
+                                                        <div>
+                                                               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
+                                                                      Ultimos 14 dias
+                                                               </p>
+                                                               <h3 className="mt-0.5 text-base font-black text-foreground">Embudo publico</h3>
+                                                        </div>
+                                                        {isLoading && <Loader2 size={16} className="animate-spin text-muted-foreground" />}
                                                  </div>
-                                                 {isLoading && <Loader2 size={18} className="animate-spin text-muted-foreground" />}
-                                          </div>
 
-                                          <div className="relative overflow-hidden rounded-[2rem] border border-emerald-500/20 bg-emerald-500/10 p-4">
-                                                 <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-400/25 blur-3xl" />
-                                                 <div className="relative z-10">
-                                                        <div className="flex items-center gap-2">
-                                                               <Banknote size={16} className="text-emerald-500" />
-                                                               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-500">
-                                                                      Valor generado
+                                                 {/* Revenue card */}
+                                                 <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                                                        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-400/20 blur-3xl" />
+                                                        <div className="relative z-10">
+                                                               <div className="flex items-center gap-1.5">
+                                                                      <Banknote size={14} className="text-emerald-500" />
+                                                                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-500">
+                                                                             Valor generado
+                                                                      </p>
+                                                               </div>
+                                                               <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
+                                                                      {currencyFormatter.format(generatedRevenue)}
+                                                               </p>
+                                                               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                                                                      {generatedRevenue > 0
+                                                                             ? `${publicBookingsCount} reservas · ${funnel?.waitlist_created || 0} en espera`
+                                                                             : 'Activá los canales para medir ventas reales.'}
+                                                               </p>
+                                                               <div className="mt-3 grid grid-cols-2 gap-2">
+                                                                      <ValuePill
+                                                                             icon={TrendingUp}
+                                                                             label="Demanda"
+                                                                             value={`${recoveredDemand} leads`}
+                                                                      />
+                                                                      <ValuePill
+                                                                             icon={BarChart3}
+                                                                             label="Mejor canal"
+                                                                             value={bestSourceLabel}
+                                                                      />
+                                                               </div>
+                                                        </div>
+                                                 </div>
+
+                                                 {/* Metrics grid */}
+                                                 <div className="grid grid-cols-2 gap-2">
+                                                        <Metric label="Vistas" value={funnel?.page_view || 0} />
+                                                        <Metric label="Turnos elegidos" value={funnel?.slot_selected || 0} />
+                                                        <Metric label="Reservas" value={funnel?.booking_created || 0} accent="text-emerald-500" />
+                                                        <Metric label="Conversión" value={`${summary?.conversionRate || 0}%`} accent="text-primary" />
+                                                 </div>
+
+                                                 {/* Sources */}
+                                                 <div className="rounded-2xl border border-border bg-card p-4">
+                                                        <div className="mb-3 flex items-center gap-2">
+                                                               <BarChart3 size={14} className="text-primary" />
+                                                               <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                                                      Fuentes
                                                                </p>
                                                         </div>
-                                                        <p className="mt-2 text-3xl font-black tracking-tight text-foreground">
-                                                               {currencyFormatter.format(generatedRevenue)}
-                                                        </p>
-                                                        <p className="mt-1 text-xs font-semibold leading-relaxed text-muted-foreground">
-                                                               {generatedRevenue > 0
-                                                                      ? `${publicBookingsCount} reservas publicas y ${funnel?.waitlist_created || 0} jugadores en espera.`
-                                                                      : 'Activa Google, Instagram, WhatsApp y QR para empezar a medir ventas reales.'}
-                                                        </p>
-                                                        <div className="mt-4 grid grid-cols-2 gap-2">
-                                                               <ValuePill
-                                                                      icon={TrendingUp}
-                                                                      label="Demanda"
-                                                                      value={`${recoveredDemand} leads`}
-                                                               />
-                                                               <ValuePill
-                                                                      icon={BarChart3}
-                                                                      label="Mejor canal"
-                                                                      value={bestSourceLabel}
-                                                               />
-                                                        </div>
-                                                 </div>
-                                          </div>
-
-                                          <div className="grid grid-cols-2 gap-2">
-                                                 <Metric label="Vistas" value={funnel?.page_view || 0} />
-                                                 <Metric label="Turnos elegidos" value={funnel?.slot_selected || 0} />
-                                                 <Metric label="Reservas" value={funnel?.booking_created || 0} accent="text-emerald-500" />
-                                                 <Metric label="Conversion" value={`${summary?.conversionRate || 0}%`} accent="text-primary" />
-                                          </div>
-
-                                          <div className="rounded-2xl border border-border bg-card p-4">
-                                                 <div className="mb-3 flex items-center gap-2">
-                                                        <BarChart3 size={16} className="text-primary" />
-                                                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                                                               Fuentes
-                                                        </p>
-                                                 </div>
-                                                 {sourceRows.length === 0 ? (
-                                                        <p className="py-6 text-center text-sm text-muted-foreground">
-                                                               Todavia no hay datos de canales.
-                                                        </p>
-                                                 ) : (
-                                                        <div className="space-y-2">
-                                                               {sourceRows.map(source => (
-                                                                      <div key={`${source.source}-${source.medium}`} className="rounded-xl border border-border bg-background p-3">
-                                                                             <div className="flex items-center justify-between gap-3">
-                                                                                    <div className="min-w-0">
-                                                                                           <p className="truncate text-sm font-black text-foreground">
-                                                                                                  {source.source} / {source.medium}
-                                                                                           </p>
-                                                                                           <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                                                                                                  {source.campaign}
-                                                                                           </p>
-                                                                                    </div>
-                                                                                    <div className="text-right text-xs font-bold text-muted-foreground">
-                                                                                           <span className="text-foreground">{source.bookings}</span> reservas
-                                                                                           <br />
-                                                                                           <span className="text-foreground">{source.waitlist}</span> espera
+                                                        {sourceRows.length === 0 ? (
+                                                               <p className="py-4 text-center text-sm text-muted-foreground">
+                                                                      Sin datos de canales.
+                                                               </p>
+                                                        ) : (
+                                                               <div className="space-y-2">
+                                                                      {sourceRows.map(source => (
+                                                                             <div key={`${source.source}-${source.medium}`} className="rounded-xl border border-border bg-background p-3">
+                                                                                    <div className="flex items-center justify-between gap-2">
+                                                                                           <div className="min-w-0">
+                                                                                                  <p className="truncate text-sm font-black text-foreground">
+                                                                                                         {source.source} / {source.medium}
+                                                                                                  </p>
+                                                                                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                                                                                                         {source.campaign}
+                                                                                                  </p>
+                                                                                           </div>
+                                                                                           <div className="shrink-0 text-right text-xs font-bold text-muted-foreground">
+                                                                                                  <span className="text-foreground">{source.bookings}</span> res
+                                                                                                  <br />
+                                                                                                  <span className="text-foreground">{source.waitlist}</span> esp
+                                                                                           </div>
                                                                                     </div>
                                                                              </div>
-                                                                      </div>
-                                                               ))}
-                                                        </div>
-                                                 )}
+                                                                      ))}
+                                                               </div>
+                                                        )}
+                                                 </div>
                                           </div>
                                    </div>
                             </div>
