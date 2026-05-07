@@ -124,6 +124,17 @@ export async function registerClub(formData: FormData) {
 					priority: 0
 				}
 			})
+
+			await tx.court.create({
+				data: {
+					clubId: club.id,
+					name: 'Cancha 1',
+					sport: 'PADEL',
+					sortOrder: 0,
+					duration: 90,
+					isActive: true,
+				}
+			})
 		})
 
 		import('@/lib/email').then(({ sendWelcomeEmail }) => {

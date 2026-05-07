@@ -81,7 +81,8 @@ export default function LoginPage() {
 			setError('Credenciales inválidas. Revisá tus datos e intentá de nuevo.')
 			setIsLoading(false)
 		} else {
-			router.push('/dashboard')
+			const isNewAccount = !!searchParams.get('registered')
+			router.push(isNewAccount ? '/dashboard?welcome=1' : '/dashboard')
 			router.refresh()
 		}
 	}

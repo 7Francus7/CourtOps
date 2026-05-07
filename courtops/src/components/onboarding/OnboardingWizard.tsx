@@ -152,17 +152,15 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 	const handleGoToDashboard = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
-		router.push('/dashboard')
+		router.push('/dashboard?welcome=1')
 		router.refresh()
-		setTimeout(() => resetAndStartTour('general'), 1000)
-	}, [router, resetAndStartTour])
+	}, [router])
 
 	const handleOpenChannels = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
-		router.push('/dashboard?modal=growth')
+		router.push('/dashboard?welcome=1&modal=growth')
 		router.refresh()
-		setTimeout(() => resetAndStartTour('general'), 1000)
-	}, [router, resetAndStartTour])
+	}, [router])
 
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
 
