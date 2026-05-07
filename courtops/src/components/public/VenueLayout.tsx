@@ -333,20 +333,88 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                   </a>
                 )}
 
-                <div className="flex gap-3 pt-2">
-                  {club.socialInstagram && (
-                    <a href={`https://instagram.com/${club.socialInstagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 p-4 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-2xl shadow-sm hover:border-primary/40 transition-colors">
-                      <Instagram size={20} className="text-[#E4405F]" />
-                      <span className="text-xs font-bold">Instagram</span>
-                    </a>
-                  )}
-                  {club.socialFacebook && (
-                    <a href={`https://facebook.com/${club.socialFacebook}`} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 p-4 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-2xl shadow-sm hover:border-blue-500/30 transition-colors">
-                      <Facebook size={20} className="text-blue-500" />
-                      <span className="text-xs font-bold">Facebook</span>
-                    </a>
-                  )}
-                </div>
+                {/* Instagram immersive card */}
+                {club.socialInstagram && (
+                  <a
+                    href={`https://instagram.com/${club.socialInstagram.replace('@', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block group relative rounded-[1.75rem] overflow-hidden p-[1.5px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] shadow-lg hover:shadow-[0_8px_32px_rgba(253,29,29,0.3)] transition-shadow"
+                  >
+                    <div className="rounded-[calc(1.75rem-1.5px)] overflow-hidden bg-zinc-950">
+                      {/* Header strip */}
+                      <div className="flex items-center gap-3 px-4 py-3 bg-zinc-950/90 backdrop-blur-sm">
+                        <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] shrink-0">
+                          <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 flex items-center justify-center">
+                            {club.logoUrl ? (
+                              <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-white font-black text-sm">{club.name[0]}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-black text-sm leading-none">@{club.socialInstagram.replace('@', '')}</p>
+                          <p className="text-white/40 text-[10px] font-bold mt-0.5 truncate">{club.name}</p>
+                        </div>
+                        <div className="shrink-0 bg-gradient-to-r from-[#833AB4] to-[#F77737] rounded-full px-3 py-1.5 text-[10px] font-black text-white tracking-wide group-hover:opacity-90 transition-opacity">
+                          Seguir
+                        </div>
+                      </div>
+
+                      {/* Feed grid */}
+                      <div className="grid grid-cols-3 gap-[1px] bg-zinc-800">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i} className="aspect-square relative overflow-hidden bg-zinc-900">
+                            {club.coverUrl ? (
+                              <img
+                                src={club.coverUrl}
+                                alt=""
+                                className="w-full h-full object-cover"
+                                style={{
+                                  filter: i % 3 === 0
+                                    ? 'saturate(1.4) hue-rotate(0deg)'
+                                    : i % 3 === 1
+                                    ? 'saturate(1.1) hue-rotate(15deg) brightness(0.85)'
+                                    : 'saturate(1.6) hue-rotate(-15deg) brightness(0.9)',
+                                  transform: `scale(${1.1 + i * 0.05})`,
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="absolute inset-0"
+                                style={{
+                                  background: i % 2 === 0
+                                    ? 'linear-gradient(135deg,#833AB4,#FD1D1D)'
+                                    : 'linear-gradient(135deg,#FD1D1D,#F77737)',
+                                  opacity: 0.35,
+                                }}
+                              />
+                            )}
+                            <div className="absolute inset-0 bg-black/20" />
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Footer CTA */}
+                      <div className="flex items-center justify-between px-4 py-3 bg-zinc-950/90">
+                        <div className="flex items-center gap-2">
+                          <Instagram size={13} className="text-[#E4405F]" />
+                          <p className="text-white/60 text-[10px] font-bold">Ver nuestro perfil en Instagram</p>
+                        </div>
+                        <ChevronRight size={13} className="text-white/30 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </a>
+                )}
+
+                {/* Facebook */}
+                {club.socialFacebook && (
+                  <a href={`https://facebook.com/${club.socialFacebook}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-3 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-2xl shadow-sm hover:border-blue-500/30 transition-colors">
+                    <Facebook size={18} className="text-blue-500" />
+                    <span className="text-xs font-bold">Facebook</span>
+                  </a>
+                )}
               </div>
             </div>
 

@@ -731,13 +731,22 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                          </p>
                                                   </InputGroup>
 
-                                                  <div className="bg-muted/30 p-6 rounded-[2rem] border border-border/50 space-y-6">
-                                                         <h4 className="text-xs font-black text-foreground uppercase tracking-[0.2em] mb-4">Redes Sociales</h4>
-                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                  <div className="rounded-[2rem] border border-border/50 overflow-hidden">
+                                                         {/* Instagram section header */}
+                                                         <div className="p-[1.5px] bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737]">
+                                                                <div className="bg-card px-5 py-4 flex items-center gap-3">
+                                                                       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] flex items-center justify-center shrink-0">
+                                                                              <Smartphone size={14} className="text-white" />
+                                                                       </div>
+                                                                       <div>
+                                                                              <p className="text-xs font-black text-foreground uppercase tracking-widest">Instagram</p>
+                                                                              <p className="text-[10px] text-muted-foreground font-medium">Tu handle aparecerá en tu página pública como card interactiva</p>
+                                                                       </div>
+                                                                </div>
+                                                         </div>
+
+                                                         <div className="p-5 space-y-4 bg-muted/20">
                                                                 <div className="space-y-2">
-                                                                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1">
-                                                                              <Smartphone size={12} className="text-pink-500" /> Instagram User
-                                                                       </label>
                                                                        <input
                                                                               className="input-theme w-full"
                                                                               value={generalForm.socialInstagram || ''}
@@ -745,17 +754,42 @@ export default function SettingsDashboard({ club, auditLogs = [], initialEmploye
                                                                               placeholder="@club.padel"
                                                                        />
                                                                 </div>
-                                                                <div className="space-y-2">
-                                                                       <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1">
-                                                                              <Smartphone size={12} className="text-blue-500" /> Facebook Page
-                                                                       </label>
-                                                                       <input
-                                                                              className="input-theme w-full"
-                                                                              value={generalForm.socialFacebook || ''}
-                                                                              onChange={e => setGeneralForm({ ...generalForm, socialFacebook: e.target.value })}
-                                                                              placeholder="clubpadelOficial"
-                                                                       />
-                                                                </div>
+
+                                                                {/* Live preview */}
+                                                                {generalForm.socialInstagram && (
+                                                                       <div className="rounded-2xl overflow-hidden p-[1px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737]">
+                                                                              <div className="bg-zinc-950 rounded-[calc(1rem-1px)] px-3 py-2.5 flex items-center gap-3">
+                                                                                     <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] shrink-0">
+                                                                                            <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden">
+                                                                                                   {generalForm.logoUrl ? (
+                                                                                                          // eslint-disable-next-line @next/next/no-img-element
+                                                                                                          <img src={generalForm.logoUrl} alt="" className="w-full h-full object-cover" />
+                                                                                                   ) : (
+                                                                                                          <span className="text-white font-black text-xs">{generalForm.name?.[0] || 'C'}</span>
+                                                                                                   )}
+                                                                                            </div>
+                                                                                     </div>
+                                                                                     <div className="flex-1 min-w-0">
+                                                                                            <p className="text-white font-black text-xs leading-none">@{generalForm.socialInstagram.replace('@', '')}</p>
+                                                                                            <p className="text-white/40 text-[10px] mt-0.5 truncate">{generalForm.name}</p>
+                                                                                     </div>
+                                                                                     <div className="text-[9px] font-black text-white/40 uppercase tracking-wider">Preview</div>
+                                                                              </div>
+                                                                       </div>
+                                                                )}
+                                                         </div>
+
+                                                         {/* Facebook row */}
+                                                         <div className="px-5 pb-5 pt-1 border-t border-border/40 space-y-2 bg-muted/20">
+                                                                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 px-1 pt-4">
+                                                                       <Smartphone size={12} className="text-blue-500" /> Facebook Page
+                                                                </label>
+                                                                <input
+                                                                       className="input-theme w-full"
+                                                                       value={generalForm.socialFacebook || ''}
+                                                                       onChange={e => setGeneralForm({ ...generalForm, socialFacebook: e.target.value })}
+                                                                       placeholder="clubpadelOficial"
+                                                                />
                                                          </div>
                                                   </div>
                                            </div>
