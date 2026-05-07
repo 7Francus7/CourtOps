@@ -724,6 +724,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		const hasCvu = Boolean(club.mpCvu)
 		const hasTransfer = hasAlias || hasCvu
 		const whatsappNum = getWhatsappNumber(club.phone)
+		const depositRequired = (club.bookingDeposit ?? 0) > 0
+		const transferCompletionLabel = whatsappNum
+			? 'Ya pague y envie el comprobante'
+			: 'Ya pague, ver mi reserva'
+		const paymentHelper = hasTransfer
+			? 'Paga primero. Si transferis, envia el comprobante y segui para revisar el estado de la reserva.'
+			: 'Paga ahora y te llevamos directo al estado final de la reserva.'
 
 		return (
 			<div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
@@ -754,10 +761,17 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							<div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 mb-2">
 								<CreditCard size={22} className="text-primary" />
 							</div>
+							<p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Ultimo paso</p>
 							<h2 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
+								{depositRequired ? `Paga la sena de ${formatArs(club.bookingDeposit!)}` : 'Cerra tu reserva'}
+							</h2>
+							<p className="mx-auto max-w-[22rem] text-sm font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
+								{paymentHelper}
+							</p>
+							<h2 className="hidden text-2xl font-black tracking-tight text-slate-800 dark:text-white">
 								{(club.bookingDeposit ?? 0) > 0 ? `Pagá la seña de ${formatArs(club.bookingDeposit!)}` : 'Pagá la seña'}
 							</h2>
-							<p className="text-sm font-semibold text-slate-500 dark:text-zinc-400">
+							<p className="hidden text-sm font-semibold text-slate-500 dark:text-zinc-400">
 								{(club.bookingDeposit ?? 0) > 0
 									? 'El pago de la seña es obligatorio para confirmar tu turno'
 									: 'Confirmá tu turno enviando el pago ahora'}
@@ -776,11 +790,171 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								<p className="text-[11px] font-semibold text-slate-400 dark:text-zinc-500 capitalize">
 									{format(selectedDate, 'EEEE d/M', { locale: es })} · {selectedSlot.time}hs
 								</p>
+								{depositRequired && (
+									<p className="mt-1 text-[11px] font-black text-primary">
+										Sena para reservar: {formatArs(club.bookingDeposit!)}
+									</p>
+								)}
 							</div>
 							<span className="text-base font-black text-primary tabular-nums shrink-0">
 								{formatArs(selectedSlot.price)}
 							</span>
 						</div>
+
+						<div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+							<div className="flex items-start gap-3">
+								<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-sm font-black text-primary">
+									1
+								</div>
+								<div className="min-w-0">
+									<p className="text-sm font-black text-slate-800 dark:text-white">Paga la sena</p>
+									<p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
+										{canUseOnlinePayments && hasTransfer
+											? 'Elegi MercadoPago o transferencia.'
+											: canUseOnlinePayments
+												? 'Con MercadoPago volves directo al estado final.'
+												: 'Usa estos datos para transferir.'}
+									</p>
+								</div>
+							</div>
+
+							<div className="mt-4 space-y-3">
+								{canUseOnlinePayments && (
+									<button
+										onClick={handlePayment}
+										disabled={isPaying}
+										className="w-full h-14 bg-[#009EE3] hover:bg-[#0088c9] text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-sky-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+									>
+										{isPaying ? (
+											<Loader2 className="animate-spin" size={16} />
+										) : (
+											<>
+												<CreditCard size={16} />
+												Pagar con MercadoPago
+											</>
+										)}
+									</button>
+								)}
+
+								{canUseOnlinePayments && hasTransfer && (
+									<div className="flex items-center gap-3">
+										<div className="flex-1 h-px bg-slate-200 dark:bg-zinc-800" />
+										<span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600">
+											o transferi
+										</span>
+										<div className="flex-1 h-px bg-slate-200 dark:bg-zinc-800" />
+									</div>
+								)}
+
+								{hasTransfer && (
+									<div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-zinc-800 dark:bg-zinc-800/50">
+										<p className="text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 dark:text-zinc-500">
+											Datos para transferir
+										</p>
+										{hasAlias && (
+											<button
+												type="button"
+												onClick={() => copyPaymentValue('alias', club.mpAlias!)}
+												className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-white dark:bg-zinc-900/70 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
+											>
+												<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+													Alias
+												</span>
+												<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
+													{club.mpAlias}
+												</span>
+												<span className={`text-[9px] font-black uppercase tracking-widest shrink-0 ${copiedPaymentField === 'alias' ? 'text-green-500' : 'text-primary'}`}>
+													{copiedPaymentField === 'alias' ? 'Copiado OK' : 'Copiar'}
+												</span>
+											</button>
+										)}
+										{hasCvu && (
+											<button
+												type="button"
+												onClick={() => copyPaymentValue('cvu', club.mpCvu!)}
+												className="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-zinc-700/60 bg-white dark:bg-zinc-900/70 px-3 py-2.5 text-left cursor-pointer hover:border-primary/30 transition-colors"
+											>
+												<span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+													CVU
+												</span>
+												<span className="text-sm font-black text-slate-800 dark:text-white truncate flex-1 text-center">
+													{club.mpCvu}
+												</span>
+												<span className={`text-[9px] font-black uppercase tracking-widest shrink-0 ${copiedPaymentField === 'cvu' ? 'text-green-500' : 'text-primary'}`}>
+													{copiedPaymentField === 'cvu' ? 'Copiado OK' : 'Copiar'}
+												</span>
+											</button>
+										)}
+									</div>
+								)}
+
+								{paymentError && (
+									<p className="text-[11px] font-bold text-red-400 text-center flex items-center justify-center gap-1.5">
+										<AlertTriangle size={12} /> {paymentError}
+									</p>
+								)}
+							</div>
+						</div>
+
+						{(whatsappNum || hasTransfer) && (
+							<div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+								<div className="flex items-start gap-3">
+									<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-sm font-black text-primary">
+										2
+									</div>
+									<div className="min-w-0">
+										<p className="text-sm font-black text-slate-800 dark:text-white">Envia el comprobante</p>
+										<p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
+											{whatsappNum
+												? 'Abrilo en WhatsApp y mandalo para acelerar la validacion.'
+												: 'Cuando termines de pagar, segui para revisar el estado de la reserva.'}
+										</p>
+									</div>
+								</div>
+
+								<div className="mt-4">
+									{whatsappNum ? (
+										<a
+											href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(
+												`Hola! Reserve para el ${format(selectedDate, 'EEEE d/M', { locale: es })} a las ${selectedSlot.time}hs en ${selectedSlot.courtName}. Reserva #${createdBookingId}. Te envio el comprobante de pago.`
+											)}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="w-full h-12 bg-[#25D366] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#25D366]/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+										>
+											<MessageCircle size={15} />
+											Enviar comprobante por WhatsApp
+										</a>
+									) : (
+										<div className="rounded-2xl border border-dashed border-slate-200 px-3 py-3 text-[11px] font-semibold leading-relaxed text-slate-500 dark:border-zinc-700 dark:text-zinc-400">
+											El club va a validar la sena manualmente. Cuando quieras, segui para ver el estado actual de tu reserva.
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+
+						{(hasTransfer || !depositRequired) && (
+							<StickyActionBar tone="subtle">
+								<div className="space-y-2">
+									<button
+										type="button"
+										onClick={() => goToStep(3)}
+										className="w-full h-12 rounded-2xl bg-zinc-950 text-[11px] font-black uppercase tracking-[0.14em] text-white transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+									>
+										{hasTransfer ? transferCompletionLabel : 'Continuar sin pagar ahora'}
+									</button>
+									<p className="flex items-center justify-center gap-1.5 text-center text-[10px] font-semibold text-slate-500 dark:text-zinc-400">
+										<Lock size={11} className="shrink-0 text-amber-500 dark:text-amber-400" />
+										{depositRequired
+											? 'El club confirma el turno cuando valida la sena.'
+											: 'Podes seguir ahora y resolver el pago con el club despues.'}
+									</p>
+								</div>
+							</StickyActionBar>
+						)}
+
+						<div className="hidden">
 
 						{/* MercadoPago button */}
 						{canUseOnlinePayments && (
@@ -900,6 +1074,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								</p>
 							</div>
 						)}
+						</div>
 					</motion.div>
 				</main>
 			</div>

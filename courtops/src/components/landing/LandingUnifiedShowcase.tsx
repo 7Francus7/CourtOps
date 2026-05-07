@@ -68,7 +68,7 @@ function MockMetrics() {
 					<h4 className="font-bold text-[10px] uppercase tracking-widest text-slate-400">Rentabilidad Semanal</h4>
 					<div className="flex items-center gap-1.5">
 						<div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-						<span className="text-[8px] font-bold text-emerald-500/50 uppercase">Live</span>
+						<span className="text-[8px] font-bold text-emerald-500/50 uppercase">Al día</span>
 					</div>
 				</div>
 				<div className="h-24 md:h-32 flex items-end justify-between gap-1 md:gap-2 px-1">
@@ -93,8 +93,8 @@ function MockTVMode() {
 		<div className="h-full w-full bg-slate-950 p-6 md:p-10 flex flex-col gap-6 md:gap-10 relative overflow-hidden">
 			<div className="flex justify-between items-center pb-6 border-b border-white/5">
 				<div className="space-y-1">
-					<div className="text-emerald-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em]">Live Feed</div>
-					<div className="text-xl md:text-3xl font-bold text-white uppercase tracking-tight">CENTRAL ARENA</div>
+					<div className="text-emerald-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em]">Pantalla del club</div>
+					<div className="text-xl md:text-3xl font-bold text-white uppercase tracking-tight">CANCHA CENTRAL</div>
 				</div>
 				<div className="text-right">
 					<div className="text-2xl md:text-4xl font-bold text-white tabular-nums">18:45</div>
@@ -200,7 +200,7 @@ function MobileKiosco() {
 			<div className="bg-emerald-500 p-3 md:p-4 rounded-xl shadow-lg shadow-emerald-500/20 mt-auto">
 				<div className="flex justify-between items-center">
 					<div>
-						<div className="text-[7px] font-bold text-emerald-950/50 uppercase tracking-widest">2 items</div>
+						<div className="text-[7px] font-bold text-emerald-950/50 uppercase tracking-widest">2 productos</div>
 						<div className="text-base md:text-lg font-bold text-emerald-950 tracking-tight">$34.500</div>
 					</div>
 					<div className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-wider flex items-center gap-1">
@@ -217,12 +217,12 @@ function MobileMetrics() {
 		<div className="p-4 md:p-5 pt-10 md:pt-12 flex flex-col gap-3 md:gap-4 h-full">
 			<div className="flex justify-between items-center">
 				<div>
-					<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Dashboard</div>
+					<div className="text-[8px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Tu club hoy</div>
 					<div className="text-sm md:text-base font-bold text-slate-900 dark:text-white tracking-tight">Métricas</div>
 				</div>
 				<div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1 rounded-lg">
 					<div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-					<span className="text-[7px] font-bold text-emerald-500 uppercase">Live</span>
+					<span className="text-[7px] font-bold text-emerald-500 uppercase">Al día</span>
 				</div>
 			</div>
 			{/* Revenue card */}
@@ -269,8 +269,8 @@ function MobileTVMode() {
 		<div className="p-4 md:p-5 pt-10 md:pt-12 flex flex-col gap-3 md:gap-4 h-full bg-slate-950">
 			<div className="flex justify-between items-center">
 				<div>
-					<div className="text-[8px] font-bold text-emerald-500 uppercase tracking-[0.2em]">Live Feed</div>
-					<div className="text-sm font-bold text-white tracking-tight uppercase">Central Arena</div>
+					<div className="text-[8px] font-bold text-emerald-500 uppercase tracking-[0.2em]">Pantalla del club</div>
+					<div className="text-sm font-bold text-white tracking-tight uppercase">Cancha central</div>
 				</div>
 				<div className="text-right">
 					<div className="text-lg font-bold text-white tabular-nums">18:45</div>
@@ -347,17 +347,17 @@ export default function LandingUnifiedShowcase() {
 	}, [isLowEnd])
 
 	const cursorPositions = {
-		turnero: { x: '45.7%', y: '45.1%', label: 'Seleccionando Cancha...' },
-		kiosco: { x: '35%', y: '40%', label: 'Agregando Bebida' },
-		metricas: { x: '25%', y: '35%', label: 'Analizando Ingresos' },
+		turnero: { x: '45.7%', y: '45.1%', label: 'Tomando una reserva' },
+		kiosco: { x: '35%', y: '40%', label: 'Sumando una bebida' },
+		metricas: { x: '25%', y: '35%', label: 'Viendo cómo viene el día' },
 		tv: { x: '0%', y: '0%', label: '' }
 	}
 
 	const FEATURES = [
-		{ id: 'turnero' as const, label: 'Agenda Inteligente', icon: CalendarDays, desc: 'Gestión visual de turnos y reservas dinámicas.' },
-		{ id: 'kiosco' as const, label: 'Kiosko Hub', icon: ShoppingCart, desc: 'Sistema de terminal de venta ultra-rápida.' },
-		{ id: 'metricas' as const, label: 'Real-time Analytics', icon: BarChart3, desc: 'Métricas de ingresos y ocupación al instante.' },
-		{ id: 'tv' as const, label: 'Modo TV Social', icon: Tv, desc: 'Cartelería digital automática para tu complejo.' },
+		{ id: 'turnero' as const, label: 'Reservas del día', icon: CalendarDays, desc: 'Tomá turnos, mové horarios y llená la agenda sin enredos.' },
+		{ id: 'kiosco' as const, label: 'Cobros y kiosco', icon: ShoppingCart, desc: 'Cobrá canchas, bebidas y extras en segundos desde el mostrador.' },
+		{ id: 'metricas' as const, label: 'Números claros', icon: BarChart3, desc: 'Ingresos, ocupación y movimiento del club en un vistazo.' },
+		{ id: 'tv' as const, label: 'Pantalla del club', icon: Tv, desc: 'Mostrá próximos partidos y mantené al club siempre informado.' },
 	]
 
 	return (
@@ -385,10 +385,10 @@ export default function LandingUnifiedShowcase() {
 				{/* Header */}
 				<div className="text-center mb-8 md:mb-16 max-w-3xl mx-auto space-y-3">
 					<h2 className="text-3xl sm:text-4xl md:text-7xl font-medium text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-						Plataforma <span className="text-slate-400 dark:text-zinc-400">Omnicanal.</span>
+						Todo tu club, <span className="text-slate-400 dark:text-zinc-400">conectado.</span>
 					</h2>
 					<p className="text-slate-500 dark:text-zinc-400 text-base md:text-lg leading-relaxed px-4">
-						Gestiona desde tu PC, controla con el móvil, o exhibe los turnos en el TV del club.
+						Reservas, cobros, seguimiento y pantalla del club en un mismo sistema, desde la compu o el celular.
 					</p>
 				</div>
 

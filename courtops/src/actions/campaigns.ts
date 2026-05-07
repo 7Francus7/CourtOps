@@ -13,8 +13,11 @@ import {
   CAMPAIGN_DELIVERY_TYPES,
   CAMPAIGN_SEGMENTS,
   CAMPAIGN_VARIABLES,
+  findUnsupportedTemplateVariables,
+  TEMPLATE_CAMPAIGN_VARIABLE_KEYS,
   type CampaignDeliveryType,
   type CampaignSegment,
+  type CampaignVariableKey,
   matchesCampaignSegment,
   normalizeCampaignTemplate,
   renderCampaignTemplate,
@@ -25,14 +28,19 @@ import { getWhatsAppConfigState, normalizePhone, sendTemplateMessage, sendTextMe
 type CampaignAudienceMember = {
   id: number
   name: string
+  firstName: string
   phone: string
   normalizedPhone: string
   createdAt: string
+  daysSinceCreated: number
   lastBookingAt: string | null
+  daysSinceLastBooking: number | null
   bookingsLast60: number
   debtCount: number
   membershipStatus: string | null
   membershipExpiresAt: string | null
+  daysToMembershipExpiry: number | null
+  membershipExpiryLabel: string | null
 }
 
 type CampaignHistoryItem = {
@@ -60,10 +68,46 @@ type CampaignContext = {
 const DUPLICATE_WINDOW_MINUTES = 15
 const CAMPAIGN_SEND_LIMIT = 250
 const ADMIN_ROLES = new Set(['OWNER', 'ADMIN', 'SUPER_ADMIN', 'GOD'])
+const ARG_DATE_FORMATTER = new Intl.DateTimeFormat('es-AR', {
+  timeZone: 'America/Argentina/Buenos_Aires',
+  day: '2-digit',
+  month: '2-digit',
+})
 
 function buildReservationLink(slug: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
   return `${baseUrl.replace(/\/$/, '')}/p/${slug}`
+}
+
+function getFirstName(name: string) {
+  return name.trim().split(/\s+/)[0] || name.trim()
+}
+
+function getElapsedDays(from: Date, to: Date) {
+  return Math.max(0, Math.floor((to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000)))
+}
+
+function getRemainingDays(from: Date, to: Date) {
+  return Math.max(0, Math.ceil((to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000)))
+}
+
+function buildCampaignVariables(
+  member: CampaignAudienceMember | undefined,
+  clubName: string,
+  reservationLink: string,
+): Record<CampaignVariableKey, string> {
+  return {
+    nombre: member?.name || 'Jugador',
+    primer_nombre: member?.firstName || 'Jugador',
+    club: clubName,
+    link_reserva: reservationLink,
+    dias_sin_jugar: member?.daysSinceLastBooking?.toString() || '',
+    deuda_reservas: member?.debtCount.toString() || '0',
+    fecha_vencimiento: member?.membershipExpiryLabel || '',
+    dias_para_vencer: member?.daysToMembershipExpiry?.toString() || '',
+    dias_desde_alta: member?.daysSinceCreated.toString() || '0',
+    reservas_60d: member?.bookingsLast60.toString() || '0',
+  }
 }
 
 async function requireCampaignContext(): Promise<CampaignContext> {
@@ -180,18 +224,29 @@ async function buildCampaignAudience(clubId: string): Promise<CampaignAudienceMe
   })
 
   return clients
-    .map((client) => ({
-      id: client.id,
-      name: client.name,
-      phone: client.phone.trim(),
-      normalizedPhone: normalizePhone(client.phone.trim()),
-      createdAt: client.createdAt.toISOString(),
-      lastBookingAt: lastBookingMap.get(client.id)?.toISOString() || null,
-      bookingsLast60: recentBookingCountMap.get(client.id) || 0,
-      debtCount: debtCountMap.get(client.id) || 0,
-      membershipExpiresAt: client.membershipExpiresAt?.toISOString() || null,
-      membershipStatus: client.membershipStatus,
-    }))
+    .map((client) => {
+      const createdAt = client.createdAt
+      const lastBookingAt = lastBookingMap.get(client.id) || null
+      const membershipExpiresAt = client.membershipExpiresAt || null
+
+      return {
+        id: client.id,
+        name: client.name,
+        firstName: getFirstName(client.name),
+        phone: client.phone.trim(),
+        normalizedPhone: normalizePhone(client.phone.trim()),
+        createdAt: createdAt.toISOString(),
+        daysSinceCreated: getElapsedDays(createdAt, now),
+        lastBookingAt: lastBookingAt?.toISOString() || null,
+        daysSinceLastBooking: lastBookingAt ? getElapsedDays(lastBookingAt, now) : null,
+        bookingsLast60: recentBookingCountMap.get(client.id) || 0,
+        debtCount: debtCountMap.get(client.id) || 0,
+        membershipExpiresAt: membershipExpiresAt?.toISOString() || null,
+        membershipStatus: client.membershipStatus,
+        daysToMembershipExpiry: membershipExpiresAt ? getRemainingDays(now, membershipExpiresAt) : null,
+        membershipExpiryLabel: membershipExpiresAt ? ARG_DATE_FORMATTER.format(membershipExpiresAt) : null,
+      }
+    })
     .filter((client) => client.phone.length >= 8)
 }
 
@@ -262,6 +317,12 @@ export async function getWhatsAppCampaignComposerData(segment: CampaignSegment) 
   const segmentMeta = CAMPAIGN_SEGMENTS.find((item) => item.key === segment)
   const reservationLink = buildReservationLink(context.clubSlug)
   const configState = getWhatsAppConfigState()
+  const segmentReachCounts = Object.fromEntries(
+    CAMPAIGN_SEGMENTS.map((item) => [
+      item.key,
+      filterAudienceBySegment(audience, item.key).slice(0, CAMPAIGN_SEND_LIMIT).length,
+    ]),
+  ) as Record<CampaignSegment, number>
 
   return {
     club: {
@@ -279,6 +340,7 @@ export async function getWhatsAppCampaignComposerData(segment: CampaignSegment) 
     availableSegments: CAMPAIGN_SEGMENTS,
     deliveryOptions: CAMPAIGN_DELIVERY_TYPES,
     variables: CAMPAIGN_VARIABLES,
+    segmentReachCounts,
     reachableCount: filteredAudience.length,
     recipientsPreview: filteredAudience.slice(0, 6),
     history,
@@ -310,6 +372,19 @@ export async function sendWhatsAppCampaign(input: {
 
   if (input.deliveryType === 'TEMPLATE' && !input.templateName?.trim()) {
     throw new Error('Debes indicar el nombre de la plantilla aprobada en Meta')
+  }
+
+  if (input.deliveryType === 'TEMPLATE') {
+    const unsupportedVariables = findUnsupportedTemplateVariables(
+      normalizedTemplate,
+      TEMPLATE_CAMPAIGN_VARIABLE_KEYS,
+    )
+
+    if (unsupportedVariables.length > 0) {
+      throw new Error(
+        `La plantilla Meta solo admite estas variables: ${TEMPLATE_CAMPAIGN_VARIABLE_KEYS.map((key) => `{${key}}`).join(', ')}.`,
+      )
+    }
   }
 
   const audience = await buildCampaignAudience(context.clubId)
@@ -345,9 +420,7 @@ export async function sendWhatsAppCampaign(input: {
   }
 
   const previewMessage = renderCampaignTemplate(normalizedTemplate, {
-    nombre: filteredAudience[0]?.name || 'Jugador',
-    club: context.clubName,
-    link_reserva: reservationLink,
+    ...buildCampaignVariables(filteredAudience[0], context.clubName, reservationLink),
   })
 
   const campaign = await prisma.whatsAppCampaign.create({
@@ -374,21 +447,14 @@ export async function sendWhatsAppCampaign(input: {
   const failedRecipients: string[] = []
 
   for (const recipient of filteredAudience) {
-    const personalizedMessage = renderCampaignTemplate(normalizedTemplate, {
-      nombre: recipient.name,
-      club: context.clubName,
-      link_reserva: reservationLink,
-    })
+    const campaignVariables = buildCampaignVariables(recipient, context.clubName, reservationLink)
+    const personalizedMessage = renderCampaignTemplate(normalizedTemplate, campaignVariables)
 
     const result = input.deliveryType === 'TEMPLATE'
       ? await sendTemplateMessage(
         recipient.normalizedPhone,
         input.templateName!.trim(),
-        buildCampaignTemplateParameters(['nombre', 'club', 'link_reserva'], {
-          nombre: recipient.name,
-          club: context.clubName,
-          link_reserva: reservationLink,
-        }),
+        buildCampaignTemplateParameters(TEMPLATE_CAMPAIGN_VARIABLE_KEYS, campaignVariables),
         'es_AR',
       )
       : await sendTextMessage(recipient.normalizedPhone, personalizedMessage)

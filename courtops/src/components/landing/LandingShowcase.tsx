@@ -26,22 +26,22 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
 
        const cursorPositions = {
               turnero: [
-                     { x: '45%', y: '35%', label: 'Seleccionando Cancha...' },
-                     { x: '65%', y: '55%', label: 'Confirmando Horario' },
-                     { x: '25%', y: '75%', label: 'Añadiendo Cliente' },
-                     { x: '50%', y: '50%', label: 'Reserva Exitosa' }
+                     { x: '45%', y: '35%', label: 'Tomando una reserva' },
+                     { x: '65%', y: '55%', label: 'Cerrando el turno' },
+                     { x: '25%', y: '75%', label: 'Cargando al jugador' },
+                     { x: '50%', y: '50%', label: 'Turno confirmado' }
               ],
               kiosco: [
-                     { x: '30%', y: '40%', label: 'Agregando Bebida' },
+                     { x: '30%', y: '40%', label: 'Sumando una bebida' },
                      { x: '40%', y: '60%', label: 'Sumando Pelotas' },
-                     { x: '85%', y: '85%', label: 'Procesando Pago' },
-                     { x: '50%', y: '50%', label: 'Venta Finalizada' }
+                     { x: '85%', y: '85%', label: 'Cobrando la venta' },
+                     { x: '50%', y: '50%', label: 'Cobro listo' }
               ],
               metricas: [
-                     { x: '20%', y: '30%', label: 'Analizando Ingresos' },
-                     { x: '50%', y: '30%', label: 'Revisando Ocupación' },
-                     { x: '80%', y: '80%', label: 'Exportando Reporte' },
-                     { x: '50%', y: '50%', label: 'Dashboard Actualizado' }
+                     { x: '20%', y: '30%', label: 'Viendo la caja del mes' },
+                     { x: '50%', y: '30%', label: 'Revisando la ocupación' },
+                     { x: '80%', y: '80%', label: 'Mirando el cierre' },
+                     { x: '50%', y: '50%', label: 'Club al día' }
               ]
        }
 
@@ -53,9 +53,9 @@ function CinematicSimulation({ type, demoData }: { type: 'turnero' | 'kiosco' | 
                                    <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></div>
                                    <div className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></div>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Simulation System</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Club en movimiento</span>
                             <div className="h-4 w-px bg-white/10 mx-1" />
-                            <span className="text-[10px] font-medium text-emerald-400 font-mono tracking-tighter">EST: LOW_LATENCY</span>
+                            <span className="text-[10px] font-medium text-emerald-400 tracking-tighter uppercase">Operación en vivo</span>
                      </div>
 
                      {/* Content Simulation */}
@@ -158,7 +158,7 @@ function MockKiosco() {
 
                             <div className="flex justify-between items-end mb-12 relative z-10">
                                    <div>
-                                          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500 mb-2">Inventario Pro</div>
+                                          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-zinc-500 mb-2">Mostrador del club</div>
                                           <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
                                                  Venta Rápida
                                           </h3>
@@ -173,10 +173,10 @@ function MockKiosco() {
                                    {[
                                           { name: "Reserva Central", price: 32000, img: "🎾", tag: "Cancha 1" },
                                           { name: "Agua Mineral", price: 1500, img: "💧", tag: "Bebida" },
-                                          { name: "Tubo Pelotas", price: 12000, img: "🔋", tag: "Equip" },
+                                          { name: "Tubo Pelotas", price: 12000, img: "🔋", tag: "Accesorio" },
                                           { name: "Alquiler Paleta", price: 3000, img: "🏓", tag: "Servicio" },
                                           { name: "Gatorade Azul", price: 2500, img: "⚡", tag: "Bebida" },
-                                          { name: "Proteína Bar", price: 3500, img: "🍫", tag: "Snack" },
+                                          { name: "Barra Proteica", price: 3500, img: "🍫", tag: "Barra" },
                                    ].map((p, i) => (
                                           <div key={i} className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-[2.5rem] p-8 transition-all duration-500 cursor-pointer group hover:-translate-y-2 shadow-sm hover:shadow-2xl backdrop-blur-3xl relative overflow-hidden group">
                                                  <div className="absolute top-6 right-6 text-[8px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600 px-2 py-1 rounded-lg border border-slate-100 dark:border-white/5">{p.tag}</div>
@@ -214,7 +214,7 @@ function MockKiosco() {
                                                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-sm font-black text-orange-500">1x</div>
                                                  <div>
                                                         <div className="font-black text-slate-900 dark:text-white uppercase text-sm tracking-tight">Tubo Pelotas</div>
-                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] font-black mt-1">In-Stock</div>
+                                                        <div className="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-[0.2em] font-black mt-1">En stock</div>
                                                  </div>
                                           </div>
                                           <span className="font-black text-slate-900 dark:text-white text-lg">$12.000</span>
@@ -256,22 +256,22 @@ function MockMetrics() {
 
                      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10">
                             <div className="space-y-2">
-                                   <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-500">Business Intelligence</div>
+                                   <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-zinc-500">Números del club</div>
                                    <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none">Análisis de Operaciones</h3>
                             </div>
                             <div className="flex gap-4">
-                                   <button className="px-5 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 shadow-sm backdrop-blur-md transition-all hover:bg-slate-50 dark:hover:bg-white/10">Exportar Reporte</button>
+                                   <button className="px-5 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-400 shadow-sm backdrop-blur-md transition-all hover:bg-slate-50 dark:hover:bg-white/10">Ver resumen</button>
                                    <button className="px-5 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">Semana Actual</button>
                             </div>
                      </div>
 
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 relative z-10">
                             <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-sm backdrop-blur-3xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-500">
-                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Ingresos Totales</div>
+                                   <div className="text-slate-400 dark:text-zinc-500 text-[10px] uppercase font-black tracking-[0.3em] mb-4">Facturación del mes</div>
                                    <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-none">$1.245.000</div>
                                    <div className="flex items-center gap-3">
                                           <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 text-[10px] font-black border border-emerald-500/10 tracking-widest uppercase">📈 +18.4%</div>
-                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">vS ÚLTIMO MES</span>
+                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">VS. EL MES PASADO</span>
                                    </div>
                             </div>
                             <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-sm backdrop-blur-3xl relative overflow-hidden group hover:border-orange-500/30 transition-all duration-500">
@@ -279,7 +279,7 @@ function MockMetrics() {
                                    <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-none">84.2%</div>
                                    <div className="flex items-center gap-3">
                                           <div className="px-3 py-1.5 rounded-xl bg-orange-500/10 text-orange-500 text-[10px] font-black border border-orange-500/10 tracking-widest uppercase">🔥 ALTA</div>
-                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">PICOS 18-22HS</span>
+                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">FUERTE DE 18 A 22 HS</span>
                                    </div>
                             </div>
                             <div className="bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 p-10 rounded-[3rem] shadow-sm backdrop-blur-3xl relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-500">
@@ -287,7 +287,7 @@ function MockMetrics() {
                                    <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-none">+432</div>
                                    <div className="flex items-center gap-3">
                                           <div className="px-3 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-500 text-[10px] font-black border border-indigo-500/10 tracking-widest uppercase">🚀 CRECIMIENTO</div>
-                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">100% ORGÁNICO</span>
+                                          <span className="text-[9px] text-slate-400 dark:text-zinc-500 font-black uppercase tracking-widest">MÁS JUGADORES ACTIVOS</span>
                                    </div>
                             </div>
                      </div>
@@ -324,9 +324,9 @@ export default function LandingShowcase() {
        const [activeTab, setActiveTab] = useState<'turnero' | 'kiosco' | 'metricas' | 'torneos'>('turnero')
 
        const tabs = [
-              { id: 'turnero', label: 'Turnero Inteligente', icon: CalendarDays, videoUrl: "simulated" },
-              { id: 'kiosco', label: 'Punto de Venta', icon: ShoppingCart, videoUrl: "simulated" },
-              { id: 'metricas', label: 'Reportes y Métricas', icon: BarChart3, videoUrl: "simulated" },
+              { id: 'turnero', label: 'Reservas del día', icon: CalendarDays, videoUrl: "simulated" },
+              { id: 'kiosco', label: 'Cobros y kiosco', icon: ShoppingCart, videoUrl: "simulated" },
+              { id: 'metricas', label: 'Números del club', icon: BarChart3, videoUrl: "simulated" },
        ]
 
        // Create dynamic demo data for "Today"
@@ -334,7 +334,7 @@ export default function LandingShowcase() {
               clubId: 'demo',
               config: { openTime: '13:00', closeTime: '23:30', slotDuration: 90 },
               courts: [
-                     { id: 1, name: "Cancha Central (Indoor)", sport: "Padel", duration: 90 },
+                     { id: 1, name: "Cancha Central Cubierta", sport: "Padel", duration: 90 },
                      { id: 2, name: "Cancha Panorámica", sport: "Padel", duration: 90 },
                      { id: 3, name: "Cancha 3 Descubierta", sport: "Padel", duration: 90 },
               ],
@@ -414,13 +414,13 @@ export default function LandingShowcase() {
                                    className="text-center mb-16"
                             >
                                    <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
-                                          Un ecosistema completo, <br className="hidden md:block" />
+                                          Todo lo que pasa en tu club, <br className="hidden md:block" />
                                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-400 filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-                                                 en una sola pantalla.
+                                                 en un solo lugar.
                                           </span>
                                    </h2>
                                    <p className="text-lg md:text-xl text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                                          Olvídate de usar múltiples herramientas. CourtOps integra agenda, facturación y reportes en una interfaz unificada y elegante.
+                                          CourtOps reúne reservas, cobros y números claros para que tu club trabaje mejor, venda más y tenga todo bajo control.
                                    </p>
                             </motion.div>
 
@@ -469,7 +469,7 @@ export default function LandingShowcase() {
                                                  </div>
                                                  <div className="flex-1 flex justify-center">
                                                         <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-md bg-white/60 dark:bg-black/40 shadow-sm border border-slate-200/50 dark:border-white/5 text-[11px] font-medium text-slate-500 dark:text-zinc-400 backdrop-blur-md min-w-[200px] justify-center">
-                                                               <Shield size={12} className="text-violet-500" /> courtops.net/app/{activeTab}
+                                                               <Shield size={12} className="text-violet-500" /> courtops.app/mi-club
                                                         </div>
                                                  </div>
                                                  <div className="w-16" /> {/* Spacer for centering */}
