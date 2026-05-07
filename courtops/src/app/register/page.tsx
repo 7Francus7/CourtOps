@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, Phone, Store, User } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, MapPin, Phone, Store, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -89,7 +89,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [isYearly, setIsYearly] = useState(false)
-  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '', password: '' })
+  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '+54 ', address: '', password: '' })
   const selectedPlanData = PLANS.find((plan) => plan.id === selectedPlan)
 
   const validationRules = useMemo(
@@ -98,6 +98,7 @@ export default function RegisterPage() {
       userName: (v: string) => (v.trim().length < 2 ? 'Tu nombre es obligatorio' : null),
       email: (v: string) => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresá un email válido' : null),
       phone: (v: string) => (v && v.replace(/\D/g, '').length < 8 ? 'Teléfono inválido' : null),
+      address: (_v: string) => null,
       password: (v: string) => (v.length < 6 ? 'Mínimo 6 caracteres' : null),
     }),
     []
@@ -120,6 +121,7 @@ export default function RegisterPage() {
     data.append('userName', formData.userName)
     data.append('email', formData.email)
     data.append('phone', formData.phone)
+    data.append('address', formData.address)
     data.append('password', formData.password)
     data.append('plan', isYearly && selectedPlan !== 'FREE' ? `${selectedPlan}_ANUAL` : selectedPlan)
 
@@ -367,6 +369,19 @@ export default function RegisterPage() {
                       />
                     </div>
                     <p className="mt-1 text-[11px] text-zinc-400">Opcional · Se usa para que tus clientes te contacten</p>
+                  </FormField>
+                  <FormField label="Dirección del club" error={errors.address}>
+                    <div className="relative">
+                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type="text"
+                        className={cn(inputBase, inputBorder)}
+                        placeholder="Ej: Av. Colón 1234, Córdoba"
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Aparece en tu página pública de reservas</p>
                   </FormField>
                   <FormField label="Contraseña" error={errors.password}>
                     <div className="relative">

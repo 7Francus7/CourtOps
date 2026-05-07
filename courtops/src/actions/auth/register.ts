@@ -11,6 +11,7 @@ export async function registerClub(formData: FormData) {
 		const password = formData.get('password') as string
 		const userName = formData.get('userName') as string
 		const phone = (formData.get('phone') as string)?.trim() || undefined
+		const address = (formData.get('address') as string)?.trim() || undefined
 		const plan = (formData.get('plan') as string)?.replace(/_ANUAL$/, '')
 
 		if (!clubName || !email || !password || !userName) {
@@ -77,6 +78,7 @@ export async function registerClub(formData: FormData) {
 					name: clubName,
 					slug: slug,
 					phone: phone,
+					address: address,
 					plan: 'BASIC',
 					platformPlanId: platformPlanId,
 					subscriptionStatus: 'TRIAL',
