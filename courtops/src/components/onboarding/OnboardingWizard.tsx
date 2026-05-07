@@ -21,6 +21,7 @@ import { finishOnboarding } from '@/actions/onboarding'
 import type { OnboardingCourt } from '@/actions/onboarding'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { useTour } from '@/hooks/useTour'
 
 const PADEL_SLOT_MINUTES = 90
 
@@ -33,6 +34,7 @@ interface OnboardingWizardProps {
 
 export default function OnboardingWizard({ clubName = 'tu club', slug }: OnboardingWizardProps) {
 	const router = useRouter()
+	const { resetAndStartTour } = useTour()
 	const [step, setStep] = useState(1)
 	const [loading, setLoading] = useState(false)
 	const [isCelebration, setIsCelebration] = useState(false)
@@ -150,13 +152,17 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 	const handleGoToDashboard = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
-		router.push('/dashboard?welcome=1')
-	}, [router])
+		router.push('/dashboard')
+		router.refresh()
+		setTimeout(() => resetAndStartTour('general'), 1000)
+	}, [router, resetAndStartTour])
 
 	const handleOpenChannels = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
-		router.push('/dashboard?modal=growth&welcome=1')
-	}, [router])
+		router.push('/dashboard?modal=growth')
+		router.refresh()
+		setTimeout(() => resetAndStartTour('general'), 1000)
+	}, [router, resetAndStartTour])
 
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
 
