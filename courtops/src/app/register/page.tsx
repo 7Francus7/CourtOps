@@ -282,179 +282,219 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="mx-auto grid w-full max-w-4xl gap-5 lg:grid-cols-[1fr_1.3fr]"
+              className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[1fr_1.5fr]"
             >
-              <aside className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-white">
+              {/* Left panel */}
+              <aside className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-white flex flex-col">
                 <button
                   type="button"
                   onClick={() => setStep('PLANS')}
-                  className="mb-10 inline-flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-300"
+                  className="mb-8 inline-flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-300"
                 >
                   <ArrowLeft size={13} />
                   Volver a planes
                 </button>
                 <CourtOpsLogoFull className="h-8 w-auto" darkBg />
-                <h1 className="mt-8 text-3xl font-bold tracking-tight">Activá tu club.</h1>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-                  Dejamos listo el espacio para que cargues canchas, horarios y empieces a operar.
+                <h1 className="mt-7 text-3xl font-bold tracking-tight">Activá tu club.</h1>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  En minutos tenés todo listo para operar.
                 </p>
-                <div className="mt-8 rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">Plan elegido</p>
-                  <div className="mt-3 flex items-end justify-between gap-4">
-                    <span className="text-xl font-semibold">{selectedPlanData?.name}</span>
-                    {selectedPlanData && <PlanPrice plan={selectedPlanData} isYearly={isYearly} />}
+
+                {/* What gets created */}
+                <div className="mt-6 space-y-2.5">
+                  {[
+                    { icon: '🔗', text: 'Link público de reservas activo' },
+                    { icon: '📅', text: 'Agenda y canchas configurables' },
+                    { icon: '💰', text: 'Precio base pre-cargado' },
+                    { icon: '📊', text: 'Dashboard operativo al instante' },
+                    { icon: '📱', text: 'Perfil público con tus datos' },
+                  ].map((item) => (
+                    <div key={item.text} className="flex items-center gap-3">
+                      <span className="text-base">{item.icon}</span>
+                      <span className="text-sm text-zinc-300">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Plan badge */}
+                <div className="mt-auto pt-8">
+                  <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Plan elegido</p>
+                    <div className="mt-2 flex items-end justify-between gap-4">
+                      <span className="text-lg font-semibold">{selectedPlanData?.name}</span>
+                      {selectedPlanData && <PlanPrice plan={selectedPlanData} isYearly={isYearly} />}
+                    </div>
+                    {selectedPlanData && selectedPlanData.price > 0 && (
+                      <p className="mt-2 text-xs text-emerald-400/80">Sin costo de instalación. Acceso inmediato.</p>
+                    )}
                   </div>
-                  {selectedPlanData && selectedPlanData.price > 0 && (
-                    <p className="mt-3 text-xs leading-relaxed text-emerald-400/80">
-                      Sin costo de instalación. Acceso inmediato.
-                    </p>
-                  )}
                 </div>
               </aside>
 
-              <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="text-2xl font-bold tracking-tight">Creá tu cuenta</h2>
-                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                  Usá un email al que tengas acceso. Después podés invitar a tu equipo.
+              {/* Form panel */}
+              <div className="rounded-2xl border border-zinc-200 bg-white px-8 py-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <h2 className="text-xl font-bold tracking-tight">Creá tu cuenta</h2>
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Completá los datos del club y tu acceso.
                 </p>
-                <form onSubmit={handleRegister} className="mt-7 space-y-4">
-                  <FormField label="Nombre del club" error={errors.clubName}>
-                    <div className="relative">
-                      <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type="text"
-                        required
-                        className={cn(inputBase, errors.clubName ? inputBorderError : inputBorder)}
-                        placeholder="Ej: Arena Padel"
-                        value={formData.clubName}
-                        onChange={(e) => setFormData({ ...formData, clubName: e.target.value })}
-                        onBlur={() => validate('clubName', formData.clubName)}
-                      />
-                    </div>
-                  </FormField>
-                  <FormField label="Tu nombre" error={errors.userName}>
-                    <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type="text"
-                        required
-                        className={cn(inputBase, errors.userName ? inputBorderError : inputBorder)}
-                        placeholder="Franco Rossi"
-                        value={formData.userName}
-                        onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                        onBlur={() => validate('userName', formData.userName)}
-                      />
-                    </div>
-                  </FormField>
-                  <FormField label="Email" error={errors.email}>
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type="email"
-                        required
-                        className={cn(inputBase, errors.email ? inputBorderError : inputBorder)}
-                        placeholder="admin@tuclub.com"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        onBlur={() => validate('email', formData.email)}
-                      />
-                    </div>
-                  </FormField>
-                  <FormField label="Teléfono del club" error={errors.phone}>
-                    <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type="tel"
-                        className={cn(inputBase, errors.phone ? inputBorderError : inputBorder)}
-                        placeholder="Ej: 351 123-4567"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        onBlur={() => validate('phone', formData.phone)}
-                      />
-                    </div>
-                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Se usa para que tus clientes te contacten</p>
-                  </FormField>
-                  <FormField label="Dirección del club" error={errors.address}>
-                    <div className="relative">
-                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type="text"
-                        className={cn(inputBase, inputBorder)}
-                        placeholder="Ej: Av. Colón 1234, Córdoba"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      />
-                    </div>
-                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Aparece en tu página pública de reservas</p>
-                  </FormField>
-                  <FormField label="Instagram" error={errors.instagram}>
-                    <div className="relative">
-                      <Instagram className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type="text"
-                        className={cn(inputBase, inputBorder)}
-                        placeholder="tuclub (sin @)"
-                        value={formData.instagram}
-                        onChange={(e) => setFormData({ ...formData, instagram: e.target.value.replace('@', '') })}
-                      />
-                    </div>
-                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Se muestra en tu página pública</p>
-                  </FormField>
-                  <FormField label="Logo del club (URL)" error={errors.logoUrl}>
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex-1">
-                        <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                        <input
-                          type="url"
-                          className={cn(inputBase, inputBorder)}
-                          placeholder="https://tuclub.com/logo.png"
-                          value={formData.logoUrl}
-                          onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-                        />
-                      </div>
-                      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 flex items-center justify-center">
-                        {formData.logoUrl ? (
-                          <img
-                            src={formData.logoUrl}
-                            alt="preview"
-                            className="h-full w-full object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+
+                <form onSubmit={handleRegister} className="mt-6 space-y-5">
+
+                  {/* Section: Club */}
+                  <div>
+                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Datos del club</p>
+                    <div className="space-y-3">
+                      <FormField label="Nombre del club" error={errors.clubName}>
+                        <div className="relative">
+                          <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                          <input
+                            type="text"
+                            required
+                            className={cn(inputBase, errors.clubName ? inputBorderError : inputBorder)}
+                            placeholder="Ej: Arena Padel"
+                            value={formData.clubName}
+                            onChange={(e) => setFormData({ ...formData, clubName: e.target.value })}
+                            onBlur={() => validate('clubName', formData.clubName)}
                           />
-                        ) : (
-                          <span className="text-lg font-bold text-zinc-400">
-                            {formData.clubName?.[0]?.toUpperCase() || 'C'}
-                          </span>
-                        )}
+                        </div>
+                      </FormField>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField label="Teléfono" error={errors.phone}>
+                          <div className="relative">
+                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                            <input
+                              type="tel"
+                              className={cn(inputBase, errors.phone ? inputBorderError : inputBorder)}
+                              placeholder="+54 351 123-4567"
+                              value={formData.phone}
+                              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                              onBlur={() => validate('phone', formData.phone)}
+                            />
+                          </div>
+                        </FormField>
+                        <FormField label="Dirección" error={errors.address}>
+                          <div className="relative">
+                            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                            <input
+                              type="text"
+                              className={cn(inputBase, inputBorder)}
+                              placeholder="Av. Colón 1234, Cba"
+                              value={formData.address}
+                              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            />
+                          </div>
+                        </FormField>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField label="Instagram" error={errors.instagram}>
+                          <div className="relative">
+                            <Instagram className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                            <input
+                              type="text"
+                              className={cn(inputBase, inputBorder)}
+                              placeholder="tuclub"
+                              value={formData.instagram}
+                              onChange={(e) => setFormData({ ...formData, instagram: e.target.value.replace('@', '') })}
+                            />
+                          </div>
+                        </FormField>
+                        <FormField label="Logo (URL)" error={errors.logoUrl}>
+                          <div className="flex items-center gap-2">
+                            <div className="relative flex-1 min-w-0">
+                              <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                              <input
+                                type="url"
+                                className={cn(inputBase, inputBorder)}
+                                placeholder="https://…/logo.png"
+                                value={formData.logoUrl}
+                                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                              />
+                            </div>
+                            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 flex items-center justify-center">
+                              {formData.logoUrl ? (
+                                <img src={formData.logoUrl} alt="preview" className="h-full w-full object-cover"
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                              ) : (
+                                <span className="text-base font-bold text-zinc-400">
+                                  {formData.clubName?.[0]?.toUpperCase() || 'C'}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </FormField>
                       </div>
                     </div>
-                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Pegá la URL de tu logo (PNG/JPG)</p>
-                  </FormField>
-                  <FormField label="Contraseña" error={errors.password}>
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        className={cn(inputBase, 'pr-10', errors.password ? inputBorderError : inputBorder)}
-                        placeholder="••••••••"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        onBlur={() => validate('password', formData.password)}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
-                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                      >
-                        {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                      </button>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Tu acceso</p>
+                    <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
+                  </div>
+
+                  {/* Section: Account */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <FormField label="Tu nombre" error={errors.userName}>
+                        <div className="relative">
+                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                          <input
+                            type="text"
+                            required
+                            className={cn(inputBase, errors.userName ? inputBorderError : inputBorder)}
+                            placeholder="Franco Rossi"
+                            value={formData.userName}
+                            onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+                            onBlur={() => validate('userName', formData.userName)}
+                          />
+                        </div>
+                      </FormField>
+                      <FormField label="Email" error={errors.email}>
+                        <div className="relative">
+                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                          <input
+                            type="email"
+                            required
+                            className={cn(inputBase, errors.email ? inputBorderError : inputBorder)}
+                            placeholder="admin@tuclub.com"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            onBlur={() => validate('email', formData.email)}
+                          />
+                        </div>
+                      </FormField>
                     </div>
-                  </FormField>
+                    <FormField label="Contraseña" error={errors.password}>
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          className={cn(inputBase, 'pr-10', errors.password ? inputBorderError : inputBorder)}
+                          placeholder="••••••••"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          onBlur={() => validate('password', formData.password)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+                          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        >
+                          {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                      </div>
+                    </FormField>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={loading}
-                    className="mt-1 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 text-sm font-medium text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 text-sm font-medium text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loading ? (
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
