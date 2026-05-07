@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, Store, User } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, Phone, Store, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -89,7 +89,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [isYearly, setIsYearly] = useState(false)
-  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', password: '' })
+  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '', password: '' })
   const selectedPlanData = PLANS.find((plan) => plan.id === selectedPlan)
 
   const validationRules = useMemo(
@@ -97,6 +97,7 @@ export default function RegisterPage() {
       clubName: (v: string) => (v.trim().length < 2 ? 'El nombre del club es obligatorio' : null),
       userName: (v: string) => (v.trim().length < 2 ? 'Tu nombre es obligatorio' : null),
       email: (v: string) => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresá un email válido' : null),
+      phone: (v: string) => (v && v.replace(/\D/g, '').length < 8 ? 'Teléfono inválido' : null),
       password: (v: string) => (v.length < 6 ? 'Mínimo 6 caracteres' : null),
     }),
     []
@@ -118,6 +119,7 @@ export default function RegisterPage() {
     data.append('clubName', formData.clubName)
     data.append('userName', formData.userName)
     data.append('email', formData.email)
+    data.append('phone', formData.phone)
     data.append('password', formData.password)
     data.append('plan', isYearly && selectedPlan !== 'FREE' ? `${selectedPlan}_ANUAL` : selectedPlan)
 
@@ -351,6 +353,20 @@ export default function RegisterPage() {
                         onBlur={() => validate('email', formData.email)}
                       />
                     </div>
+                  </FormField>
+                  <FormField label="Teléfono del club" error={errors.phone}>
+                    <div className="relative">
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type="tel"
+                        className={cn(inputBase, errors.phone ? inputBorderError : inputBorder)}
+                        placeholder="Ej: 351 123-4567"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        onBlur={() => validate('phone', formData.phone)}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Se usa para que tus clientes te contacten</p>
                   </FormField>
                   <FormField label="Contraseña" error={errors.password}>
                     <div className="relative">
