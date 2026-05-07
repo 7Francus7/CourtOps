@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, ImageIcon, Instagram, Lock, Mail, MapPin, Phone, Store, User } from 'lucide-react'
 import Link from 'next/link'
@@ -90,6 +90,22 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isYearly, setIsYearly] = useState(false)
   const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '+54 ', address: '', instagram: '', logoUrl: '', password: '' })
+  const [logoFromIg, setLogoFromIg] = useState(false)
+  const igDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleInstagramChange = (raw: string) => {
+    const handle = raw.replace('@', '')
+    setFormData(prev => ({ ...prev, instagram: handle }))
+    setLogoFromIg(false)
+
+    if (igDebounce.current) clearTimeout(igDebounce.current)
+    if (handle.length < 3) return
+
+    igDebounce.current = setTimeout(() => {
+      setFormData(prev => ({ ...prev, logoUrl: `https://unavatar.io/instagram/${handle}` }))
+      setLogoFromIg(true)
+    }, 700)
+  }
   const selectedPlanData = PLANS.find((plan) => plan.id === selectedPlan)
 
   const validationRules = useMemo(
@@ -396,9 +412,14 @@ export default function RegisterPage() {
                               className={cn(inputBase, inputBorder)}
                               placeholder="tuclub"
                               value={formData.instagram}
-                              onChange={(e) => setFormData({ ...formData, instagram: e.target.value.replace('@', '') })}
+                              onChange={(e) => handleInstagramChange(e.target.value)}
                             />
                           </div>
+                          {logoFromIg && (
+                            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-emerald-500">
+                              <Instagram size={10} /> Foto de perfil detectada
+                            </p>
+                          )}
                         </FormField>
                         <FormField label="Logo (URL)" error={errors.logoUrl}>
                           <div className="flex items-center gap-2">
@@ -409,10 +430,18 @@ export default function RegisterPage() {
                                 className={cn(inputBase, inputBorder)}
                                 placeholder="https://…/logo.png"
                                 value={formData.logoUrl}
-                                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                                onChange={(e) => {
+                                  setFormData(prev => ({ ...prev, logoUrl: e.target.value }))
+                                  setLogoFromIg(false)
+                                }}
                               />
                             </div>
-                            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 flex items-center justify-center">
+                            <div className={cn(
+                              'relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border flex items-center justify-center',
+                              logoFromIg
+                                ? 'border-pink-500/40 ring-2 ring-pink-500/20'
+                                : 'border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800'
+                            )}>
                               {formData.logoUrl ? (
                                 <img src={formData.logoUrl} alt="preview" className="h-full w-full object-cover"
                                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
@@ -420,6 +449,11 @@ export default function RegisterPage() {
                                 <span className="text-base font-bold text-zinc-400">
                                   {formData.clubName?.[0]?.toUpperCase() || 'C'}
                                 </span>
+                              )}
+                              {logoFromIg && (
+                                <div className="absolute -bottom-1 -right-1 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-[3px]">
+                                  <Instagram size={8} className="text-white" />
+                                </div>
                               )}
                             </div>
                           </div>
