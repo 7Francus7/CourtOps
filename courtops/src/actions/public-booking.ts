@@ -711,3 +711,32 @@ export async function submitPublicTransfer(bookingId: number, data: {
               return { success: false, error: 'Error al procesar el pago' };
        }
 }
+
+export async function cancelActiveGuestBooking(phone: string, clubId: string) {
+       try {
+              const normalizedPhone = phone.replace(/\D/g, '')
+              const booking = await prisma.booking.findFirst({
+                     where: {
+                            clubId,
+                            guestPhone: { contains: normalizedPhone },
+                            status: { in: ['PENDING', 'CONFIRMED'] },
+                            startTime: { gt: new Date() }
+                     },
+                     select: { id: true, startTime: true, courtId: true }
+              })
+
+              if (!booking) {
+                     return { success: false, error: 'No se encontró una reserva activa para cancelar.' }
+              }
+
+              await prisma.booking.update({
+                     where: { id: booking.id },
+                     data: { status: 'CANCELED' }
+              })
+
+              return { success: true }
+       } catch (error) {
+              console.error('[cancelActiveGuestBooking] Error:', error)
+              return { success: false, error: 'No se pudo cancelar la reserva anterior.' }
+       }
+}

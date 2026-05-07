@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { format, addDays, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking, createPublicWaitingList } from '@/actions/public-booking'
+import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking, createPublicWaitingList, cancelActiveGuestBooking } from '@/actions/public-booking'
 import { trackPublicBookingEvent } from '@/actions/public-growth'
 import { createPreference } from '@/actions/mercadopago'
 import { getPublicBookingStateMeta } from '@/lib/public-booking'
@@ -142,6 +142,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [registerError, setRegisterError] = useState('')
 	const [authError, setAuthError] = useState('')
 	const [bookingError, setBookingError] = useState('')
+	const [isCancellingPrevious, setIsCancellingPrevious] = useState(false)
 	const [guestErrors, setGuestErrors] = useState<{ name?: string; lastname?: string; phone?: string }>({})
 	const [showWaitlistForm, setShowWaitlistForm] = useState(false)
 	const [waitlistData, setWaitlistData] = useState({ name: '', phone: '', notes: '' })
@@ -545,6 +546,21 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			setBookingError(res.error || 'Error al crear la reserva. Intentá de nuevo.')
 		}
 		setIsSubmitting(false)
+	}
+
+	const handleCancelAndRebook = async () => {
+		const phone = clientData.phone.trim()
+		if (!phone) return
+		setIsCancellingPrevious(true)
+		setBookingError('')
+		const res = await cancelActiveGuestBooking(phone, club.id)
+		if (res.success) {
+			setIsCancellingPrevious(false)
+			handleBooking()
+		} else {
+			setBookingError(res.error || 'No se pudo cancelar la reserva anterior.')
+			setIsCancellingPrevious(false)
+		}
 	}
 
 	const handlePayment = async () => {
@@ -2499,9 +2515,25 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 							{/* Error display */}
 							{bookingError && (
-								<div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl">
-									<AlertTriangle size={14} className="text-red-400 shrink-0" />
-									<p className="text-[12px] font-bold text-red-500">{bookingError}</p>
+								<div className="flex flex-col gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl">
+									<div className="flex items-start gap-2">
+										<AlertTriangle size={14} className="text-red-400 shrink-0 mt-0.5" />
+										<p className="text-[12px] font-bold text-red-500">{bookingError}</p>
+									</div>
+									{bookingError.includes('reserva activa') && (
+										<button
+											type="button"
+											onClick={handleCancelAndRebook}
+											disabled={isCancellingPrevious}
+											className="w-full mt-1 h-10 bg-red-500 hover:bg-red-600 text-white rounded-xl font-black text-[11px] uppercase tracking-[0.1em] disabled:opacity-50 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+										>
+											{isCancellingPrevious ? (
+												<><Loader2 size={13} className="animate-spin" /> Cancelando...</>
+											) : (
+												<>Cancelar reserva anterior y confirmar</>
+											)}
+										</button>
+									)}
 								</div>
 							)}
 
