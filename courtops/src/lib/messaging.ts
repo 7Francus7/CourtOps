@@ -2,7 +2,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { sendTextMessage, type WhatsAppResult } from '@/lib/whatsapp'
 
-export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 'new_booking' | 'retention'
+export type MessageTemplate = 'reminder' | 'payment_confirmation' | 'welcome' | 'new_booking' | 'retention' | 'pending_booking'
 
 export class MessagingService {
        static generateRecoveryMessage(clientName: string): string {
@@ -13,7 +13,7 @@ export class MessagingService {
         * Generates a standardized message content for a booking.
         * Messages are designed to be short, professional and clear.
         */
-       static generateBookingMessage(booking: { schedule?: { startTime?: string | Date; courtName?: string }; client?: { name?: string }; pricing?: { balance?: number; totalPrice?: number } }, type: MessageTemplate): string {
+       static generateBookingMessage(booking: { schedule?: { startTime?: string | Date; courtName?: string }; client?: { name?: string }; pricing?: { balance?: number; totalPrice?: number }; meta?: { paymentUrl?: string; cancelHours?: number } }, type: MessageTemplate): string {
               const schedule = booking.schedule || {}
               const date = format(new Date(schedule.startTime || new Date()), "EEEE d 'de' MMMM", { locale: es })
               const time = format(new Date(schedule.startTime || new Date()), "HH:mm")
@@ -69,6 +69,26 @@ export class MessagingService {
                             `⚠️ Cancelaciones: hasta 24hs antes.`,
                             ``,
                             `¡Nos vemos en la cancha! 🚀`
+                     ].filter(Boolean).join('\n')
+              }
+
+              if (type === 'pending_booking') {
+                     const paymentUrl = booking.meta?.paymentUrl
+                     const cancelH = booking.meta?.cancelHours ?? 24
+                     return [
+                            `🎾 *Reserva recibida* ⏳`,
+                            ``,
+                            `Hola *${clientName}*! Reservamos tu turno:`,
+                            ``,
+                            `📅 ${date}`,
+                            `🕐 ${time} hs`,
+                            `📍 ${court}`,
+                            totalPrice > 0 ? `💰 Total: *$${totalPrice.toLocaleString()}*` : '',
+                            paymentUrl ? `\n👉 Pagá aquí para confirmar:\n${paymentUrl}` : '',
+                            ``,
+                            `⚠️ Se libera si no se abona. Cancelaciones hasta ${cancelH}hs antes.`,
+                            ``,
+                            `¡Nos vemos! 🏓`
                      ].filter(Boolean).join('\n')
               }
 

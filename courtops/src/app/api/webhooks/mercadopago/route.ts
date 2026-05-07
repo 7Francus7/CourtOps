@@ -3,7 +3,8 @@ import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 import crypto from 'crypto'
 import { getPlanFeatures } from '@/lib/plan-features'
-import { sendSubscriptionPaymentEmail } from '@/lib/email'
+import { sendSubscriptionPaymentEmail, sendBookingPaymentConfirmationEmail } from '@/lib/email'
+import { MessagingService } from '@/lib/messaging'
 
 /**
  * Verify MercadoPago webhook signature (HMAC-SHA256).
@@ -430,6 +431,58 @@ export async function POST(request: Request) {
                                                  }
                                           })
                                    ])
+
+                                   // Fire-and-forget payment notification to client
+                                   const remainingBalance = Math.max(0, totalCost - (totalPaidBefore + transactionAmount));
+                                   (async () => {
+                                          try {
+                                                 const [fullBooking, club] = await Promise.all([
+                                                        prisma.booking.findUnique({
+                                                               where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
+                                                               include: {
+                                                                      client: { select: { name: true, phone: true, email: true } },
+                                                                      court: { select: { name: true } }
+                                                               }
+                                                        }),
+                                                        prisma.club.findUnique({
+                                                               where: { id: booking.clubId },
+                                                               select: { name: true }
+                                                        })
+                                                 ])
+                                                 if (!fullBooking || !club) return
+
+                                                 const phone = fullBooking.guestPhone || fullBooking.client?.phone
+                                                 const name = fullBooking.guestName || fullBooking.client?.name || 'Jugador'
+                                                 const email = fullBooking.client?.email
+
+                                                 if (phone) {
+                                                        const waMsg = MessagingService.generateBookingMessage({
+                                                               schedule: { startTime: fullBooking.startTime, courtName: fullBooking.court?.name },
+                                                               client: { name },
+                                                               pricing: { balance: remainingBalance, totalPrice: fullBooking.price }
+                                                        }, 'payment_confirmation')
+                                                        await MessagingService.sendWhatsApp(phone, waMsg)
+                                                 }
+
+                                                 if (email) {
+                                                        const dateLabel = new Intl.DateTimeFormat('es-AR', {
+                                                               weekday: 'long', day: '2-digit', month: 'long',
+                                                               timeZone: 'America/Argentina/Buenos_Aires'
+                                                        }).format(fullBooking.startTime)
+                                                        const timeLabel = new Intl.DateTimeFormat('es-AR', {
+                                                               hour: '2-digit', minute: '2-digit',
+                                                               timeZone: 'America/Argentina/Buenos_Aires'
+                                                        }).format(fullBooking.startTime)
+                                                        await sendBookingPaymentConfirmationEmail(
+                                                               email, name, dateLabel, timeLabel,
+                                                               fullBooking.court?.name || '', club.name,
+                                                               transactionAmount, remainingBalance
+                                                        )
+                                                 }
+                                          } catch (e) {
+                                                 console.error('[NOTIF] Payment webhook notification failed:', e)
+                                          }
+                                   })()
                             }
                      }
               } else if (paymentInfo.status === 'refunded' || paymentInfo.status === 'charged_back') {

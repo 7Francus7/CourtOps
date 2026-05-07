@@ -226,6 +226,149 @@ export const sendBookingReminderEmail = async (
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
 
+export const sendBookingConfirmationEmail = async (
+  email: string,
+  clientName: string,
+  bookingDate: string,
+  bookingTime: string,
+  courtName: string,
+  clubName: string,
+  price: number,
+  options?: {
+    isPending?: boolean
+    paymentUrl?: string
+    cancelHours?: number
+    clubPhone?: string | null
+  }
+) => {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[EMAIL SIM] Booking confirmation:', { email, clientName, bookingDate, isPending: options?.isPending });
+    return { success: true, simulated: true };
+  }
+
+  const isPending = options?.isPending ?? false;
+  const cancelH = options?.cancelHours ?? 24;
+
+  const subject = isPending
+    ? `Turno pendiente de pago — ${clubName}`
+    : `¡Reserva confirmada! ${courtName} el ${bookingDate} — ${clubName}`;
+
+  const statusBadge = isPending
+    ? `<div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:12px 16px;margin-bottom:24px;text-align:center;"><span style="color:#f59e0b;font-weight:700;font-size:14px;">⏳ PENDIENTE DE PAGO</span></div>`
+    : `<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px 16px;margin-bottom:24px;text-align:center;"><span style="color:#10b981;font-weight:700;font-size:14px;">✅ RESERVA CONFIRMADA</span></div>`;
+
+  const payButton = isPending && options?.paymentUrl
+    ? `<div style="text-align:center;margin:32px 0;"><a href="${options.paymentUrl}" style="display:inline-block;background-color:#10b981;color:#000000;padding:16px 32px;text-decoration:none;border-radius:30px;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:1px;">Pagar ahora</a></div>`
+    : '';
+
+  const cancelNote = isPending
+    ? `<p style="color:#94a3b8;font-size:13px;text-align:center;margin-top:16px;">Tu lugar se reserva al completar el pago. Cancelaciones hasta ${cancelH}hs antes.</p>`
+    : `<p style="color:#94a3b8;font-size:13px;text-align:center;margin-top:16px;">Podés cancelar hasta ${cancelH}hs antes del turno.</p>`;
+
+  const clubPhoneSection = options?.clubPhone
+    ? `<p style="color:#94a3b8;font-size:14px;line-height:1.6;margin-top:24px;text-align:center;">¿Necesitás cambiar algo? <a href="https://wa.me/${options.clubPhone.replace(/[^0-9]/g, '')}" style="color:#10b981;text-decoration:none;font-weight:bold;">Contactá al club</a></p>`
+    : '';
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      replyTo: 'courtops.saas@gmail.com',
+      to: [email],
+      subject,
+      html: `
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:0 auto;background-color:#030712;color:#f8fafc;border-radius:16px;overflow:hidden;border:1px solid #1e293b;">
+          <div style="background-color:#020617;padding:40px 20px;text-align:center;border-bottom:1px solid #1e293b;">
+            <h1 style="color:#ffffff;margin:0;font-size:28px;font-weight:900;letter-spacing:-0.5px;">COURT<span style="color:#10b981;">OPS</span></h1>
+            <p style="color:#94a3b8;font-size:14px;margin-top:8px;">${clubName}</p>
+          </div>
+          <div style="padding:40px 30px;">
+            <h2 style="color:#ffffff;font-size:22px;margin-top:0;margin-bottom:20px;">Hola ${clientName}!</h2>
+            ${statusBadge}
+            <div style="background-color:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:24px;margin:24px 0;">
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Fecha</td><td style="padding:8px 0;color:#ffffff;font-size:16px;font-weight:700;text-align:right;">${bookingDate}</td></tr>
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Hora</td><td style="padding:8px 0;color:#10b981;font-size:16px;font-weight:700;text-align:right;">${bookingTime} hs</td></tr>
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Cancha</td><td style="padding:8px 0;color:#ffffff;font-size:16px;font-weight:700;text-align:right;">${courtName}</td></tr>
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Precio</td><td style="padding:8px 0;color:#ffffff;font-size:16px;font-weight:700;text-align:right;">${fmt(price)}</td></tr>
+              </table>
+            </div>
+            ${payButton}
+            ${cancelNote}
+            ${clubPhoneSection}
+          </div>
+          <div style="background-color:#020617;padding:24px;text-align:center;border-top:1px solid #1e293b;">
+            <p style="color:#64748b;font-size:12px;margin:0;">&copy; ${new Date().getFullYear()} CourtOps. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      `,
+    });
+    if (error) { console.error('[EMAIL] Booking confirmation error:', error); return { success: false, error }; }
+    return { success: true, data };
+  } catch (err) {
+    console.error('[EMAIL] Booking confirmation exception:', err);
+    return { success: false, error: err };
+  }
+};
+
+export const sendBookingPaymentConfirmationEmail = async (
+  email: string,
+  clientName: string,
+  bookingDate: string,
+  bookingTime: string,
+  courtName: string,
+  clubName: string,
+  amountPaid: number,
+  remainingBalance: number
+) => {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[EMAIL SIM] Payment confirmation:', { email, clientName, amountPaid });
+    return { success: true, simulated: true };
+  }
+
+  const balanceRow = remainingBalance > 0
+    ? `<tr><td style="padding:8px 0;color:#f59e0b;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Saldo restante</td><td style="padding:8px 0;color:#f59e0b;font-size:16px;font-weight:700;text-align:right;">${fmt(remainingBalance)}</td></tr>`
+    : `<tr><td colspan="2" style="padding:8px 0;color:#10b981;font-size:14px;font-weight:600;text-align:center;">✨ Turno pagado en su totalidad</td></tr>`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      replyTo: 'courtops.saas@gmail.com',
+      to: [email],
+      subject: `Pago recibido — ${clubName}`,
+      html: `
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:0 auto;background-color:#030712;color:#f8fafc;border-radius:16px;overflow:hidden;border:1px solid #1e293b;">
+          <div style="background-color:#020617;padding:40px 20px;text-align:center;border-bottom:1px solid #1e293b;">
+            <h1 style="color:#ffffff;margin:0;font-size:28px;font-weight:900;letter-spacing:-0.5px;">COURT<span style="color:#10b981;">OPS</span></h1>
+            <p style="color:#94a3b8;font-size:14px;margin-top:8px;">${clubName}</p>
+          </div>
+          <div style="padding:40px 30px;">
+            <h2 style="color:#ffffff;font-size:22px;margin-top:0;margin-bottom:20px;">Hola ${clientName}!</h2>
+            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px 16px;margin-bottom:24px;text-align:center;"><span style="color:#10b981;font-weight:700;font-size:14px;">✅ PAGO RECIBIDO</span></div>
+            <div style="background-color:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:24px;margin:24px 0;">
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Fecha</td><td style="padding:8px 0;color:#ffffff;font-size:16px;font-weight:700;text-align:right;">${bookingDate}</td></tr>
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Hora</td><td style="padding:8px 0;color:#10b981;font-size:16px;font-weight:700;text-align:right;">${bookingTime} hs</td></tr>
+                <tr><td style="padding:8px 0;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Cancha</td><td style="padding:8px 0;color:#ffffff;font-size:16px;font-weight:700;text-align:right;">${courtName}</td></tr>
+                <tr style="border-top:1px solid #1e293b;"><td style="padding:12px 0 8px;color:#10b981;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Pago acreditado</td><td style="padding:12px 0 8px;color:#10b981;font-size:18px;font-weight:800;text-align:right;">${fmt(amountPaid)}</td></tr>
+                ${balanceRow}
+              </table>
+            </div>
+            <p style="color:#94a3b8;font-size:14px;text-align:center;margin-top:8px;">¡Gracias! Te esperamos en la cancha 🎾</p>
+          </div>
+          <div style="background-color:#020617;padding:24px;text-align:center;border-top:1px solid #1e293b;">
+            <p style="color:#64748b;font-size:12px;margin:0;">&copy; ${new Date().getFullYear()} CourtOps. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      `,
+    });
+    if (error) { console.error('[EMAIL] Payment confirmation error:', error); return { success: false, error }; }
+    return { success: true, data };
+  } catch (err) {
+    console.error('[EMAIL] Payment confirmation exception:', err);
+    return { success: false, error: err };
+  }
+};
+
 export const sendSubscriptionPaymentEmail = async (
   toEmail: string,
   clubName: string,

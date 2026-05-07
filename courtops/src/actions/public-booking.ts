@@ -6,6 +6,8 @@ import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
 import { sendPushToClubUsers } from '@/lib/push-notifications'
+import { MessagingService } from '@/lib/messaging'
+import { sendBookingConfirmationEmail } from '@/lib/email'
 
 const PADEL_SLOT_MINUTES = 90
 
@@ -332,7 +334,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
               // 2. Fetch Settings
               const club = await prisma.club.findUnique({
                      where: { id: data.clubId },
-                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true, slug: true }
+                     select: { slotDuration: true, bookingDeposit: true, cancelHours: true, slug: true, name: true, phone: true }
               })
               if (!club) return { success: false, error: 'Club not found' }
 
@@ -449,6 +451,59 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      })
               } catch (pushError) {
                      console.error('[PUSH ERROR in public-booking]', pushError)
+              }
+
+              // Client-facing notifications (fire-and-forget)
+              try {
+                     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://courtops.net'
+                     const paymentUrl = `${appUrl}/pay/${booking.id}`
+
+                     const dateFormatter = new Intl.DateTimeFormat('es-AR', {
+                            weekday: 'long', day: '2-digit', month: 'long',
+                            timeZone: 'America/Argentina/Buenos_Aires'
+                     })
+                     const dateLabel = dateFormatter.format(dateTime)
+
+                     if (data.isGuest) {
+                            const waMsg = MessagingService.generateBookingMessage({
+                                   schedule: { startTime: dateTime, courtName: court.name },
+                                   client: { name: clientName },
+                                   pricing: { totalPrice: Number(price) },
+                                   meta: { paymentUrl, cancelHours: club.cancelHours ?? 24 }
+                            }, 'pending_booking')
+                            MessagingService.sendWhatsApp(clientPhone!, waMsg).catch(e =>
+                                   console.error('[WA] pending booking notif failed:', e)
+                            )
+                     } else {
+                            const waMsg = MessagingService.generateBookingMessage({
+                                   schedule: { startTime: dateTime, courtName: court.name },
+                                   client: { name: clientName },
+                                   pricing: { totalPrice: Number(price) }
+                            }, 'new_booking')
+                            MessagingService.sendWhatsApp(clientPhone!, waMsg).catch(e =>
+                                   console.error('[WA] confirmed booking notif failed:', e)
+                            )
+                     }
+
+                     if (data.email) {
+                            sendBookingConfirmationEmail(
+                                   data.email,
+                                   clientName!,
+                                   dateLabel,
+                                   timeStr,
+                                   court.name,
+                                   club.name,
+                                   Number(price),
+                                   {
+                                          isPending: data.isGuest,
+                                          paymentUrl: data.isGuest ? paymentUrl : undefined,
+                                          cancelHours: club.cancelHours ?? 24,
+                                          clubPhone: club.phone
+                                   }
+                            ).catch(e => console.error('[EMAIL] booking confirmation failed:', e))
+                     }
+              } catch (notifErr) {
+                     console.error('[NOTIF] Error sending booking notifications:', notifErr)
               }
 
               revalidatePath('/')
@@ -605,7 +660,11 @@ export async function submitPublicTransfer(bookingId: number, data: {
 }) {
        try {
               const booking = await prisma.booking.findUnique({
-                     where: { id: bookingId }
+                     where: { id: bookingId },
+                     include: {
+                            court: { select: { name: true } },
+                            client: { select: { phone: true, name: true } }
+                     }
               });
 
               if (!booking) {
@@ -621,6 +680,27 @@ export async function submitPublicTransfer(bookingId: number, data: {
                             receiptUrl: data.receiptUrl
                      }
               });
+
+              // Notify client that receipt was received (fire-and-forget)
+              try {
+                     const phone = booking.guestPhone || booking.client?.phone
+                     const name = booking.guestName || booking.client?.name || 'Jugador'
+                     if (phone) {
+                            MessagingService.sendWhatsApp(phone, [
+                                   `🧾 *Comprobante recibido*`,
+                                   ``,
+                                   `Hola *${name}*!`,
+                                   `Recibimos tu comprobante de transferencia para:`,
+                                   ``,
+                                   `📍 ${booking.court?.name || 'tu cancha'}`,
+                                   ``,
+                                   `Lo revisaremos pronto y confirmaremos tu turno.`,
+                                   `Ante cualquier duda, contactá al club. 🙌`
+                            ].join('\n')).catch(e => console.error('[WA] transfer receipt notif failed:', e))
+                     }
+              } catch (notifErr) {
+                     console.error('[NOTIF] Transfer receipt notification failed:', notifErr)
+              }
 
               revalidatePath('/');
               revalidatePath(`/pay/${bookingId}`);
