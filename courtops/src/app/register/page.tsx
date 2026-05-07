@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Lock, Mail, MapPin, Phone, Store, User } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, ImageIcon, Instagram, Lock, Mail, MapPin, Phone, Store, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -89,7 +89,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [isYearly, setIsYearly] = useState(false)
-  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '+54 ', address: '', password: '' })
+  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '+54 ', address: '', instagram: '', logoUrl: '', password: '' })
   const selectedPlanData = PLANS.find((plan) => plan.id === selectedPlan)
 
   const validationRules = useMemo(
@@ -99,6 +99,8 @@ export default function RegisterPage() {
       email: (v: string) => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresá un email válido' : null),
       phone: (v: string) => (v && v.replace(/\D/g, '').length < 8 ? 'Teléfono inválido' : null),
       address: (_v: string) => null,
+      instagram: (_v: string) => null,
+      logoUrl: (_v: string) => null,
       password: (v: string) => (v.length < 6 ? 'Mínimo 6 caracteres' : null),
     }),
     []
@@ -122,6 +124,8 @@ export default function RegisterPage() {
     data.append('email', formData.email)
     data.append('phone', formData.phone)
     data.append('address', formData.address)
+    data.append('instagram', formData.instagram)
+    data.append('logoUrl', formData.logoUrl)
     data.append('password', formData.password)
     data.append('plan', isYearly && selectedPlan !== 'FREE' ? `${selectedPlan}_ANUAL` : selectedPlan)
 
@@ -382,6 +386,48 @@ export default function RegisterPage() {
                       />
                     </div>
                     <p className="mt-1 text-[11px] text-zinc-400">Opcional · Aparece en tu página pública de reservas</p>
+                  </FormField>
+                  <FormField label="Instagram" error={errors.instagram}>
+                    <div className="relative">
+                      <Instagram className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                      <input
+                        type="text"
+                        className={cn(inputBase, inputBorder)}
+                        placeholder="tuclub (sin @)"
+                        value={formData.instagram}
+                        onChange={(e) => setFormData({ ...formData, instagram: e.target.value.replace('@', '') })}
+                      />
+                    </div>
+                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Se muestra en tu página pública</p>
+                  </FormField>
+                  <FormField label="Logo del club (URL)" error={errors.logoUrl}>
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
+                        <input
+                          type="url"
+                          className={cn(inputBase, inputBorder)}
+                          placeholder="https://tuclub.com/logo.png"
+                          value={formData.logoUrl}
+                          onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                        />
+                      </div>
+                      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 flex items-center justify-center">
+                        {formData.logoUrl ? (
+                          <img
+                            src={formData.logoUrl}
+                            alt="preview"
+                            className="h-full w-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                          />
+                        ) : (
+                          <span className="text-lg font-bold text-zinc-400">
+                            {formData.clubName?.[0]?.toUpperCase() || 'C'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-zinc-400">Opcional · Pegá la URL de tu logo (PNG/JPG)</p>
                   </FormField>
                   <FormField label="Contraseña" error={errors.password}>
                     <div className="relative">

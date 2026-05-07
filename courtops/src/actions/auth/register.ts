@@ -12,6 +12,8 @@ export async function registerClub(formData: FormData) {
 		const userName = formData.get('userName') as string
 		const phone = (formData.get('phone') as string)?.trim() || undefined
 		const address = (formData.get('address') as string)?.trim() || undefined
+		const instagram = (formData.get('instagram') as string)?.trim().replace('@', '') || undefined
+		const logoUrl = (formData.get('logoUrl') as string)?.trim() || undefined
 		const plan = (formData.get('plan') as string)?.replace(/_ANUAL$/, '')
 
 		if (!clubName || !email || !password || !userName) {
@@ -79,6 +81,8 @@ export async function registerClub(formData: FormData) {
 					slug: slug,
 					phone: phone,
 					address: address,
+					socialInstagram: instagram,
+					logoUrl: logoUrl,
 					plan: 'BASIC',
 					platformPlanId: platformPlanId,
 					subscriptionStatus: 'TRIAL',
