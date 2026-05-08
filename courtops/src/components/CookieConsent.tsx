@@ -1,20 +1,23 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CookieConsent() {
+  const pathname = usePathname()
   const [visible, setVisible] = useState(false)
+  const isPublicBookingPath = pathname.startsWith('/p/')
 
   useEffect(() => {
     const accepted = localStorage.getItem('courtops_cookies_accepted')
     if (!accepted) {
-      const timer = setTimeout(() => setVisible(true), 1800)
+      const timer = setTimeout(() => setVisible(true), isPublicBookingPath ? 2200 : 1800)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [isPublicBookingPath])
 
   const accept = () => {
     localStorage.setItem('courtops_cookies_accepted', 'true')
@@ -34,7 +37,11 @@ export default function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -32, opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-          className="fixed top-4 left-4 right-4 md:top-auto md:left-6 md:right-auto md:bottom-6 md:max-w-[380px] z-[100]"
+          className={
+            isPublicBookingPath
+              ? 'fixed bottom-4 left-4 right-4 z-[96] md:left-6 md:right-auto md:max-w-[380px]'
+              : 'fixed top-4 left-4 right-4 md:top-auto md:left-6 md:right-auto md:bottom-6 md:max-w-[380px] z-[100]'
+          }
         >
           <div
             className="relative rounded-2xl overflow-hidden"

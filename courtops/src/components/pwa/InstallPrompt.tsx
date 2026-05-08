@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 import { Download } from "lucide-react"
 
 type BeforeInstallPromptEvent = Event & {
@@ -12,10 +13,13 @@ type NavigatorWithStandalone = Navigator & {
 }
 
 export function InstallPrompt() {
+       const pathname = usePathname()
        const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
        const [show, setShow] = useState(false)
        const [isIOS, setIsIOS] = useState(false)
        const [isStandalone, setIsStandalone] = useState(false)
+       const isPublicBookingPath = pathname.startsWith('/p/')
+       const promptDelayMs = isPublicBookingPath ? 9000 : 2000
 
        useEffect(() => {
               // Check if previously dismissed
@@ -36,19 +40,19 @@ export function InstallPrompt() {
                      e.preventDefault()
                      setDeferredPrompt(e as BeforeInstallPromptEvent)
                      if (!isInStandaloneMode) {
-                            setShow(true)
+                            window.setTimeout(() => setShow(true), promptDelayMs)
                      }
               }
               window.addEventListener("beforeinstallprompt", handler)
 
               // iOS Manual Prompt (show after a small delay if not standalone)
               if (isIosDevice && !isInStandaloneMode) {
-                     const timer = setTimeout(() => setShow(true), 2000)
+                     const timer = setTimeout(() => setShow(true), promptDelayMs)
                      return () => clearTimeout(timer)
               }
 
               return () => window.removeEventListener("beforeinstallprompt", handler)
-       }, [])
+       }, [promptDelayMs, isPublicBookingPath])
 
        const handleInstall = async () => {
               if (!deferredPrompt) return
@@ -63,7 +67,13 @@ export function InstallPrompt() {
        if (!show || isStandalone) return null
 
        return (
-              <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] left-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-500 md:bottom-4 md:left-auto md:right-4">
+              <div
+                     className={
+                            isPublicBookingPath
+                                   ? "fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-4 right-4 z-[88] animate-in slide-in-from-bottom-5 fade-in duration-500 md:bottom-4 md:left-auto md:right-4"
+                                   : "fixed bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] left-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-500 md:bottom-4 md:left-auto md:right-4"
+                     }
+              >
                      <div className="mx-auto flex max-w-md flex-col items-start justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-[#18181B]/92 p-4 shadow-2xl backdrop-blur-xl sm:flex-row sm:items-center">
                             <div className="flex items-center gap-3">
                                    <div className="w-10 h-10 rounded-2xl bg-[var(--primary)] flex items-center justify-center text-white shrink-0 shadow-sm">

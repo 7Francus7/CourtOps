@@ -1,28 +1,29 @@
 'use client'
 
-/* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import {
-  MapPin,
-  Phone,
-  Instagram,
-  Facebook,
-  Wifi,
-  Utensils,
+  ArrowRight,
   Car,
-  ShoppingBag,
-  DoorOpen,
-  Info,
-  Clock,
-  ShieldCheck,
+  Check,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  DoorOpen,
+  Facebook,
+  Info,
+  Instagram,
+  MapPin,
+  MessageCircle,
+  Moon,
+  Phone,
   Share2,
-  Check,
+  ShieldCheck,
+  ShoppingBag,
   Sun,
-  Moon
+  Utensils,
+  Wifi,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -41,79 +42,210 @@ type VenueClub = {
   socialFacebook?: string | null
 }
 
+type VenueBookingMeta = {
+  firstAvailableTime?: string | null
+  totalSlots?: number
+  totalAvailableCourts?: number
+  slotDuration?: number | null
+  depositLabel?: string | null
+  whatsappHref?: string | null
+  trafficSource?: string | null
+  isLoading?: boolean
+}
+
 interface VenueLayoutProps {
   club: VenueClub
   activeTab: 'booking' | 'info'
   setActiveTab: (_tab: 'booking' | 'info') => void
   children: React.ReactNode
   onBack?: () => void
+  bookingMeta?: VenueBookingMeta
 }
 
 const amenityIcons: Record<string, React.ElementType> = {
-  'Bar': Utensils,
-  'Restaurante': Utensils,
-  'Buffet': Utensils,
-  'Kiosco': Utensils,
-  'Parrilla': Utensils,
-  'Quincho': DoorOpen,
+  Bar: Utensils,
+  Restaurante: Utensils,
+  Buffet: Utensils,
+  Kiosco: Utensils,
+  Parrilla: Utensils,
+  Quincho: DoorOpen,
   'Wi-Fi': Wifi,
-  'Estacionamiento': Car,
-  'Parking': Car,
+  Estacionamiento: Car,
+  Parking: Car,
   'Pro Shop': ShoppingBag,
   'Venta de Equipo': ShoppingBag,
-  'Vestuarios': DoorOpen,
-  'Duchas': MapPin,
-  'Iluminación LED': Info,
-  'Canchas Panorámicas': MapPin,
-  'Gimnasio': Info,
-  'Seguridad': ShieldCheck,
-  'Climatizado': Info,
+  Vestuarios: DoorOpen,
+  Duchas: MapPin,
+  'Iluminacion LED': Info,
+  'Canchas Panoramicas': MapPin,
+  Gimnasio: Info,
+  Seguridad: ShieldCheck,
+  Climatizado: Info,
 }
 
-export default function VenueLayout({ club, activeTab, setActiveTab, children, onBack }: VenueLayoutProps) {
-  const amenities = club.amenities ? club.amenities.split(',').map((a: string) => a.trim()) : []
+function getInstagramHandle(value?: string | null) {
+  if (!value) return null
+  return value
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, '')
+    .replace(/^@/, '')
+    .replace(/\/+$/, '')
+    .trim() || null
+}
+
+function getSocialHref(value?: string | null, base?: string) {
+  if (!value) return null
+  if (/^https?:\/\//i.test(value)) return value
+  return `${base}${value.replace(/^@/, '')}`
+}
+
+function getTrafficCopy(source?: string | null) {
+  const normalized = source?.toLowerCase() || 'direct'
+
+  if (normalized.includes('instagram')) {
+    return {
+      badge: 'Llegaste desde Instagram',
+      title: 'Mira el club y pasa directo a los horarios reales',
+      description: 'Todo esta pensado para que revises datos clave y reserves sin friccion desde el celular.',
+    }
+  }
+
+  if (normalized.includes('whatsapp')) {
+    return {
+      badge: 'Llegaste desde WhatsApp',
+      title: 'Segui desde aca y confirma tu turno sin vueltas',
+      description: 'Tenes disponibilidad real, contacto directo y una reserva clara para cerrar rapido.',
+    }
+  }
+
+  return {
+    badge: 'Reserva oficial del club',
+    title: 'Reserva tu cancha con una experiencia simple y confiable',
+    description: 'Horarios reales, contacto visible y una portada clara para convertir mejor en mobile.',
+  }
+}
+
+export default function VenueLayout({
+  club,
+  activeTab,
+  setActiveTab,
+  children,
+  onBack,
+  bookingMeta,
+}: VenueLayoutProps) {
+  const amenities = useMemo(
+    () => (club.amenities ? club.amenities.split(',').map((item: string) => item.trim()).filter(Boolean) : []),
+    [club.amenities]
+  )
   const [shareCopied, setShareCopied] = useState(false)
   const [themeMounted, setThemeMounted] = useState(false)
+  const [scrollToBooking, setScrollToBooking] = useState(false)
+  const bookingAnchorRef = useRef<HTMLDivElement | null>(null)
   const { resolvedTheme, setTheme } = useTheme()
+
+  const trafficCopy = useMemo(() => getTrafficCopy(bookingMeta?.trafficSource), [bookingMeta?.trafficSource])
+  const instagramHandle = useMemo(() => getInstagramHandle(club.socialInstagram), [club.socialInstagram])
+  const instagramHref = useMemo(
+    () => getSocialHref(instagramHandle, 'https://instagram.com/'),
+    [instagramHandle]
+  )
+  const facebookHref = useMemo(
+    () => getSocialHref(club.socialFacebook, 'https://facebook.com/'),
+    [club.socialFacebook]
+  )
+  const mapsHref = useMemo(
+    () => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.address || club.name)}`,
+    [club.address, club.name]
+  )
+  const bookingCtaLabel = bookingMeta?.isLoading
+    ? 'Consultando horarios'
+    : bookingMeta?.firstAvailableTime
+      ? `Ver ${bookingMeta.firstAvailableTime} hs`
+      : 'Ver horarios'
+  const bookingCtaSummary = bookingMeta?.isLoading
+    ? 'Estamos buscando disponibilidad del dia.'
+    : (bookingMeta?.totalSlots || 0) > 0
+      ? `${bookingMeta?.totalSlots} horario${bookingMeta?.totalSlots === 1 ? '' : 's'} online y ${bookingMeta?.totalAvailableCourts || 0} opcion${bookingMeta?.totalAvailableCourts === 1 ? '' : 'es'} para elegir.`
+      : 'Revisa la disponibilidad actual o habla con el club si buscas una franja puntual.'
+  const keyFacts = [
+    {
+      label: 'Ubicacion',
+      value: club.address?.split(',')[0] || 'Consulta la direccion',
+    },
+    {
+      label: 'Horarios',
+      value: club.openTime && club.closeTime ? `${club.openTime} a ${club.closeTime}` : 'Todos los dias',
+    },
+    {
+      label: 'Turnos',
+      value: bookingMeta?.slotDuration ? `${bookingMeta.slotDuration} min por bloque` : 'Turnos online',
+    },
+    {
+      label: 'Reserva',
+      value: bookingMeta?.depositLabel || 'Confirmacion clara desde el celu',
+    },
+  ]
 
   useEffect(() => {
     setThemeMounted(true)
   }, [])
 
+  useEffect(() => {
+    if (activeTab !== 'booking' || !scrollToBooking) return
+
+    const frame = window.requestAnimationFrame(() => {
+      bookingAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setScrollToBooking(false)
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [activeTab, scrollToBooking])
+
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: club.name,
-        text: `Reservá tu cancha en ${club.name}`,
-        url: window.location.href,
-      }).catch(() => {})
-    } else {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        setShareCopied(true)
-        setTimeout(() => setShareCopied(false), 2000)
-      })
+      navigator
+        .share({
+          title: club.name,
+          text: `Reserva tu cancha en ${club.name}`,
+          url: window.location.href,
+        })
+        .catch(() => {})
+      return
     }
+
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true)
+      window.setTimeout(() => setShareCopied(false), 2000)
+    })
+  }
+
+  const goToBooking = () => {
+    setScrollToBooking(true)
+    setActiveTab('booking')
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-primary/20">
-      {/* Sticky Header - Minimalist */}
-      <header className="sticky top-0 z-[60] bg-white/80 dark:bg-zinc-950/20 backdrop-blur-3xl px-4 min-h-14 pt-[env(safe-area-inset-top)] flex items-center justify-between border-b border-slate-200/60 dark:border-white/[0.03] transition-colors duration-300">
+    <div className="min-h-screen bg-[#F6F7FB] text-slate-900 font-sans selection:bg-primary/20 dark:bg-zinc-950 dark:text-slate-100">
+      <header className="sticky top-0 z-[70] flex min-h-14 items-center justify-between border-b border-slate-200/70 bg-white/82 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-2xl transition-colors duration-300 dark:border-white/[0.06] dark:bg-zinc-950/78">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
               onClick={onBack}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all active:scale-95 border border-slate-200 dark:border-white/5"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 transition-all active:scale-95 dark:border-white/[0.07] dark:bg-white/[0.05]"
             >
               <ChevronLeft size={18} strokeWidth={2.5} className="text-slate-500 dark:text-white/70" />
             </button>
           )}
-          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-white/50 truncate max-w-[150px]">{club.name}</span>
+          <div className="min-w-0">
+            <p className="truncate text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-white/40">
+              Portada publica
+            </p>
+            <p className="truncate text-sm font-black text-slate-800 dark:text-white">{club.name}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-500 transition-all dark:border-white/[0.07] dark:bg-white/[0.05] dark:text-slate-400"
             aria-label="Cambiar tema"
           >
             {themeMounted ? (
@@ -122,186 +254,315 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
               <div className="h-4 w-4" aria-hidden="true" />
             )}
           </button>
-          <button onClick={handleShare} className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-white/5 text-primary relative">
+          <button
+            onClick={handleShare}
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-primary transition-all dark:border-white/[0.07] dark:bg-white/[0.05]"
+            aria-label="Compartir"
+          >
             {shareCopied ? <Check size={15} strokeWidth={3} className="text-primary" /> : <Share2 size={16} strokeWidth={2.5} />}
             {shareCopied && (
-              <span className="absolute -bottom-7 right-0 text-[9px] font-black text-primary uppercase tracking-wider whitespace-nowrap bg-white dark:bg-zinc-900/90 border border-slate-200 dark:border-transparent px-2 py-0.5 rounded-md shadow-sm">
-                ¡Copiado!
+              <span className="absolute -bottom-7 right-0 whitespace-nowrap rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary shadow-sm dark:border-white/[0.08] dark:bg-zinc-900">
+                Copiado
               </span>
             )}
           </button>
         </div>
       </header>
 
-      {/* Hero Section - Immersive Design */}
-      <section className="relative h-[220px] md:h-[320px] w-full overflow-hidden">
-        {/* Main Cover Image with Overlay */}
-        <div className="absolute inset-0">
-          <div className="w-full h-full bg-slate-900" />
+      <section className="relative overflow-hidden pb-6">
+        <div className="absolute inset-x-0 top-0 h-[320px] overflow-hidden md:h-[380px]">
+          <div className="absolute inset-0 bg-slate-950" />
           {club.coverUrl && (
             <img
               src={club.coverUrl}
               alt={club.name}
-              className="absolute inset-0 w-full h-full object-cover scale-105"
+              className="absolute inset-0 h-full w-full scale-105 object-cover"
               onError={(event) => {
                 event.currentTarget.style.display = 'none'
               }}
             />
           )}
-          {/* Multi-layered gradient for depth */}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/60 to-transparent" />
-          
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(var(--primary-rgb,99,102,241),0.35),transparent_38%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/45 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/20 to-transparent" />
         </div>
-        
-        {/* Hero Content Overlay */}
-        <div className="absolute bottom-0 left-0 w-full p-5 md:p-6 flex flex-col gap-3">
-          <div className="flex items-end gap-4">
-            {/* Logo - Floating Effect */}
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', damping: 15 }}
-              className="relative shrink-0"
-            >
-              <div className="w-[4.5rem] h-[4.5rem] md:w-[5.5rem] md:h-[5.5rem] bg-white dark:bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-sm">
-                <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-zinc-800 flex items-center justify-center">
-                  {club.logoUrl ? (
-                    <>
-                      <img
-                        src={club.logoUrl}
-                        alt={club.name}
-                        className="w-full h-full object-cover"
-                        onError={(event) => {
-                          event.currentTarget.style.display = 'none'
-                          event.currentTarget.nextElementSibling?.classList.remove('hidden')
-                        }}
-                      />
-                      <span className="hidden text-2xl md:text-3xl font-black text-primary">{club.name[0]}</span>
-                    </>
+
+        <div className="relative mx-auto max-w-md px-4 pt-5">
+          <div className="h-[220px] md:h-[280px]" />
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+            className="relative -mt-14 overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/94 shadow-[0_24px_70px_rgba(15,23,42,0.16)] backdrop-blur-xl dark:border-white/[0.08] dark:bg-zinc-950/88"
+          >
+            <div className="absolute -right-8 top-0 h-32 w-32 rounded-full bg-primary/12 blur-3xl" />
+            <div className="absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-slate-200/70 blur-3xl dark:bg-white/[0.05]" />
+
+            <div className="relative z-10 space-y-5 p-5">
+              <div className="flex items-start gap-4">
+                <motion.div
+                  initial={{ scale: 0.92, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.08, type: 'spring', damping: 16 }}
+                  className="shrink-0"
+                >
+                  <div className="h-[4.75rem] w-[4.75rem] rounded-[1.5rem] border border-white/30 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-zinc-900">
+                    <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[1.15rem] bg-slate-950 dark:bg-zinc-900">
+                      {club.logoUrl ? (
+                        <>
+                          <img
+                            src={club.logoUrl}
+                            alt={club.name}
+                            className="h-full w-full object-cover"
+                            onError={(event) => {
+                              event.currentTarget.style.display = 'none'
+                              event.currentTarget.nextElementSibling?.classList.remove('hidden')
+                            }}
+                          />
+                          <span className="hidden text-2xl font-black text-primary">{club.name[0]}</span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-black text-primary">{club.name[0]}</span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                      {trafficCopy.badge}
+                    </span>
+                    <span className="rounded-full bg-slate-950 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white dark:bg-white/[0.08]">
+                      {club.subscriptionStatus === 'ACTIVE' ? 'Club verificado' : 'Reserva online'}
+                    </span>
+                  </div>
+                  <h1 className="mt-3 text-[1.9rem] font-black tracking-tight text-slate-950 dark:text-white">
+                    {club.name}
+                  </h1>
+                  <p className="mt-1 text-[15px] font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
+                    {trafficCopy.title}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                {trafficCopy.description}
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                {keyFacts.map((fact) => (
+                  <div
+                    key={fact.label}
+                    className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/90 px-3.5 py-3 dark:border-white/[0.07] dark:bg-white/[0.04]"
+                  >
+                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                      {fact.label}
+                    </p>
+                    <p className="mt-1 text-[13px] font-black leading-snug text-slate-800 dark:text-slate-100">
+                      {fact.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-[1.4rem] border border-primary/12 bg-primary/[0.05] p-3.5 dark:border-primary/15 dark:bg-primary/[0.08]">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                      CTA principal
+                    </p>
+                    <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
+                      {bookingCtaSummary}
+                    </p>
+                  </div>
+                  <div className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-primary shadow-sm dark:bg-zinc-900">
+                    {bookingMeta?.slotDuration ? `${bookingMeta.slotDuration} min` : 'Mobile first'}
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={goToBooking}
+                    className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-white shadow-lg transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+                  >
+                    {bookingMeta?.isLoading ? 'Consultando' : bookingCtaLabel}
+                    {!bookingMeta?.isLoading && <ArrowRight size={15} strokeWidth={3} />}
+                  </button>
+
+                  {bookingMeta?.whatsappHref ? (
+                    <a
+                      href={bookingMeta.whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-[11px] font-black uppercase tracking-[0.16em] text-slate-700 transition-all active:scale-[0.98] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-white"
+                    >
+                      <MessageCircle size={15} />
+                      WhatsApp
+                    </a>
                   ) : (
-                    <span className="text-2xl md:text-3xl font-black text-primary">{club.name[0]}</span>
+                    <a
+                      href={mapsHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-[11px] font-black uppercase tracking-[0.16em] text-slate-700 transition-all active:scale-[0.98] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-white"
+                    >
+                      <MapPin size={15} />
+                      Como llegar
+                    </a>
                   )}
                 </div>
               </div>
-            </motion.div> 
 
-            {/* Title & Stats */}
-            <div className="pb-1 space-y-1.5 flex-1 min-w-0">
-              <motion.div 
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="flex items-center gap-2"
-              >
-                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-none truncate">
-                  {club.name}
-                </h1>
-                {club.subscriptionStatus === 'ACTIVE' && (
-                  <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center border border-white/20">
-                    <Check size={8} strokeWidth={4} className="text-white" />
-                  </div>
-                )}
-              </motion.div>
-              
-              <motion.div 
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-3"
-              >
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.address || club.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-white/60 text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-full border border-white/5 hover:bg-white/10 hover:text-white/80 transition-colors active:scale-95"
-                >
-                  <MapPin size={10} className="text-primary" />
-                  <span className="truncate">{club.address?.split(',')[0] || 'Ubicación no disponible'}</span>
-                </a>
-                <div className="flex items-center gap-1 text-white/40 text-[10px] font-black uppercase tracking-widest">
-                  <Clock size={10} />
-                  <span>{club.openTime} - {club.closeTime}</span>
-                </div>
-              </motion.div>
+              <div className="flex flex-wrap gap-2">
+                {['Disponibilidad real', 'Proceso simple', 'Contacto visible'].map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-full border border-slate-200/80 bg-white/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-slate-300"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Tabs Layout - Pill Style */}
-      <div className="sticky top-14 z-40 bg-[#F8FAFC]/80 dark:bg-zinc-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-white/5">
-        <div className="w-full max-w-md mx-auto px-4 py-3">
-          <div className="flex bg-slate-200/50 dark:bg-white/5 p-1 rounded-2xl">
-            <button 
+      <div className="sticky top-14 z-[60] border-b border-slate-200/80 bg-[#F6F7FB]/86 backdrop-blur-2xl dark:border-white/[0.06] dark:bg-zinc-950/84">
+        <div className="mx-auto w-full max-w-md px-4 py-3">
+          <div className="flex rounded-2xl bg-slate-200/60 p-1 dark:bg-white/[0.05]">
+            <button
               onClick={() => setActiveTab('booking')}
               className={cn(
-                "flex-1 py-2.5 text-xs font-black tracking-widest transition-all rounded-xl relative overflow-hidden",
-                activeTab === 'booking' ? "text-primary bg-white dark:bg-zinc-900 shadow-sm" : "text-slate-400 dark:text-slate-500"
+                'relative flex-1 rounded-xl py-2.5 text-xs font-black uppercase tracking-[0.16em] transition-all',
+                activeTab === 'booking'
+                  ? 'bg-white text-primary shadow-sm dark:bg-zinc-900'
+                  : 'text-slate-400 dark:text-slate-500'
               )}
             >
-              RESERVA
+              Reservar
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('info')}
               className={cn(
-                "flex-1 py-2.5 text-xs font-black tracking-widest transition-all rounded-xl relative overflow-hidden",
-                activeTab === 'info' ? "text-primary bg-white dark:bg-zinc-900 shadow-sm" : "text-slate-400 dark:text-slate-500"
+                'relative flex-1 rounded-xl py-2.5 text-xs font-black uppercase tracking-[0.16em] transition-all',
+                activeTab === 'info'
+                  ? 'bg-white text-primary shadow-sm dark:bg-zinc-900'
+                  : 'text-slate-400 dark:text-slate-500'
               )}
             >
-              INFORMACIÓN
+              Conocer el club
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content Areas */}
-      <main className="w-full max-w-md mx-auto px-4 py-6 pb-24">
+      <main
+        className={cn(
+          'mx-auto w-full max-w-md px-4 py-6',
+          activeTab === 'info' ? 'pb-36' : 'pb-24'
+        )}
+      >
         {activeTab === 'booking' ? (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="mb-5 rounded-[1.75rem] border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between gap-3">
+          <div ref={bookingAnchorRef} className="scroll-mt-32 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
+              <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
-                    Reserva desde el celular
+                    Transicion a reserva
                   </p>
-                  <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                    Elegí horario, confirmá y seguí con tu día.
+                  <p className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-200">
+                    Entra, elige horario y confirma desde el celular.
                   </p>
                 </div>
                 <div className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary">
                   3 pasos
                 </div>
               </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  '1. Fecha',
+                  '2. Horario',
+                  '3. Confirmacion',
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-slate-200/80 bg-slate-50 px-3 py-2 text-center text-[10px] font-black uppercase tracking-[0.14em] text-slate-500 dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-slate-300"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
             </div>
+
             {children}
           </div>
         ) : (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            {/* Description */}
-            {club.description && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-bold flex items-center gap-2 text-slate-400 uppercase tracking-widest">
-                  <Info size={14} /> Sobre nosotros
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                  {club.description}
-                </p>
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black uppercase tracking-[0.18em] text-slate-400">
+                  Datos clave
+                </h2>
+                <a
+                  href={mapsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-black uppercase tracking-[0.16em] text-primary"
+                >
+                  Ver mapa
+                </a>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {keyFacts.map((fact) => (
+                  <div
+                    key={`info-${fact.label}`}
+                    className="rounded-[1.45rem] border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
+                  >
+                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                      {fact.label}
+                    </p>
+                    <p className="mt-2 text-sm font-black leading-snug text-slate-800 dark:text-white">
+                      {fact.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {club.description && (
+              <section className="space-y-3">
+                <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-slate-400">
+                  <Info size={14} />
+                  Sobre el club
+                </h3>
+                <div className="rounded-[1.75rem] border border-slate-200/80 bg-white p-5 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]">
+                  <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
+                    {club.description}
+                  </p>
+                </div>
+              </section>
             )}
 
-            {/* Amenities Grid */}
             {amenities.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold flex items-center gap-2 text-slate-400 uppercase tracking-widest">
-                  Comodidades
+              <section className="space-y-4">
+                <h3 className="text-sm font-black uppercase tracking-[0.18em] text-slate-400">
+                  Que vas a encontrar
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {amenities.map((item: string) => {
                     const Icon = amenityIcons[item] || ShieldCheck
                     return (
-                      <div key={item} className="flex items-center gap-3 p-3 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-2xl shadow-sm">
-                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                      <div
+                        key={item}
+                        className="flex items-center gap-3 rounded-[1.4rem] border border-slate-200/80 bg-white p-3.5 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
+                      >
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                           <Icon size={16} />
                         </div>
                         <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{item}</span>
@@ -309,153 +570,184 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
                     )
                   })}
                 </div>
-              </div>
+              </section>
             )}
 
-            {/* Social & Contact */}
-            <div className="space-y-4">
-               <h3 className="text-sm font-bold flex items-center gap-2 text-slate-400 uppercase tracking-widest">
+            {instagramHref && instagramHandle && (
+              <a
+                href={instagramHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block rounded-[2rem] bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#F77737] p-[1px] shadow-[0_20px_60px_rgba(225,48,108,0.18)]"
+              >
+                <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-zinc-950 p-5">
+                  <div className="absolute inset-y-0 right-0 w-1/2">
+                    {club.coverUrl ? (
+                      <img
+                        src={club.coverUrl}
+                        alt={club.name}
+                        className="h-full w-full object-cover opacity-30 transition-transform duration-500 group-hover:scale-105"
+                        onError={(event) => {
+                          event.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-[radial-gradient(circle_at_top_right,#E1306C,transparent_55%)] opacity-40" />
+                    )}
+                  </div>
+
+                  <div className="relative z-10 max-w-[78%]">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white backdrop-blur">
+                        <Instagram size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">@{instagramHandle}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/45">
+                          Instagram del club
+                        </p>
+                      </div>
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-black tracking-tight text-white">
+                      Refuerza la confianza antes de reservar
+                    </h3>
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-white/70">
+                      Si llegaste por una historia o un reel, desde aca puedes volver al perfil del club y ver el ambiente, novedades y comunidad.
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {['Comunidad', 'Novedades', 'Ambiente real'].map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white/75"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-zinc-950">
+                      Abrir Instagram
+                      <ChevronRight size={14} strokeWidth={3} />
+                    </div>
+                  </div>
+                </div>
+              </a>
+            )}
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.18em] text-slate-400">
                 Contacto
               </h3>
+
               <div className="space-y-3">
                 {club.phone && (
-                  <a href={`tel:${club.phone}`} className="flex items-center justify-between p-4 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-2xl shadow-sm group">
+                  <a
+                    href={`tel:${club.phone}`}
+                    className="flex items-center justify-between rounded-[1.6rem] border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10">
                         <Phone size={18} />
                       </div>
-                      <div className="text-left">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Teléfono</p>
-                        <p className="text-sm font-bold">{club.phone}</p>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Telefono</p>
+                        <p className="text-sm font-black text-slate-800 dark:text-white">{club.phone}</p>
                       </div>
                     </div>
-                    <ChevronRight size={16} className="text-slate-300 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight size={16} className="text-slate-300" />
                   </a>
                 )}
 
-                {/* Instagram immersive card */}
-                {club.socialInstagram && (
+                <a
+                  href={mapsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-[1.6rem] border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <MapPin size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Direccion</p>
+                      <p className="text-sm font-black text-slate-800 dark:text-white">
+                        {club.address || 'Abrir ubicacion del club'}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-300" />
+                </a>
+
+                {facebookHref && (
                   <a
-                    href={`https://instagram.com/${club.socialInstagram.replace('@', '')}`}
+                    href={facebookHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block group relative rounded-[1.75rem] overflow-hidden p-[1.5px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] shadow-lg hover:shadow-[0_8px_32px_rgba(253,29,29,0.3)] transition-shadow"
+                    className="flex items-center justify-between rounded-[1.6rem] border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
                   >
-                    <div className="rounded-[calc(1.75rem-1.5px)] overflow-hidden bg-zinc-950">
-                      {/* Header strip */}
-                      <div className="flex items-center gap-3 px-4 py-3 bg-zinc-950/90 backdrop-blur-sm">
-                        <div className="w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] shrink-0">
-                          <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 flex items-center justify-center">
-                            {club.logoUrl ? (
-                              <img src={club.logoUrl} alt={club.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <span className="text-white font-black text-sm">{club.name[0]}</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white font-black text-sm leading-none">@{club.socialInstagram.replace('@', '')}</p>
-                          <p className="text-white/40 text-[10px] font-bold mt-0.5 truncate">{club.name}</p>
-                        </div>
-                        <div className="shrink-0 bg-gradient-to-r from-[#833AB4] to-[#F77737] rounded-full px-3 py-1.5 text-[10px] font-black text-white tracking-wide group-hover:opacity-90 transition-opacity">
-                          Seguir
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-500/10">
+                        <Facebook size={18} />
                       </div>
-
-                      {/* Feed grid */}
-                      <div className="grid grid-cols-3 gap-[1px] bg-zinc-800">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                          <div key={i} className="aspect-square relative overflow-hidden bg-zinc-900">
-                            {club.coverUrl ? (
-                              <img
-                                src={club.coverUrl}
-                                alt=""
-                                className="w-full h-full object-cover"
-                                style={{
-                                  filter: i % 3 === 0
-                                    ? 'saturate(1.4) hue-rotate(0deg)'
-                                    : i % 3 === 1
-                                    ? 'saturate(1.1) hue-rotate(15deg) brightness(0.85)'
-                                    : 'saturate(1.6) hue-rotate(-15deg) brightness(0.9)',
-                                  transform: `scale(${1.1 + i * 0.05})`,
-                                }}
-                              />
-                            ) : (
-                              <div
-                                className="absolute inset-0"
-                                style={{
-                                  background: i % 2 === 0
-                                    ? 'linear-gradient(135deg,#833AB4,#FD1D1D)'
-                                    : 'linear-gradient(135deg,#FD1D1D,#F77737)',
-                                  opacity: 0.35,
-                                }}
-                              />
-                            )}
-                            <div className="absolute inset-0 bg-black/20" />
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Footer CTA */}
-                      <div className="flex items-center justify-between px-4 py-3 bg-zinc-950/90">
-                        <div className="flex items-center gap-2">
-                          <Instagram size={13} className="text-[#E4405F]" />
-                          <p className="text-white/60 text-[10px] font-bold">Ver nuestro perfil en Instagram</p>
-                        </div>
-                        <ChevronRight size={13} className="text-white/30 group-hover:translate-x-1 transition-transform" />
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Facebook</p>
+                        <p className="text-sm font-black text-slate-800 dark:text-white">Abrir perfil del club</p>
                       </div>
                     </div>
-                  </a>
-                )}
-
-                {/* Facebook */}
-                {club.socialFacebook && (
-                  <a href={`https://facebook.com/${club.socialFacebook}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-3 bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/5 rounded-2xl shadow-sm hover:border-blue-500/30 transition-colors">
-                    <Facebook size={18} className="text-blue-500" />
-                    <span className="text-xs font-bold">Facebook</span>
+                    <ChevronRight size={16} className="text-slate-300" />
                   </a>
                 )}
               </div>
-            </div>
+            </section>
 
-            {/* Open Hours */}
-            <div className="relative overflow-hidden p-6 bg-slate-800 dark:bg-zinc-900 rounded-[2.5rem] border border-slate-700 dark:border-white/5 shadow-2xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[50px] -mr-16 -mt-16" />
-              <div className="relative z-10 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Clock size={20} strokeWidth={2.5} />
+            {(club.openTime || club.closeTime) && (
+              <section className="relative overflow-hidden rounded-[2.25rem] border border-slate-700 bg-slate-900 p-6 shadow-2xl dark:border-white/[0.06] dark:bg-zinc-900">
+                <div className="absolute -right-10 -top-12 h-32 w-32 rounded-full bg-primary/18 blur-3xl" />
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <Clock size={19} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Horarios</p>
+                      <p className="text-xs font-bold text-white/45">Planea rapido antes de reservar</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Horarios de Atención</h4>
-                    <p className="text-xs font-bold text-white/40">Lunes a Domingos</p>
+
+                  <div className="flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Abre</p>
+                      <p className="mt-1 text-3xl font-black tracking-tight text-white">
+                        {club.openTime || '--:--'}
+                      </p>
+                    </div>
+                    <div className="mb-2 h-px flex-1 bg-white/10" />
+                    <div className="text-right">
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/35">Cierra</p>
+                      <p className="mt-1 text-3xl font-black tracking-tight text-white">
+                        {club.closeTime || '--:--'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-baseline pt-2">
-                  <p className="text-4xl font-black text-white tracking-tighter">
-                    {club.openTime} <span className="text-xs text-primary/60 mx-1 font-black uppercase">hs</span>
-                  </p>
-                  <div className="h-px flex-1 bg-white/5 mx-4 mb-2" />
-                  <p className="text-4xl font-black text-white tracking-tighter">
-                    {club.closeTime} <span className="text-xs text-primary/60 mx-1 font-black uppercase">hs</span>
-                  </p>
-                </div>
-              </div>
-            </div>
+              </section>
+            )}
 
             <button
               type="button"
-              onClick={() => setActiveTab('booking')}
-              className="group relative w-full overflow-hidden rounded-[2rem] bg-primary px-5 py-4 text-left text-primary-foreground shadow-[0_18px_44px_hsl(var(--primary)/0.22)] transition-all active:scale-[0.98]"
+              onClick={goToBooking}
+              className="group relative w-full overflow-hidden rounded-[2rem] bg-primary px-5 py-4 text-left text-primary-foreground shadow-[0_18px_44px_hsl(var(--primary)/0.24)] transition-all active:scale-[0.98]"
             >
               <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/20 blur-2xl" />
               <div className="relative z-10 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
-                    Reserva online
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-75">
+                    Siguiente paso
                   </p>
                   <p className="mt-1 text-lg font-black tracking-tight">
-                    Elegí tu horario disponible
+                    Pasa a la agenda y elige el turno
                   </p>
                 </div>
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/20 transition-transform group-active:translate-x-1">
@@ -466,6 +758,33 @@ export default function VenueLayout({ club, activeTab, setActiveTab, children, o
           </div>
         )}
       </main>
+
+      {activeTab === 'info' && (
+        <div className="fixed inset-x-0 bottom-0 z-[65] px-4 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+          <div className="mx-auto max-w-md rounded-[1.75rem] border border-slate-200/80 bg-white/94 p-3 shadow-[0_26px_60px_rgba(15,23,42,0.2)] backdrop-blur-xl dark:border-white/[0.08] dark:bg-zinc-950/88">
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">
+                  Reserva online
+                </p>
+                <p className="truncate text-sm font-black text-slate-800 dark:text-white">
+                  {bookingMeta?.firstAvailableTime
+                    ? `Primer horario sugerido: ${bookingMeta.firstAvailableTime} hs`
+                    : 'Mira disponibilidad y reserva desde el celular'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={goToBooking}
+                className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-white transition-all active:scale-[0.98] dark:bg-primary dark:text-primary-foreground"
+              >
+                Reservar
+                <ArrowRight size={14} strokeWidth={3} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
