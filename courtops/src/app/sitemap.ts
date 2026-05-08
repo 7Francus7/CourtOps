@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let clubUrls: MetadataRoute.Sitemap = []
   try {
     const clubs = await db.club.findMany({
-      where: { slug: { not: undefined } },
+      where: { deletedAt: null },
       select: { slug: true, updatedAt: true },
     })
     clubUrls = clubs.flatMap((club) => [

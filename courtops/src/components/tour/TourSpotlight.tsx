@@ -27,7 +27,7 @@ interface Rect {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TOOLTIP_W_BASE = 348
-const TOOLTIP_H      = 440   // generous estimate; proTip cards reach ~400px
+const TOOLTIP_H_ESTIMATE = 440
 const ARROW_SIZE     = 9
 const VP_PAD         = 16
 
@@ -52,9 +52,12 @@ function computeTooltipPos(
   position: TourPosition,
   padding: number,
   tooltipW: number,
+  tooltipH: number,
 ): { top: number; left: number } {
   const vw = window.innerWidth
   const vh = window.innerHeight
+  const maxTooltipH = Math.max(vh - VP_PAD * 2, 1)
+  const safeTooltipH = Math.min(tooltipH, maxTooltipH)
   const cx = rect.x + rect.width  / 2
   const cy = rect.y + rect.height / 2
   let top = 0, left = 0
@@ -65,25 +68,25 @@ function computeTooltipPos(
       left = clamp(cx - tooltipW / 2, VP_PAD, vw - tooltipW - VP_PAD)
       break
     case 'top':
-      top  = rect.y - padding - TOOLTIP_H - ARROW_SIZE - 10
+      top  = rect.y - padding - safeTooltipH - ARROW_SIZE - 10
       left = clamp(cx - tooltipW / 2, VP_PAD, vw - tooltipW - VP_PAD)
       break
     case 'right':
-      top  = clamp(cy - TOOLTIP_H / 2, VP_PAD, vh - TOOLTIP_H - VP_PAD)
+      top  = clamp(cy - safeTooltipH / 2, VP_PAD, vh - safeTooltipH - VP_PAD)
       left = rect.x + rect.width + padding + ARROW_SIZE + 10
       break
     case 'left':
-      top  = clamp(cy - TOOLTIP_H / 2, VP_PAD, vh - TOOLTIP_H - VP_PAD)
+      top  = clamp(cy - safeTooltipH / 2, VP_PAD, vh - safeTooltipH - VP_PAD)
       left = rect.x - padding - tooltipW - ARROW_SIZE - 10
       break
     default:
-      top  = vh / 2 - TOOLTIP_H / 2
+      top  = vh / 2 - safeTooltipH / 2
       left = vw / 2 - tooltipW / 2
   }
 
   // Auto-flip if clipping
-  if (position === 'bottom' && top + TOOLTIP_H > vh - VP_PAD)
-    top = rect.y - padding - TOOLTIP_H - ARROW_SIZE - 10
+  if (position === 'bottom' && top + safeTooltipH > vh - VP_PAD)
+    top = rect.y - padding - safeTooltipH - ARROW_SIZE - 10
   if (position === 'top' && top < VP_PAD)
     top = rect.y + rect.height + padding + ARROW_SIZE + 10
   if (position === 'right' && left + tooltipW > vw - VP_PAD)
@@ -92,7 +95,7 @@ function computeTooltipPos(
     left = rect.x + rect.width + padding + ARROW_SIZE + 10
 
   // Hard clamp — tooltip must always be within viewport
-  top  = clamp(top,  VP_PAD, vh - TOOLTIP_H - VP_PAD)
+  top  = clamp(top,  VP_PAD, vh - safeTooltipH - VP_PAD)
   left = clamp(left, VP_PAD, vw - tooltipW  - VP_PAD)
 
   return { top: Math.round(top), left: Math.round(left) }
@@ -369,6 +372,8 @@ function TooltipCard({
   isFirst,
   isLast,
   tooltipW,
+  maxTooltipH,
+  tooltipRef,
   onNext,
   onPrev,
   onSkip,
@@ -384,6 +389,8 @@ function TooltipCard({
   isFirst: boolean
   isLast: boolean
   tooltipW: number
+  maxTooltipH: number
+  tooltipRef: React.RefObject<HTMLDivElement | null>
   onNext: () => void
   onPrev: () => void
   onSkip: () => void
@@ -399,12 +406,13 @@ function TooltipCard({
 
   return (
     <motion.div
+      ref={tooltipRef}
       key={step.id}
       initial={{ opacity: 0, y: enterFrom, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{    opacity: 0, y: -enterFrom * 0.5, scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-      style={{ ...posStyle, position: 'fixed', width: tooltipW, zIndex: 10001 }}
+      style={{ ...posStyle, position: 'fixed', width: tooltipW, maxHeight: maxTooltipH, zIndex: 10001, display: 'flex', flexDirection: 'column' }}
       className="bg-card border border-border rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.50)] overflow-hidden"
     >
       {/* Progress bar */}
@@ -416,7 +424,8 @@ function TooltipCard({
         />
       </div>
 
-      <div className="p-5 space-y-4">
+      <div className="min-h-0 overflow-y-auto">
+        <div className="p-5 space-y-4">
         {/* ── Header row ── */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
@@ -524,6 +533,7 @@ function TooltipCard({
             </button>
           </div>
         </div>
+        </div>
       </div>
 
       {/* Arrow indicator */}
@@ -550,8 +560,10 @@ export function TourSpotlight() {
   const [targetRect,    setTargetRect]    = useState<Rect | null>(null)
   const [isMobile,      setIsMobile]      = useState(false)
   const [targetNotFound, setTargetNotFound] = useState(false)
+  const [tooltipH, setTooltipH] = useState(TOOLTIP_H_ESTIMATE)
   const rafRef       = useRef<number | null>(null)
   const touchStartX  = useRef<number | null>(null)
+  const tooltipRef   = useRef<HTMLDivElement | null>(null)
 
   // ── Mobile detection ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -635,6 +647,46 @@ export function TourSpotlight() {
     return () => window.removeEventListener('keydown', onKey)
   }, [isRunning, nextStep, prevStep, stopTour])
 
+  useEffect(() => {
+    if (!isRunning || !currentStep || !activeTour) {
+      setTooltipH(TOOLTIP_H_ESTIMATE)
+      return
+    }
+
+    const effectiveTarget = isMobile && 'mobileTarget' in currentStep
+      ? currentStep.mobileTarget
+      : currentStep.target
+    const stepIsCentered = !effectiveTarget || targetNotFound
+
+    if (stepIsCentered) {
+      setTooltipH(TOOLTIP_H_ESTIMATE)
+      return
+    }
+
+    const node = tooltipRef.current
+    if (!node) return
+
+    const measure = () => {
+      const nextHeight = Math.ceil(node.getBoundingClientRect().height)
+      setTooltipH((prev) => (Math.abs(prev - nextHeight) > 1 ? nextHeight : prev))
+    }
+
+    measure()
+    window.addEventListener('resize', measure)
+
+    if (typeof ResizeObserver === 'undefined') {
+      return () => window.removeEventListener('resize', measure)
+    }
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(node)
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [activeTour, currentStep, isMobile, isRunning, targetNotFound])
+
   if (!isRunning || !currentStep || !activeTour) return null
 
   // Resolve effective target/position for current device
@@ -653,9 +705,10 @@ export function TourSpotlight() {
   const padding      = currentStep.padding      ?? 10
   const borderRadius = currentStep.borderRadius ?? 14
   const tooltipW     = Math.min(TOOLTIP_W_BASE, window.innerWidth - VP_PAD * 2)
+  const maxTooltipH  = Math.max(window.innerHeight - VP_PAD * 2, 1)
 
   const posStyle: React.CSSProperties = targetRect
-    ? computeTooltipPos(targetRect, effectivePosition, padding, tooltipW)
+    ? computeTooltipPos(targetRect, effectivePosition, padding, tooltipW, tooltipH)
     : { top: -9999, left: -9999 }
 
   const sharedProps = {
@@ -753,6 +806,8 @@ export function TourSpotlight() {
               position={effectivePosition}
               posStyle={posStyle}
               tooltipW={tooltipW}
+              maxTooltipH={maxTooltipH}
+              tooltipRef={tooltipRef}
             />
           </div>
         )}

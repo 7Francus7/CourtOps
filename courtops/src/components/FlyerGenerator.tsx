@@ -58,6 +58,29 @@ type FlyerCanvasProps = Omit<FlyerGeneratorProps, 'isOpen' | 'onClose'> & {
 
 const STORY_WIDTH = 270
 const STORY_HEIGHT = 480
+const IMAGE_PRELOAD_TIMEOUT_MS = 5000
+
+function waitForImageLoad(img: HTMLImageElement, timeoutMs = IMAGE_PRELOAD_TIMEOUT_MS): Promise<void> {
+    if (img.complete) return Promise.resolve()
+
+    return new Promise((resolve) => {
+        let settled = false
+        let timeoutId: number | null = null
+
+        const finish = () => {
+            if (settled) return
+            settled = true
+            if (timeoutId !== null) window.clearTimeout(timeoutId)
+            img.removeEventListener('load', finish)
+            img.removeEventListener('error', finish)
+            resolve()
+        }
+
+        timeoutId = window.setTimeout(finish, timeoutMs)
+        img.addEventListener('load', finish, { once: true })
+        img.addEventListener('error', finish, { once: true })
+    })
+}
 
 const VISUAL_PACKS: VisualPack[] = [
     {
@@ -1862,16 +1885,7 @@ export default function FlyerGenerator({
 
         try {
             const images = Array.from(flyerRef.current.querySelectorAll('img'))
-            await Promise.all(
-                images.map(image =>
-                    image.complete
-                        ? Promise.resolve()
-                        : new Promise<void>(resolve => {
-                              image.onload = () => resolve()
-                              image.onerror = () => resolve()
-                          }),
-                ),
-            )
+            await Promise.all(images.map((img) => waitForImageLoad(img)))
 
             await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
             await new Promise(resolve => setTimeout(resolve, 120))
