@@ -15,13 +15,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { bookingId, amount } = body
+    const { bookingId, amount, token } = body
 
     if (!bookingId || !amount) {
       return NextResponse.json({ success: false, error: 'Datos incompletos' }, { status: 400 })
     }
 
-    const result = await createPreference(bookingId, `/pay/${bookingId}`, amount)
+    const tokenParam = typeof token === 'string' && token.length > 0
+      ? `?token=${encodeURIComponent(token)}`
+      : ''
+
+    const result = await createPreference(bookingId, `/pay/${bookingId}${tokenParam}`, amount, token)
 
     if (result.success && result.init_point) {
       return NextResponse.json({ success: true, url: result.init_point })

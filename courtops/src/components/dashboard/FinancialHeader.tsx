@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { getDailyFinancials } from '@/actions/finance'
-import { cn } from '@/lib/utils'
 
 export default function FinancialHeader({ date, refreshKey }: { date: Date, refreshKey: number }) {
        const [stats, setStats] = useState<{
@@ -11,27 +10,22 @@ export default function FinancialHeader({ date, refreshKey }: { date: Date, refr
               pending: number,
               expectedTotal: number
        } | null>(null)
-       const [loading, setLoading] = useState(true)
+       const [, setLoading] = useState(true)
 
-       async function fetchStats() {
+       const fetchStats = useCallback(async () => {
               setLoading(true)
               const res = await getDailyFinancials(date.toISOString())
               if (res && res.success && res.stats) {
                      setStats(res.stats)
               }
               setLoading(false)
-       }
+       }, [date])
 
        useEffect(() => {
               fetchStats()
-       }, [date, refreshKey])
+       }, [fetchStats, refreshKey])
 
        if (!stats) return <div className="h-20 animate-pulse bg-white/5 rounded-2xl mb-4" />
-
-       // Calculate percentage collected
-       const collectedPercent = stats.expectedTotal > 0
-              ? Math.round((stats.income.total / stats.expectedTotal) * 100)
-              : 0
 
        return (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">

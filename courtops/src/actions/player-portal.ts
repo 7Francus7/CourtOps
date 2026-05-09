@@ -6,6 +6,8 @@ import { sendTextMessage, normalizePhone } from '@/lib/whatsapp'
 import { cookies } from 'next/headers'
 import { createHmac } from 'crypto'
 import { fromUTC } from '@/lib/date-utils'
+import { isTerminalBookingStatus } from '@/lib/booking-status'
+import { getPhoneLastDigits, phoneMatches } from '@/lib/phone'
 
 const SECRET = process.env.NEXTAUTH_SECRET ?? 'fallback-secret'
 
@@ -121,9 +123,9 @@ export async function getPlayerDashboard(clubSlug: string) {
   const session = await getPlayerSession(club.id)
   if (!session) return { club, authenticated: false as const }
 
-  const phoneLastDigits = session.phone.replace(/\D/g, '').slice(-8)
+  const phoneLastDigits = getPhoneLastDigits(session.phone)
 
-  const client = await prisma.client.findFirst({
+  const clientCandidates = await prisma.client.findMany({
     where: {
       clubId: club.id,
       deletedAt: null,
@@ -132,10 +134,13 @@ export async function getPlayerDashboard(clubSlug: string) {
     select: {
       id: true,
       name: true,
+      phone: true,
       membershipStatus: true,
       membershipExpiresAt: true,
     },
   })
+
+  const client = clientCandidates.find((candidate) => phoneMatches(session.phone, candidate.phone)) ?? null
 
   const now = new Date()
 
@@ -146,6 +151,7 @@ export async function getPlayerDashboard(clubSlug: string) {
       OR: [
         client ? { clientId: client.id } : { id: -1 },
         { guestPhone: { contains: phoneLastDigits } },
+        { client: { phone: { contains: phoneLastDigits } } },
       ],
     },
     select: {
@@ -156,14 +162,23 @@ export async function getPlayerDashboard(clubSlug: string) {
       status: true,
       paymentStatus: true,
       canceledAt: true,
+      guestPhone: true,
       court: { select: { name: true } },
+      clientId: true,
+      client: { select: { phone: true } },
     },
     orderBy: { startTime: 'desc' },
-    take: 40,
+    take: 80,
   })
 
-  const upcoming = bookings
-    .filter((b) => b.startTime > now && !['CANCELED', 'CANCELLED'].includes(b.status))
+  const matchingBookings = bookings.filter((booking) => {
+    if (client && booking.clientId === client.id) return true
+    if (phoneMatches(session.phone, booking.guestPhone)) return true
+    return phoneMatches(session.phone, booking.client?.phone)
+  })
+
+  const upcoming = matchingBookings
+    .filter((b) => b.startTime > now && !isTerminalBookingStatus(b.status))
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     .map((b) => ({
       ...b,
@@ -172,8 +187,8 @@ export async function getPlayerDashboard(clubSlug: string) {
       canceledAt: b.canceledAt ? fromUTC(b.canceledAt).toISOString() : null,
     }))
 
-  const past = bookings
-    .filter((b) => b.startTime <= now || ['CANCELED', 'CANCELLED'].includes(b.status))
+  const past = matchingBookings
+    .filter((b) => b.startTime <= now || isTerminalBookingStatus(b.status))
     .slice(0, 15)
     .map((b) => ({
       ...b,
@@ -207,9 +222,9 @@ export async function cancelPlayerBooking(bookingId: number, clubSlug: string) {
   const session = await getPlayerSession(club.id)
   if (!session) return { error: 'Sesión expirada. Ingresá de nuevo.' }
 
-  const phoneLastDigits = session.phone.replace(/\D/g, '').slice(-8)
+  const phoneLastDigits = getPhoneLastDigits(session.phone)
 
-  const booking = await prisma.booking.findFirst({
+  const bookingCandidates = await prisma.booking.findMany({
     where: {
       id: bookingId,
       clubId: club.id,
@@ -219,7 +234,16 @@ export async function cancelPlayerBooking(bookingId: number, clubSlug: string) {
         { client: { phone: { contains: phoneLastDigits } } },
       ],
     },
+    include: {
+      client: { select: { phone: true } },
+    },
   })
+
+  const booking = bookingCandidates.find(
+    (candidate) =>
+      phoneMatches(session.phone, candidate.guestPhone) ||
+      phoneMatches(session.phone, candidate.client?.phone)
+  )
 
   if (!booking) return { error: 'Reserva no encontrada' }
   if (booking.status === 'CANCELED') return { error: 'La reserva ya fue cancelada' }
@@ -233,7 +257,7 @@ export async function cancelPlayerBooking(bookingId: number, clubSlug: string) {
   }
 
   await prisma.booking.update({
-    where: { id: bookingId },
+    where: { id_clubId: { id: bookingId, clubId: club.id } },
     data: {
       status: 'CANCELED',
       canceledAt: new Date(),

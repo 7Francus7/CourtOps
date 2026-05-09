@@ -1,3 +1,11 @@
+import {
+  isCanceledBookingStatus,
+  isExpiredBookingStatus,
+  isNoShowBookingStatus,
+  normalizeBookingStatus,
+  normalizePaymentStatus,
+} from '@/lib/booking-status'
+
 export type PlayerBookingStateMeta = {
   reservationLabel: string
   reservationTone: string
@@ -13,24 +21,32 @@ function toDateOnlyString(date: Date) {
 }
 
 export function getPlayerBookingStateMeta(status: string, paymentStatus: string): PlayerBookingStateMeta {
-  const normalizedStatus = status.toUpperCase()
-  const normalizedPayment = paymentStatus.toUpperCase()
+  const normalizedStatus = normalizeBookingStatus(status)
+  const normalizedPayment = normalizePaymentStatus(paymentStatus)
 
   const reservationLabel = normalizedStatus === 'CONFIRMED'
     ? 'Confirmada'
     : normalizedStatus === 'PENDING'
       ? 'Pendiente'
-      : normalizedStatus === 'CANCELED' || normalizedStatus === 'CANCELLED'
+      : isExpiredBookingStatus(normalizedStatus)
+        ? 'Vencida'
+        : isNoShowBookingStatus(normalizedStatus)
+          ? 'No asistio'
+          : isCanceledBookingStatus(normalizedStatus)
         ? 'Cancelada'
-        : normalizedStatus
+            : normalizedStatus
 
   const reservationTone = normalizedStatus === 'CONFIRMED'
     ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
     : normalizedStatus === 'PENDING'
       ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-      : normalizedStatus === 'CANCELED' || normalizedStatus === 'CANCELLED'
+      : isExpiredBookingStatus(normalizedStatus)
+        ? 'text-zinc-300 bg-white/5 border-white/10'
+        : isNoShowBookingStatus(normalizedStatus)
+          ? 'text-orange-300 bg-orange-500/10 border-orange-500/20'
+          : isCanceledBookingStatus(normalizedStatus)
         ? 'text-rose-400 bg-rose-500/10 border-rose-500/20'
-        : 'text-white/60 bg-white/5 border-white/10'
+            : 'text-white/60 bg-white/5 border-white/10'
 
   const paymentLabel = normalizedPayment === 'PAID'
     ? 'Pagada'

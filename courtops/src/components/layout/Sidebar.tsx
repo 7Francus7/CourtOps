@@ -22,7 +22,6 @@ import {
   Moon,
   Sun,
   Crown,
-  Bell,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEmployee } from '@/contexts/EmployeeContext'

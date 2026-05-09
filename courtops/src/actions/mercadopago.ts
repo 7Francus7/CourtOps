@@ -6,9 +6,16 @@ import { fromUTC } from '@/lib/date-utils'
 import { getClubPaymentAdapter } from '@/lib/payment'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { isTerminalBookingStatus } from '@/lib/booking-status'
 
-export async function createPreference(bookingId: number, redirectPath: string = '/reservar', customAmount?: number) {
+export async function createPreference(
+       bookingId: number,
+       redirectPath: string = '/reservar',
+       customAmount?: number,
+       publicToken?: string | null
+) {
        try {
+              const session = await getServerSession(authOptions)
               const booking = await prisma.booking.findUnique({
                      where: { id: bookingId },
                      include: { club: true, court: true, client: true }
@@ -18,17 +25,20 @@ export async function createPreference(bookingId: number, redirectPath: string =
 
               // If there is an active session, enforce that the booking belongs to the caller's club.
               // Public pages (no session) are allowed but the booking must be in a payable state.
-              const session = await getServerSession(authOptions)
-              if (session?.user?.clubId) {
-                     if (booking.clubId !== session.user.clubId) {
-                            throw new Error("No autorizado")
-                     }
-              } else {
-                     // Public context: only allow payment for non-cancelled bookings
-                     if (booking.status === 'CANCELED' || booking.status === 'CANCELLED') {
-                            throw new Error("La reserva fue cancelada y no puede procesarse")
-                     }
-              }
+               if (session?.user?.clubId) {
+                      if (booking.clubId !== session.user.clubId) {
+                             throw new Error("No autorizado")
+                      }
+               } else {
+                      if (booking.publicToken && publicToken !== booking.publicToken) {
+                             throw new Error("Reserva no encontrada")
+                      }
+
+                      // Public context: only allow payment for non-cancelled bookings
+                      if (isTerminalBookingStatus(booking.status)) {
+                             throw new Error("La reserva fue cancelada y no puede procesarse")
+                      }
+               }
 
               const club = booking.club
 

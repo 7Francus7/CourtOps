@@ -1,15 +1,39 @@
 'use server'
 
+import { Prisma } from '@prisma/client'
 import prisma from '@/lib/db'
 import { getEffectivePrice, enforceActiveSubscription } from '@/lib/tenant'
 import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
-import { sendPushToClubUsers } from '@/lib/push-notifications'
-import { MessagingService } from '@/lib/messaging'
-import { sendBookingConfirmationEmail } from '@/lib/email'
+import { AVAILABILITY_BLOCKING_BOOKING_STATUSES } from '@/lib/booking-status'
+import { getPublicBookingHoldExpiration } from '@/lib/booking-hold'
+import { getPhoneLastDigits, phoneMatches } from '@/lib/phone'
 
 const PADEL_SLOT_MINUTES = 90
+
+async function expirePublicSlotHolds(clubId: string, now: Date = new Date()) {
+       await prisma.slotHold.updateMany({
+              where: {
+                     clubId,
+                     status: 'ACTIVE',
+                     expiresAt: { lte: now }
+              },
+              data: {
+                     status: 'EXPIRED'
+              }
+       })
+}
+
+function getPublicBookingWindow(dateStr: string, timeStr: string, durationMinutes: number) {
+       const [y, m, d] = dateStr.split('-').map(Number)
+       const [hh, mm] = timeStr.split(':').map(Number)
+
+       const startTime = createArgDate(y, m - 1, d, hh, mm)
+       const endTime = new Date(startTime.getTime() + durationMinutes * 60000)
+
+       return { startTime, endTime }
+}
 
 export async function getPublicClubBySlug(slug: string) {
        const club = await prisma.club.findUnique({
@@ -57,22 +81,38 @@ export async function getPublicClubBySlug(slug: string) {
 }
 
 export async function getPublicClient(clubId: string, identifier: string) {
-       const client = await prisma.client.findFirst({
+       const trimmedIdentifier = identifier.trim()
+
+       if (trimmedIdentifier.includes('@')) {
+              return prisma.client.findFirst({
+                     where: { clubId, email: trimmedIdentifier },
+                     select: {
+                            id: true,
+                            name: true,
+                            phone: true,
+                            email: true
+                     }
+              })
+       }
+
+       const phoneLastDigits = getPhoneLastDigits(trimmedIdentifier)
+       if (!phoneLastDigits) return null
+
+       const candidates = await prisma.client.findMany({
               where: {
                      clubId,
-                     OR: [
-                            { phone: identifier },
-                            { email: identifier }
-                     ]
+                     phone: { contains: phoneLastDigits }
               },
               select: {
                      id: true,
                      name: true,
                      phone: true,
                      email: true
-              }
+              },
+              take: 20
        })
-       return client
+
+       return candidates.find((candidate) => phoneMatches(trimmedIdentifier, candidate.phone)) ?? null
 }
 
 function getPublicDateParts(dateInput: Date | string) {
@@ -102,6 +142,9 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        const start = addDays(createArgDate(targetYear, targetMonth, targetDay, 0, 0), -1)
        const end = addDays(createArgDate(targetYear, targetMonth, targetDay, 23, 59), 2)
        end.setSeconds(59, 999)
+       const now = new Date()
+
+       await expirePublicSlotHolds(clubId, now)
 
        // 1. Get Club Settings
        const club = await prisma.club.findUnique({
@@ -116,15 +159,28 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
               orderBy: { sortOrder: 'asc' }
        })
 
-       // 3. Get Existing Bookings
-       const bookings = await prisma.booking.findMany({
-              where: {
-                     clubId,
-                     startTime: { gte: start, lte: end },
-                     status: { not: 'CANCELED' }
-              },
-              select: { courtId: true, startTime: true, endTime: true }
-       })
+       // 3. Get Existing Bookings and Active Holds
+       const [bookings, activeHolds] = await Promise.all([
+              prisma.booking.findMany({
+                     where: {
+                            clubId,
+                            startTime: { gte: start, lte: end },
+                            status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] }
+                     },
+                     select: { courtId: true, startTime: true, endTime: true }
+              }),
+              prisma.slotHold.findMany({
+                     where: {
+                            clubId,
+                            status: 'ACTIVE',
+                            expiresAt: { gt: now },
+                            startTime: { lt: end },
+                            endTime: { gt: start }
+                     },
+                     select: { courtId: true, startTime: true, endTime: true }
+              })
+       ])
+       const blockedWindows = [...bookings, ...activeHolds]
 
        // 4. Generate & Merge Slots
        // We use a Map to group availability by start time: "HH:mm" -> { time, minPrice, courts: [...] }
@@ -134,7 +190,7 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
        const [closeH, closeM] = club.closeTime.split(':').map(Number)
 
        // For comparison - Add a 15-minute buffer so we don't show slots that are about to start or have just started
-       const nowWithBuffer = new Date()
+       const nowWithBuffer = new Date(now)
        nowWithBuffer.setMinutes(nowWithBuffer.getMinutes() + 15)
 
        // Shared Intl formatter for robust "HH:mm" extraction without side effects
@@ -176,10 +232,10 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
                             break;
                      }
 
-                     const hasOverlap = bookings.some(b => {
-                            if (b.courtId !== court.id) return false
+                     const hasOverlap = blockedWindows.some((blocked) => {
+                            if (blocked.courtId !== court.id) return false
                             // Classic overlap
-                            return b.startTime < proposedEnd && b.endTime > currentTime
+                            return blocked.startTime < proposedEnd && blocked.endTime > currentTime
                      })
 
                      if (!hasOverlap) {
@@ -244,6 +300,17 @@ type PublicBookingInput = {
        time?: string
        guestName?: string
        guestPhone?: string
+       holdToken?: string
+       holdOwnerToken?: string
+}
+
+type PublicBookingHoldInput = {
+       clubId: string
+       courtId: number
+       dateStr: string
+       timeStr: string
+       durationMinutes?: number
+       ownerToken: string
 }
 
 type PublicWaitingListInput = {
@@ -255,6 +322,170 @@ type PublicWaitingListInput = {
        courtId?: number
 }
 
+export async function createPublicBookingHold(data: PublicBookingHoldInput) {
+       try {
+              await enforceActiveSubscription(data.clubId)
+
+              if (!data.ownerToken?.trim()) {
+                     return { success: false, error: 'No pudimos asegurar el horario. Intentá de nuevo.' }
+              }
+
+              const court = await prisma.court.findFirst({
+                     where: {
+                            id: data.courtId,
+                            clubId: data.clubId,
+                            isActive: true
+                     },
+                     select: { id: true }
+              })
+
+              if (!court) {
+                     return { success: false, error: 'La cancha seleccionada no está disponible.' }
+              }
+
+              const duration = data.durationMinutes || PADEL_SLOT_MINUTES
+              const now = new Date()
+              const { startTime, endTime } = getPublicBookingWindow(data.dateStr, data.timeStr, duration)
+
+              if (startTime <= now) {
+                     return { success: false, error: 'Ese horario ya no está disponible.' }
+              }
+
+              await expirePublicSlotHolds(data.clubId, now)
+
+              const hold = await prisma.$transaction(async (tx) => {
+                     const expiresAt = getPublicBookingHoldExpiration(now)
+
+                     await tx.slotHold.updateMany({
+                            where: {
+                                   clubId: data.clubId,
+                                   status: 'ACTIVE',
+                                   expiresAt: { lte: now }
+                            },
+                            data: {
+                                   status: 'EXPIRED'
+                            }
+                     })
+
+                     const existingBooking = await tx.booking.findFirst({
+                            where: {
+                                   clubId: data.clubId,
+                                   courtId: data.courtId,
+                                   status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] },
+                                   startTime: { lt: endTime },
+                                   endTime: { gt: startTime }
+                            },
+                            select: { id: true }
+                     })
+
+                     if (existingBooking) {
+                            throw new Error('El turno ya no está disponible.')
+                     }
+
+                     const ownHold = await tx.slotHold.findFirst({
+                            where: {
+                                   clubId: data.clubId,
+                                   courtId: data.courtId,
+                                   ownerToken: data.ownerToken,
+                                   status: 'ACTIVE',
+                                   expiresAt: { gt: now },
+                                   startTime,
+                                   endTime
+                            },
+                            select: { id: true, holdToken: true }
+                     })
+
+                     const conflictingHold = await tx.slotHold.findFirst({
+                            where: {
+                                   clubId: data.clubId,
+                                   courtId: data.courtId,
+                                   status: 'ACTIVE',
+                                   expiresAt: { gt: now },
+                                   ownerToken: { not: data.ownerToken },
+                                   startTime: { lt: endTime },
+                                   endTime: { gt: startTime }
+                            },
+                            select: { id: true }
+                     })
+
+                     if (conflictingHold) {
+                            throw new Error('Otro jugador está terminando de reservar ese horario. Elegí otro turno.')
+                     }
+
+                     await tx.slotHold.updateMany({
+                            where: {
+                                   clubId: data.clubId,
+                                   ownerToken: data.ownerToken,
+                                   status: 'ACTIVE',
+                                   ...(ownHold ? { id: { not: ownHold.id } } : {})
+                            },
+                            data: {
+                                   status: 'RELEASED',
+                                   releasedAt: now
+                            }
+                     })
+
+                     if (ownHold) {
+                            return tx.slotHold.update({
+                                   where: { id: ownHold.id },
+                                   data: { expiresAt }
+                            })
+                     }
+
+                     return tx.slotHold.create({
+                            data: {
+                                   clubId: data.clubId,
+                                   courtId: data.courtId,
+                                   ownerToken: data.ownerToken,
+                                   holdToken: crypto.randomUUID(),
+                                   startTime,
+                                   endTime,
+                                   expiresAt
+                            }
+                     })
+              }, {
+                     isolationLevel: Prisma.TransactionIsolationLevel.Serializable
+              })
+
+              return {
+                     success: true,
+                     holdToken: hold.holdToken,
+                     expiresAt: hold.expiresAt.toISOString()
+              }
+       } catch (error: unknown) {
+              console.error('[createPublicBookingHold] Error:', error)
+              return {
+                     success: false,
+                     error: error instanceof Error ? error.message : 'No se pudo guardar el horario.'
+              }
+       }
+}
+
+export async function releasePublicBookingHold(holdToken: string, ownerToken: string) {
+       try {
+              if (!holdToken || !ownerToken) {
+                     return { success: true }
+              }
+
+              await prisma.slotHold.updateMany({
+                     where: {
+                            holdToken,
+                            ownerToken,
+                            status: 'ACTIVE'
+                     },
+                     data: {
+                            status: 'RELEASED',
+                            releasedAt: new Date()
+                     }
+              })
+
+              return { success: true }
+       } catch (error) {
+              console.error('[releasePublicBookingHold] Error:', error)
+              return { success: false, error: 'No se pudo liberar el horario.' }
+       }
+}
+
 export async function createPublicBooking(data: PublicBookingInput) {
        try {
               await enforceActiveSubscription(data.clubId)
@@ -262,7 +493,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
               const dateStr = data.dateStr ?? data.date
               const timeStr = data.timeStr ?? data.time
               const clientName = data.clientName ?? data.guestName
-              const clientPhone = data.clientPhone ?? data.guestPhone
+              const clientPhone = (data.clientPhone ?? data.guestPhone)?.trim()
 
               if (!dateStr || !timeStr || !clientName || !clientPhone) {
                      return { success: false, error: 'Faltan datos obligatorios para crear la reserva.' }
@@ -277,27 +508,6 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      return { success: false, error: 'El teléfono ingresado no es válido.' }
               }
 
-              if (data.isGuest) {
-                     const noShowCount = await prisma.booking.count({
-                            where: { clubId: data.clubId, guestPhone: clientPhone, status: 'NO_SHOW' }
-                     })
-                     if (noShowCount >= 2) {
-                            return { success: false, error: 'Tu número no puede realizar nuevas reservas. Contactá al club.' }
-                     }
-
-                     const activeCount = await prisma.booking.count({
-                            where: {
-                                   clubId: data.clubId,
-                                   guestPhone: clientPhone,
-                                   status: { in: ['PENDING', 'CONFIRMED'] },
-                                   startTime: { gt: new Date() }
-                            }
-                     })
-                     if (activeCount >= 1) {
-                            return { success: false, error: 'Ya tenés una reserva activa. Cancelá la anterior para hacer una nueva.' }
-                     }
-              }
-
               let clientId: number | null = null
               let guestName: string | null = null
               let guestPhone: string | null = null
@@ -308,9 +518,15 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      guestPhone = clientPhone
               } else {
                      // PREMIUM MODE: Find or Create Client
-                     let client = await prisma.client.findFirst({
-                            where: { clubId: data.clubId, phone: clientPhone }
+                     const clientCandidates = await prisma.client.findMany({
+                            where: {
+                                   clubId: data.clubId,
+                                   phone: { contains: getPhoneLastDigits(clientPhone) }
+                            },
+                            take: 20
                      })
+
+                     let client = clientCandidates.find((candidate) => phoneMatches(clientPhone, candidate.phone)) ?? null
 
                      if (!client) {
                             client = await prisma.client.create({
@@ -350,16 +566,9 @@ export async function createPublicBooking(data: PublicBookingInput) {
               const courtDuration = PADEL_SLOT_MINUTES
 
 
-              // 3. Dates & Price - Robust Parsing
-              // Split date: YYYY, MM, DD
-              const [y, m, d] = dateStr.split('-').map(Number)
-              // Split time: HH, mm
-              const [hh, mm] = timeStr.split(':').map(Number)
-
               const duration = data.durationMinutes || courtDuration
 
-              const dateTime = createArgDate(y, m - 1, d, hh, mm)
-              const endTime = new Date(dateTime.getTime() + duration * 60000)
+              const { startTime: dateTime, endTime } = getPublicBookingWindow(dateStr, timeStr, duration)
 
               // Validate that the booking is not in the past
               const now = new Date()
@@ -368,16 +577,17 @@ export async function createPublicBooking(data: PublicBookingInput) {
               }
 
               const price = await getEffectivePrice(data.clubId, dateTime, duration, false, 0, data.courtId)
+              await expirePublicSlotHolds(data.clubId, now)
 
               // 4. Check Availability (Prevent Double Booking)
-              const existingBooking = await prisma.booking.findFirst({
-                     where: {
-                            clubId: data.clubId,
-                            courtId: data.courtId,
-                            status: { not: 'CANCELED' },
-                            OR: [
-                                   {
-                                          startTime: { lt: endTime },
+               const existingBooking = await prisma.booking.findFirst({
+                      where: {
+                             clubId: data.clubId,
+                             courtId: data.courtId,
+                             status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] },
+                             OR: [
+                                    {
+                                           startTime: { lt: endTime },
                                           endTime: { gt: dateTime }
                                    }
                             ]
@@ -388,29 +598,124 @@ export async function createPublicBooking(data: PublicBookingInput) {
                      return { success: false, error: 'El turno ya no está disponible.' }
               }
 
+              if (data.isGuest) {
+                     const guestHistory = await prisma.booking.findMany({
+                            where: {
+                                   clubId: data.clubId,
+                                   guestPhone: { contains: getPhoneLastDigits(clientPhone) },
+                                   status: 'NO_SHOW'
+                            },
+                            select: { guestPhone: true }
+                     })
+                     const noShowCount = guestHistory.filter((booking) => phoneMatches(clientPhone, booking.guestPhone)).length
+                     if (noShowCount >= 2) {
+                            return { success: false, error: 'Tu número no puede realizar nuevas reservas. Contactá al club.' }
+                     }
+
+                     const activeBookings = await prisma.booking.findMany({
+                            where: {
+                                   clubId: data.clubId,
+                                   guestPhone: { contains: getPhoneLastDigits(clientPhone) },
+                                   status: { in: ['PENDING', 'CONFIRMED'] },
+                                   startTime: { gt: new Date() }
+                            },
+                            select: { guestPhone: true }
+                     })
+                     const activeCount = activeBookings.filter((booking) => phoneMatches(clientPhone, booking.guestPhone)).length
+                     if (activeCount >= 1) {
+                            return { success: false, error: 'Ya tenés una reserva activa. Cancelá la anterior para hacer una nueva.' }
+                     }
+              }
+
               // 5. Create Booking
               // publicToken enables the client to cancel their own booking via the
               // public cancel-public route without requiring authentication.
-              const booking = await prisma.booking.create({
-                     data: {
-                            clubId: data.clubId,
-                            courtId: data.courtId,
-                            clientId: clientId,
-                            guestName: guestName,
-                            guestPhone: guestPhone,
-                            startTime: dateTime,
-                            endTime: endTime,
-                            price: Number(price),
-                            status: data.isGuest ? 'PENDING' : 'CONFIRMED',
-                            paymentStatus: 'UNPAID',
-                            paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT',
-                            publicToken: crypto.randomUUID(),
+              const booking = await prisma.$transaction(async (tx) => {
+                     const matchingHold =
+                            data.holdToken && data.holdOwnerToken
+                                   ? await tx.slotHold.findFirst({
+                                            where: {
+                                                   clubId: data.clubId,
+                                                   courtId: data.courtId,
+                                                   holdToken: data.holdToken,
+                                                   ownerToken: data.holdOwnerToken,
+                                                   status: 'ACTIVE',
+                                                   expiresAt: { gt: now },
+                                                   startTime: dateTime,
+                                                   endTime
+                                            },
+                                            select: { id: true }
+                                     })
+                                   : null
 
-                            // Open Match Fields
-                            isOpenMatch: data.isOpenMatch || false,
-                            matchLevel: data.matchLevel,
-                            matchGender: data.matchGender
+                     if (data.holdToken && !matchingHold) {
+                            throw new Error('El horario reservado venció. Elegí nuevamente el turno.')
                      }
+
+                     const [existingBooking, conflictingHold] = await Promise.all([
+                            tx.booking.findFirst({
+                                   where: {
+                                          clubId: data.clubId,
+                                          courtId: data.courtId,
+                                          status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] },
+                                          startTime: { lt: endTime },
+                                          endTime: { gt: dateTime }
+                                   },
+                                   select: { id: true }
+                            }),
+                            tx.slotHold.findFirst({
+                                   where: {
+                                          clubId: data.clubId,
+                                          courtId: data.courtId,
+                                          status: 'ACTIVE',
+                                          expiresAt: { gt: now },
+                                          startTime: { lt: endTime },
+                                          endTime: { gt: dateTime },
+                                          ...(data.holdToken ? { holdToken: { not: data.holdToken } } : {}),
+                                          ...(data.holdOwnerToken ? { ownerToken: { not: data.holdOwnerToken } } : {})
+                                   },
+                                   select: { id: true }
+                            })
+                     ])
+
+                     if (existingBooking || conflictingHold) {
+                            throw new Error('El turno ya no está disponible.')
+                     }
+
+                     const createdBooking = await tx.booking.create({
+                            data: {
+                                   clubId: data.clubId,
+                                   courtId: data.courtId,
+                                   clientId: clientId,
+                                   guestName: guestName,
+                                   guestPhone: guestPhone,
+                                   startTime: dateTime,
+                                   endTime: endTime,
+                                   price: Number(price),
+                                   status: data.isGuest ? 'PENDING' : 'CONFIRMED',
+                                   paymentStatus: 'UNPAID',
+                                   paymentMethod: data.isGuest ? 'PENDING_DEPOSIT' : 'ON_ACCOUNT',
+                                   publicToken: crypto.randomUUID(),
+                                   isOpenMatch: data.isOpenMatch || false,
+                                   matchLevel: data.matchLevel,
+                                   matchGender: data.matchGender
+                            }
+                     })
+
+                     if (matchingHold) {
+                            await tx.slotHold.update({
+                                   where: { id: matchingHold.id },
+                                   data: {
+                                          status: 'CONSUMED',
+                                          bookingId: createdBooking.id,
+                                          consumedAt: now
+                                   }
+                            })
+                     }
+
+                     return createdBooking
+              }, {
+                     isolationLevel: Prisma.TransactionIsolationLevel.Serializable
               })
 
               try {
@@ -427,6 +732,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
               }
 
               try {
+                     const { sendPushToClubUsers } = await import('@/lib/push-notifications')
                      const startLabel = fromUTC(dateTime).toLocaleString('es-AR', {
                             day: '2-digit',
                             month: '2-digit',
@@ -455,8 +761,12 @@ export async function createPublicBooking(data: PublicBookingInput) {
 
               // Client-facing notifications (fire-and-forget)
               try {
+                     const [{ MessagingService }, { sendBookingConfirmationEmail }] = await Promise.all([
+                            import('@/lib/messaging'),
+                            import('@/lib/email')
+                     ])
                      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://courtops.net'
-                     const paymentUrl = `${appUrl}/pay/${booking.id}`
+                     const paymentUrl = `${appUrl}/pay/${booking.id}?token=${booking.publicToken}`
 
                      const dateFormatter = new Intl.DateTimeFormat('es-AR', {
                             weekday: 'long', day: '2-digit', month: 'long',
@@ -522,7 +832,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
        }
 }
 
-export async function getPublicBooking(bookingId: number, clubId: string) {
+export async function getPublicBooking(bookingId: number, clubId: string, publicToken?: string | null) {
        if (!clubId) return null
        const booking = await prisma.booking.findFirst({
               where: { id: bookingId, clubId },
@@ -533,12 +843,16 @@ export async function getPublicBooking(bookingId: number, clubId: string) {
                      price: true,
                      status: true,
                      paymentStatus: true,
+                     publicToken: true,
                      guestName: true,
                      guestPhone: true,
                      court: { select: { id: true, name: true } },
                      client: { select: { id: true, name: true, phone: true } }
               }
        })
+       if (booking?.publicToken && publicToken !== booking.publicToken) {
+              return null
+       }
        return booking
 }
 
@@ -580,22 +894,28 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
               }
 
               let clientId: number | undefined
-              const existingClient = await prisma.client.findFirst({
-                     where: { clubId: data.clubId, phone: clientPhone }
+              const existingClientCandidates = await prisma.client.findMany({
+                     where: {
+                            clubId: data.clubId,
+                            phone: { contains: getPhoneLastDigits(clientPhone) }
+                     },
+                     take: 20
               })
+              const existingClient = existingClientCandidates.find((candidate) => phoneMatches(clientPhone, candidate.phone))
 
               if (existingClient) {
                      clientId = existingClient.id
               }
 
-              const duplicateEntry = await prisma.waitingList.findFirst({
+              const duplicateCandidates = await prisma.waitingList.findMany({
                      where: {
                             clubId: data.clubId,
-                            phone: clientPhone,
+                            phone: { contains: getPhoneLastDigits(clientPhone) },
                             date: waitingDate,
                             status: 'PENDING'
                      }
               })
+              const duplicateEntry = duplicateCandidates.find((entry) => phoneMatches(clientPhone, entry.phone))
 
               if (duplicateEntry) {
                      return { success: false, error: 'Ya estÃ¡s anotado en la lista de espera para esta fecha.' }
@@ -626,6 +946,7 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
               }
 
               try {
+                     const { sendPushToClubUsers } = await import('@/lib/push-notifications')
                      await sendPushToClubUsers(data.clubId, {
                             title: 'Nuevo pedido en lista de espera',
                             body: `${clientName} quiere aviso para ${data.dateStr}.`,
@@ -656,7 +977,8 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
 
 export async function submitPublicTransfer(bookingId: number, data: {
        receiptUrl?: string,
-       reference: string
+       reference: string,
+       publicToken?: string | null
 }) {
        try {
               const booking = await prisma.booking.findUnique({
@@ -667,15 +989,19 @@ export async function submitPublicTransfer(bookingId: number, data: {
                      }
               });
 
-              if (!booking) {
-                     return { success: false, error: 'Reserva no encontrada' };
-              }
+               if (!booking) {
+                      return { success: false, error: 'Reserva no encontrada' };
+               }
 
-              await prisma.booking.update({
-                     where: { id: bookingId },
-                     data: {
-                            paymentStatus: 'PENDING_VALIDATION',
-                            paymentMethod: 'TRANSFER',
+               if (booking.publicToken && data.publicToken !== booking.publicToken) {
+                      return { success: false, error: 'Reserva no encontrada' };
+               }
+
+               await prisma.booking.update({
+                      where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
+                      data: {
+                             paymentStatus: 'PENDING_VALIDATION',
+                             paymentMethod: 'TRANSFER',
                             paymentReference: data.reference,
                             receiptUrl: data.receiptUrl
                      }
@@ -683,6 +1009,7 @@ export async function submitPublicTransfer(bookingId: number, data: {
 
               // Notify client that receipt was received (fire-and-forget)
               try {
+                     const { MessagingService } = await import('@/lib/messaging')
                      const phone = booking.guestPhone || booking.client?.phone
                      const name = booking.guestName || booking.client?.name || 'Jugador'
                      if (phone) {
@@ -714,23 +1041,25 @@ export async function submitPublicTransfer(bookingId: number, data: {
 
 export async function cancelActiveGuestBooking(phone: string, clubId: string) {
        try {
-              const normalizedPhone = phone.replace(/\D/g, '')
-              const booking = await prisma.booking.findFirst({
+              const phoneLastDigits = getPhoneLastDigits(phone)
+              const bookingCandidates = await prisma.booking.findMany({
                      where: {
                             clubId,
-                            guestPhone: { contains: normalizedPhone },
+                            guestPhone: { contains: phoneLastDigits },
                             status: { in: ['PENDING', 'CONFIRMED'] },
                             startTime: { gt: new Date() }
                      },
-                     select: { id: true, startTime: true, courtId: true }
-              })
+                     select: { id: true, startTime: true, courtId: true, guestPhone: true }
+               })
+
+              const booking = bookingCandidates.find((candidate) => phoneMatches(phone, candidate.guestPhone))
 
               if (!booking) {
                      return { success: false, error: 'No se encontró una reserva activa para cancelar.' }
               }
 
               await prisma.booking.update({
-                     where: { id: booking.id },
+                     where: { id_clubId: { id: booking.id, clubId } },
                      data: { status: 'CANCELED' }
               })
 

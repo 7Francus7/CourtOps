@@ -1,7 +1,5 @@
 import { addDays, isWithinInterval } from 'date-fns'
-
-export const CANCELED_BOOKING_STATUSES = ['CANCELED', 'CANCELLED'] as const
-export const NO_SHOW_BOOKING_STATUSES = ['NO_SHOW'] as const
+import { CANCELED_BOOKING_STATUSES, NO_SHOW_BOOKING_STATUSES } from '@/lib/booking-status'
 
 type ClientSnapshot = {
   id: number

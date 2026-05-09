@@ -2,7 +2,6 @@
 
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
-import { revalidatePath } from 'next/cache'
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'

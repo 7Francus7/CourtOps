@@ -14,7 +14,6 @@ import {
   Smartphone,
   Sparkles,
   Users,
-  Zap,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import CookieConsent from "@/components/CookieConsent"

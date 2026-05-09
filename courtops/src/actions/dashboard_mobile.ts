@@ -158,13 +158,6 @@ export async function getMobileDashboardData() {
 
               // 4. Alerts
               const alerts: { type: string; title: string; message: string }[] = []
-              const pendingBookings = bookingsToday.filter(b => {
-                     const itemsTotal = b.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
-                     const total = b.price + itemsTotal
-                     const paid = b.transactions.reduce((sum, t) => sum + t.amount, 0)
-                     return (total - paid) > 0 && b.status === 'CONFIRMED'
-              })
-
               // Cobros pendientes shown via recovery card — no alert needed
 
               // 5. Club already fetched above (with slug, features)

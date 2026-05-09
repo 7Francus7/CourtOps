@@ -7,6 +7,7 @@ import { fromUTC, nowInArg } from '@/lib/date-utils'
 import { fromZonedTime } from 'date-fns-tz'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { AVAILABILITY_BLOCKING_BOOKING_STATUSES, TERMINAL_BOOKING_STATUSES } from '@/lib/booking-status'
 
 export async function pingServer() {
        return { message: 'pong', timestamp: new Date().toISOString() }
@@ -62,7 +63,7 @@ export async function getTurneroData(dateStr: string): Promise<TurneroResponse> 
                             where: {
                                    clubId,
                                    startTime: { gte: start, lte: end },
-                                   status: { not: 'CANCELED' }
+                                   status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES, 'NO_SHOW'] }
                             },
                             include: {
                                    client: { select: { id: true, name: true, phone: true } },
@@ -192,7 +193,7 @@ export async function getRevenueHeatmapData() {
                      where: {
                             clubId,
                             startTime: { gte: start, lte: end },
-                            status: { not: 'CANCELED' }
+                            status: { notIn: [...TERMINAL_BOOKING_STATUSES] }
                      },
                      select: { startTime: true, price: true }
               })

@@ -25,7 +25,6 @@ import {
   isWithinInterval,
   startOfMonth,
 } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { getServerSession } from 'next-auth'
 
 type ReportRangeInput = {
@@ -64,6 +63,17 @@ const METHOD_LABELS: Record<string, string> = {
   TRANSFER: 'Transferencia',
   ACCOUNT: 'A cuenta',
 }
+
+const monthFormatter = new Intl.DateTimeFormat('es-AR', {
+  month: 'short',
+  timeZone: 'America/Argentina/Buenos_Aires',
+})
+
+const dayMonthFormatter = new Intl.DateTimeFormat('es-AR', {
+  day: 'numeric',
+  month: 'short',
+  timeZone: 'America/Argentina/Buenos_Aires',
+})
 
 async function requireReportsContext() {
   const session = await getServerSession(authOptions)
@@ -144,7 +154,7 @@ function buildTrendData(params: {
     return months.map((monthStart) => {
       const monthEnd = endOfMonth(monthStart)
       return {
-        label: format(monthStart, 'MMM', { locale: es }),
+        label: monthFormatter.format(monthStart),
         revenue: sumIncome(params.transactions.filter((transaction) => (
           isWithinInterval(transaction.createdAt, { start: monthStart, end: monthEnd })
         ))),
@@ -160,7 +170,7 @@ function buildTrendData(params: {
     return weeks.map((weekStart) => {
       const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 })
       return {
-        label: `${format(weekStart, 'd MMM', { locale: es })}`,
+        label: dayMonthFormatter.format(weekStart),
         revenue: sumIncome(params.transactions.filter((transaction) => (
           isWithinInterval(transaction.createdAt, { start: weekStart, end: weekEnd })
         ))),

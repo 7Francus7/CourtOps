@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { motion, useMotionValue, useTransform, animate, useInView } from 'framer-motion'
-import { TrendingUp, Users, Calendar, Clock, Zap, Target, Star, ShieldCheck } from 'lucide-react'
+import { Users, Zap, Target, Star, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function Counter({ from, to, suffix = "", prefix = "" }: { from: number; to: number; suffix?: string; prefix?: string }) {

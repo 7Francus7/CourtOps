@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getBookingByToken, cancelPublicBooking } from '@/actions/cancel-booking'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, Trophy, AlertTriangle, CheckCircle, XCircle, Loader2, ShieldAlert } from 'lucide-react'
+import { Trophy, AlertTriangle, CheckCircle, XCircle, Loader2, ShieldAlert } from 'lucide-react'
 
 type Booking = Awaited<ReturnType<typeof getBookingByToken>>
 

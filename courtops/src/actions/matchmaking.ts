@@ -23,12 +23,16 @@ export async function toggleOpenMatch(
        try {
               // Verify ownership at the DB level — clubId filter prevents cross-club access
               const existing = await prisma.booking.findUnique({
-                     where: { id_clubId: { id: bookingId, clubId: session.user.clubId } },
+                     where: { id: bookingId },
                      select: { clubId: true, club: { select: { slug: true } } }
               })
 
               if (!existing) {
                      return { success: false, error: "Reserva no encontrada" }
+              }
+
+              if (existing.clubId !== session.user.clubId) {
+                     return { success: false, error: "No autorizado" }
               }
 
               const booking = await prisma.booking.update({

@@ -5,9 +5,19 @@ import { useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { format, addDays, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { getPublicAvailability, createPublicBooking, getPublicClient, getPublicBooking, createPublicWaitingList, cancelActiveGuestBooking } from '@/actions/public-booking'
+import {
+	getPublicAvailability,
+	createPublicBooking,
+	getPublicClient,
+	getPublicBooking,
+	createPublicWaitingList,
+	cancelActiveGuestBooking,
+	createPublicBookingHold,
+	releasePublicBookingHold
+} from '@/actions/public-booking'
 import { trackPublicBookingEvent } from '@/actions/public-growth'
 import { createPreference } from '@/actions/mercadopago'
+import { PUBLIC_BOOKING_HOLD_MINUTES } from '@/lib/booking-hold'
 import { getPublicBookingStateMeta } from '@/lib/public-booking'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -48,6 +58,8 @@ type Props = {
 		coverUrl?: string | null
 		description?: string | null
 		amenities?: string | null
+		openTime?: string | null
+		closeTime?: string | null
 		socialInstagram?: string | null
 		socialFacebook?: string | null
 		socialTwitter?: string | null
@@ -121,6 +133,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const canUseOnlinePayments = Boolean(club.canUseOnlinePayments || club.hasOnlinePayments)
 	const clubWhatsappNumber = getWhatsappNumber(club.phone)
 	const savedPlayerStorageKey = useMemo(() => `courtops_public_player_${club.id}`, [club.id])
+	const holdOwnerStorageKey = useMemo(() => `courtops_public_hold_owner_${club.id}`, [club.id])
 	const [themeMounted, setThemeMounted] = useState(false)
 
 	const [layoutTab, setLayoutTab] = useState<'booking' | 'info'>('booking')
@@ -156,6 +169,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const [cancelToken, setCancelToken] = useState<string | null>(null)
 	const [createdBookingStatus, setCreatedBookingStatus] = useState<string | null>(null)
 	const [createdPaymentStatus, setCreatedPaymentStatus] = useState<string | null>(null)
+	const [holdOwnerToken, setHoldOwnerToken] = useState('')
+	const [slotHoldToken, setSlotHoldToken] = useState<string | null>(null)
+	const [slotHoldExpiresAt, setSlotHoldExpiresAt] = useState<string | null>(null)
+	const [isHoldingSlot, setIsHoldingSlot] = useState(false)
+	const [holdNow, setHoldNow] = useState(() => Date.now())
 	const [isPaying, setIsPaying] = useState(false)
 	const [createOpenMatch, setCreateOpenMatch] = useState(false)
 	const [matchLevel, setMatchLevel] = useState('6ta')
@@ -170,6 +188,12 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		medium: searchParams.get('utm_medium') || 'public_booking',
 		campaign: searchParams.get('utm_campaign') || 'public_booking'
 	}), [searchParams])
+	const entryTrafficSource = useMemo(() => {
+		const rawSource = `${trackingSource.source} ${trackingSource.medium}`.toLowerCase()
+		if (rawSource.includes('instagram') || rawSource.includes('ig')) return 'instagram'
+		if (rawSource.includes('whatsapp') || rawSource.includes('wa.me') || rawSource.includes('wa')) return 'whatsapp'
+		return 'direct'
+	}, [trackingSource.medium, trackingSource.source])
 
 	const trackFunnelEvent = useCallback((
 		event: 'page_view' | 'date_selected' | 'slot_selected' | 'booking_created' | 'waitlist_created',
@@ -229,6 +253,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		}
 	}, [savedPlayerStorageKey])
 
+	useEffect(() => {
+		try {
+			const existingToken = sessionStorage.getItem(holdOwnerStorageKey)
+			if (existingToken) {
+				setHoldOwnerToken(existingToken)
+				return
+			}
+
+			const nextToken = crypto.randomUUID()
+			sessionStorage.setItem(holdOwnerStorageKey, nextToken)
+			setHoldOwnerToken(nextToken)
+		} catch {
+			setHoldOwnerToken(crypto.randomUUID())
+		}
+	}, [holdOwnerStorageKey])
+
 	const rememberCurrentPlayer = () => {
 		const player: SavedPublicPlayer = {
 			name: clientData.name.trim(),
@@ -263,7 +303,70 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		}))
 	}
 
-	const selectCourtFromSlot = (slot: PublicAvailabilitySlot, court: PublicAvailabilityCourt) => {
+	const clearSlotHoldState = useCallback(() => {
+		setSlotHoldToken(null)
+		setSlotHoldExpiresAt(null)
+		setIsHoldingSlot(false)
+	}, [])
+
+	const holdRemainingMs = useMemo(() => {
+		if (!slotHoldExpiresAt) return 0
+		return Math.max(0, new Date(slotHoldExpiresAt).getTime() - holdNow)
+	}, [slotHoldExpiresAt, holdNow])
+
+	const holdCountdownLabel = useMemo(() => {
+		if (!slotHoldExpiresAt) return null
+		const totalSeconds = Math.ceil(holdRemainingMs / 1000)
+		const minutes = Math.floor(totalSeconds / 60)
+		const seconds = totalSeconds % 60
+		return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+	}, [slotHoldExpiresAt, holdRemainingMs])
+
+	const releaseCurrentHold = useCallback(async () => {
+		if (!slotHoldToken || !holdOwnerToken) {
+			clearSlotHoldState()
+			return
+		}
+
+		const currentHoldToken = slotHoldToken
+		const currentOwnerToken = holdOwnerToken
+		clearSlotHoldState()
+
+		try {
+			await releasePublicBookingHold(currentHoldToken, currentOwnerToken)
+		} catch (error) {
+			console.error(error)
+		}
+	}, [clearSlotHoldState, holdOwnerToken, slotHoldToken])
+
+	const selectCourtFromSlot = async (slot: PublicAvailabilitySlot, court: PublicAvailabilityCourt) => {
+		if (!holdOwnerToken) {
+			setBookingError('Estamos preparando tu sesión. Intentá nuevamente en unos segundos.')
+			return
+		}
+
+		setIsHoldingSlot(true)
+		setBookingError('')
+
+		const holdResult = await createPublicBookingHold({
+			clubId: club.id,
+			courtId: court.id,
+			dateStr: format(selectedDate, 'yyyy-MM-dd'),
+			timeStr: slot.time,
+			durationMinutes: court.duration || defaultDuration,
+			ownerToken: holdOwnerToken
+		})
+
+		setIsHoldingSlot(false)
+
+		if (!holdResult.success || !holdResult.holdToken || !holdResult.expiresAt) {
+			setBookingError(holdResult.error || 'Ese horario acaba de ocuparse. Elegí otro turno.')
+			await loadAvailability()
+			return
+		}
+
+		setSlotHoldToken(holdResult.holdToken)
+		setSlotHoldExpiresAt(holdResult.expiresAt)
 		setSelectedSlot({
 			time: slot.time,
 			courtId: court.id,
@@ -288,24 +391,34 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		window.scrollTo(0, 0)
 	}, [step])
 
-	const handleBack = () => {
+	const returnToAvailability = useCallback(async () => {
+		await releaseCurrentHold()
+		setSelectedSlot(null)
+		setMode(null)
+		goToStep(0)
+	}, [releaseCurrentHold])
+
+	const handleBack = async () => {
 		if (step === 1) goToStep(2)
-		else if (step === 2) goToStep(0)
+		else if (step === 2) await returnToAvailability()
 		else if (step === 'register') goToStep(2)
 		else if (step === 'login') goToStep(2)
-		else if (step === 'matchmaking') goToStep(0)
+		else if (step === 'matchmaking') await returnToAvailability()
 	}
 
 	// Payment return handler
 	useEffect(() => {
 		const status = searchParams.get('status')
 		const externalRef = searchParams.get('external_reference')
+		const publicToken = searchParams.get('token')
 		if (status === 'approved' && externalRef) {
-			getPublicBooking(Number(externalRef), club.id)
+			getPublicBooking(Number(externalRef), club.id, publicToken)
 				.then(booking => {
 					if (booking && booking.court) {
+						clearSlotHoldState()
 						setStep(3)
 						setCreatedBookingId(booking.id)
+						setCancelToken(booking.publicToken || publicToken)
 						setCreatedBookingStatus(booking.status)
 						setCreatedPaymentStatus(booking.paymentStatus)
 						setMode(booking.guestName ? 'guest' : 'premium')
@@ -325,24 +438,25 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 				})
 				.catch(console.error)
 		}
-	}, [searchParams, club.id])
+	}, [clearSlotHoldState, searchParams, club.id])
+
+	const loadAvailability = useCallback(async () => {
+		setLoading(true)
+		setSelectedSlot(null)
+		try {
+			const data = await getPublicAvailability(club.id, format(selectedDate, 'yyyy-MM-dd'))
+			setSlots(data)
+		} catch (error) {
+			console.error(error)
+		} finally {
+			setLoading(false)
+		}
+	}, [club.id, selectedDate])
 
 	useEffect(() => {
 		if (step !== 0) return
-		const fetchSlots = async () => {
-			setLoading(true)
-			setSelectedSlot(null)
-			try {
-				const data = await getPublicAvailability(club.id, format(selectedDate, 'yyyy-MM-dd'))
-				setSlots(data)
-			} catch (error) {
-				console.error(error)
-			} finally {
-				setLoading(false)
-			}
-		}
-		fetchSlots()
-	}, [selectedDate, club.id, step])
+		loadAvailability()
+	}, [loadAvailability, step])
 
 	useEffect(() => {
 		if (step !== 0) return
@@ -355,6 +469,33 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			return firstExpandableSlot?.time ?? null
 		})
 	}, [slots, step])
+
+	useEffect(() => {
+		if (!slotHoldExpiresAt) return
+		setHoldNow(Date.now())
+		const intervalId = window.setInterval(() => {
+			setHoldNow(Date.now())
+		}, 1000)
+		return () => window.clearInterval(intervalId)
+	}, [slotHoldExpiresAt])
+
+	useEffect(() => {
+		if (!slotHoldExpiresAt || holdRemainingMs > 0) return
+		if (step === 0 || step === 3 || step === 'payment' || step === 'matchmaking') return
+
+		clearSlotHoldState()
+		setSelectedSlot(null)
+		setMode(null)
+		setBookingError('Se venció la reserva temporal del horario. Elegí un turno nuevamente.')
+		goToStep(0)
+	}, [clearSlotHoldState, holdRemainingMs, slotHoldExpiresAt, step])
+
+	useEffect(() => {
+		return () => {
+			if (!slotHoldToken || !holdOwnerToken) return
+			releasePublicBookingHold(slotHoldToken, holdOwnerToken).catch(console.error)
+		}
+	}, [holdOwnerToken, slotHoldToken])
 
 	const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today, i)), [today])
 	const firstBookableSlot = useMemo(() => {
@@ -400,6 +541,17 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			`Hola ${club.name}. Estoy intentando reservar para el ${format(selectedDate, 'd/M', { locale: es })} y no veo horarios disponibles. ¿Me pueden avisar si se libera una cancha o sumarme a lista de espera?`
 		)}`
 		: null
+
+	const venueWhatsappHref = clubWhatsappNumber
+		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
+			`Hola ${club.name}. Vengo desde la reserva online y queria consultar disponibilidad.`
+		)}`
+		: null
+	const venueDepositLabel = useMemo(() => {
+		if ((club.bookingDeposit ?? 0) > 0) return `Sena desde ${formatArs(club.bookingDeposit!)}`
+		if (canUseOnlinePayments || club.mpAlias || club.mpCvu) return 'Pago online disponible'
+		return 'Reserva directa desde la web'
+	}, [canUseOnlinePayments, club.bookingDeposit, club.mpAlias, club.mpCvu])
 
 	const customScheduleWhatsappHref = clubWhatsappNumber
 		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
@@ -491,6 +643,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 	const handleBooking = async (e?: React.FormEvent) => {
 		if (e) e.preventDefault()
 		if (!selectedSlot) return
+		if (!slotHoldToken || !holdOwnerToken) {
+			setBookingError('El horario reservado ya no está asegurado. Elegí nuevamente el turno.')
+			await returnToAvailability()
+			return
+		}
 
 		if (mode === 'guest') {
 			const errors: { name?: string; lastname?: string; phone?: string } = {}
@@ -524,10 +681,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			isOpenMatch: createOpenMatch,
 			matchLevel: createOpenMatch ? matchLevel : undefined,
 			matchGender: createOpenMatch ? matchGender : undefined,
-			durationMinutes: selectedSlot.duration
+			durationMinutes: selectedSlot.duration,
+			holdToken: slotHoldToken,
+			holdOwnerToken
 		})
 
 		if (res.success && res.bookingId) {
+			clearSlotHoldState()
 			setCreatedBookingId(res.bookingId)
 			if (res.publicToken) setCancelToken(res.publicToken)
 			if (res.bookingStatus) setCreatedBookingStatus(res.bookingStatus)
@@ -544,6 +704,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			goToStep(shouldShowPayment ? 'payment' : 3)
 		} else {
 			setBookingError(res.error || 'Error al crear la reserva. Intentá de nuevo.')
+		}
+		if (!res.success && (res.error?.includes('venci') || res.error?.includes('ocup'))) {
+			await loadAvailability()
 		}
 		setIsSubmitting(false)
 	}
@@ -567,7 +730,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		if (!createdBookingId) return
 		setIsPaying(true)
 		setPaymentError('')
-		const res = await createPreference(createdBookingId, `/p/${club.slug}`)
+		const tokenParam = cancelToken ? `?token=${encodeURIComponent(cancelToken)}` : ''
+		const res = await createPreference(createdBookingId, `/p/${club.slug}${tokenParam}`, undefined, cancelToken)
 		setIsPaying(false)
 		if (res.success && res.init_point) {
 			window.location.href = res.init_point
@@ -647,7 +811,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 					</p>
 				</div>
 				<button
-					onClick={() => goToStep(0)}
+					onClick={() => {
+						void returnToAvailability()
+					}}
 					className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
 				>
 					<X size={13} strokeWidth={2.5} />
@@ -1497,6 +1663,16 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			activeTab={layoutTab}
 			setActiveTab={setLayoutTab}
 			onBack={step !== 0 ? handleBack : undefined}
+			bookingMeta={{
+				firstAvailableTime: firstBookableSlot?.slot.time ?? null,
+				totalSlots: slots.length,
+				totalAvailableCourts,
+				slotDuration: defaultDuration,
+				depositLabel: venueDepositLabel,
+				whatsappHref: venueWhatsappHref,
+				trafficSource: entryTrafficSource,
+				isLoading: loading,
+			}}
 		>
 			{layoutTab === 'booking' && (
 				<div>
@@ -1549,10 +1725,20 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										<button
 											type="button"
 											onClick={() => selectCourtFromSlot(firstBookableSlot.slot, firstBookableSlot.court)}
-											className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[11px] font-black uppercase tracking-[0.16em] text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+											disabled={isHoldingSlot}
+											className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-[11px] font-black uppercase tracking-[0.16em] text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
 										>
-											Reservar {firstBookableSlot.slot.time} hs
-											<ArrowRight size={15} strokeWidth={3} />
+											{isHoldingSlot ? (
+												<>
+													<Loader2 size={15} className="animate-spin" />
+													Guardando horario
+												</>
+											) : (
+												<>
+													Reservar {firstBookableSlot.slot.time} hs
+													<ArrowRight size={15} strokeWidth={3} />
+												</>
+											)}
 										</button>
 									) : (
 										<button
@@ -1686,9 +1872,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 														initial={{ opacity: 0, x: -10 }}
 														animate={{ opacity: 1, x: 0 }}
 														transition={{ delay: idx * 0.04 }}
+														disabled={isHoldingSlot}
 														onClick={() => {
 															if (hasSingleCourt) {
-																selectCourtFromSlot(slot, slot.courts[0])
+																void selectCourtFromSlot(slot, slot.courts[0])
 																return
 															}
 															setExpandedSlot(isExpanded ? null : slot.time)
@@ -1697,7 +1884,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 															'w-full flex items-center justify-between p-5 bg-white dark:bg-zinc-900/40 border transition-all duration-500 group overflow-hidden relative',
 															isExpanded
 																? 'border-primary/40 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] ring-1 ring-primary/20'
-																: 'border-slate-100 dark:border-white/[0.05] rounded-[1.75rem] hover:border-primary/30'
+																: 'border-slate-100 dark:border-white/[0.05] rounded-[1.75rem] hover:border-primary/30',
+															isHoldingSlot && 'cursor-not-allowed opacity-70'
 														)}
 													>
 														{isExpanded && !hasSingleCourt && (
@@ -1769,8 +1957,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																		initial={{ opacity: 0, scale: 0.95 }}
 																		animate={{ opacity: 1, scale: 1 }}
 																		key={court.id}
-																		onClick={() => selectCourtFromSlot(slot, court)}
-																		className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-[1.5rem] hover:bg-zinc-950 dark:hover:bg-primary hover:text-white transition-all duration-300 group/court shadow-sm active:scale-[0.98]"
+																		disabled={isHoldingSlot}
+																		onClick={() => {
+																			void selectCourtFromSlot(slot, court)
+																		}}
+																		className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 rounded-[1.5rem] hover:bg-zinc-950 dark:hover:bg-primary hover:text-white transition-all duration-300 group/court shadow-sm active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
 																	>
 																		<div className="flex items-center gap-4">
 																			<div className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 shadow-sm flex items-center justify-center text-primary group-hover/court:bg-white/20 group-hover/court:text-white transition-all duration-500">
@@ -2038,6 +2229,19 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							className="space-y-6 pt-2"
 						>
 							<BookingSummaryChip />
+							{slotHoldExpiresAt && holdCountdownLabel && (
+								<div className="mt-3 flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-500/20 dark:bg-amber-500/10">
+									<div>
+										<p className="text-[9px] font-black uppercase tracking-[0.18em] text-amber-500">Horario reservado</p>
+										<p className="text-[11px] font-semibold text-amber-700 dark:text-amber-200">
+											Te lo guardamos por {PUBLIC_BOOKING_HOLD_MINUTES} min mientras completas la reserva.
+										</p>
+									</div>
+									<div className="rounded-xl bg-white px-2.5 py-1 text-[11px] font-black tabular-nums text-amber-600 shadow-sm dark:bg-zinc-950 dark:text-amber-300">
+										{holdCountdownLabel}
+									</div>
+								</div>
+							)}
 
 							{savedPlayer && (
 								<button
@@ -2160,6 +2364,19 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							className="space-y-6 pt-2"
 						>
 							<BookingSummaryChip />
+							{slotHoldExpiresAt && holdCountdownLabel && (
+								<div className="mt-3 flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-500/20 dark:bg-amber-500/10">
+									<div>
+										<p className="text-[9px] font-black uppercase tracking-[0.18em] text-amber-500">Horario reservado</p>
+										<p className="text-[11px] font-semibold text-amber-700 dark:text-amber-200">
+											Te lo guardamos por {PUBLIC_BOOKING_HOLD_MINUTES} min mientras completas la reserva.
+										</p>
+									</div>
+									<div className="rounded-xl bg-white px-2.5 py-1 text-[11px] font-black tabular-nums text-amber-600 shadow-sm dark:bg-zinc-950 dark:text-amber-300">
+										{holdCountdownLabel}
+									</div>
+								</div>
+							)}
 
 							<div>
 								<p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">

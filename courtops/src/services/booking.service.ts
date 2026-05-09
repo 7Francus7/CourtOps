@@ -8,6 +8,7 @@ import { pusherServer } from '@/lib/pusher'
 import { processPaymentAtomic } from '@/actions/payment.atomic'
 import { getMatchingWaitingUsers } from '@/actions/waitingList'
 import { sendPushToClubUsers } from '@/lib/push-notifications'
+import { AVAILABILITY_BLOCKING_BOOKING_STATUSES, canAutoMarkNoShow, canTransitionBookingStatus } from '@/lib/booking-status'
 
 export type CreateBookingDTO = {
        clubId: string
@@ -183,7 +184,7 @@ export class BookingService {
                                    where: {
                                           clubId,
                                           courtId: bookingData.courtId as number,
-                                          status: { not: 'CANCELED' },
+                                          status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] },
                                           OR: [
                                                  { startTime: { gte: bookingData.startTime as Date, lt: bookingData.endTime as Date } },
                                                  { endTime: { gt: bookingData.startTime as Date, lte: bookingData.endTime as Date } },
@@ -204,11 +205,12 @@ export class BookingService {
                                           endTime: bookingData.endTime as Date,
                                           price: bookingData.price as number,
                                           status: bookingData.status as string,
-                                          paymentStatus: bookingData.paymentStatus as string,
-                                          paymentMethod: bookingData.paymentMethod as string | null,
-                                          recurringId: bookingData.recurringId as string | null,
-                                          bookingType: (bookingData.bookingType as string) || 'NORMAL',
-                                          teacherId: bookingData.teacherId as string | null,
+                                           paymentStatus: bookingData.paymentStatus as string,
+                                           paymentMethod: bookingData.paymentMethod as string | null,
+                                           recurringId: bookingData.recurringId as string | null,
+                                           publicToken: crypto.randomUUID(),
+                                           bookingType: (bookingData.bookingType as string) || 'NORMAL',
+                                           teacherId: bookingData.teacherId as string | null,
                                           // Matchmaking fields from schema
                                           isOpenMatch: (bookingData.bookingType as string) === 'MATCH',
                                           matchLevel: bookingData.skillLevel ? String(bookingData.skillLevel) : null,
@@ -397,7 +399,7 @@ export class BookingService {
                      where: {
                             clubId,
                             courtId,
-                            status: { not: 'CANCELED' },
+                            status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] },
                             OR: [
                                    { startTime: { gte: start, lt: end } },
                                    { endTime: { gt: start, lte: end } },
@@ -405,9 +407,103 @@ export class BookingService {
                             ]
                      }
               })
-              if (overlap) {
-                     throw new Error(`Conflicto de horario: ${start.toLocaleString('es-AR')}`)
+               if (overlap) {
+                      throw new Error(`Conflicto de horario: ${start.toLocaleString('es-AR')}`)
+               }
+       }
+
+       static async expirePendingBooking(bookingId: number, clubId: string) {
+              const booking = await prisma.booking.findFirst({
+                     where: {
+                            id: bookingId,
+                            clubId,
+                            status: 'PENDING',
+                            paymentStatus: 'UNPAID',
+                     },
+                     include: {
+                            client: { select: { name: true } },
+                            court: { select: { name: true } },
+                     },
+              })
+
+              if (!booking) return { success: false, error: 'Reserva no encontrada o ya procesada' }
+              if (!canTransitionBookingStatus(booking.status, 'EXPIRED')) {
+                     return { success: false, error: 'La reserva no puede vencer desde su estado actual' }
               }
+
+              await prisma.booking.update({
+                     where: { id_clubId: { id: bookingId, clubId } },
+                     data: {
+                            status: 'EXPIRED',
+                            canceledAt: new Date(),
+                            cancelReason: 'EXPIRED_UNPAID',
+                     }
+              })
+
+              await logAction({
+                     clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: { type: 'AUTO_EXPIRED_UNPAID' }
+              }).catch(console.error)
+
+              this.handleCancellationSideEffects(bookingId, clubId, booking.startTime, booking.courtId, booking)
+
+              return { success: true }
+       }
+
+       static async markNoShow(bookingId: number, clubId: string, reason: 'AUTO_NO_SHOW' | 'MANUAL_NO_SHOW' = 'MANUAL_NO_SHOW') {
+              const booking = await prisma.booking.findFirst({
+                     where: { id: bookingId, clubId },
+                     include: {
+                            items: true,
+                            client: { select: { name: true } },
+                            court: { select: { name: true } },
+                     }
+              })
+
+              if (!booking) throw new Error('Reserva no encontrada')
+              if (!canTransitionBookingStatus(booking.status, 'NO_SHOW')) {
+                     throw new Error('La reserva no puede marcarse como no-show desde su estado actual')
+              }
+              if (reason === 'AUTO_NO_SHOW' && !canAutoMarkNoShow({
+                     status: booking.status,
+                     paymentStatus: booking.paymentStatus,
+                     endTime: booking.endTime,
+              })) {
+                     throw new Error('La reserva aun no cumple condiciones para no-show automatico')
+              }
+
+              await prisma.$transaction(async (tx) => {
+                     for (const item of booking.items) {
+                            if (item.productId) {
+                                   await tx.product.update({
+                                          where: { id_clubId: { id: item.productId, clubId } },
+                                          data: { stock: { increment: item.quantity } }
+                                   })
+                            }
+                     }
+
+                     await tx.booking.update({
+                            where: { id_clubId: { id: bookingId, clubId } },
+                            data: { status: 'NO_SHOW' }
+                     })
+              })
+
+              await logAction({
+                     clubId,
+                     action: 'UPDATE',
+                     entity: 'BOOKING',
+                     entityId: booking.id.toString(),
+                     details: {
+                            type: reason,
+                            clientName: booking.client?.name || 'N/A',
+                            courtName: booking.court?.name || 'N/A'
+                     }
+              }).catch(console.error)
+
+              return { success: true }
        }
 
        /**

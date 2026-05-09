@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { nowInArg } from "@/lib/date-utils";
 import { BookingService } from "@/services/booking.service";
+import { shouldExpirePendingBooking } from "@/lib/booking-status";
 
 export const dynamic = 'force-dynamic';
 
@@ -33,35 +34,25 @@ export async function GET(request: Request) {
             }
         });
 
-        let canceledCount = 0;
+        let expiredCount = 0;
 
         for (const booking of pendingBookings) {
-            const limitHours = booking.club.depositTimeLimitHours || 2;
-            const expirationDate = new Date(booking.createdAt.getTime() + limitHours * 60 * 60 * 1000);
-
-            if (now > expirationDate) {
-                console.log(`[Cron] Canceling expired booking ${booking.id} for club ${booking.club.id}`);
-                
-                await BookingService.cancel(booking.id, booking.clubId, { 
-                    id: "SYSTEM_CRON", 
-                    role: "GOD" // Using GOD role to bypass any permission checks
-                });
-
-                // Also update the cancel reason
-                await prisma.booking.update({
-                    where: { id: booking.id },
-                    data: {
-                        cancelReason: "EXPIRED_UNPAID"
-                    }
-                });
-
-                canceledCount++;
+            if (shouldExpirePendingBooking({
+                status: booking.status,
+                paymentStatus: booking.paymentStatus,
+                createdAt: booking.createdAt,
+                depositTimeLimitHours: booking.club.depositTimeLimitHours,
+                now,
+            })) {
+                console.log(`[Cron] Expiring unpaid booking ${booking.id} for club ${booking.club.id}`);
+                await BookingService.expirePendingBooking(booking.id, booking.clubId);
+                expiredCount++;
             }
         }
 
         return NextResponse.json({ 
             success: true, 
-            message: `Processed ${pendingBookings.length} bookings, canceled ${canceledCount}.` 
+            message: `Processed ${pendingBookings.length} bookings, expired ${expiredCount}.` 
         });
 
     } catch (error) {

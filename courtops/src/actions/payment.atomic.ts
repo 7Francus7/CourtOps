@@ -3,6 +3,7 @@
 import prisma from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { getOrCreateTodayCashRegister, getCurrentClubId } from '@/lib/tenant'
+import { isTerminalBookingStatus } from '@/lib/booking-status'
 
 /**
  * Enterprise-grade Atomic Payment Processor
@@ -34,7 +35,8 @@ export async function processPaymentAtomic(
                             include: { transactions: true }
                      })
 
-                     if (!booking) throw new Error('BookingNotFoundError')
+                      if (!booking) throw new Error('BookingNotFoundError')
+                      if (isTerminalBookingStatus(booking.status)) throw new Error('BookingTerminalStateError')
 
                      // 2. Obtener ITEMS para calcular total con precisión
                      const bookingItems = await tx.bookingItem.findMany({
@@ -92,8 +94,9 @@ export async function processPaymentAtomic(
                      throw new Error('DB_SCHEMA_ERROR') // Señal para activar Fallback
               }
 
-              if (message === 'BookingNotFoundError') return { success: false, error: 'Reserva no encontrada' }
+               if (message === 'BookingNotFoundError') return { success: false, error: 'Reserva no encontrada' }
+               if (message === 'BookingTerminalStateError') return { success: false, error: 'La reserva ya no admite pagos' }
 
-              return { success: false, error: message }
-       }
+               return { success: false, error: message }
+        }
 }

@@ -8,6 +8,8 @@ import { Prisma } from '@prisma/client'
 export const BookingStatus = {
        PENDING: 'PENDING',
        CONFIRMED: 'CONFIRMED',
+       EXPIRED: 'EXPIRED',
+       NO_SHOW: 'NO_SHOW',
        PARTIAL_PAID: 'PARTIAL_PAID',
        PAID: 'PAID',
        IN_PROGRESS: 'IN_PROGRESS',
@@ -174,6 +176,8 @@ export function getStatusColor(status: BookingStatusType): string {
        const colors: Record<BookingStatusType, string> = {
               PENDING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
               CONFIRMED: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+              EXPIRED: 'bg-zinc-500/20 text-zinc-300 border-zinc-500/30',
+              NO_SHOW: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
               PARTIAL_PAID: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
               PAID: 'bg-green-500/20 text-green-400 border-green-500/30',
               IN_PROGRESS: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
@@ -187,6 +191,8 @@ export function getStatusLabel(status: BookingStatusType): string {
        const labels: Record<BookingStatusType, string> = {
               PENDING: 'Pendiente',
               CONFIRMED: 'Confirmado',
+              EXPIRED: 'Vencido',
+              NO_SHOW: 'No asistio',
               PARTIAL_PAID: 'Pago Parcial',
               PAID: 'Pagado',
               IN_PROGRESS: 'En Progreso',

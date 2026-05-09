@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Crown, Users, TrendingUp, AlertCircle, Plus, Search,
-  ChevronRight, X, Check, Loader2, Ban, Calendar
+  X, Check, Loader2, Ban
 } from 'lucide-react'
 import { getMembershipsOverview, getActiveMembers, subscribeClient, cancelClientMembership } from '@/actions/memberships'
 import { format, differenceInDays } from 'date-fns'

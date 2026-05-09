@@ -1,28 +1,27 @@
 'use client'
-/* eslint-disable @next/next/no-img-element */
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { QRCodeCanvas } from 'qrcode.react'
 import { toast } from 'sonner'
 import {
-  AlertCircle,
+  ArrowRight,
   Calendar,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock,
   Copy,
   Download,
-  Loader2,
   LogOut,
   QrCode,
   Shield,
   Trophy,
+  UserRound,
 } from 'lucide-react'
 
-import { cancelPlayerBooking, logoutPlayer, sendPlayerOTP, verifyPlayerOTP } from '@/actions/player-portal'
+import { cancelPlayerBooking, logoutPlayer } from '@/actions/player-portal'
 import { InstallPrompt } from '@/components/pwa/InstallPrompt'
-import { PhoneInput } from '@/components/ui/PhoneInput'
 import {
   buildPlayerBookingPath,
   buildRepeatReservationDate,
@@ -90,165 +89,99 @@ function buildPublicUrl(path: string) {
   return new URL(path, window.location.origin).toString()
 }
 
-function OTPInput({ value, onChange }: { value: string; onChange: (_value: string) => void }) {
-  const inputs = useRef<(HTMLInputElement | null)[]>([])
-
-  function handleKey(index: number, event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Backspace' && !value[index] && index > 0) {
-      inputs.current[index - 1]?.focus()
-    }
-  }
-
-  function handleChange(index: number, inputValue: string) {
-    const digit = inputValue.replace(/\D/g, '').slice(-1)
-    const nextValue = value.padEnd(6, ' ').split('')
-    nextValue[index] = digit || ' '
-    onChange(nextValue.join('').trimEnd())
-
-    if (digit && index < 5) {
-      inputs.current[index + 1]?.focus()
-    }
-  }
-
-  return (
-    <div className="flex justify-center gap-2">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <input
-          key={index}
-          ref={(element) => {
-            inputs.current[index] = element
-          }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={value[index]?.trim() || ''}
-          onChange={(event) => handleChange(index, event.target.value)}
-          onKeyDown={(event) => handleKey(index, event)}
-          className="h-14 w-11 rounded-xl border-2 border-white/10 bg-white/5 text-center text-xl font-bold text-white transition-colors focus:border-[var(--club-color)] focus:outline-none"
-        />
-      ))}
-    </div>
-  )
-}
-
 function AuthFlow({ club, clubSlug }: { club: ClubData; clubSlug: string }) {
-  const router = useRouter()
-  const [step, setStep] = useState<'phone' | 'otp'>('phone')
-  const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
-  const [simulated, setSimulated] = useState(false)
-  const [debugCode, setDebugCode] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
   const bookingHref = buildPlayerBookingPath(clubSlug)
-
-  function submitPhone(event: React.FormEvent) {
-    event.preventDefault()
-    startTransition(async () => {
-      const response = await sendPlayerOTP(phone, clubSlug)
-      if ('error' in response) {
-        toast.error(response.error)
-        return
-      }
-
-      setSimulated(!!response.simulated)
-      setDebugCode(response.debugCode || null)
-      setStep('otp')
-    })
-  }
-
-  function submitOTP(event: React.FormEvent) {
-    event.preventDefault()
-    startTransition(async () => {
-      const response = await verifyPlayerOTP(phone, clubSlug, otp)
-      if ('error' in response) {
-        toast.error(response.error)
-        return
-      }
-      router.refresh()
-    })
-  }
+  const accessHighlights = [
+    { icon: UserRound, label: 'Tu perfil y estado de socio' },
+    { icon: Calendar, label: 'Proximas reservas y cancelaciones' },
+    { icon: Shield, label: 'Acceso seguro cuando se reactive' },
+  ]
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
-      <div className="mb-8 text-center">
-        {club.logoUrl ? (
-          <img src={club.logoUrl} alt={club.name} className="mx-auto mb-4 h-16 w-auto rounded-xl" />
-        ) : (
-          <div
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold"
-            style={{ backgroundColor: club.themeColor ?? '#00e676', color: '#000' }}
-          >
-            {club.name[0]}
-          </div>
-        )}
-        <h1 className="text-xl font-bold text-white">{club.name}</h1>
-        <p className="mt-1 text-sm text-white/50">Portal del jugador y reservas desde el celular</p>
-      </div>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-10">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-90"
+        style={{
+          background: `radial-gradient(circle at top, ${club.themeColor ?? '#00e676'}22, transparent 30%), radial-gradient(circle at bottom right, ${club.themeColor ?? '#00e676'}18, transparent 28%)`,
+        }}
+      />
 
-      <div className="w-full max-w-sm space-y-4">
-        {step === 'phone' ? (
-          <form onSubmit={submitPhone} className="space-y-4 rounded-[1.75rem] border border-white/8 bg-white/5 p-5">
-            <div>
-              <label className="mb-2 block text-sm text-white/60">Tu numero de WhatsApp</label>
-              <PhoneInput
-                value={phone}
-                onChange={setPhone}
-                placeholder="351 123 4567"
-                required
-                className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 text-white transition-colors"
-              />
-              <p className="mt-2 text-xs text-white/40">
-                Te enviamos un codigo de acceso para ver tus reservas y volver a reservar rapido.
+      <div className="relative z-10 w-full max-w-sm space-y-5">
+        <div className="text-center">
+          {club.logoUrl ? (
+            <img src={club.logoUrl} alt={club.name} className="mx-auto mb-4 h-16 w-auto rounded-xl" />
+          ) : (
+            <div
+              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold"
+              style={{ backgroundColor: club.themeColor ?? '#00e676', color: '#000' }}
+            >
+              {club.name[0]}
+            </div>
+          )}
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-white/35">Portal del jugador</p>
+          <h1 className="mt-2 text-[1.85rem] font-black tracking-tight text-white">{club.name}</h1>
+          <p className="mx-auto mt-2 max-w-[20rem] text-sm leading-relaxed text-white/55">
+            El portal del jugador esta en pausa por el momento. Mientras tanto puedes reservar desde la agenda publica del club.
+          </p>
+        </div>
+
+        <div className="space-y-4 rounded-[2rem] border border-white/8 bg-white/[0.06] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+          <div className="flex items-start gap-3">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06]"
+              style={{ color: club.themeColor ?? '#00e676' }}
+            >
+              <Shield className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/50">
+                Acceso temporalmente desactivado
+              </span>
+              <h2 className="mt-3 text-2xl font-black tracking-tight text-white">El perfil del jugador no esta disponible ahora</h2>
+              <p className="mt-2 text-sm leading-relaxed text-white/55">
+                Quitamos temporalmente el ingreso por codigo. Cuando vuelva a estar activo, desde aqui podras ver tu perfil, reservas e historial.
               </p>
             </div>
-            <button
-              type="submit"
-              disabled={pending || phone.length < 6}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-semibold text-black transition-opacity disabled:opacity-40"
-              style={{ backgroundColor: club.themeColor ?? '#00e676' }}
-            >
-              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Recibir codigo
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={submitOTP} className="space-y-6 rounded-[1.75rem] border border-white/8 bg-white/5 p-5">
-            <div className="text-center">
-              <Shield className="mx-auto mb-3 h-10 w-10" style={{ color: club.themeColor ?? '#00e676' }} />
-              <h2 className="text-lg font-semibold text-white">Ingresa el codigo</h2>
-              {simulated ? (
-                <p className="mt-1 flex items-center justify-center gap-1 text-xs text-amber-400">
-                  <AlertCircle className="h-3 w-3" />
-                  Modo simulacion{debugCode ? ` - codigo: ${debugCode}` : ''}
+          </div>
+
+          <div className="grid gap-2.5">
+            {accessHighlights.map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-[#0b0b0b] px-3.5 py-3"
+              >
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]"
+                  style={{ color: club.themeColor ?? '#00e676' }}
+                >
+                  <Icon className="h-4 w-4" />
+                </div>
+                <p className="text-sm font-semibold text-white/80">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-[1.5rem] border border-amber-400/15 bg-amber-400/10 p-4">
+            <div className="flex items-start gap-2.5">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+              <div>
+                <p className="text-sm font-semibold text-amber-200">Por ahora usa la reserva publica del club</p>
+                <p className="mt-1 text-xs leading-relaxed text-amber-100/75">
+                  Puedes seguir viendo horarios y reservar desde el celular con el flujo publico habitual.
                 </p>
-              ) : (
-                <p className="mt-1 text-sm text-white/50">
-                  Enviamos 6 digitos a <span className="text-white">{phone}</span>
-                </p>
-              )}
+              </div>
             </div>
-            <OTPInput value={otp} onChange={setOtp} />
-            <button
-              type="submit"
-              disabled={pending || otp.trim().length < 6}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-semibold text-black transition-opacity disabled:opacity-40"
-              style={{ backgroundColor: club.themeColor ?? '#00e676' }}
-            >
-              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Verificar
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setStep('phone')
-                setOtp('')
-              }}
-              className="w-full text-sm text-white/40 transition-colors hover:text-white/60"
-            >
-              Cambiar numero
-            </button>
-          </form>
-        )}
+          </div>
+
+          <a
+            href={bookingHref}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-semibold text-black"
+            style={{ backgroundColor: club.themeColor ?? '#00e676' }}
+          >
+            Ver disponibilidad y reservar
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
 
         <a
           href={bookingHref}

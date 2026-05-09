@@ -2,8 +2,7 @@
 
 import prisma from '@/lib/db'
 import { createSafeAction } from '@/lib/safe-action'
-import { format, startOfDay, endOfDay, subDays, isSameDay, startOfMonth, endOfMonth } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { format, startOfDay, endOfDay, subDays } from 'date-fns'
 import { GoogleGenerativeAI, Tool, SchemaType } from "@google/generative-ai"
 
 // --- TYPES & INTERFACES ---

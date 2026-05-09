@@ -4,45 +4,27 @@ import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { logAction } from '@/lib/logger'
 import { revalidatePath } from 'next/cache'
+import { BookingService } from '@/services/booking.service'
+import { canTransitionBookingStatus } from '@/lib/booking-status'
 
 /**
  * Manually mark a booking as NO_SHOW.
- * Only CONFIRMED bookings can be marked.
+ * Only bookings in an active playable state can be marked.
  */
 export async function markNoShow(bookingId: number) {
        try {
               const clubId = await getCurrentClubId()
               const booking = await prisma.booking.findFirst({
                      where: { id: bookingId, clubId },
-                     include: { items: true }
+                     select: { id: true, status: true }
               })
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
-              if (booking.status === 'CANCELED') return { success: false, error: 'No se puede marcar una reserva cancelada como no-show' }
-              if (booking.status === 'NO_SHOW') return { success: false, error: 'La reserva ya está marcada como no-show' }
-
-              // Return Stock
-              for (const item of booking.items) {
-                     if (item.productId) {
-                            await prisma.product.update({
-                                   where: { id: item.productId },
-                                   data: { stock: { increment: item.quantity } }
-                            })
-                     }
+              if (!canTransitionBookingStatus(booking.status, 'NO_SHOW')) {
+                     return { success: false, error: 'La reserva no puede marcarse como no-show desde su estado actual' }
               }
 
-              await prisma.booking.update({
-                     where: { id: bookingId },
-                     data: { status: 'NO_SHOW' }
-              })
-
-              await logAction({
-                     clubId,
-                     action: 'UPDATE',
-                     entity: 'BOOKING',
-                     entityId: bookingId.toString(),
-                     details: { type: 'MANUAL_NO_SHOW' }
-              })
+              await BookingService.markNoShow(bookingId, clubId, 'MANUAL_NO_SHOW')
 
               revalidatePath('/')
               return { success: true }
@@ -64,20 +46,19 @@ export async function revertNoShow(bookingId: number) {
               })
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
-              if (booking.status !== 'NO_SHOW') return { success: false, error: 'La reserva no está marcada como no-show' }
+              if (booking.status !== 'NO_SHOW') return { success: false, error: 'La reserva no estÃ¡ marcada como no-show' }
 
-              // Re-deduct Stock (admin override even if negative)
               for (const item of booking.items) {
                      if (item.productId) {
                             await prisma.product.update({
-                                   where: { id: item.productId },
+                                   where: { id_clubId: { id: item.productId, clubId } },
                                    data: { stock: { decrement: item.quantity } }
                             })
                      }
               }
 
               await prisma.booking.update({
-                     where: { id: bookingId },
+                     where: { id_clubId: { id: bookingId, clubId } },
                      data: { status: 'CONFIRMED' }
               })
 
@@ -128,7 +109,6 @@ export async function getNoShowStats() {
                      })
               ])
 
-              // Get client names for top offenders
               const clientIds = noShowsByClient.map(n => n.clientId).filter(Boolean) as number[]
               const clients = await prisma.client.findMany({
                      where: { id: { in: clientIds } },

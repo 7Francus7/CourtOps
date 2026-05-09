@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
+import { isTerminalBookingStatus } from '@/lib/booking-status'
 
 function maskPhone(phone: string | null): string | null {
        if (!phone || phone.length < 4) return phone
@@ -78,10 +79,9 @@ export async function GET(
                      return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 })
               }
 
-              // Don't expose canceled bookings
-              if (booking.status === 'CANCELED') {
-                     return NextResponse.json({ success: false, error: 'Reserva cancelada' }, { status: 404 })
-              }
+               if (isTerminalBookingStatus(booking.status)) {
+                      return NextResponse.json({ success: false, error: 'Reserva cancelada' }, { status: 404 })
+               }
 
               return NextResponse.json({
                      success: true,

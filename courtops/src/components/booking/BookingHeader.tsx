@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { es, enUS } from 'date-fns/locale'
-import { Booking, getStatusColor } from '@/types/booking'
+import { Booking } from '@/types/booking'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Phone, Calendar, Clock, Trophy, MessageCircle } from 'lucide-react'
@@ -11,8 +11,8 @@ interface BookingHeaderProps {
 }
 
 export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeaderProps) {
-       const { client, schedule, pricing, status } = booking
-       const { t, language } = useLanguage()
+       const { client, schedule, status } = booking
+       const { language } = useLanguage()
 
        const initials = client.name
               .split(' ')
@@ -21,7 +21,6 @@ export default function BookingHeader({ booking, onWhatsAppClick }: BookingHeade
               .toUpperCase()
               .slice(0, 2)
 
-       const isToday = format(schedule.date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
        const dateLocale = language === 'es' ? es : enUS
 
        return (

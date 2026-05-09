@@ -1,3 +1,11 @@
+import {
+  isCanceledBookingStatus,
+  isExpiredBookingStatus,
+  isNoShowBookingStatus,
+  normalizeBookingStatus,
+  normalizePaymentStatus,
+} from '@/lib/booking-status'
+
 export type PublicBookingStateMeta = {
   headline: string
   helper: string
@@ -12,24 +20,32 @@ export function getPublicBookingStateMeta(
   paymentStatus: string | null | undefined,
   isGuest: boolean,
 ): PublicBookingStateMeta {
-  const normalizedStatus = (status || '').toUpperCase()
-  const normalizedPayment = (paymentStatus || '').toUpperCase()
+  const normalizedStatus = normalizeBookingStatus(status)
+  const normalizedPayment = normalizePaymentStatus(paymentStatus)
 
   const reservationLabel = normalizedStatus === 'CONFIRMED'
     ? 'Confirmada'
     : normalizedStatus === 'PENDING'
       ? 'Pendiente'
-      : normalizedStatus === 'CANCELED' || normalizedStatus === 'CANCELLED'
-        ? 'Cancelada'
-        : 'Creada'
+      : isExpiredBookingStatus(normalizedStatus)
+        ? 'Vencida'
+        : isNoShowBookingStatus(normalizedStatus)
+          ? 'No asistio'
+          : isCanceledBookingStatus(normalizedStatus)
+            ? 'Cancelada'
+            : 'Creada'
 
   const reservationTone = normalizedStatus === 'CONFIRMED'
     ? 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20'
     : normalizedStatus === 'PENDING'
       ? 'text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-500/10 dark:border-amber-500/20'
-      : normalizedStatus === 'CANCELED' || normalizedStatus === 'CANCELLED'
+      : isExpiredBookingStatus(normalizedStatus)
+        ? 'text-slate-600 bg-slate-100 border-slate-200 dark:text-zinc-300 dark:bg-zinc-800/60 dark:border-zinc-700/40'
+        : isNoShowBookingStatus(normalizedStatus)
+          ? 'text-orange-700 bg-orange-50 border-orange-200 dark:text-orange-300 dark:bg-orange-500/10 dark:border-orange-500/20'
+          : isCanceledBookingStatus(normalizedStatus)
         ? 'text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-300 dark:bg-rose-500/10 dark:border-rose-500/20'
-        : 'text-slate-700 bg-slate-50 border-slate-200 dark:text-zinc-300 dark:bg-zinc-800/60 dark:border-zinc-700/40'
+          : 'text-slate-700 bg-slate-50 border-slate-200 dark:text-zinc-300 dark:bg-zinc-800/60 dark:border-zinc-700/40'
 
   const paymentLabel = normalizedPayment === 'PAID'
     ? 'Pagada'
@@ -53,12 +69,20 @@ export function getPublicBookingStateMeta(
 
   const headline = normalizedPayment === 'PAID'
     ? 'Pago acreditado'
+    : isExpiredBookingStatus(normalizedStatus)
+      ? 'Reserva vencida'
+      : isNoShowBookingStatus(normalizedStatus)
+        ? 'Reserva no asistida'
     : isGuest && normalizedStatus === 'PENDING'
       ? 'Reserva pendiente'
       : 'Turno reservado'
 
   const helper = normalizedPayment === 'PAID'
     ? 'Tu pago se registro y el turno ya quedo asociado a tu reserva.'
+    : isExpiredBookingStatus(normalizedStatus)
+      ? 'La reserva se libero por falta de pago dentro del tiempo configurado por el club.'
+      : isNoShowBookingStatus(normalizedStatus)
+        ? 'El turno ya paso y quedo marcado como ausente.'
     : isGuest && normalizedStatus === 'PENDING'
       ? 'El club debe validar la sena para confirmar definitivamente tu turno.'
       : 'Ya puedes compartirlo, agregarlo al calendario o volver a reservar.'

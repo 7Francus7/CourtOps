@@ -2,7 +2,8 @@
 
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { logAction } from '@/lib/logger'
+import { BookingService } from '@/services/booking.service'
+import { canAutoMarkNoShow } from '@/lib/booking-status'
 
 /**
  * Auto-marks bookings as NO_SHOW.
@@ -20,63 +21,45 @@ export async function GET(request: Request) {
                      return new NextResponse('Unauthorized', { status: 401 })
               }
 
-              const now = new Date()
-              const cutoff = new Date(now.getTime() - 30 * 60 * 1000) // 30 min buffer
+               const now = new Date()
 
-              // Find all CONFIRMED + UNPAID bookings whose endTime has passed
-              const noShowBookings = await prisma.booking.findMany({
-                     where: {
-                            status: 'CONFIRMED',
-                            paymentStatus: 'UNPAID',
-                            endTime: { lt: cutoff }
-                     },
-                     include: {
-                            client: { select: { name: true } },
-                            court: { select: { name: true } },
-                            club: { select: { id: true } },
-                            items: true
-                     }
-              })
+               // Find all CONFIRMED + UNPAID bookings whose endTime has passed
+               const candidates = await prisma.booking.findMany({
+                      where: {
+                             status: 'CONFIRMED',
+                             paymentStatus: 'UNPAID',
+                             endTime: { lt: now }
+                      },
+                      select: {
+                             id: true,
+                             clubId: true,
+                             status: true,
+                             paymentStatus: true,
+                             endTime: true,
+                      }
+               })
 
-              if (noShowBookings.length === 0) {
-                     return NextResponse.json({ success: true, marked: 0 })
-              }
+               const noShowBookings = candidates.filter((booking) =>
+                      canAutoMarkNoShow({
+                             status: booking.status,
+                             paymentStatus: booking.paymentStatus,
+                             endTime: booking.endTime,
+                             now,
+                      })
+               )
 
-              const ids = noShowBookings.map(b => b.id)
+               if (noShowBookings.length === 0) {
+                      return NextResponse.json({ success: true, marked: 0 })
+               }
 
-              // Process each booking: Return stock and Log
-              for (const booking of noShowBookings) {
-                     // Return Stock
-                     for (const item of booking.items) {
-                            if (item.productId) {
-                                   await prisma.product.update({
-                                          where: { id: item.productId },
-                                          data: { stock: { increment: item.quantity } }
-                                   })
-                            }
-                     }
+               const ids = noShowBookings.map(b => b.id)
 
-                     await logAction({
-                            clubId: booking.clubId,
-                            action: 'UPDATE',
-                            entity: 'BOOKING',
-                            entityId: booking.id.toString(),
-                            details: {
-                                   type: 'AUTO_NO_SHOW',
-                                   clientName: booking.client?.name || 'N/A',
-                                   courtName: booking.court?.name || 'N/A'
-                            }
-                     }).catch(console.error)
-              }
+               for (const booking of noShowBookings) {
+                      await BookingService.markNoShow(booking.id, booking.clubId, 'AUTO_NO_SHOW')
+                }
 
-              // Batch Update Status
-              await prisma.booking.updateMany({
-                     where: { id: { in: ids } },
-                     data: { status: 'NO_SHOW' }
-              })
-
-              return NextResponse.json({
-                     success: true,
+               return NextResponse.json({
+                      success: true,
                      marked: ids.length,
                      bookingIds: ids
               })

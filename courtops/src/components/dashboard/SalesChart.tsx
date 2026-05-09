@@ -1,10 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 // Use client API for weekly revenue
 import { TrendingUp, DollarSign } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 export function SalesChart() {
        const [data, setData] = useState<{ date: string, fullDate: string, amount: number }[]>([])
@@ -38,7 +37,7 @@ export function SalesChart() {
        const total = data.reduce((sum, item) => sum + item.amount, 0)
 
        // Custom Tooltip
-       const CustomTooltip = ({ active, payload, label }: any) => {
+       const CustomTooltip = ({ active, payload }: any) => {
               if (active && payload && payload.length) {
                      return (
                             <div className="bg-popover border border-border p-3 rounded-xl shadow-xl">

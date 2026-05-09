@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, User, Phone, Trash2, Edit2, GraduationCap, ArrowLeft,
   Loader2, Calendar, Users, BookOpen, TrendingUp, Clock, X,
-  ChevronDown, UserPlus, UserMinus, Check
+  UserPlus, UserMinus, Check
 } from 'lucide-react'
 import {
   getTeachers, createTeacher, updateTeacher, deleteTeacher, getAcademiaStats,

@@ -1,7 +1,7 @@
 'use client'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { getPublicTournament, registerPublicTeam } from '@/actions/public-tournaments'
 import { format } from 'date-fns'
@@ -52,21 +52,21 @@ export default function PublicTournamentPage({ params }: { params: Promise<{ id:
               p2Name: '', p2Phone: ''
        })
        const [submitting, setSubmitting] = useState(false)
-       async function loadTournament(id: string) {
+       const loadTournament = useCallback(async (id: string) => {
               setLoading(true)
               const data = await getPublicTournament(id)
               if (data) {
                      setTournament(data as NonNullable<typeof tournament>)
               }
               setLoading(false)
-       }
+       }, [])
 
        useEffect(() => {
               params.then(p => {
                      setTournamentId(p.id)
                      loadTournament(p.id)
               })
-       }, [params])
+       }, [loadTournament, params])
 
        const handleRegister = async (e: React.FormEvent) => {
               e.preventDefault()

@@ -22,7 +22,7 @@ export class SubscriptionService {
 
         let referenceId = "";
         let instructions: any = null;
-        let checkoutUrl = "";
+        const checkoutUrl = "";
 
         if (method === "TRANSFER") {
             const res = await transferProvider.createSubscriptionPayment({

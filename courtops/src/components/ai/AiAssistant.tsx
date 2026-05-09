@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bot, X, Send, Sparkles, User, FileText, Calendar, BarChart3, Settings } from 'lucide-react'
+import { Bot, X, Send, Sparkles, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { processAiRequest, AiMessage, AiResponse } from '@/actions/ai-assistant'
+import { processAiRequest, AiMessage } from '@/actions/ai-assistant'
 import { toast } from 'sonner'
 
 export function AiAssistant() {

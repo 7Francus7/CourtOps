@@ -1,6 +1,6 @@
 import { BookingPricing } from '@/types/booking'
 import { cn } from '@/lib/utils'
-import { Receipt, Wallet, AlertCircle, Check } from 'lucide-react'
+import { Receipt, AlertCircle, Check } from 'lucide-react'
 
 interface PricingPanelProps {
        pricing: BookingPricing

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
+import { canTransitionBookingStatus, isTerminalBookingStatus } from '@/lib/booking-status'
 
 export async function POST(
        request: NextRequest,
@@ -34,10 +35,9 @@ export async function POST(
                      return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 })
               }
 
-              // Already canceled
-              if (booking.status === 'CANCELED') {
-                     return NextResponse.json({ success: true, message: 'La reserva ya fue cancelada' })
-              }
+               if (isTerminalBookingStatus(booking.status)) {
+                      return NextResponse.json({ success: true, message: 'La reserva ya fue cancelada' })
+               }
 
               // Check if already fully paid — cannot self-cancel a paid booking
               const totalPaid = booking.transactions.reduce((sum, t) => sum + t.amount, 0)
@@ -51,10 +51,14 @@ export async function POST(
               }
 
               // Cancel scoped to the booking's own club to enforce tenant isolation
-              await prisma.booking.update({
-                     where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
-                     data: { status: 'CANCELED' }
-              })
+               if (!canTransitionBookingStatus(booking.status, 'CANCELED')) {
+                      return NextResponse.json({ success: false, error: 'La reserva no puede cancelarse desde su estado actual' }, { status: 400 })
+               }
+
+               await prisma.booking.update({
+                      where: { id_clubId: { id: bookingId, clubId: booking.clubId } },
+                      data: { status: 'CANCELED', canceledAt: new Date(), cancelReason: 'CANCELLED_BY_CLIENT_PUBLIC' }
+               })
 
               // Notify waiting list (no session — query directly by clubId + date + time slot)
               try {

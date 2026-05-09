@@ -36,7 +36,13 @@ function emit(level: Level, msg: string, ctx?: Context) {
         out += ` [Unserializable Context]`
       }
     }
-    level === 'error' ? console.error(out) : level === 'warn' ? console.warn(out) : console.log(out)
+    if (level === 'error') {
+      console.error(out)
+    } else if (level === 'warn') {
+      console.warn(out)
+    } else {
+      console.log(out)
+    }
     return
   }
 
@@ -44,8 +50,14 @@ function emit(level: Level, msg: string, ctx?: Context) {
   try {
     const entry = { time: new Date().toISOString(), level, msg, ...safe }
     const out = JSON.stringify(entry)
-    level === 'error' ? console.error(out) : level === 'warn' ? console.warn(out) : console.log(out)
-  } catch (err) {
+    if (level === 'error') {
+      console.error(out)
+    } else if (level === 'warn') {
+      console.warn(out)
+    } else {
+      console.log(out)
+    }
+  } catch {
     // Fallback if serialization fails
     const fallback = JSON.stringify({ 
       time: new Date().toISOString(), 

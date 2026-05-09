@@ -65,7 +65,8 @@ export default function PaymentPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             bookingId: Number(bookingId),
-            amount: balance
+            amount: balance,
+            token: publicToken
           })
         })
 
@@ -92,7 +93,10 @@ export default function PaymentPage() {
 
       setProcessing(true)
       try {
-        const res = await submitPublicTransfer(Number(bookingId), { reference: transferRef.trim() })
+        const res = await submitPublicTransfer(Number(bookingId), {
+          reference: transferRef.trim(),
+          publicToken,
+        })
         if (res.success) {
           toast.success('Comprobante enviado. Esperando validación del club.')
           loadBooking() // recargar la reserva para ver el nuevo estado

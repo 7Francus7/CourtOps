@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { AlertTriangle, User, ChevronRight, MessageCircle, Loader2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { AlertTriangle, MessageCircle, Loader2 } from 'lucide-react'
 
 interface Debtor {
        name: string
