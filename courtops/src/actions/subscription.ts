@@ -32,6 +32,18 @@ export async function getSubscriptionDetails() {
 
 	if (!club) throw new Error("Club no encontrado")
 
+	// Days remaining
+	const now = new Date()
+	let daysRemaining: number | null = null
+	if (club.subscriptionStatus === 'TRIAL') {
+		const trialEnd = new Date(club.createdAt)
+		trialEnd.setDate(trialEnd.getDate() + 7)
+		daysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / 86400000))
+	} else {
+		const endDate = club.subscriptionEnd || club.nextBillingDate
+		if (endDate) daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / 86400000)
+	}
+
 	const allPlans = await prisma.platformPlan.findMany({ orderBy: { price: 'asc' } })
 
 	const pendingPlan = club.pendingPlanId
@@ -80,6 +92,15 @@ export async function getSubscriptionDetails() {
 		pendingBillingCycle: club.pendingBillingCycle as 'monthly' | 'yearly' | null,
 		isConfigured: hasToken || isDev,
 		isDevMode: isDev && !hasToken,
+		// New billing fields
+		daysRemaining,
+		subscriptionEnd: club.subscriptionEnd?.toISOString() ?? null,
+		subscriptionMethod: club.subscriptionMethod ?? 'MERCADOPAGO',
+		bankDetails: {
+			alias: process.env.COURTOPS_BANK_ALIAS || 'courtops.admin',
+			cvu: process.env.COURTOPS_BANK_CVU || '',
+			accountName: process.env.COURTOPS_BANK_ACCOUNT_NAME || 'CourtOps',
+		},
 	}
 }
 

@@ -71,6 +71,9 @@ model Club {
   subscriptionEnd     DateTime?
   subscriptionReference String?   // Reference for transfer SaaS payment
   subscriptionReceiptUrl String?  // URL of the transfer receipt for SaaS
+  gracePeriodDays     Int       @default(3)
+  suspendedAt         DateTime?
+  lastReminderSentAt  DateTime?
   
   // Custom Deposit & Payment Settings
   depositType           String    @default("FIXED") // FIXED, PERCENTAGE
@@ -81,6 +84,8 @@ model Club {
   bankAccountName       String?
 
   subscriptionPayments SubscriptionPayment[]
+  invoices         Invoice[]
+  billingLogs      BillingLog[]
 
   cashRegisters    CashRegister[]
   clients          Client[]
@@ -944,7 +949,9 @@ model SubscriptionPayment {
   reference       String?  // Alias desde donde transfirieron, o payment_id de MP
   notes           String?
   billingCycle    String   // "monthly" | "yearly"
-  
+  periodStart     DateTime?
+  periodEnd       DateTime?
+
   validatedAt     DateTime?
   validatedBy     String?  // ID del Super Admin que aprobó
 
@@ -952,8 +959,47 @@ model SubscriptionPayment {
   updatedAt       DateTime @updatedAt
 
   club            Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  
+
   @@index([clubId])
   @@index([status])
   @@map("SubscriptionPayment")
+}
+
+// --- BILLING INVOICES ---
+
+model Invoice {
+  id           String   @id @default(cuid())
+  clubId       String
+  number       String   // "INV-2026-0001"
+  amount       Float
+  currency     String   @default("ARS")
+  status       String   @default("PAID") // PAID, CANCELLED
+  method       String   // TRANSFER, MERCADOPAGO
+  planId       String
+  planName     String
+  billingCycle String   // "monthly" | "yearly"
+  periodStart  DateTime
+  periodEnd    DateTime
+  issuedAt     DateTime @default(now())
+  notes        String?
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@index([clubId, issuedAt])
+  @@map("Invoice")
+}
+
+// --- BILLING EVENT LOG ---
+
+model BillingLog {
+  id        String   @id @default(cuid())
+  clubId    String
+  event     String   // TRANSFER_SUBMITTED, PAYMENT_VALIDATED, PAYMENT_REJECTED, SUSPENDED, REACTIVATED, REMINDER_7D, REMINDER_2D, TRIAL_EXPIRED
+  details   String?  // JSON
+  createdAt DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  @@index([clubId, createdAt])
+  @@map("BillingLog")
 }

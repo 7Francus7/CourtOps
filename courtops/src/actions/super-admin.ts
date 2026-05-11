@@ -724,14 +724,27 @@ export async function validateSaaSTransfer(clubId: string, action: 'approve' | '
 	
 	try {
 		if (action === 'reject') {
-			await prisma.club.update({
-				where: { id: clubId },
-				data: {
-					subscriptionStatus: 'cancelled',
-					subscriptionReference: null,
-					subscriptionReceiptUrl: null
-				}
-			})
+			await prisma.$transaction([
+				prisma.club.update({
+					where: { id: clubId },
+					data: {
+						subscriptionStatus: 'cancelled',
+						subscriptionReference: null,
+						subscriptionReceiptUrl: null,
+					},
+				}),
+				prisma.subscriptionPayment.updateMany({
+					where: { clubId, status: 'PENDING_VALIDATION' },
+					data: { status: 'REJECTED', notes: reason || 'Rechazado por administrador' },
+				}),
+				prisma.billingLog.create({
+					data: {
+						clubId,
+						event: 'PAYMENT_REJECTED',
+						details: JSON.stringify({ reason: reason || 'Rechazado por administrador' }),
+					},
+				}),
+			])
 			revalidatePath('/god-mode')
 			return { success: true, message: 'Transferencia rechazada' }
 		}
@@ -749,28 +762,72 @@ export async function validateSaaSTransfer(clubId: string, action: 'approve' | '
 		if (!plan) throw new Error("Plan no encontrado")
 
 		const features = getPlanFeatures(plan.name)
-		const months = club.pendingBillingCycle === 'yearly' ? 12 : 1
-		
-		const nextDate = new Date()
-		nextDate.setMonth(nextDate.getMonth() + months)
+		const cycle = (club.pendingBillingCycle as 'monthly' | 'yearly') || 'monthly'
+		const months = cycle === 'yearly' ? 12 : 1
 
-		await prisma.club.update({
-			where: { id: clubId },
-			data: {
-				subscriptionStatus: 'authorized',
-				platformPlanId: plan.id,
-				nextBillingDate: nextDate,
-				mpPreapprovalId: `TRANSFER_${Date.now()}`,
-				subscriptionReference: null,
-				subscriptionReceiptUrl: null,
-				pendingPlanId: null,
-				pendingBillingCycle: null,
-				...features
-			}
+		const periodStart = new Date()
+		const periodEnd = new Date()
+		periodEnd.setMonth(periodEnd.getMonth() + months)
+
+		const amount = cycle === 'yearly'
+			? Math.round(plan.price * 12 * 0.8)
+			: plan.price
+
+		// Invoice number
+		const year = new Date().getFullYear()
+		const invoiceCount = await prisma.invoice.count({
+			where: { clubId, issuedAt: { gte: new Date(`${year}-01-01`) } }
 		})
+		const invoiceNumber = `INV-${year}-${String(invoiceCount + 1).padStart(4, '0')}`
+
+		await prisma.$transaction([
+			prisma.club.update({
+				where: { id: clubId },
+				data: {
+					subscriptionStatus: 'authorized',
+					platformPlanId: plan.id,
+					nextBillingDate: periodEnd,
+					subscriptionEnd: periodEnd,
+					subscriptionStart: periodStart,
+					subscriptionMethod: 'TRANSFER',
+					mpPreapprovalId: `TRANSFER_${Date.now()}`,
+					subscriptionReference: null,
+					subscriptionReceiptUrl: null,
+					pendingPlanId: null,
+					pendingBillingCycle: null,
+					suspendedAt: null,
+					...features,
+				},
+			}),
+			prisma.subscriptionPayment.updateMany({
+				where: { clubId, status: 'PENDING_VALIDATION' },
+				data: { status: 'APPROVED', validatedAt: new Date(), periodStart, periodEnd },
+			}),
+			prisma.invoice.create({
+				data: {
+					clubId,
+					number: invoiceNumber,
+					amount,
+					status: 'PAID',
+					method: 'TRANSFER',
+					planId: plan.id,
+					planName: plan.name,
+					billingCycle: cycle,
+					periodStart,
+					periodEnd,
+				},
+			}),
+			prisma.billingLog.create({
+				data: {
+					clubId,
+					event: 'PAYMENT_VALIDATED',
+					details: JSON.stringify({ planId: plan.id, planName: plan.name, cycle, amount, invoiceNumber }),
+				},
+			}),
+		])
 
 		revalidatePath('/god-mode')
-		return { success: true, message: `Plan ${plan.name} activado hasta ${nextDate.toLocaleDateString()}` }
+		return { success: true, message: `Plan ${plan.name} activado hasta ${periodEnd.toLocaleDateString('es-AR')}` }
 	} catch (error: any) {
 		console.error("Validate SaaS Transfer Error:", error)
 		return { success: false, error: error.message }

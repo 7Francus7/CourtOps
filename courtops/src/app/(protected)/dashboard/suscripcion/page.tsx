@@ -4,30 +4,34 @@ import SubscriptionManager from '@/components/subscription/SubscriptionManager'
 import { Header } from '@/components/layout/Header'
 
 export default async function SuscripcionPage() {
-       const data = await getSubscriptionDetails()
+	const data = await getSubscriptionDetails()
 
-       return (
-              <div className="flex flex-col h-full bg-background transition-colors duration-300">
-                     <Header title="Suscripción" backHref="/dashboard" />
-                     <div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto overflow-x-hidden pb-32 md:pb-8">
-                            <div className="max-w-5xl xl:max-w-6xl mx-auto space-y-6 md:space-y-10">
-                                   <div className="flex flex-col gap-1">
-                                          <h2 className="text-xl md:text-2xl font-bold text-foreground">Planes y Facturación</h2>
-                                          <p className="text-sm text-muted-foreground">Gestiona tu plan de CourtOps y métodos de pago.</p>
-                                   </div>
+	return (
+		<div className="flex flex-col h-full bg-background transition-colors duration-300">
+			<Header title="Suscripción" backHref="/dashboard" />
+			<div className="flex-1 p-4 md:p-8 min-h-0 overflow-y-auto overflow-x-hidden pb-32 md:pb-8">
+				<div className="max-w-5xl xl:max-w-6xl mx-auto space-y-6 md:space-y-10">
+					<div className="flex flex-col gap-1">
+						<h2 className="text-xl md:text-2xl font-bold text-foreground">Planes y Facturación</h2>
+						<p className="text-sm text-muted-foreground">Gestioná tu plan de CourtOps y métodos de pago.</p>
+					</div>
 
-                                   <SubscriptionManager
-                                          currentPlan={data.currentPlan}
-                                          subscriptionStatus={data.subscriptionStatus}
-                                          nextBillingDate={data.nextBillingDate ? data.nextBillingDate.toISOString() : null}
-                                          availablePlans={data.availablePlans}
-                                          pendingPlan={data.pendingPlan}
-                                          pendingBillingCycle={data.pendingBillingCycle}
-                                          isConfigured={data.isConfigured}
-                                          isDevMode={data.isDevMode}
-                                   />
-                            </div>
-                     </div>
-              </div>
-       )
+					<SubscriptionManager
+						currentPlan={data.currentPlan}
+						subscriptionStatus={data.subscriptionStatus}
+						nextBillingDate={data.nextBillingDate ? data.nextBillingDate.toISOString() : null}
+						availablePlans={data.availablePlans}
+						pendingPlan={data.pendingPlan}
+						pendingBillingCycle={data.pendingBillingCycle}
+						isConfigured={data.isConfigured}
+						isDevMode={data.isDevMode}
+						daysRemaining={data.daysRemaining}
+						subscriptionEnd={data.subscriptionEnd}
+						subscriptionMethod={data.subscriptionMethod}
+						bankDetails={data.bankDetails}
+					/>
+				</div>
+			</div>
+		</div>
+	)
 }
