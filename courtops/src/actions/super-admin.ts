@@ -755,6 +755,11 @@ export async function validateSaaSTransfer(clubId: string, action: 'approve' | '
 
 		if (!club) throw new Error("Club no encontrado")
 
+		// Idempotency: prevent double-approval
+		if (club.subscriptionStatus === 'authorized' && !club.pendingPlanId) {
+			return { success: false, error: 'Esta suscripción ya fue aprobada anteriormente' }
+		}
+
 		const planId = club.pendingPlanId || club.platformPlanId
 		if (!planId) throw new Error("No hay un plan objetivo definido")
 
@@ -773,12 +778,12 @@ export async function validateSaaSTransfer(clubId: string, action: 'approve' | '
 			? Math.round(plan.price * 12 * 0.8)
 			: plan.price
 
-		// Invoice number
+		// Receipt number (internal — not a fiscal invoice)
 		const year = new Date().getFullYear()
-		const invoiceCount = await prisma.invoice.count({
+		const receiptCount = await prisma.invoice.count({
 			where: { clubId, issuedAt: { gte: new Date(`${year}-01-01`) } }
 		})
-		const invoiceNumber = `INV-${year}-${String(invoiceCount + 1).padStart(4, '0')}`
+		const invoiceNumber = `REC-${year}-${String(receiptCount + 1).padStart(4, '0')}`
 
 		await prisma.$transaction([
 			prisma.club.update({

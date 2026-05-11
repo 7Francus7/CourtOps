@@ -50,7 +50,7 @@ interface SubscriptionManagerProps {
   bankDetails?: BankDetails
 }
 
-type FlowView = 'plans' | 'transfer-details' | 'receipt-form' | 'mp-confirm'
+type FlowView = 'plans' | 'transfer-details' | 'receipt-form'
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
   'Base': <Rocket className="w-5 h-5" />,
@@ -107,17 +107,24 @@ function StatusBanner({
 
   if (isPending) {
     return (
-      <div className="flex items-start gap-4 rounded-2xl border border-blue-500/30 bg-blue-500/5 p-5 animate-in fade-in duration-300">
-        <Clock className="w-5 h-5 text-blue-400 animate-pulse shrink-0 mt-0.5" />
-        <div>
-          <p className="font-bold text-blue-400">Comprobante en revisión</p>
-          <p className="text-sm text-blue-400/70 mt-0.5">
-            Verificaremos tu transferencia y activaremos tu cuenta en las próximas horas.
-          </p>
+      <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-5 animate-in fade-in duration-300 space-y-3">
+        <div className="flex items-start gap-4">
+          <Clock className="w-5 h-5 text-blue-400 animate-pulse shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-bold text-blue-400">Comprobante en revisión</p>
+            <p className="text-sm text-blue-400/70 mt-0.5">
+              Verificaremos tu transferencia y activaremos tu cuenta en las próximas horas.
+            </p>
+          </div>
+          <span className="shrink-0 text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full">
+            Pendiente
+          </span>
         </div>
-        <span className="ml-auto shrink-0 text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full">
-          Pendiente
-        </span>
+        <div className="pl-9 space-y-1">
+          <p className="text-xs text-blue-300/60">• Tu acceso se activa cuando validamos la transferencia.</p>
+          <p className="text-xs text-blue-300/60">• Si ya transferiste, no hace falta volver a pagar.</p>
+          <p className="text-xs text-blue-300/60">• ¿Dudas? Escribinos por WhatsApp y lo resolvemos en minutos.</p>
+        </div>
       </div>
     )
   }
@@ -293,6 +300,10 @@ function TransferDetailsCard({
         <Smartphone className="w-4 h-4" />
         Prefiero pagar con MercadoPago
       </button>
+
+      <p className="text-center text-xs text-muted-foreground/50 pb-1">
+        MercadoPago queda disponible como alternativa — tiene comisión adicional.
+      </p>
     </div>
   )
 }

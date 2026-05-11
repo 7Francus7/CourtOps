@@ -89,8 +89,8 @@ export default function BillingDashboard({ stats }: { stats: BillingStats }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-black text-white">Panel de Facturación</h2>
-        <p className="text-xs text-slate-500 mt-0.5">Estado del negocio en tiempo real</p>
+        <h2 className="text-lg font-black text-white">Panel de Cobros</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Estado del negocio en tiempo real · los recibos son internos, no facturas fiscales</p>
       </div>
 
       {/* Main stats grid */}
@@ -173,7 +173,7 @@ export default function BillingDashboard({ stats }: { stats: BillingStats }) {
         <div className="bg-[#0f172a] border border-white/[0.06] rounded-2xl overflow-hidden">
           <div className="px-5 py-4 border-b border-white/[0.04] flex items-center gap-3">
             <Receipt size={16} className="text-slate-400" />
-            <h3 className="text-sm font-black text-white">Últimas facturas</h3>
+            <h3 className="text-sm font-black text-white">Últimos comprobantes internos</h3>
           </div>
           <div className="divide-y divide-white/[0.04]">
             {stats.recentInvoices.slice(0, 8).map((inv) => (
@@ -185,7 +185,7 @@ export default function BillingDashboard({ stats }: { stats: BillingStats }) {
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-white truncate">{inv.club?.name ?? '—'}</p>
                     <p className="text-[10px] text-slate-500">
-                      {inv.number} · {inv.planName} · {inv.billingCycle === 'yearly' ? 'Anual' : 'Mensual'} · {inv.method === 'TRANSFER' ? 'Transf.' : 'MP'}
+                      Recibo {inv.number} · {inv.planName} · {inv.billingCycle === 'yearly' ? 'Anual' : 'Mensual'} · {inv.method === 'TRANSFER' ? 'Transf.' : 'MP'}
                     </p>
                   </div>
                 </div>

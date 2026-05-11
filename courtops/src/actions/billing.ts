@@ -3,6 +3,10 @@
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
+import { getServerSession } from 'next-auth'
+import { authOptions, isSuperAdmin } from '@/lib/auth'
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export function getBankDetails() {
   return {
@@ -22,16 +26,28 @@ function calcPeriodEnd(cycle: 'monthly' | 'yearly', from = new Date()) {
   return end
 }
 
-async function nextInvoiceNumber(clubId: string): Promise<string> {
+async function assertSuperAdmin() {
+  const session = await getServerSession(authOptions)
+  if (!session?.user || !isSuperAdmin(session.user)) {
+    throw new Error('Unauthorized')
+  }
+}
+
+// Sequential receipt number per club per year — only called inside transactions
+// where the outer lock prevents duplicates. The @@unique([clubId, number]) in schema
+// is the final safety net.
+async function nextReceiptNumber(clubId: string): Promise<string> {
   const year = new Date().getFullYear()
   const count = await prisma.invoice.count({
     where: { clubId, issuedAt: { gte: new Date(`${year}-01-01`) } },
   })
-  return `INV-${year}-${String(count + 1).padStart(4, '0')}`
+  return `REC-${year}-${String(count + 1).padStart(4, '0')}`
 }
 
+// ─── Club-facing actions ──────────────────────────────────────────────────────
+
 export async function getTransferPaymentDetails(planId: string, cycle: 'monthly' | 'yearly') {
-  const clubId = await getCurrentClubId()
+  await getCurrentClubId() // validates session
   const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
   if (!plan) throw new Error('Plan no encontrado')
 
@@ -42,7 +58,7 @@ export async function getTransferPaymentDetails(planId: string, cycle: 'monthly'
     cycle,
     periodEnd: calcPeriodEnd(cycle).toISOString(),
     concept: `CourtOps ${plan.name} ${cycle === 'yearly' ? 'Anual' : 'Mensual'}`,
-    clubId,
+    // clubId intentionally omitted — clients don't need it
   }
 }
 
@@ -54,10 +70,24 @@ export async function submitBillingTransfer(
 ) {
   const clubId = await getCurrentClubId()
 
+  // Prevent duplicate submissions while already waiting for validation
+  const clubStatus = await prisma.club.findUnique({
+    where: { id: clubId },
+    select: { subscriptionStatus: true },
+  })
+  if (clubStatus?.subscriptionStatus === 'PENDING_VALIDATION') {
+    return {
+      success: false,
+      error: 'Ya tenés un comprobante en revisión. Si necesitás corregirlo, contactá a soporte.',
+    }
+  }
+
   const plan = await prisma.platformPlan.findUnique({ where: { id: planId } })
   if (!plan) return { success: false, error: 'Plan no encontrado' }
 
   const amount = calcBillingAmount(plan.price, cycle)
+  const trimmedRef = reference.trim()
+  const trimmedReceipt = receiptUrl?.trim() || null
 
   await prisma.$transaction([
     prisma.club.update({
@@ -65,8 +95,8 @@ export async function submitBillingTransfer(
       data: {
         subscriptionStatus: 'PENDING_VALIDATION',
         subscriptionMethod: 'TRANSFER',
-        subscriptionReference: reference.trim(),
-        subscriptionReceiptUrl: receiptUrl?.trim() || null,
+        subscriptionReference: trimmedRef,
+        subscriptionReceiptUrl: trimmedReceipt,
         pendingPlanId: planId,
         pendingBillingCycle: cycle,
       },
@@ -78,8 +108,8 @@ export async function submitBillingTransfer(
         amount,
         method: 'TRANSFER',
         status: 'PENDING_VALIDATION',
-        reference: reference.trim(),
-        receiptUrl: receiptUrl?.trim() || null,
+        reference: trimmedRef,
+        receiptUrl: trimmedReceipt,
         billingCycle: cycle,
       },
     }),
@@ -87,7 +117,7 @@ export async function submitBillingTransfer(
       data: {
         clubId,
         event: 'TRANSFER_SUBMITTED',
-        details: JSON.stringify({ planId, planName: plan.name, cycle, reference, amount }),
+        details: JSON.stringify({ planId, planName: plan.name, cycle, reference: trimmedRef, amount }),
       },
     }),
   ])
@@ -138,12 +168,12 @@ export async function getSubscriptionDaysRemaining(): Promise<number | null> {
 
   const endDate = club.subscriptionEnd || club.nextBillingDate
   if (!endDate) return null
-
   return Math.ceil((endDate.getTime() - now.getTime()) / 86400000)
 }
 
-// --- ADMIN: create invoice on payment approval ---
-export async function createInvoiceForClub(
+// ─── Internal helper — called only from validateSaaSTransfer (god-mode) ──────
+
+export async function createReceiptForClub(
   clubId: string,
   planId: string,
   planName: string,
@@ -153,66 +183,51 @@ export async function createInvoiceForClub(
   periodStart: Date,
   periodEnd: Date,
 ) {
-  const number = await nextInvoiceNumber(clubId)
+  await assertSuperAdmin()
+  const number = await nextReceiptNumber(clubId)
   return prisma.invoice.create({
-    data: {
-      clubId,
-      number,
-      amount,
-      status: 'PAID',
-      method,
-      planId,
-      planName,
-      billingCycle: cycle,
-      periodStart,
-      periodEnd,
-    },
+    data: { clubId, number, amount, status: 'PAID', method, planId, planName, billingCycle: cycle, periodStart, periodEnd },
   })
 }
 
-// --- GOD-MODE: billing stats ---
+// ─── God-mode stats — requires super-admin session ───────────────────────────
+
 export async function getBillingStats() {
+  await assertSuperAdmin()
+
   const now = new Date()
 
-  const [
-    active,
-    trial,
-    pendingValidation,
-    expiring7d,
-    expiring14d,
-    suspended,
-    recentInvoices,
-  ] = await Promise.all([
-    prisma.club.count({ where: { subscriptionStatus: 'authorized', deletedAt: null } }),
-    prisma.club.count({ where: { subscriptionStatus: 'TRIAL', deletedAt: null } }),
-    prisma.club.count({ where: { subscriptionStatus: 'PENDING_VALIDATION', deletedAt: null } }),
-    prisma.club.count({
-      where: {
-        subscriptionStatus: 'authorized',
-        subscriptionEnd: { gte: now, lte: new Date(Date.now() + 7 * 86400000) },
-        deletedAt: null,
-      },
-    }),
-    prisma.club.count({
-      where: {
-        subscriptionStatus: 'authorized',
-        subscriptionEnd: { gte: now, lte: new Date(Date.now() + 14 * 86400000) },
-        deletedAt: null,
-      },
-    }),
-    prisma.club.count({ where: { subscriptionStatus: 'SUSPENDED', deletedAt: null } }),
-    prisma.invoice.findMany({
-      orderBy: { issuedAt: 'desc' },
-      take: 20,
-      include: { club: { select: { name: true } } },
-    }),
-  ])
+  const [active, trial, pendingValidation, expiring7d, expiring14d, suspended, recentInvoices] =
+    await Promise.all([
+      prisma.club.count({ where: { subscriptionStatus: 'authorized', deletedAt: null } }),
+      prisma.club.count({ where: { subscriptionStatus: 'TRIAL', deletedAt: null } }),
+      prisma.club.count({ where: { subscriptionStatus: 'PENDING_VALIDATION', deletedAt: null } }),
+      prisma.club.count({
+        where: {
+          subscriptionStatus: 'authorized',
+          subscriptionEnd: { gte: now, lte: new Date(Date.now() + 7 * 86400000) },
+          deletedAt: null,
+        },
+      }),
+      prisma.club.count({
+        where: {
+          subscriptionStatus: 'authorized',
+          subscriptionEnd: { gte: now, lte: new Date(Date.now() + 14 * 86400000) },
+          deletedAt: null,
+        },
+      }),
+      prisma.club.count({ where: { subscriptionStatus: 'SUSPENDED', deletedAt: null } }),
+      prisma.invoice.findMany({
+        orderBy: { issuedAt: 'desc' },
+        take: 20,
+        include: { club: { select: { name: true } } },
+      }),
+    ])
 
   const mrrClubs = await prisma.club.findMany({
     where: { subscriptionStatus: 'authorized', deletedAt: null },
     include: { platformPlan: true },
   })
-
   const mrr = mrrClubs.reduce((acc, c) => acc + (c.platformPlan?.price ?? 0), 0)
 
   const revenueByMethod = await prisma.invoice.groupBy({

@@ -985,6 +985,7 @@ model Invoice {
 
   club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
+  @@unique([clubId, number])
   @@index([clubId, issuedAt])
   @@map("Invoice")
 }

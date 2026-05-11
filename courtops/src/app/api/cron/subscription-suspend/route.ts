@@ -11,7 +11,9 @@ export async function GET(request: Request) {
   try {
     const now = new Date()
 
-    // Find TRANSFER clubs that are past their end date + grace period and not yet suspended
+    // Find TRANSFER clubs past their end date, not yet suspended, and NOT waiting for admin validation.
+    // We explicitly exclude PENDING_VALIDATION so clubs that submitted a receipt before expiry
+    // are never auto-suspended while the admin is reviewing.
     const clubs = await prisma.club.findMany({
       where: {
         subscriptionStatus: 'authorized',
@@ -20,8 +22,13 @@ export async function GET(request: Request) {
         suspendedAt: null,
         deletedAt: null,
       },
-      include: {
-        platformPlan: true,
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        subscriptionEnd: true,
+        gracePeriodDays: true,
+        platformPlan: { select: { name: true } },
       },
     })
 
@@ -30,22 +37,18 @@ export async function GET(request: Request) {
 
     for (const club of clubs) {
       const endDate = club.subscriptionEnd!
-      const gracePeriodDays = (club as any).gracePeriodDays ?? 3
-      const graceCutoff = new Date(endDate.getTime() + gracePeriodDays * 86400000)
+      const graceCutoff = new Date(endDate.getTime() + club.gracePeriodDays * 86400000)
 
       if (now < graceCutoff) {
         skipped++
         continue
       }
 
-      // Suspend
+      // Suspend atomically
       await prisma.$transaction([
         prisma.club.update({
           where: { id: club.id },
-          data: {
-            subscriptionStatus: 'SUSPENDED',
-            suspendedAt: now,
-          },
+          data: { subscriptionStatus: 'SUSPENDED', suspendedAt: now },
         }),
         prisma.billingLog.create({
           data: {
@@ -54,22 +57,22 @@ export async function GET(request: Request) {
             details: JSON.stringify({
               reason: 'auto_suspend',
               subscriptionEnd: endDate.toISOString(),
-              gracePeriodDays,
+              gracePeriodDays: club.gracePeriodDays,
             }),
           },
         }),
       ])
 
-      // WhatsApp notification
+      // WhatsApp — non-fatal
       if (club.phone) {
         const alias = process.env.COURTOPS_BANK_ALIAS || 'courtops.admin'
         const message =
           `🔴 *CourtOps — Acceso suspendido*\n\n` +
-          `Hola *${club.name}*, tu suscripción venció y el período de gracia terminó.\n\n` +
-          `Para reactivar, realizá la transferencia y subí el comprobante desde:\n` +
+          `Hola *${club.name}*, tu suscripción venció hace más de ${club.gracePeriodDays} días y el período de gracia terminó.\n\n` +
+          `Para reactivar, realizá la transferencia y subí el comprobante en:\n` +
           `*Dashboard → Suscripción → Transferencia bancaria*\n\n` +
           `Alias de pago: \`${alias}\`\n\n` +
-          `Reactivamos tu cuenta en el día. 🎾`
+          `Una vez que validemos el pago, tu acceso queda activo el mismo día. 🎾`
         try {
           await sendTextMessage(normalizePhone(club.phone), message)
         } catch {

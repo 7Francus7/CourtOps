@@ -6,6 +6,15 @@ function formatARS(n: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
 }
 
+async function alreadySent(clubId: string, event: string, withinHours: number): Promise<boolean> {
+  const cutoff = new Date(Date.now() - withinHours * 3600000)
+  const entry = await prisma.billingLog.findFirst({
+    where: { clubId, event, createdAt: { gte: cutoff } },
+    select: { id: true },
+  })
+  return !!entry
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -17,7 +26,7 @@ export async function GET(request: Request) {
     const alias = process.env.COURTOPS_BANK_ALIAS || 'courtops.admin'
     const cvu = process.env.COURTOPS_BANK_CVU || ''
 
-    // Clubs with TRANSFER subscriptions expiring within 8 days that haven't been reminded recently
+    // Clubs with TRANSFER subscriptions expiring within 8 days
     const clubs = await prisma.club.findMany({
       where: {
         subscriptionStatus: 'authorized',
@@ -27,16 +36,8 @@ export async function GET(request: Request) {
           lte: new Date(Date.now() + 8 * 86400000),
         },
         deletedAt: null,
-        // Skip if reminded in last 48h
-        OR: [
-          { lastReminderSentAt: null },
-          { lastReminderSentAt: { lt: new Date(Date.now() - 48 * 3600000) } },
-        ],
       },
-      include: {
-        platformPlan: true,
-        users: { where: { role: 'ADMIN' }, take: 1 },
-      },
+      include: { platformPlan: true },
     })
 
     let reminded = 0
@@ -45,30 +46,59 @@ export async function GET(request: Request) {
     for (const club of clubs) {
       const endDate = club.subscriptionEnd!
       const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / 86400000)
-      const price = club.platformPlan?.price ?? 0
-      const amount = formatARS(price)
 
-      // Find a phone to notify (club phone or admin user's club phone)
-      const phone = club.phone
-      if (!phone) {
+      // Determine which reminder window this is
+      let eventName: string
+      let dedupeHours: number
+      if (daysLeft >= 5 && daysLeft <= 8) {
+        eventName = 'REMINDER_7D'
+        dedupeHours = 120 // 5 days — send at most once per window
+      } else if (daysLeft >= 1 && daysLeft <= 3) {
+        eventName = 'REMINDER_2D'
+        dedupeHours = 36 // 1.5 days — send at most once per window
+      } else {
         skipped++
         continue
       }
+
+      if (!club.phone) {
+        skipped++
+        continue
+      }
+
+      // Check if we already sent this specific reminder
+      if (await alreadySent(club.id, eventName, dedupeHours)) {
+        skipped++
+        continue
+      }
+
+      // Resolve renewal amount from last approved payment's billing cycle
+      const lastPayment = await prisma.subscriptionPayment.findFirst({
+        where: { clubId: club.id, status: 'APPROVED' },
+        orderBy: { paymentDate: 'desc' },
+        select: { billingCycle: true },
+      })
+      const cycle = (lastPayment?.billingCycle as 'monthly' | 'yearly') || 'monthly'
+      const planPrice = club.platformPlan?.price ?? 0
+      const renewalAmount = cycle === 'yearly' ? Math.round(planPrice * 12 * 0.8) : planPrice
+      const amountStr = formatARS(renewalAmount)
+      const cycleLabel = cycle === 'yearly' ? 'anual' : 'mensual'
 
       const dateStr = endDate.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })
       const daysText = daysLeft === 1 ? 'mañana' : `en ${daysLeft} días`
 
       const message =
         `⚠️ *CourtOps — Recordatorio de pago*\n\n` +
-        `Hola *${club.name}*, tu suscripción *${club.platformPlan?.name ?? ''}* vence el *${dateStr}* (${daysText}).\n\n` +
-        `Para renovar, transferí *${amount}* a:\n` +
+        `Hola *${club.name}*, tu suscripción *${club.platformPlan?.name ?? ''}* (${cycleLabel}) vence el *${dateStr}* (${daysText}).\n\n` +
+        `Para renovar, transferí *${amountStr}* a:\n` +
         `• Alias: \`${alias}\`\n` +
         (cvu ? `• CVU: \`${cvu}\`\n` : '') +
-        `\nCuando transfieran, ingresá el comprobante en: *Dashboard → Suscripción*.\n\n` +
-        `Ante cualquier duda, respondé este mensaje. 🎾`
+        `\nLuego subí el comprobante en: *Dashboard → Suscripción*.\n` +
+        `Tu acceso se reactiva cuando validamos la transferencia (mismo día).\n\n` +
+        `Si ya transferiste, ignorá este mensaje. 🎾`
 
       try {
-        await sendTextMessage(normalizePhone(phone), message)
+        await sendTextMessage(normalizePhone(club.phone), message)
         await prisma.$transaction([
           prisma.club.update({
             where: { id: club.id },
@@ -77,8 +107,8 @@ export async function GET(request: Request) {
           prisma.billingLog.create({
             data: {
               clubId: club.id,
-              event: daysLeft <= 2 ? 'REMINDER_2D' : 'REMINDER_7D',
-              details: JSON.stringify({ daysLeft, phone, amount }),
+              event: eventName,
+              details: JSON.stringify({ daysLeft, phone: club.phone, amount: amountStr, cycle }),
             },
           }),
         ])
