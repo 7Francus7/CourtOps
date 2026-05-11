@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { calcBillingAmount, getBankDetails } from '@/actions/billing'
+import { calcBillingAmount, getBankDetails } from '@/lib/billing-utils'
+import { submitBillingTransfer, getBillingStats } from '@/actions/billing'
+import { validateSaaSTransfer } from '@/actions/super-admin'
+import { getServerSession } from 'next-auth'
+import { isSuperAdmin } from '@/lib/auth'
 
 // ─── Mock dependencies ────────────────────────────────────────────────────────
 
@@ -76,8 +80,6 @@ describe('getBankDetails', () => {
 // ─── submitBillingTransfer ────────────────────────────────────────────────────
 
 describe('submitBillingTransfer', () => {
-  const { submitBillingTransfer } = await import('@/actions/billing')
-
   beforeEach(() => {
     vi.clearAllMocks()
     mockPrisma.$transaction = vi.fn(async (ops: any[]) => Promise.all(ops))
@@ -103,8 +105,6 @@ describe('submitBillingTransfer', () => {
     expect(mockPrisma.$transaction).toHaveBeenCalledOnce()
 
     // Reference should be trimmed
-    const transactionArgs = mockPrisma.$transaction.mock.calls[0][0]
-    // The club.update should have trimmed reference
     const clubUpdateCall = mockPrisma.club.update.mock.calls[0]
     expect(clubUpdateCall[0].data.subscriptionReference).toBe('ref-456')
   })
@@ -143,10 +143,6 @@ describe('submitBillingTransfer', () => {
 // ─── getBillingStats auth guard ───────────────────────────────────────────────
 
 describe('getBillingStats', () => {
-  const { getServerSession } = await import('next-auth')
-  const { isSuperAdmin } = await import('@/lib/auth')
-  const { getBillingStats } = await import('@/actions/billing')
-
   beforeEach(() => vi.clearAllMocks())
 
   it('throws Unauthorized when not super admin', async () => {
@@ -166,10 +162,6 @@ describe('getBillingStats', () => {
 // ─── validateSaaSTransfer idempotency ────────────────────────────────────────
 
 describe('validateSaaSTransfer — idempotency', () => {
-  const { validateSaaSTransfer } = await import('@/actions/super-admin')
-  const { isSuperAdmin } = await import('@/lib/auth')
-  const { getServerSession } = await import('next-auth')
-
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(getServerSession).mockResolvedValue({ user: { email: 'admin@courtops.com' } } as any)
@@ -242,8 +234,6 @@ describe('subscription-suspend grace period logic', () => {
   })
 
   it('never suspends clubs with subscriptionStatus !== authorized', () => {
-    // The cron query filters subscriptionStatus: 'authorized', so PENDING_VALIDATION
-    // clubs are never in the result set
     const statusesThatAreSafe = ['PENDING_VALIDATION', 'TRIAL', 'cancelled', 'SUSPENDED']
     statusesThatAreSafe.forEach((s) => {
       expect(s).not.toBe('authorized')
