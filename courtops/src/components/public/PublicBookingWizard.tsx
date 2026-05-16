@@ -563,7 +563,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		const hour = Number(slot.time.split(':')[0] || 0)
 		if (slot.courts.length === 1) {
 			return {
-				label: 'Ultima cancha',
+				label: 'Última cancha',
 				tone: 'bg-amber-500/12 text-amber-500 border-amber-500/20'
 			}
 		}
@@ -575,7 +575,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		}
 		if (idx < 2) {
 			return {
-				label: 'Sale rapido',
+				label: 'Sale rápido',
 				tone: 'bg-emerald-500/12 text-emerald-500 border-emerald-500/20'
 			}
 		}
@@ -745,10 +745,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 		const errors: { name?: string; phone?: string } = {}
 		if (!validateName(waitlistData.name)) {
-			errors.name = 'IngresÃ¡ tu nombre completo'
+			errors.name = 'Ingresá tu nombre completo'
 		}
 		if (!validatePhone(waitlistData.phone)) {
-			errors.phone = 'IngresÃ¡ un Teléfono vÃ¡lido'
+			errors.phone = 'Ingresá un teléfono válido'
 		}
 		if (Object.keys(errors).length > 0) {
 			setWaitlistErrors(errors)
@@ -1886,10 +1886,10 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 															setExpandedSlot(isExpanded ? null : slot.time)
 														}}
 														className={cn(
-															'w-full flex items-center justify-between p-5 bg-white dark:bg-zinc-900/40 border transition-all duration-500 group overflow-hidden relative',
+															'w-full flex items-center justify-between p-5 bg-white dark:bg-zinc-900/40 border transition-all duration-300 group overflow-hidden relative active:scale-[0.98]',
 															isExpanded
 																? 'border-primary/40 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] ring-1 ring-primary/20'
-																: 'border-slate-100 dark:border-white/[0.05] rounded-[1.75rem] hover:border-primary/30',
+																: 'border-slate-100 dark:border-white/[0.05] rounded-[1.75rem] hover:border-primary/25 hover:shadow-md hover:shadow-slate-100/80 dark:hover:shadow-black/20 hover:-translate-y-px',
 															isHoldingSlot && 'cursor-not-allowed opacity-70'
 														)}
 													>
@@ -1921,7 +1921,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 																</p>
 																<div className="flex items-center gap-1.5 mt-1.5">
 																	<span className="text-[9px] font-black text-primary uppercase tracking-[0.15em] bg-primary/10 px-2 py-0.5 rounded-md">
-																		{hasSingleCourt ? formatArs(slot.courts[0].price) : `Desde $${slot.price}`}
+																		{hasSingleCourt ? formatArs(slot.courts[0].price) : formatArs(slot.price)}
 																	</span>
 																	<span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
 																		{hasSingleCourt ? `${slot.courts[0].name} listo para reservar` : `${slot.courts.length} cancha${slot.courts.length !== 1 ? 's' : ''}`}
@@ -2303,6 +2303,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</div>
 										<input
 											type="tel"
+											autoComplete="tel"
+											inputMode="numeric"
 											value={clientData.phone}
 											onChange={e =>
 												setClientData(p => ({ ...p, phone: e.target.value }))
@@ -2328,7 +2330,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										<Loader2 size={18} className="animate-spin" />
 									) : (
 										<>
-											Continuar con mi telefono
+											Continuar con mi teléfono
 											<ArrowRight size={16} />
 										</>
 									)}
@@ -2345,7 +2347,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 							<StickyActionBar tone="subtle">
 								<p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 text-center mb-3">
-									Si queres resolverlo mas rapido, podes reservar como invitado.
+									Si querés hacerlo más rápido, podés reservar como invitado.
 								</p>
 								<button
 									onClick={() => {
@@ -2403,6 +2405,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</label>
 										<input
 											type="text"
+											autoComplete="given-name"
 											value={clientData.name}
 											onChange={e =>
 												setClientData(p => ({ ...p, name: e.target.value }))
@@ -2417,6 +2420,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</label>
 										<input
 											type="text"
+											autoComplete="family-name"
 											value={clientData.lastname}
 											onChange={e =>
 												setClientData(p => ({ ...p, lastname: e.target.value }))
@@ -2448,6 +2452,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									</label>
 									<input
 										type="email"
+										autoComplete="email"
 										value={clientData.email}
 										onChange={e =>
 											setClientData(p => ({ ...p, email: e.target.value }))
@@ -2577,6 +2582,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												</label>
 												<input
 													type="text"
+													autoComplete="given-name"
 													value={clientData.name}
 													onChange={e => {
 														setClientData(p => ({ ...p, name: e.target.value }))
@@ -2601,6 +2607,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												</label>
 												<input
 													type="text"
+													autoComplete="family-name"
 													value={clientData.lastname}
 													onChange={e => {
 														setClientData(p => ({ ...p, lastname: e.target.value }))
@@ -2630,6 +2637,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 												</div>
 												<input
 													type="tel"
+													autoComplete="tel"
+													inputMode="numeric"
 													value={clientData.phone}
 													onChange={e => {
 														setClientData(p => ({ ...p, phone: e.target.value }))

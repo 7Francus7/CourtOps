@@ -104,23 +104,23 @@ function getTrafficCopy(source?: string | null) {
   if (normalized.includes('instagram')) {
     return {
       badge: 'Llegaste desde Instagram',
-      title: 'Mira el club y pasa directo a los horarios reales',
-      description: 'Todo esta pensado para que revises datos clave y reserves sin friccion desde el celular.',
+      title: 'Mirá los horarios reales y reservá directo desde acá',
+      description: 'Disponibilidad real, sin llamadas. Confirmá tu turno en segundos.',
     }
   }
 
   if (normalized.includes('whatsapp')) {
     return {
       badge: 'Llegaste desde WhatsApp',
-      title: 'Segui desde aca y confirma tu turno sin vueltas',
-      description: 'Tenes disponibilidad real, contacto directo y una reserva clara para cerrar rapido.',
+      title: 'Seguí desde acá y confirmá tu turno sin vueltas',
+      description: 'Tenés disponibilidad en tiempo real y podés reservar en 30 segundos.',
     }
   }
 
   return {
     badge: 'Reserva oficial del club',
-    title: 'Reserva tu cancha con una experiencia simple y confiable',
-    description: 'Horarios reales, contacto visible y una portada clara para convertir mejor en mobile.',
+    title: 'Reservá tu cancha de forma simple y confiable',
+    description: 'Horarios reales, contacto directo y confirmación instantánea.',
   }
 }
 
@@ -162,18 +162,18 @@ export default function VenueLayout({
       ? `Ver ${bookingMeta.firstAvailableTime} hs`
       : 'Ver horarios'
   const bookingCtaSummary = bookingMeta?.isLoading
-    ? 'Estamos buscando disponibilidad del dia.'
+    ? 'Buscando disponibilidad del día…'
     : (bookingMeta?.totalSlots || 0) > 0
-      ? `${bookingMeta?.totalSlots} horario${bookingMeta?.totalSlots === 1 ? '' : 's'} online y ${bookingMeta?.totalAvailableCourts || 0} opcion${bookingMeta?.totalAvailableCourts === 1 ? '' : 'es'} para elegir.`
-      : 'Revisa la disponibilidad actual o habla con el club si buscas una franja puntual.'
+      ? `${bookingMeta?.totalSlots} horario${bookingMeta?.totalSlots === 1 ? '' : 's'} disponible${bookingMeta?.totalSlots === 1 ? '' : 's'} · ${bookingMeta?.totalAvailableCourts || 0} cancha${bookingMeta?.totalAvailableCourts === 1 ? '' : 's'}.`
+      : 'Sin turnos disponibles hoy. Consultá al club por WhatsApp para otros horarios.'
   const keyFacts = [
     {
-      label: 'Ubicacion',
-      value: club.address?.split(',')[0] || 'Consulta la direccion',
+      label: 'Ubicación',
+      value: club.address?.split(',')[0] || 'Consultá la dirección',
     },
     {
       label: 'Horarios',
-      value: club.openTime && club.closeTime ? `${club.openTime} a ${club.closeTime}` : 'Todos los dias',
+      value: club.openTime && club.closeTime ? `${club.openTime} a ${club.closeTime}` : 'Todos los días',
     },
     {
       label: 'Turnos',
@@ -181,7 +181,7 @@ export default function VenueLayout({
     },
     {
       label: 'Reserva',
-      value: bookingMeta?.depositLabel || 'Confirmacion clara desde el celu',
+      value: bookingMeta?.depositLabel || 'Confirmación instantánea',
     },
   ]
 
@@ -593,10 +593,10 @@ export default function VenueLayout({
                     </div>
 
                     <h3 className="mt-4 text-xl font-black tracking-tight text-white">
-                      Refuerza la confianza antes de reservar
+                      Conocé el club antes de reservar
                     </h3>
                     <p className="mt-2 text-sm font-medium leading-relaxed text-white/70">
-                      Si llegaste por una historia o un reel, desde aca puedes volver al perfil del club y ver el ambiente, novedades y comunidad.
+                      Si llegaste por una historia o un reel, desde acá podés volver al perfil del club y ver el ambiente, novedades y comunidad.
                     </p>
 
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -695,7 +695,7 @@ export default function VenueLayout({
                     </div>
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Horarios</p>
-                      <p className="text-xs font-bold text-white/45">Planea rapido antes de reservar</p>
+                      <p className="text-xs font-bold text-white/45">Planeá antes de reservar</p>
                     </div>
                   </div>
 
