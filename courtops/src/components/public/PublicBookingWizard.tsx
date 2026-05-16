@@ -748,7 +748,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 			errors.name = 'IngresÃ¡ tu nombre completo'
 		}
 		if (!validatePhone(waitlistData.phone)) {
-			errors.phone = 'IngresÃ¡ un telÃ©fono vÃ¡lido'
+			errors.phone = 'IngresÃ¡ un Teléfono vÃ¡lido'
 		}
 		if (Object.keys(errors).length > 0) {
 			setWaitlistErrors(errors)
@@ -1417,11 +1417,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 						<div className="w-full rounded-3xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/60">
 
 							{/* Header — compact */}
-							<div className="relative px-6 pt-5 pb-9 bg-gradient-to-br from-[#1aff6e] via-primary to-[#00b844] text-white text-center overflow-hidden">
-								<div className="absolute top-3 left-6 w-1.5 h-1.5 bg-white/50 rounded-full" />
-								<div className="absolute top-3 right-6 w-1.5 h-1.5 bg-white/50 rounded-full" />
-								<div className="absolute -top-6 -right-6 w-32 h-32 bg-white/[0.07] rounded-full blur-xl" />
-								<div className="absolute -bottom-8 -left-6 w-28 h-28 bg-black/[0.08] rounded-full" />
+							<div className="relative px-6 pt-5 pb-9 bg-primary text-white text-center overflow-hidden">
+								<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.18),transparent_55%)]" />
+								<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,0,0,0.12),transparent_50%)]" />
+								<div className="absolute top-3 left-6 w-1.5 h-1.5 bg-white/40 rounded-full" />
+								<div className="absolute top-3 right-6 w-1.5 h-1.5 bg-white/40 rounded-full" />
 
 								<div className="relative z-10 flex flex-col items-center">
 									<motion.div
@@ -2143,7 +2143,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 									<div className="space-y-1.5">
 										<label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-											TelÃ©fono
+											Teléfono
 										</label>
 										<PhoneInput
 											value={waitlistData.phone}
