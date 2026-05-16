@@ -61,10 +61,11 @@ export async function sendTextMessage(phone: string, text: string): Promise<What
   const config = getConfig()
 
   if (!config.configured) {
-    console.warn('[WhatsApp] Not configured (missing WHATSAPP_TOKEN or WHATSAPP_PHONE_ID). Message simulated:', {
-      to: phone,
-      preview: text.substring(0, 80),
-    })
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[WhatsApp] CRITICAL: not configured in production. Message NOT sent.', { to: phone })
+      return { success: false, error: 'WhatsApp no configurado en producción', simulated: false }
+    }
+    console.warn('[WhatsApp] Not configured. Message simulated:', { to: phone, preview: text.substring(0, 80) })
     return { success: true, simulated: true }
   }
 
@@ -127,6 +128,10 @@ export async function sendTemplateMessage(
   const config = getConfig()
 
   if (!config.configured) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[WhatsApp] CRITICAL: not configured in production. Template NOT sent.', { to: phone, template: templateName })
+      return { success: false, error: 'WhatsApp no configurado en producción', simulated: false }
+    }
     console.warn('[WhatsApp] Not configured. Template simulated:', { to: phone, template: templateName, parameters })
     return { success: true, simulated: true }
   }

@@ -3,6 +3,7 @@
 import { MercadoPagoConfig, PreApprovalPlan, PreApproval } from 'mercadopago'
 import prisma from '@/lib/db'
 import { getCurrentClubId } from '@/lib/tenant'
+import { decrypt } from '@/lib/encryption'
 
 /**
  * Crea o actualiza un Plan de Suscripción en MercadoPago para que los clientes se suscriban.
@@ -20,7 +21,7 @@ export async function syncPlanWithMercadoPago(localPlanId: string) {
               const plan = await prisma.membershipPlan.findFirst({ where: { id: localPlanId, clubId } })
               if (!plan) throw new Error("Plan local no encontrado o no autorizado")
 
-              const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
+              const client = new MercadoPagoConfig({ accessToken: decrypt(club.mpAccessToken) })
               const preapprovalPlan = new PreApprovalPlan(client)
 
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -106,7 +107,7 @@ export async function createClientSubscriptionPreference(clientId: number, local
               // O más simple: generamos una suscripción standalone vinculada a ese plan.
 
               // MercadoPago SDK:
-              const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
+              const client = new MercadoPagoConfig({ accessToken: decrypt(club.mpAccessToken) })
               const preapproval = new PreApproval(client)
 
               const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://courtops.com'
@@ -145,7 +146,7 @@ export async function cancelClientSubscription(mpPreapprovalId: string) {
               const club = await prisma.club.findUnique({ where: { id: clubId } })
               if (!club || !club.mpAccessToken) throw new Error("Configuración inválida")
 
-              const client = new MercadoPagoConfig({ accessToken: club.mpAccessToken })
+              const client = new MercadoPagoConfig({ accessToken: decrypt(club.mpAccessToken) })
               const preapproval = new PreApproval(client)
 
               await preapproval.update({

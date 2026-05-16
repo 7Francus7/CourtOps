@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import { sendTextMessage, normalizePhone } from '@/lib/whatsapp'
+import { runCronWithMonitoring } from '@/lib/cron-monitor'
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
     return new NextResponse('Unauthorized', { status: 401 })
   }
 
-  try {
+  const { result, meta } = await runCronWithMonitoring('subscription-suspend', async () => {
     const now = new Date()
 
     // Find TRANSFER clubs past their end date, not yet suspended, and NOT waiting for admin validation.
@@ -83,12 +84,12 @@ export async function GET(request: Request) {
       suspended++
     }
 
-    return NextResponse.json({ success: true, suspended, skipped })
-  } catch (error) {
-    console.error('[subscription-suspend] Error:', error)
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 },
-    )
+    return { suspended, skipped }
+  })
+
+  if (!meta.success) {
+    return NextResponse.json({ success: false, error: meta.error }, { status: 500 })
   }
+
+  return NextResponse.json({ success: true, ...result })
 }

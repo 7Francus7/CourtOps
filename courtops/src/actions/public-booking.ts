@@ -5,10 +5,17 @@ import prisma from '@/lib/db'
 import { getEffectivePrice, enforceActiveSubscription } from '@/lib/tenant'
 import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { createArgDate, fromUTC } from '@/lib/date-utils'
 import { AVAILABILITY_BLOCKING_BOOKING_STATUSES } from '@/lib/booking-status'
 import { getPublicBookingHoldExpiration } from '@/lib/booking-hold'
 import { getPhoneLastDigits, phoneMatches } from '@/lib/phone'
+import { checkRateLimit } from '@/lib/ratelimit'
+
+async function getClientIp(): Promise<string> {
+  const h = await headers()
+  return h.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+}
 
 const PADEL_SLOT_MINUTES = 90
 
@@ -326,6 +333,12 @@ export async function createPublicBookingHold(data: PublicBookingHoldInput) {
        try {
               await enforceActiveSubscription(data.clubId)
 
+              const ip = await getClientIp()
+              const rl = await checkRateLimit(`hold:${ip}`, 15, 15 * 60_000)
+              if (!rl.success) {
+                     return { success: false, error: 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.' }
+              }
+
               if (!data.ownerToken?.trim()) {
                      return { success: false, error: 'No pudimos asegurar el horario. Intentá de nuevo.' }
               }
@@ -489,6 +502,12 @@ export async function releasePublicBookingHold(holdToken: string, ownerToken: st
 export async function createPublicBooking(data: PublicBookingInput) {
        try {
               await enforceActiveSubscription(data.clubId)
+
+              const ip = await getClientIp()
+              const rl = await checkRateLimit(`booking:${ip}`, 5, 15 * 60_000)
+              if (!rl.success) {
+                     return { success: false, error: 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.' }
+              }
 
               const dateStr = data.dateStr ?? data.date
               const timeStr = data.timeStr ?? data.time

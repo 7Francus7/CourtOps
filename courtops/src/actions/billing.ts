@@ -14,15 +14,25 @@ async function assertSuperAdmin() {
   }
 }
 
-// Sequential receipt number per club per year — only called inside transactions
-// where the outer lock prevents duplicates. The @@unique([clubId, number]) in schema
-// is the final safety net.
-async function nextReceiptNumber(clubId: string): Promise<string> {
+// Atomically allocates the next receipt number within a serializable transaction,
+// preventing duplicate numbers under concurrent requests.
+// The @@unique([clubId, number]) constraint in schema is the final safety net.
+async function nextReceiptNumber(
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  clubId: string,
+): Promise<string> {
   const year = new Date().getFullYear()
-  const count = await prisma.invoice.count({
+  const latest = await tx.invoice.findFirst({
     where: { clubId, issuedAt: { gte: new Date(`${year}-01-01`) } },
+    orderBy: { issuedAt: 'desc' },
+    select: { number: true },
   })
-  return `REC-${year}-${String(count + 1).padStart(4, '0')}`
+  let next = 1
+  if (latest?.number) {
+    const match = latest.number.match(/(\d+)$/)
+    if (match) next = parseInt(match[1], 10) + 1
+  }
+  return `REC-${year}-${String(next).padStart(4, '0')}`
 }
 
 // ─── Club-facing actions ──────────────────────────────────────────────────────
@@ -165,10 +175,12 @@ export async function createReceiptForClub(
   periodEnd: Date,
 ) {
   await assertSuperAdmin()
-  const number = await nextReceiptNumber(clubId)
-  return prisma.invoice.create({
-    data: { clubId, number, amount, status: 'PAID', method, planId, planName, billingCycle: cycle, periodStart, periodEnd },
-  })
+  return prisma.$transaction(async (tx) => {
+    const number = await nextReceiptNumber(tx, clubId)
+    return tx.invoice.create({
+      data: { clubId, number, amount, status: 'PAID', method, planId, planName, billingCycle: cycle, periodStart, periodEnd },
+    })
+  }, { isolationLevel: 'Serializable' })
 }
 
 // ─── God-mode stats — requires super-admin session ───────────────────────────

@@ -1,9 +1,6 @@
 'use server'
 
-import prismaBase from "@/lib/db"
-// Prisma client cast needed for tournament models not yet in generated types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const prisma = prismaBase as any
+import prisma from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
