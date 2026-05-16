@@ -107,7 +107,7 @@ export function Sidebar({ club }: { club?: any }) {
     <>
       <aside
         className={cn(
-          'hidden md:flex flex-col flex-shrink-0 bg-card border-r border-border transition-all duration-300 ease-in-out relative z-30',
+          'hidden md:flex flex-col flex-shrink-0 bg-card/95 backdrop-blur-xl border-r border-border/60 transition-[width] duration-200 ease-out relative z-30',
           isCollapsed ? 'w-[68px]' : 'w-[240px]'
         )}
       >
@@ -115,18 +115,21 @@ export function Sidebar({ club }: { club?: any }) {
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-label={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
-          className="absolute -right-3 top-[76px] z-50 w-6 h-6 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all shadow-sm"
+          className="absolute -right-[13px] top-[72px] z-50 w-[26px] h-[26px] bg-card border border-border/80 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/60 hover:bg-background transition-all duration-150 shadow-md"
         >
           {isCollapsed
-            ? <ChevronRight size={12} strokeWidth={2.5} />
-            : <ChevronLeft  size={12} strokeWidth={2.5} />
+            ? <ChevronRight size={11} strokeWidth={2.5} />
+            : <ChevronLeft  size={11} strokeWidth={2.5} />
           }
         </button>
 
         {/* ── Logo ── */}
-        <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-border shrink-0', isCollapsed && 'justify-center px-0')}>
+        <div className={cn(
+          'flex items-center gap-3 px-4 h-16 border-b border-border/50 shrink-0',
+          isCollapsed && 'justify-center px-0'
+        )}>
           <div className={cn(
-            'flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-sm shrink-0 overflow-hidden shadow-sm',
+            'flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-sm shrink-0 overflow-hidden shadow-sm ring-1 ring-primary/20',
             isCollapsed ? 'w-9 h-9' : 'w-8 h-8'
           )}>
             {club?.logoUrl ? (
@@ -142,20 +145,22 @@ export function Sidebar({ club }: { club?: any }) {
             </span>
           </div>
           {!isCollapsed && (
-            <span className="font-bold text-sm text-foreground tracking-tight truncate">
+            <span className="font-bold text-[13px] text-foreground tracking-tight truncate">
               {club?.name || 'CourtOps'}
             </span>
           )}
         </div>
 
         {/* ── Nav ── */}
-        <nav data-tour="sidebar-nav" className="flex-1 overflow-y-auto py-3 px-2 space-y-4 no-scrollbar">
+        <nav data-tour="sidebar-nav" className="flex-1 overflow-y-auto py-3 px-2 space-y-5 no-scrollbar">
           {NAV_SECTIONS.map(section => (
             <div key={section.label}>
-              {!isCollapsed && (
-                <p className="px-3 mb-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest select-none">
+              {!isCollapsed ? (
+                <p className="px-3 mb-1 text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-[0.14em] select-none">
                   {section.label}
                 </p>
+              ) : (
+                <div className="w-5 mx-auto mb-1 h-px bg-border/40" />
               )}
               <div className="space-y-0.5">
                 {section.items.map(item => {
@@ -184,7 +189,7 @@ export function Sidebar({ club }: { club?: any }) {
         </nav>
 
         {/* ── User profile ── */}
-        <div className="shrink-0 border-t border-border p-3 space-y-2">
+        <div className="shrink-0 border-t border-border/50 p-2.5 space-y-1">
           <SidebarActionButton
             icon={ThemeIcon}
             label={themeLabel}
@@ -193,10 +198,10 @@ export function Sidebar({ club }: { club?: any }) {
           />
 
           <div className={cn(
-            'flex items-center gap-2.5 rounded-xl p-2 hover:bg-accent transition-colors cursor-default',
+            'flex items-center gap-2.5 rounded-xl p-2 hover:bg-muted/60 transition-colors duration-150 cursor-default group',
             isCollapsed && 'justify-center'
           )}>
-            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary font-bold text-xs shrink-0 overflow-hidden relative">
+            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary font-bold text-xs shrink-0 overflow-hidden relative ring-1 ring-primary/10">
               {session?.user?.image
                 ? <Image src={session.user.image} alt="User" fill sizes="32px" className="object-cover rounded-lg" />
                 : displayedName.substring(0, 2).toUpperCase()
@@ -205,12 +210,12 @@ export function Sidebar({ club }: { club?: any }) {
             {!isCollapsed && (
               <>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-foreground truncate">{displayedName}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{roleLabel}</p>
+                  <p className="text-xs font-semibold text-foreground truncate leading-tight">{displayedName}</p>
+                  <p className="text-[10px] text-muted-foreground/70 truncate mt-0.5">{roleLabel}</p>
                 </div>
                 <button
                   onClick={() => activeEmployee ? logoutEmployee() : signOut()}
-                  className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                  className="w-7 h-7 flex items-center justify-center text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
                   title="Cerrar sesión"
                 >
                   <LogOut size={13} />
@@ -264,29 +269,33 @@ function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, dataTou
       onMouseLeave={() => setShowTip(false)}
       onClick={locked ? (e) => { e.preventDefault(); onLockedClick() } : undefined}
       className={cn(
-        'flex items-center gap-3 rounded-lg transition-colors duration-150 cursor-pointer select-none',
+        'relative flex items-center gap-3 rounded-xl transition-all duration-150 cursor-pointer select-none',
         isCollapsed ? 'justify-center w-10 h-10 mx-auto' : 'h-9 px-3',
         active
           ? 'bg-primary/10 text-primary'
           : locked
-            ? 'text-muted-foreground/40 cursor-not-allowed'
-            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+            ? 'text-muted-foreground/30 cursor-not-allowed'
+            : 'text-muted-foreground/70 hover:bg-muted/60 hover:text-foreground',
       )}
     >
-      {/* Active indicator */}
+      {/* Active bar — expanded */}
       {active && !isCollapsed && (
-        <span className="absolute left-2 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-full" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-full -ml-1" />
+      )}
+      {/* Active dot — collapsed */}
+      {active && isCollapsed && (
+        <span className="absolute -right-1 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-full" />
       )}
       <div className="relative shrink-0 flex items-center justify-center">
         <Icon size={16} strokeWidth={active ? 2.5 : 2} />
         {locked && (
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-background rounded-full flex items-center justify-center border border-border">
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-background rounded-full flex items-center justify-center border border-border/60">
             <Lock size={6} className="text-amber-500" />
           </span>
         )}
       </div>
       {!isCollapsed && (
-        <span className={cn('text-sm truncate', active ? 'font-semibold' : 'font-medium')}>
+        <span className={cn('text-[13px] truncate tracking-[-0.01em]', active ? 'font-semibold' : 'font-medium')}>
           {label}
         </span>
       )}
@@ -296,7 +305,7 @@ function NavItem({ href, icon: Icon, label, active, locked, isCollapsed, dataTou
   const tooltip = showTip && isCollapsed && typeof window !== 'undefined' && createPortal(
     <div
       style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
-      className="fixed z-[9999] bg-foreground text-background px-2.5 py-1.5 rounded-lg text-xs font-medium shadow-lg pointer-events-none whitespace-nowrap"
+      className="fixed z-[9999] bg-foreground text-background px-2.5 py-1.5 rounded-lg text-xs font-semibold shadow-xl pointer-events-none whitespace-nowrap"
     >
       {label}
     </div>,

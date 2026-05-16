@@ -236,8 +236,8 @@ export default function VenueLayout({
             </button>
           )}
           <div className="min-w-0">
-            <p className="truncate text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-white/40">
-              Portada publica
+            <p className="truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-white/40">
+              Reserva online
             </p>
             <p className="truncate text-sm font-black text-slate-800 dark:text-white">{club.name}</p>
           </div>
@@ -357,7 +357,7 @@ export default function VenueLayout({
                     key={fact.label}
                     className="rounded-[1.35rem] border border-slate-200/80 bg-slate-50/90 px-3.5 py-3 dark:border-white/[0.07] dark:bg-white/[0.04]"
                   >
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
                       {fact.label}
                     </p>
                     <p className="mt-1 text-[13px] font-black leading-snug text-slate-800 dark:text-slate-100">
@@ -524,7 +524,7 @@ export default function VenueLayout({
                     key={`info-${fact.label}`}
                     className="rounded-[1.45rem] border border-slate-200/80 bg-white p-4 shadow-sm dark:border-white/[0.06] dark:bg-white/[0.03]"
                   >
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
                       {fact.label}
                     </p>
                     <p className="mt-2 text-sm font-black leading-snug text-slate-800 dark:text-white">

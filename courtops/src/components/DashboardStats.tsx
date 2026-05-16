@@ -53,55 +53,59 @@ const HeatmapWidget = () => {
        const maxVal = Math.max(...data.map(d => d.value), 1)
 
        return (
-              <div className="h-full flex flex-col p-6">
-                     <div className="flex justify-between items-center mb-6">
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                   <Calendar size={14} />
+              <div className="h-full flex flex-col p-5">
+                     <div className="flex justify-between items-center mb-4">
+                            <h4 className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground/70 flex items-center gap-1.5">
+                                   <Calendar size={13} />
                                    Ocupación Histórica
                             </h4>
-                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary/20"></span>Baja</span>
-                                   <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary"></span>Alta</span>
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground/60">
+                                   <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-primary/25"></span>Baja</span>
+                                   <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-primary"></span>Alta</span>
                             </div>
                      </div>
 
-                     <div className="flex-1 overflow-x-auto -mx-2 px-2">
-                            <div className="min-w-[420px] grid grid-rows-7 gap-1.5 h-full">
-                            {days.map((d, dayIdx) => (
-                                   <div key={dayIdx} className="grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 items-center">
-                                          <span className="text-[9px] font-bold text-muted-foreground">{d}</span>
-                                          {hours.map(h => {
-                                                 const item = data.find(x => x.day === dayIdx && x.hour === h)
-                                                 const val = item ? item.value : 0
-                                                 const opacity = val / maxVal
+                     {/* scroll indicator */}
+                     <div className="flex-1 relative overflow-hidden">
+                            <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-card to-transparent z-10 pointer-events-none" />
+                            <div className="h-full overflow-x-auto no-scrollbar">
+                                   <div className="min-w-[400px] grid grid-rows-7 gap-1.5 h-full">
+                                          {days.map((d, dayIdx) => (
+                                                 <div key={dayIdx} className="grid grid-cols-[18px_repeat(16,1fr)] gap-1.5 items-center">
+                                                        <span className="text-[10px] font-bold text-muted-foreground/50">{d}</span>
+                                                        {hours.map(h => {
+                                                               const item = data.find(x => x.day === dayIdx && x.hour === h)
+                                                               const val = item ? item.value : 0
+                                                               const opacity = val / maxVal
 
-                                                 return (
-                                                        <div
-                                                               key={h}
-                                                               className="h-full rounded-[2px] transition-all hover:scale-125 hover:z-10 relative group/cell"
-                                                               style={{
-                                                                      backgroundColor: val > 0 ? `var(--primary)` : 'var(--muted)',
-                                                                      opacity: val > 0 ? Math.max(opacity, 0.2) : 0.1
-                                                               }}
-                                                        >
-                                                               {val > 0 && (
-                                                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-popover text-popover-foreground text-[10px] px-2 py-1 rounded border border-border whitespace-nowrap hidden group-hover/cell:block z-50 shadow-xl font-medium">
-                                                                             {dayIdx === 0 ? 'Dom' : dayIdx === 1 ? 'Lun' : dayIdx === 2 ? 'Mar' : dayIdx === 3 ? 'Mié' : dayIdx === 4 ? 'Jue' : dayIdx === 5 ? 'Vie' : 'Sáb'} {h}:00hs
-                                                                             <div className="font-bold text-primary">{val} reservas</div>
+                                                               return (
+                                                                      <div
+                                                                             key={h}
+                                                                             className="h-full rounded-sm transition-transform duration-100 hover:scale-110 hover:z-10 relative group/cell cursor-default"
+                                                                             style={{
+                                                                                    backgroundColor: val > 0 ? `hsl(var(--primary))` : 'hsl(var(--muted))',
+                                                                                    opacity: val > 0 ? Math.max(opacity, 0.18) : 0.08
+                                                                             }}
+                                                                      >
+                                                                             {val > 0 && (
+                                                                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-popover text-popover-foreground text-[11px] px-2.5 py-1.5 rounded-lg border border-border whitespace-nowrap hidden group-hover/cell:block z-50 shadow-xl font-medium leading-snug">
+                                                                                           <p className="text-muted-foreground/70">{dayIdx === 0 ? 'Dom' : dayIdx === 1 ? 'Lun' : dayIdx === 2 ? 'Mar' : dayIdx === 3 ? 'Mié' : dayIdx === 4 ? 'Jue' : dayIdx === 5 ? 'Vie' : 'Sáb'} {h}:00hs</p>
+                                                                                           <p className="font-bold text-primary">{val} reservas</p>
+                                                                                    </div>
+                                                                             )}
                                                                       </div>
-                                                               )}
-                                                        </div>
-                                                 )
-                                          })}
+                                                               )
+                                                        })}
+                                                 </div>
+                                          ))}
                                    </div>
-                            ))}
                             </div>
                      </div>
-                     <div className="overflow-x-auto -mx-2 px-2">
-                            <div className="min-w-[420px] grid grid-cols-[20px_repeat(16,1fr)] gap-1.5 mt-2">
+                     <div className="overflow-x-auto no-scrollbar">
+                            <div className="min-w-[400px] grid grid-cols-[18px_repeat(16,1fr)] gap-1.5 mt-2">
                             <div />
                             {hours.map(h => (
-                                   <span key={h} className="text-[8px] text-center text-muted-foreground font-medium">{h}</span>
+                                   <span key={h} className="text-[9px] text-center text-muted-foreground/40 font-medium">{h}</span>
                             ))}
                             </div>
                      </div>

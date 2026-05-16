@@ -286,11 +286,11 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
       {/* Bottom bar */}
       <nav
         data-tour="mobile-bottom-nav"
-        className={`fixed bottom-3 left-0 right-0 z-[80] md:hidden px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.45rem)] pointer-events-none transition-opacity duration-200 ${isNotificationsOpen || externalSheetOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`fixed bottom-3 left-0 right-0 z-[80] md:hidden px-4 pb-[calc(env(safe-area-inset-bottom)+0.3rem)] pointer-events-none transition-all duration-200 ${isNotificationsOpen || externalSheetOpen ? 'opacity-0 translate-y-2 pointer-events-none' : 'opacity-100 translate-y-0'}`}
         aria-label="Navegación principal"
       >
         <div className="pointer-events-auto relative max-w-lg mx-auto overflow-visible">
-          <div className="flex h-[58px] items-center justify-around rounded-[1.65rem] border border-border/70 bg-card/95 px-1.5 text-muted-foreground shadow-[0_10px_28px_rgba(15,23,42,0.14)] backdrop-blur-xl">
+          <div className="flex h-[60px] items-center justify-around rounded-[1.65rem] border border-border/60 bg-card/95 px-1.5 text-muted-foreground shadow-[0_12px_32px_rgba(0,0,0,0.18),0_2px_8px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
             {primaryItems.map(item => {
               if (item.isFab) {
                 return (
@@ -298,10 +298,10 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                     key="fab"
                     data-tour={item.dataTour}
                     onClick={() => router.push('/dashboard?action=new_booking')}
-                    className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.24)] active:scale-95 transition-transform"
+                    className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_6px_20px_hsl(var(--primary)/0.35)] active:scale-95 transition-all duration-150 hover:shadow-[0_8px_24px_hsl(var(--primary)/0.45)]"
                     aria-label="Nueva reserva"
                   >
-                    <Plus size={21} strokeWidth={2.5} />
+                    <Plus size={22} strokeWidth={2.5} />
                   </button>
                 )
               }
@@ -317,31 +317,31 @@ export function MobileBottomNav({ club }: { club?: MobileBottomNavClub }) {
                     if (item.isMenu) setIsMenuOpen(!isMenuOpen)
                     else if (item.href) router.push(item.href)
                   }}
-                  className="relative flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-2xl cursor-pointer"
+                  className="relative flex h-12 w-12 flex-col items-center justify-center gap-[3px] rounded-2xl cursor-pointer active:scale-95 transition-transform duration-100"
                 >
                   {isActive && (
                     <motion.div
                       layoutId="nav-active-pill"
-                      className="absolute inset-1 rounded-xl bg-primary/10"
-                      transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+                      className="absolute inset-[5px] rounded-[10px] bg-primary/12"
+                      transition={{ type: 'spring', stiffness: 460, damping: 40 }}
                     />
                   )}
                   <div className="relative">
                     <item.icon
                       size={19}
-                      strokeWidth={isActive ? 2.5 : 1.8}
+                      strokeWidth={isActive ? 2.5 : 1.75}
                       className={cn(
                         'transition-colors duration-150',
-                        isActive ? 'text-primary' : 'text-muted-foreground'
+                        isActive ? 'text-primary' : 'text-muted-foreground/70'
                       )}
                     />
                     {item.isMenu && unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-card" />
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-card" />
                     )}
                   </div>
                   <span className={cn(
-                    'relative text-[9px] font-semibold transition-colors duration-150',
-                    isActive ? 'text-primary' : 'text-muted-foreground'
+                    'relative text-[10px] font-semibold transition-colors duration-150 leading-none',
+                    isActive ? 'text-primary' : 'text-muted-foreground/60'
                   )}>
                     {item.label}
                   </span>

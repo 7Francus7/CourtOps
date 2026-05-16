@@ -53,6 +53,7 @@
   --animate-marquee: infinite-scroll 30s linear infinite;
   --animate-orbit: orbit 10s linear infinite;
   --animate-blob: blob 7s infinite;
+  --animate-shimmer: shimmer 1.8s ease-in-out infinite;
 
   @keyframes infinite-scroll {
     from {
@@ -94,6 +95,11 @@
     50% {
       transform: translateY(-20px);
     }
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
   }
 
   @keyframes blob {
@@ -278,10 +284,10 @@
 .co-small { font-size: 0.875rem; color: var(--co-fg-mid, #adaaad); }
 .co-caption { font-size: 0.75rem; color: var(--co-fg-mid, #adaaad); }
 .co-label {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   color: var(--co-fg-mid, #adaaad);
 }
 .co-eyebrow {
@@ -307,14 +313,16 @@
 .co-mono { font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace; font-size: 0.875rem; }
 
 @layer utilities {
+  /* ── Glass surfaces ── */
   .glass-card {
-    @apply bg-card/40 backdrop-blur-xl border border-border/20 dark:border-white/10 shadow-lg dark:shadow-2xl;
+    @apply bg-card/40 backdrop-blur-xl border border-border/20 dark:border-white/10 shadow-lg dark:shadow-2xl transition-[border-color,box-shadow] duration-200;
   }
 
   .glass-dark {
     @apply bg-secondary/40 dark:bg-zinc-950/40 backdrop-blur-2xl border border-border/10 dark:border-white/5 shadow-2xl;
   }
 
+  /* ── Text & gradient ── */
   .text-gradient {
     @apply text-transparent bg-clip-text bg-gradient-to-br from-slate-900 to-slate-500 dark:from-white dark:to-zinc-500;
   }
@@ -326,10 +334,8 @@
     pointer-events: none;
   }
 
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
+  /* ── Scrollbar resets ── */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -337,26 +343,18 @@
     overscroll-behavior: contain;
   }
 
-  /* Settings tabs: hidden scrollbar on mobile, thin scrollbar on desktop */
   .settings-tabs-scroll {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .settings-tabs-scroll::-webkit-scrollbar {
-    display: none;
-  }
+  .settings-tabs-scroll::-webkit-scrollbar { display: none; }
   @media (min-width: 1024px) {
     .settings-tabs-scroll {
       scrollbar-width: thin;
       scrollbar-color: var(--color-muted-foreground) transparent;
     }
-    .settings-tabs-scroll::-webkit-scrollbar {
-      display: block;
-      height: 4px;
-    }
-    .settings-tabs-scroll::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    .settings-tabs-scroll::-webkit-scrollbar { display: block; height: 4px; }
+    .settings-tabs-scroll::-webkit-scrollbar-track { background: transparent; }
     .settings-tabs-scroll::-webkit-scrollbar-thumb {
       background: var(--color-muted-foreground);
       border-radius: 9999px;
@@ -368,34 +366,95 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { @apply bg-transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+    @apply bg-muted-foreground/15 rounded-full;
+    transition: background 0.2s;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/35;
   }
 
+  /* ── Buttons ── */
   .btn-premium {
-    @apply relative overflow-hidden flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-black px-8 py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all hover:scale-[1.03] active:scale-[0.97] shadow-2xl;
+    @apply relative overflow-hidden flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-black px-8 py-3.5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all duration-150 hover:scale-[1.02] active:scale-[0.97] shadow-xl;
   }
 
+  /* ── Inputs ── */
   .input-theme {
-    @apply bg-muted border border-border rounded-2xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all font-medium text-foreground placeholder:text-muted-foreground/50;
+    @apply bg-muted/60 border border-border/60 rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/60 focus:bg-muted focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium text-foreground placeholder:text-muted-foreground/40 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  /* ── Typography ── */
   .section-label {
-    @apply text-[10px] uppercase font-bold text-muted-foreground tracking-[0.15em] select-none;
+    @apply text-[11px] uppercase font-semibold text-muted-foreground/70 tracking-[0.12em] select-none;
+  }
+
+  /* ── Skeletons ── */
+  .skeleton {
+    @apply bg-muted/40 animate-pulse rounded-xl;
+  }
+  .skeleton-text {
+    @apply bg-muted/40 animate-pulse rounded-md h-4;
+  }
+
+  /* ── Status badges ── */
+  .badge-success {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20;
+  }
+  .badge-warning {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20;
+  }
+  .badge-error {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20;
+  }
+  .badge-info {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20;
+  }
+  .badge-primary {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-primary/10 text-primary border border-primary/20;
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    @apply flex flex-col items-center justify-center gap-3 py-16 px-6 text-center;
+  }
+  .empty-state-icon {
+    @apply w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground/40;
+  }
+  .empty-state-title {
+    @apply text-base font-semibold text-foreground;
+  }
+  .empty-state-desc {
+    @apply text-sm text-muted-foreground max-w-xs leading-relaxed;
+  }
+
+  /* ── Scroll fade indicators ── */
+  .scroll-fade-right {
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  }
+  .scroll-fade-bottom {
+    mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  }
+
+  /* ── Interactive card ── */
+  .card-interactive {
+    @apply bg-card/40 backdrop-blur-xl border border-border/60 rounded-2xl transition-all duration-200 hover:border-border/90 hover:shadow-lg hover:-translate-y-px cursor-pointer;
+  }
+  .card-stat {
+    @apply bg-card/40 backdrop-blur-xl border border-border/60 p-5 rounded-[1.75rem] transition-all duration-300 hover:border-border/90 flex flex-col justify-between;
+  }
+
+  /* ── Page transitions ── */
+  .page-enter {
+    @apply animate-in fade-in slide-in-from-bottom-2 duration-200;
   }
 }
 
-/* Global Accessibility: focus-visible rings */
+/* ── Global accessibility ── */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -405,6 +464,33 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Smooth page transitions ── */
+@view-transition {
+  navigation: auto;
+}
+
+/* ── Global transitions ── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Thin ring for active/selected states */
+.ring-primary-sm {
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
 }
 
