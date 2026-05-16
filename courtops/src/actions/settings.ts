@@ -5,6 +5,7 @@ import { createSafeAction } from '@/lib/safe-action'
 import { revalidatePath } from 'next/cache'
 import { encrypt, decrypt } from '@/lib/encryption'
 import { hash } from 'bcryptjs'
+import { invalidateCachePattern } from '@/lib/cache'
 
 export const getSettings = createSafeAction(async ({ clubId }) => {
        const club = await prisma.club.findUnique({
@@ -98,6 +99,9 @@ export const updateClubSettings = createSafeAction(async ({ clubId }, data: {
               data
        })
 
+       // Invalidate public club cache so slug page reflects changes immediately
+       await invalidateCachePattern(`public-club:*`)
+
        revalidatePath('/configuracion')
        revalidatePath('/')
        return updated
@@ -161,43 +165,31 @@ export const upsertPriceRule = createSafeAction(async ({ clubId }, data: {
        startDate?: Date | null
        endDate?: Date | null
 }) => {
-       if (data.id) {
-              return await prisma.priceRule.update({
+       const result = data.id
+              ? await prisma.priceRule.update({
                      where: { id_clubId: { id: data.id, clubId } },
                      data: {
-                            name: data.name,
-                            courtId: data.courtId,
-                            daysOfWeek: data.daysOfWeek,
-                            startTime: data.startTime,
-                            endTime: data.endTime,
-                            price: data.price,
-                            memberPrice: data.memberPrice,
-                            priority: data.priority,
-                            startDate: data.startDate,
-                            endDate: data.endDate
-                     }
+                            name: data.name, courtId: data.courtId, daysOfWeek: data.daysOfWeek,
+                            startTime: data.startTime, endTime: data.endTime,
+                            price: data.price, memberPrice: data.memberPrice,
+                            priority: data.priority, startDate: data.startDate, endDate: data.endDate,
+                     },
               })
-       } else {
-              return await prisma.priceRule.create({
+              : await prisma.priceRule.create({
                      data: {
-                            clubId,
-                            courtId: data.courtId,
-                            name: data.name,
-                            daysOfWeek: data.daysOfWeek,
-                            startTime: data.startTime,
-                            endTime: data.endTime,
-                            price: data.price,
-                            memberPrice: data.memberPrice,
-                            priority: data.priority,
-                            startDate: data.startDate,
-                            endDate: data.endDate
-                     }
+                            clubId, courtId: data.courtId, name: data.name,
+                            daysOfWeek: data.daysOfWeek, startTime: data.startTime, endTime: data.endTime,
+                            price: data.price, memberPrice: data.memberPrice,
+                            priority: data.priority, startDate: data.startDate, endDate: data.endDate,
+                     },
               })
-       }
+       await invalidateCachePattern(`price-rules:${clubId}`)
+       return result
 })
 
 export const deletePriceRule = createSafeAction(async ({ clubId }, id: number) => {
        await prisma.priceRule.delete({ where: { id_clubId: { id, clubId } } })
+       await invalidateCachePattern(`price-rules:${clubId}`)
        revalidatePath('/configuracion')
        return { success: true }
 })

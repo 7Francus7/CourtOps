@@ -2,7 +2,7 @@
 
 import { Prisma } from '@prisma/client'
 import prisma from '@/lib/db'
-import { getEffectivePrice, enforceActiveSubscription } from '@/lib/tenant'
+import { getEffectivePrice, enforceActiveSubscription, computePriceFromRules } from '@/lib/tenant'
 import { addDays } from 'date-fns'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
@@ -11,6 +11,7 @@ import { AVAILABILITY_BLOCKING_BOOKING_STATUSES } from '@/lib/booking-status'
 import { getPublicBookingHoldExpiration } from '@/lib/booking-hold'
 import { getPhoneLastDigits, phoneMatches } from '@/lib/phone'
 import { checkRateLimit } from '@/lib/ratelimit'
+import { getCache, setCache, invalidateCachePattern } from '@/lib/cache'
 
 async function getClientIp(): Promise<string> {
   const h = await headers()
@@ -43,6 +44,16 @@ function getPublicBookingWindow(dateStr: string, timeStr: string, durationMinute
 }
 
 export async function getPublicClubBySlug(slug: string) {
+       const cacheKey = `public-club:${slug}`
+       const cached = await getCache<Awaited<ReturnType<typeof _fetchPublicClub>>>(cacheKey)
+       if (cached) return cached
+
+       const result = await _fetchPublicClub(slug)
+       if (result) await setCache(cacheKey, result, 300) // 5 min — changes rarely
+       return result
+}
+
+async function _fetchPublicClub(slug: string) {
        const club = await prisma.club.findUnique({
               where: { slug },
               select: {
@@ -142,39 +153,32 @@ function getPublicDateParts(dateInput: Date | string) {
 }
 
 export async function getPublicAvailability(clubId: string, dateInput: Date | string, durationMinutes?: number) {
+       const t0 = Date.now()
        const { year: targetYear, month: targetMonth, day: targetDay } = getPublicDateParts(dateInput)
-       // Use a wider padded range to fetch bookings from DB, 
-       // to avoid skipped bookings on cross-timezone boundaries (e.g., night shifts matching next UTC day). 
-       // The exact overlap check down below handles the precise filtering.
        const start = addDays(createArgDate(targetYear, targetMonth, targetDay, 0, 0), -1)
        const end = addDays(createArgDate(targetYear, targetMonth, targetDay, 23, 59), 2)
        end.setSeconds(59, 999)
        const now = new Date()
 
-       await expirePublicSlotHolds(clubId, now)
-
-       // 1. Get Club Settings
-       const club = await prisma.club.findUnique({
-              where: { id: clubId },
-              select: { openTime: true, closeTime: true, slotDuration: true }
-       })
-       if (!club) throw new Error('Club not found')
-
-       // 2. Get Courts
-       const courts = await prisma.court.findMany({
-              where: { clubId, isActive: true },
-              orderBy: { sortOrder: 'asc' }
-       })
-
-       // 3. Get Existing Bookings and Active Holds
-       const [bookings, activeHolds] = await Promise.all([
+       // Parallel fetch: expire holds + club + courts + bookings + holds + priceRules in one round-trip
+       // Previously: 4 sequential queries + N×priceRule queries (one per available slot)
+       const [, club, courts, bookings, activeHolds, priceRules] = await Promise.all([
+              expirePublicSlotHolds(clubId, now),
+              prisma.club.findUnique({
+                     where: { id: clubId },
+                     select: { openTime: true, closeTime: true, slotDuration: true },
+              }),
+              prisma.court.findMany({
+                     where: { clubId, isActive: true },
+                     orderBy: { sortOrder: 'asc' },
+              }),
               prisma.booking.findMany({
                      where: {
                             clubId,
                             startTime: { gte: start, lte: end },
-                            status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] }
+                            status: { in: [...AVAILABILITY_BLOCKING_BOOKING_STATUSES] },
                      },
-                     select: { courtId: true, startTime: true, endTime: true }
+                     select: { courtId: true, startTime: true, endTime: true },
               }),
               prisma.slotHold.findMany({
                      where: {
@@ -182,112 +186,93 @@ export async function getPublicAvailability(clubId: string, dateInput: Date | st
                             status: 'ACTIVE',
                             expiresAt: { gt: now },
                             startTime: { lt: end },
-                            endTime: { gt: start }
+                            endTime: { gt: start },
                      },
-                     select: { courtId: true, startTime: true, endTime: true }
-              })
+                     select: { courtId: true, startTime: true, endTime: true },
+              }),
+              // Fetch ALL price rules once — reused inside the slot loop (eliminates N+1)
+              prisma.priceRule.findMany({
+                     where: { clubId },
+                     orderBy: { priority: 'desc' },
+              }),
        ])
+
+       if (!club) throw new Error('Club not found')
+
        const blockedWindows = [...bookings, ...activeHolds]
 
-       // 4. Generate & Merge Slots
-       // We use a Map to group availability by start time: "HH:mm" -> { time, minPrice, courts: [...] }
-       const slotsMap = new Map<string, { time: string, minPrice: number, courts: { id: number; name: string; type: string | null; sport: string; duration: number; price: number }[] }>()
+       type SlotEntry = { time: string; minPrice: number; courts: { id: number; name: string; type: string | null; sport: string; duration: number; price: number }[] }
+       const slotsMap = new Map<string, SlotEntry>()
 
        const [openH, openM] = club.openTime.split(':').map(Number)
        const [closeH, closeM] = club.closeTime.split(':').map(Number)
 
-       // For comparison - Add a 15-minute buffer so we don't show slots that are about to start or have just started
        const nowWithBuffer = new Date(now)
        nowWithBuffer.setMinutes(nowWithBuffer.getMinutes() + 15)
 
-       // Shared Intl formatter for robust "HH:mm" extraction without side effects
        const timeFormatter = new Intl.DateTimeFormat('es-AR', {
               hour: '2-digit',
               minute: '2-digit',
               hour12: false,
-              timeZone: 'America/Argentina/Buenos_Aires'
+              timeZone: 'America/Argentina/Buenos_Aires',
        })
 
-       // Iterate EACH COURT individually
        for (const court of courts) {
               const courtDuration = durationMinutes || PADEL_SLOT_MINUTES
-              const sport = 'PADEL'
 
-              // Start time for this court
               let currentTime = createArgDate(targetYear, targetMonth, targetDay, openH, openM)
               let limitTime = createArgDate(targetYear, targetMonth, targetDay, closeH, closeM)
 
-              // Handle crossing midnight (e.g. close at 02:00)
-              if (limitTime <= currentTime) {
-                     limitTime = addDays(limitTime, 1)
-              }
+              if (limitTime <= currentTime) limitTime = addDays(limitTime, 1)
 
               while (currentTime < limitTime) {
-                     // 1. Filter out past times intrinsically
                      if (currentTime < nowWithBuffer) {
                             currentTime = new Date(currentTime.getTime() + courtDuration * 60000)
                             continue
                      }
 
-                     // 2. Check Overlap
                      const proposedEnd = new Date(currentTime.getTime() + courtDuration * 60000)
+                     if (proposedEnd > limitTime) break
 
-                     // Optimization: If end time exceeds closing time, break (unless we allow last turn to go over?)
-                     // Usually we stop if the turn doesn't fit? Let's check strict fit.
-                     if (proposedEnd > limitTime) {
-                            // If it doesn't fit before close, stop generating for this court
-                            break;
-                     }
-
-                     const hasOverlap = blockedWindows.some((blocked) => {
-                            if (blocked.courtId !== court.id) return false
-                            // Classic overlap
-                            return blocked.startTime < proposedEnd && blocked.endTime > currentTime
-                     })
+                     const hasOverlap = blockedWindows.some(
+                            b => b.courtId === court.id && b.startTime < proposedEnd && b.endTime > currentTime
+                     )
 
                      if (!hasOverlap) {
-                            // It's free! Add to map.
                             const timeLabel = timeFormatter.format(currentTime)
-
-                            // Calculate price for this specific court/time/duration
-                            const price = await getEffectivePrice(clubId, currentTime, courtDuration, false, 0, court.id)
+                            // Pure in-memory computation — no DB call
+                            const price = computePriceFromRules(priceRules, currentTime, false, 0, court.id)
 
                             if (!slotsMap.has(timeLabel)) {
                                    slotsMap.set(timeLabel, { time: timeLabel, minPrice: price, courts: [] })
                             }
-
                             const slotEntry = slotsMap.get(timeLabel)!
-                            // Update minPrice if this court is cheaper
-                            if (price < slotEntry.minPrice) {
-                                   slotEntry.minPrice = price
-                            }
+                            if (price < slotEntry.minPrice) slotEntry.minPrice = price
 
                             slotEntry.courts.push({
                                    id: court.id,
                                    name: court.name,
                                    type: court.surface,
-                                   sport: sport,
+                                   sport: 'PADEL',
                                    duration: courtDuration,
-                                   price: price // Include specific price
+                                   price,
                             })
                      }
 
-                     // Advance by THIS COURT's duration
                      currentTime = new Date(currentTime.getTime() + courtDuration * 60000)
               }
        }
 
-       // Convert Map to Array and Sort by Time
-       const sortedSlots = Array.from(slotsMap.values()).sort((a, b) => {
-              return a.time.localeCompare(b.time)
-       })
+       const slots = Array.from(slotsMap.values())
+              .sort((a, b) => a.time.localeCompare(b.time))
+              .map(s => ({
+                     time: s.time,
+                     price: s.minPrice,
+                     courts: s.courts.sort((a, b) => a.name.localeCompare(b.name)),
+              }))
 
-       // Return reformatted structure compatible with frontend
-       return sortedSlots.map(s => ({
-              time: s.time,
-              price: s.minPrice, // "From" price
-              courts: s.courts.sort((a, b) => a.name.localeCompare(b.name))
-       }))
+       console.log(`[perf] getPublicAvailability clubId=${clubId} courts=${courts.length} slots=${slots.length} ${Date.now() - t0}ms`)
+       return slots
 }
 
 type PublicBookingInput = {

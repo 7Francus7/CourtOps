@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { getClients, updateClient, deleteClient, createClient, bulkImportClients } from '@/actions/clients'
+import { useState, useEffect, useCallback } from 'react'
+import { getClients, getClientsPaginated, updateClient, deleteClient, createClient, bulkImportClients } from '@/actions/clients'
 import { MessagingService } from '@/lib/messaging'
 import { Users, Search, AlertCircle, CheckCircle2, MessageCircle, RefreshCw, Pencil, Trash2, X, Save, Loader2, Trophy, Phone, LayoutGrid, List, Upload, FileText, CheckCircle, AlertTriangle, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -20,6 +20,8 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const confirm = useConfirmation()
        const [clients, setClients] = useState<any[]>(initialData)
        const [loading, setLoading] = useState(initialData.length === 0)
+       const [loadingMore, setLoadingMore] = useState(false)
+       const [nextCursor, setNextCursor] = useState<number | null>(null)
        const [search, setSearch] = useState('')
        const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'RISK' | 'LOST' | 'DEBT' | 'INACTIVE'>('ALL')
        const [categoryFilter, setCategoryFilter] = useState<string>('')
@@ -40,20 +42,35 @@ export default function ClientsDashboard({ initialData = [] }: Props) {
        const [importLoading, setImportLoading] = useState(false)
        const [importResult, setImportResult] = useState<{ imported: number; skipped: number; errors: string[] } | null>(null)
 
-       const loadClients = async () => {
+       const loadClients = useCallback(async () => {
               setLoading(true)
-              const res = await getClients()
+              const res = await getClientsPaginated()
               if (res.success && res.data) {
-                     setClients(res.data)
+                     setClients(res.data.clients)
+                     setNextCursor(res.data.nextCursor ?? null)
               }
               setLoading(false)
+       }, [])
+
+       const loadMore = async () => {
+              if (!nextCursor || loadingMore) return
+              setLoadingMore(true)
+              const res = await getClientsPaginated({ cursor: nextCursor })
+              if (res.success && res.data) {
+                     setClients(prev => [...prev, ...res.data!.clients])
+                     setNextCursor(res.data.nextCursor ?? null)
+              }
+              setLoadingMore(false)
        }
 
        useEffect(() => {
               if (initialData.length === 0) {
                      loadClients()
+              } else {
+                     // initialData comes from SSR first page — detect if there may be more
+                     // We don't know the cursor from SSR, so show "Cargar más" only after a client action
               }
-       }, [initialData.length])
+       }, [initialData.length, loadClients])
 
        const handleDelete = async (id: number) => {
               if (!await confirm({ title: '¿Eliminar cliente?', description: 'Esta acción no se puede deshacer. Se eliminarán todos los datos asociados.', variant: 'destructive', confirmLabel: 'Eliminar' })) return
@@ -887,6 +904,22 @@ const filtered = clients.filter(c => {
                                    </div>
                             )}
                      </AnimatePresence>
+
+                     {nextCursor && (
+                            <div className="flex justify-center pt-4 pb-2">
+                                   <button
+                                          onClick={loadMore}
+                                          disabled={loadingMore}
+                                          className="flex items-center gap-2 px-6 py-2.5 rounded-2xl border border-border bg-card hover:bg-secondary transition-colors text-sm font-medium disabled:opacity-50"
+                                   >
+                                          {loadingMore ? (
+                                                 <><Loader2 size={14} className="animate-spin" /> Cargando...</>
+                                          ) : (
+                                                 'Cargar más clientes'
+                                          )}
+                                   </button>
+                            </div>
+                     )}
               </div>
        )
 }

@@ -5,35 +5,17 @@ import { createSafeAction } from '@/lib/safe-action'
 import { getOrCreateTodayCashRegister } from '@/lib/tenant'
 import { revalidatePath } from 'next/cache'
 
-export const getClients = createSafeAction(async ({ clubId }, query?: string) => {
-       const clients = await prisma.client.findMany({
-              where: {
-                     clubId,
-                     name: { contains: query, mode: 'insensitive' },
-                     deletedAt: null
-              },
-              include: {
-                     _count: {
-                            select: { bookings: true }
-                     },
-                     bookings: {
-                            where: { startTime: { lte: new Date() }, status: { not: 'CANCELED' } },
-                            orderBy: { startTime: 'desc' },
-                            take: 1,
-                            select: { startTime: true }
-                     },
-                     memberships: {
-                            where: { status: 'ACTIVE' },
-                            take: 1
-                     }
-              },
-              orderBy: {
-                     name: 'asc'
-              }
-       })
+const CLIENT_PAGE_SIZE = 50
 
-       // Map to friendly format
-       return clients.map(c => ({
+function mapClient(c: {
+       id: number; name: string; phone: string | null; email: string | null
+       category: string | null; skillLevel: number | null; position: string | null
+       preferredSchedule: string | null; notes: string | null
+       _count: { bookings: number }
+       bookings: { startTime: Date }[]
+       memberships: unknown[]
+}) {
+       return {
               id: c.id,
               name: c.name,
               phone: c.phone || '',
@@ -46,9 +28,53 @@ export const getClients = createSafeAction(async ({ clubId }, query?: string) =>
               totalBookings: c._count.bookings,
               lastBooking: c.bookings[0]?.startTime || null,
               status: getUserStatus(c.bookings[0]?.startTime),
-              membershipStatus: c.memberships.length > 0 ? 'ACTIVE' : 'INACTIVE'
-       }))
+              membershipStatus: c.memberships.length > 0 ? 'ACTIVE' : 'INACTIVE',
+       }
+}
+
+const clientInclude = {
+       _count: { select: { bookings: true } },
+       bookings: {
+              where: { startTime: { lte: new Date() }, status: { not: 'CANCELED' as const } },
+              orderBy: { startTime: 'desc' as const },
+              take: 1,
+              select: { startTime: true },
+       },
+       memberships: { where: { status: 'ACTIVE' as const }, take: 1 },
+} as const
+
+export const getClients = createSafeAction(async ({ clubId }, query?: string) => {
+       const clients = await prisma.client.findMany({
+              where: { clubId, name: { contains: query, mode: 'insensitive' }, deletedAt: null },
+              include: clientInclude,
+              orderBy: { name: 'asc' },
+              take: CLIENT_PAGE_SIZE,
+       })
+       return clients.map(mapClient)
 })
+
+export const getClientsPaginated = createSafeAction(
+       async ({ clubId }, params?: { query?: string; cursor?: number; limit?: number }) => {
+              const limit = params?.limit ?? CLIENT_PAGE_SIZE
+              const clients = await prisma.client.findMany({
+                     where: {
+                            clubId,
+                            deletedAt: null,
+                            ...(params?.query ? { name: { contains: params.query, mode: 'insensitive' } } : {}),
+                     },
+                     include: clientInclude,
+                     orderBy: { name: 'asc' },
+                     take: limit + 1,
+                     ...(params?.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
+              })
+
+              const hasMore = clients.length > limit
+              const page = clients.slice(0, limit).map(mapClient)
+              const nextCursor = hasMore ? page[page.length - 1]?.id : null
+
+              return { clients: page, nextCursor, hasMore }
+       }
+)
 
 function getUserStatus(lastDate?: Date) {
        if (!lastDate) return 'NEW'

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/db"
 import { startOfDay, endOfDay } from "date-fns"
 import { nowInArg, fromUTC } from "./date-utils"
+import type { PriceRule } from "@prisma/client"
+import { getCache, setCache } from "./cache"
 
 // REAL AUTH: Read from Session
 export async function getCurrentClubId(): Promise<string> {
@@ -58,6 +60,82 @@ export async function getOptionalClubId(): Promise<string | null> {
        return session?.user?.clubId || null
 }
 
+/**
+ * Pure price computation from pre-fetched rules — no DB call.
+ * Use this inside loops where rules are fetched once outside.
+ */
+export function computePriceFromRules(
+       rules: PriceRule[],
+       date: Date,
+       isMember = false,
+       discountPercent = 0,
+       courtId?: number
+): number {
+       const argDate = fromUTC(date)
+       const dayOfWeek = argDate.getUTCDay()
+       const timeStr = argDate.getUTCHours().toString().padStart(2, '0') + ':' + argDate.getUTCMinutes().toString().padStart(2, '0')
+       const checkDate = argDate.toISOString().substring(0, 10)
+
+       const activeRules = rules.filter(r => {
+              if (!r.startDate) return true
+              const ruleStart = r.startDate.toISOString().substring(0, 10)
+              if (checkDate < ruleStart) return false
+              if (r.endDate) {
+                     const ruleEnd = r.endDate.toISOString().substring(0, 10)
+                     if (checkDate > ruleEnd) return false
+              }
+              return true
+       })
+
+       const courtSpecificRules = courtId ? activeRules.filter(r => r.courtId === courtId) : []
+       const globalRules = activeRules.filter(r => r.courtId === null)
+       const orderedRules = [...courtSpecificRules, ...globalRules]
+
+       const match = orderedRules.find(rule => {
+              if (rule.daysOfWeek) {
+                     const days = rule.daysOfWeek.split(',').map(d => parseInt(d.trim()))
+                     if (!days.includes(dayOfWeek)) return false
+              }
+              const start = rule.startTime
+              const end = rule.endTime
+              if (start <= end) {
+                     if (timeStr >= start && timeStr < end) return true
+              } else {
+                     if (timeStr >= start || timeStr < end) return true
+              }
+              return false
+       })
+
+       const effective = match ?? orderedRules[0] ?? activeRules[0]
+       if (!effective) return 0
+
+       if (!match) {
+              console.warn(`[pricing] No exact PriceRule match for ${date.toISOString()} (time=${timeStr}, day=${dayOfWeek}), using fallback "${effective.name}"`)
+       }
+
+       let finalPrice = effective.price
+       if (isMember) {
+              if (effective.memberPrice != null) {
+                     finalPrice = effective.memberPrice
+              } else if (discountPercent > 0) {
+                     finalPrice = finalPrice * (1 - discountPercent / 100)
+              }
+       }
+       return finalPrice
+}
+
+async function fetchPriceRules(clubId: string): Promise<PriceRule[]> {
+       const cacheKey = `price-rules:${clubId}`
+       const cached = await getCache<PriceRule[]>(cacheKey)
+       if (cached) return cached
+       const rules = await prisma.priceRule.findMany({
+              where: { clubId },
+              orderBy: { priority: 'desc' },
+       })
+       await setCache(cacheKey, rules, 300) // 5 min — rules change rarely
+       return rules
+}
+
 export async function getEffectivePrice(
        clubId: string,
        date: Date,
@@ -66,109 +144,8 @@ export async function getEffectivePrice(
        discountPercent = 0,
        courtId?: number
 ): Promise<number> {
-       // Convert to Argentina local components for matching rules
-       const argDate = fromUTC(date)
-       const dayOfWeek = argDate.getUTCDay()
-       const timeStr = argDate.getUTCHours().toString().padStart(2, '0') + ':' + argDate.getUTCMinutes().toString().padStart(2, '0')
-
-       // Fetch all rules for logic (filtering in memory is safer for complex string time ranges)
-       // Optimization: Filter by date range in SQL
-       const rules = await prisma.priceRule.findMany({
-              where: {
-                     clubId: clubId,
-                     // We fetch ALL rules and filter in memory to avoid Timezone strictness issues with startDate/endDate
-              },
-              orderBy: {
-                     priority: 'desc'
-              }
-       })
-
-       // Filter rules: court-specific first, then global (courtId = null)
-       // Filter by Date Validity manually here
-       const activeRules = rules.filter(r => {
-              if (!r.startDate) return true
-
-              // Normalize dates to YYYY-MM-DD for comparison, ignoring time
-              const ruleStart = r.startDate.toISOString().substring(0, 10)
-              const checkDate = argDate.toISOString().substring(0, 10)
-
-              if (checkDate < ruleStart) return false
-
-              if (r.endDate) {
-                     const ruleEnd = r.endDate.toISOString().substring(0, 10)
-                     if (checkDate > ruleEnd) return false
-              }
-
-              return true
-       })
-
-
-       // Filter rules: court-specific first, then global (courtId = null)
-       // If courtId is provided, prioritize rules for that court, then fall back to global rules
-       const courtSpecificRules = courtId ? activeRules.filter(r => r.courtId === courtId) : []
-       const globalRules = activeRules.filter(r => r.courtId === null)
-
-       // Combined priority: court-specific first, then global
-       const orderedRules = [...courtSpecificRules, ...globalRules]
-
-       // Find first matching rule
-       const match = orderedRules.find(rule => {
-              // 1. Check Day of Week
-              if (rule.daysOfWeek) {
-                     // "0,6"
-                     const days = rule.daysOfWeek.split(',').map(d => parseInt(d.trim()))
-                     if (!days.includes(dayOfWeek)) return false
-              }
-
-              // 2. Check Time Range
-              const start = rule.startTime
-              const end = rule.endTime
-
-              // Case A: Standard day range (e.g., 09:00 - 18:00)
-              if (start <= end) {
-                     if (timeStr >= start && timeStr < end) return true
-              }
-              // Case B: Cross-midnight range (e.g., 20:00 - 02:00)
-              else {
-                     // Applies if time is AFTER start (20:00..23:59) OR BEFORE end (00:00..01:59)
-                     if (timeStr >= start || timeStr < end) return true
-              }
-
-              return false
-       })
-
-       if (!match) {
-              // Fallback: use the highest-priority rule for this club regardless of time/day
-              const fallback = orderedRules[0] || activeRules[0]
-              if (fallback) {
-                     console.warn(`No exact PriceRule match for ${date.toISOString()} (time=${timeStr}, day=${dayOfWeek}), using fallback rule "${fallback.name}" (id=${fallback.id})`)
-                     let fallbackPrice = fallback.price
-                     if (isMember) {
-                            if (fallback.memberPrice != null) {
-                                   fallbackPrice = fallback.memberPrice
-                            } else if (discountPercent > 0) {
-                                   fallbackPrice = fallbackPrice * (1 - (discountPercent / 100))
-                            }
-                     }
-                     return fallbackPrice
-              }
-              console.warn(`No PriceRule found for club ${clubId}, defaulting to 0`)
-              return 0
-       }
-
-       let finalPrice = match.price
-
-       if (isMember) {
-              if (match.memberPrice != null) {
-                     // Fixed override takes precedence
-                     finalPrice = match.memberPrice
-              } else if (discountPercent > 0) {
-                     // Dynamic % discount
-                     finalPrice = finalPrice * (1 - (discountPercent / 100))
-              }
-       }
-
-       return finalPrice
+       const rules = await fetchPriceRules(clubId)
+       return computePriceFromRules(rules, date, isMember, discountPercent, courtId)
 }
 
 // Ensure a Cash Register exists for today
