@@ -447,7 +447,7 @@ export default function BookingModal({
                                                                                                   initial={{ opacity: 0, y: -4 }}
                                                                                                   animate={{ opacity: 1, y: 0 }}
                                                                                                   exit={{ opacity: 0, y: -4 }}
-                                                                                                  className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden max-h-48 overflow-y-auto"
+                                                                                                  className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto"
                                                                                            >
                                                                                                   {searchResults.map((client) => (
                                                                                                          <button
@@ -781,28 +781,42 @@ export default function BookingModal({
                                                  </div>
 
                                                  {/* Footer */}
-                                                 <div className="border-t border-border px-6 sm:px-8 py-4 flex items-center justify-between gap-3 bg-card shrink-0">
-                                                        <button
-                                                               onClick={onClose}
-                                                               type="button"
-                                                               disabled={isSubmitting}
-                                                               className="px-5 py-3 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-                                                        >
-                                                               Cancelar
-                                                        </button>
-                                                        <button
-                                                               onClick={() => handleSubmit()}
-                                                               disabled={isSubmitting || !formData.name || !formData.phone}
-                                                               type="button"
-                                                               className="px-8 py-3 rounded-xl text-sm font-bold text-primary-foreground bg-primary hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-2.5 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:pointer-events-none"
-                                                        >
-                                                               {isSubmitting ? (
-                                                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                               ) : (
-                                                                      <CheckCircle2 size={18} />
-                                                               )}
-                                                               {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
-                                                        </button>
+                                                 <div className="border-t border-border px-4 sm:px-8 py-3 sm:py-4 bg-card shrink-0 pb-[env(safe-area-inset-bottom)]">
+                                                        {/* Mobile: price summary + confirm */}
+                                                        <div className="flex items-center gap-3">
+                                                               {/* Price pill — visible on mobile where right panel is hidden */}
+                                                               <div className="md:hidden flex flex-col min-w-0 shrink-0">
+                                                                      <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-none">Total</span>
+                                                                      <span className="text-xl font-black text-foreground tracking-tight leading-tight">
+                                                                             ${displayPrice.toLocaleString()}
+                                                                      </span>
+                                                                      {isManualPrice && <span className="text-[9px] text-amber-500 font-bold leading-none">manual</span>}
+                                                               </div>
+
+                                                               {/* Spacer on desktop */}
+                                                               <button
+                                                                      onClick={onClose}
+                                                                      type="button"
+                                                                      disabled={isSubmitting}
+                                                                      className="hidden md:block px-5 py-3 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                                                               >
+                                                                      Cancelar
+                                                               </button>
+
+                                                               <button
+                                                                      onClick={() => handleSubmit()}
+                                                                      disabled={isSubmitting || !formData.name || !formData.phone}
+                                                                      type="button"
+                                                                      className="flex-1 h-12 rounded-xl text-sm font-bold text-primary-foreground bg-primary hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:pointer-events-none"
+                                                               >
+                                                                      {isSubmitting ? (
+                                                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                                      ) : (
+                                                                             <CheckCircle2 size={18} />
+                                                                      )}
+                                                                      {isSubmitting ? 'Guardando...' : 'Confirmar Reserva'}
+                                                               </button>
+                                                        </div>
                                                  </div>
                                           </form>
 

@@ -40,7 +40,7 @@ interface TimelineBooking {
        courtName: string
        title: string
        status: string
-       paymentStatus: 'paid' | 'partial' | 'unpaid'
+       paymentStatus: 'PAID' | 'PARTIAL' | 'UNPAID'
        price: number
        balance: number
 }

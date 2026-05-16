@@ -55,6 +55,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { PaymentStatusBadge, type PaymentStatus } from '@/components/ui/BookingStatusBadge'
 
 interface BookingItem {
        id: number
@@ -509,10 +510,14 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                           </div>
                                           <div className="min-w-0">
                                                  <h2 className="text-slate-900 dark:text-white font-bold text-sm truncate">{client.name}</h2>
-                                                 <div className="flex items-center gap-1.5 mt-0.5">
+                                                 <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                                                         <span className="text-[10px] text-primary font-semibold">{schedule.courtName}</span>
                                                         <span className="text-[10px] text-slate-400 dark:text-zinc-600">•</span>
                                                         <span className="text-[10px] text-slate-500 dark:text-zinc-500 font-medium">{formattedTime}hs</span>
+                                                        <PaymentStatusBadge
+                                                               status={isPaid ? 'PAID' : booking.paymentStatus as PaymentStatus}
+                                                               size="xs"
+                                                        />
                                                  </div>
                                           </div>
                                    </div>
@@ -868,16 +873,10 @@ export default function BookingManagementModal({ booking: initialBooking, onClos
                                                                                            SEÑA PAGADA
                                                                                     </span>
                                                                              )}
-                                                                             <span className={cn(
-                                                                                    "text-[10px] font-semibold px-2.5 py-1 rounded-lg",
-                                                                                    isPaid
-                                                                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
-                                                                                            : booking.paymentStatus === 'PENDING_VALIDATION'
-                                                                                                   ? "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400"
-                                                                                                   : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400"
-                                                                             )}>
-                                                                                    {booking.paymentStatus === 'PENDING_VALIDATION' ? 'VALIDACIÓN PENDIENTE' : isPaid ? 'PAGADO' : 'PENDIENTE'}
-                                                                             </span>
+                                                                             <PaymentStatusBadge
+                                                                                    status={isPaid ? 'PAID' : booking.paymentStatus as PaymentStatus}
+                                                                                    size="sm"
+                                                                             />
                                                                       </div>
                                                                </div>
 

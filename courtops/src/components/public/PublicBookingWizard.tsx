@@ -1850,17 +1850,22 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 								<div className="grid grid-cols-1 gap-3.5">
 									{loading ? (
-										<div className="flex flex-col items-center justify-center py-24 gap-6">
-											<div className="relative">
-												<div className="w-14 h-14 rounded-full border-[3px] border-primary/10 border-t-primary animate-spin" />
-												<div className="absolute inset-0 flex items-center justify-center">
-													<div className="w-6 h-6 bg-primary/20 rounded-full animate-pulse" />
+										<>
+											{[...Array(5)].map((_, i) => (
+												<div
+													key={i}
+													className="w-full flex items-center gap-5 p-5 rounded-[1.75rem] border border-slate-100 dark:border-white/[0.05] bg-white dark:bg-zinc-900/40 animate-pulse"
+													style={{ animationDelay: `${i * 80}ms` }}
+												>
+													<div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 shrink-0" />
+													<div className="flex-1 space-y-2">
+														<div className="h-5 w-16 bg-slate-100 dark:bg-white/5 rounded-lg" />
+														<div className="h-3 w-28 bg-slate-100 dark:bg-white/5 rounded-md" />
+													</div>
+													<div className="h-7 w-20 bg-slate-100 dark:bg-white/5 rounded-full shrink-0" />
 												</div>
-											</div>
-											<p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400/60 animate-pulse">
-												Consultando disponibilidad
-											</p>
-										</div>
+											))}
+										</>
 									) : slots.length > 0 ? (
 										slots.map((slot, idx) => {
 											const isExpanded = expandedSlot === slot.time

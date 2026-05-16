@@ -181,7 +181,7 @@ export async function getMobileDashboardData() {
                                    courtName: courts.find(c => c.id === b.courtId)?.name || 'Cancha',
                                    title: b.client?.name || b.guestName || 'Reserva',
                                    status: b.status,
-                                   paymentStatus: balance <= 0 ? 'paid' : (paid > 0 ? 'partial' : 'unpaid'),
+                                   paymentStatus: balance <= 0 ? 'PAID' : (paid > 0 ? 'PARTIAL' : 'UNPAID'),
                                    price: total,
                                    balance
                             }

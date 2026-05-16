@@ -348,11 +348,44 @@ const filtered = clients.filter(c => {
 
                      {/* CONTENT AREA */}
                      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-4">
-                     {filtered.length === 0 ? (
-                            <div className="py-20 text-center bg-card/30 border border-dashed border-border/50 rounded-3xl">
-                                   <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
-                                   <h3 className="text-lg font-bold text-foreground">No se encontraron clientes</h3>
-                                   <p className="text-sm text-muted-foreground">Prueba ajustando los filtros o realiza una nueva búsqueda.</p>
+                     {loading ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                   {[...Array(8)].map((_, i) => (
+                                          <div key={i} className="bg-card border border-border/50 rounded-2xl p-4 space-y-4 animate-pulse" style={{ animationDelay: `${i * 50}ms` }}>
+                                                 <div className="flex items-start gap-3">
+                                                        <div className="w-12 h-12 rounded-xl bg-muted shrink-0" />
+                                                        <div className="flex-1 space-y-2 pt-1">
+                                                               <div className="h-4 bg-muted rounded-md w-3/4" />
+                                                               <div className="h-3 bg-muted rounded-md w-1/2" />
+                                                        </div>
+                                                 </div>
+                                                 <div className="h-px bg-border" />
+                                                 <div className="flex gap-2">
+                                                        <div className="h-3 bg-muted rounded w-16" />
+                                                        <div className="h-3 bg-muted rounded w-10" />
+                                                 </div>
+                                          </div>
+                                   ))}
+                            </div>
+                     ) : filtered.length === 0 ? (
+                            <div className="py-20 text-center bg-card/30 border border-dashed border-border/50 rounded-3xl space-y-3">
+                                   <Users className="w-16 h-16 mx-auto text-muted-foreground/20" />
+                                   <h3 className="text-lg font-bold text-foreground">
+                                          {search ? 'Sin resultados' : 'Sin clientes aún'}
+                                   </h3>
+                                   <p className="text-sm text-muted-foreground">
+                                          {search
+                                                 ? 'Probá con otro nombre o teléfono.'
+                                                 : 'Añadí el primero con el botón + arriba.'}
+                                   </p>
+                                   {!search && (
+                                          <button
+                                                 onClick={() => setIsCreating(true)}
+                                                 className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-bold hover:brightness-110 transition-all"
+                                          >
+                                                 Agregar cliente
+                                          </button>
+                                   )}
                             </div>
                      ) : viewMode === 'grid' ? (
                             <div data-tour="clients-table" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
