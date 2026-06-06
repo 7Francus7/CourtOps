@@ -1,0 +1,2027 @@
+================================================================================
+COURTOPS — AUDITORIA Y DOCUMENTACION TECNICA COMPLETA
+================================================================================
+Version: Mayo 2026 | Branch: codex/premium-public-venue-layout
+================================================================================
+
+INDICE
+------
+1.  Contexto General
+2.  Stack y Arquitectura
+3.  Modelos y Base de Datos
+4.  Sistema de Reservas
+5.  Torneos y Ligas
+6.  Pagos y Suscripciones
+7.  POS / Caja / Negocio
+8.  WhatsApp y Automatizaciones
+9.  UI/UX
+10. Performance
+11. Seguridad
+12. Roadmap
+13. Auditoria Honesta
+
+
+================================================================================
+1. CONTEXTO GENERAL
+================================================================================
+
+QUE ES COURTOPS
+---------------
+CourtOps es un SaaS multi-tenant B2B para la administracion integral de clubes
+de padel y deportes de raqueta en Argentina. No es un sistema de reservas
+generico — es una plataforma operativa completa que cubre desde la reserva
+online hasta el cierre de caja del dia.
+
+El sistema permite que un club gestione:
+  - Reserva de canchas (online y presencial)
+  - Pagos y cobros (Mercado Pago + transferencias)
+  - Base de clientes con historial y membresias
+  - Torneos y ligas con fixtures automaticos
+  - POS/Kiosco para ventas de productos
+  - Caja diaria con arqueo
+  - Comunicaciones automaticas por WhatsApp
+  - QR de check-in
+  - Waivers digitales (acuerdos de responsabilidad)
+  - Reportes financieros y operativos
+  - Sistema de referidos
+  - Asistente IA para soporte
+
+PROBLEMA QUE RESUELVE
+---------------------
+Los clubes de padel en Argentina operan mayoritariamente con:
+  - Planillas Excel o cuadernos para reservas
+  - WhatsApp manual para confirmar turnos
+  - Caja manejada "a ojo"
+  - Sin CRM ni historial de clientes
+  - Sin metricas de ocupacion
+  - Torneos organizados con Google Sheets
+
+CourtOps reemplaza ese caos operativo completo con una herramienta vertical,
+en espanol, adaptada al mercado argentino (Mercado Pago, WhatsApp, ARS,
+timezone Buenos Aires).
+
+TIPO DE CLIENTE OBJETIVO
+------------------------
+  - Clubes de padel de 2 a 20+ canchas
+  - Clubes de tenis reconvirtiendo canchas a padel
+  - Complejos deportivos mixtos (padel + futbol 5 + tenis)
+  - Academias de padel con clases grupales
+  - Expansion potencial: Uruguay, Chile, Espana
+
+No es para: canchas sueltas sin estructura empresarial, ni grandes cadenas con
+sistemas propios.
+
+DIFERENCIAL FRENTE A COMPETIDORES
+----------------------------------
+Feature                    | CourtOps | CourtReserve | Playtomic | Generico
+---------------------------|----------|--------------|-----------|----------
+Multi-tenant SaaS          |    SI    |      SI      |    SI     |    NO
+Mercado Pago nativo        |    SI    |      NO      |    NO     |    NO
+WhatsApp Cloud API         |    SI    |      NO      |    NO     |    NO
+POS/Kiosco integrado       |    SI    |      NO      |    NO     |    NO
+Torneos con brackets       |    SI    |    Basico    |    NO     |    NO
+Caja diaria + arqueo       |    SI    |      NO      |    NO     |    NO
+QR Check-in                |    SI    |      NO      |    NO     |    NO
+Waivers digitales          |    SI    |      NO      |    NO     |    NO
+IA integrada               |    SI    |      NO      |    NO     |    NO
+White-label /[slug]        |    SI    |      NO      |    NO     |    NO
+
+Mayor diferencial: stack 100% integrado + localizacion argentina profunda.
+
+MODELO DE NEGOCIO SAAS
+-----------------------
+Club paga mensualidad/anualidad a CourtOps (plataforma):
+  - TRIAL: 7 dias gratis
+  - BASIC / PREMIUM / ENTERPRISE: planes con features progresivos
+  - Cobro via:
+      a) Transferencia bancaria (validacion manual por superadmin)
+      b) MercadoPago preaprobacion (auto-debito mensual)
+  - Suspension automatica si no paga en grace period (3 dias)
+
+Club cobra a sus clientes por reservas/membresias/torneos:
+  - CourtOps facilita el cobro via Mercado Pago
+  - CourtOps NO toma comision del volumen del club (diferencial clave)
+  - MP cobra su propia comision al club (~2-4%), no a CourtOps
+
+Feature flags por plan controlan que modulos estan disponibles:
+  Club.hasKiosco, Club.hasOnlinePayments, Club.hasAdvancedReports,
+  Club.hasWhatsApp, Club.hasTournaments, Club.hasWaivers, Club.allowCredit
+
+MULTI-TENANCY
+-------------
+Cada club es un tenant aislado. La separacion es LOGICA (misma DB, filtrado
+por clubId), no fisica (no hay schemas separados por tenant).
+
+  Club A (clubId: "abc-123")
+    - Solo ve sus canchas, clientes, reservas, caja, torneos
+    - Nunca puede acceder a datos de Club B
+    - Cada query en server actions empieza con getCurrentClubId()
+
+La arquitectura de tenancy es correcta pero confia en que el developer nunca
+olvide el filtro. No hay enforcement a nivel ORM/middleware automatico.
+
+VISION DEL PRODUCTO
+-------------------
+Corto plazo:  estabilizar billing, mejorar UX mobile, completar torneos
+Mediano plazo: marketplace de canchas, matchmaking cross-club
+Largo plazo:  red de clubes, estadisticas cross-club, torneos interclubes,
+              app nativa, expansion LATAM
+
+
+================================================================================
+2. STACK Y ARQUITECTURA
+================================================================================
+
+STACK COMPLETO
+--------------
+FRONTEND
+  Next.js 16.1.6 (App Router)
+  React 19.2.3
+  TypeScript 5 (strict mode)
+  Tailwind CSS 4
+  Radix UI (headless components)
+  Framer Motion 12.23.26 (animaciones)
+  Recharts 3.6.0 (graficos)
+  TanStack React Query 5.90.17 (server state)
+  Sonner 2.0.7 (toasts)
+
+BACKEND
+  Next.js Server Actions (primary)
+  Next.js Route Handlers (webhooks, cron, REST)
+  Prisma ORM 5.22.0
+  Node.js (runtime Vercel)
+
+BASE DE DATOS
+  PostgreSQL (Neon — serverless Postgres)
+  Redis (optional, IORedis 5.9.2 — fallback a LRU in-memory)
+
+AUTENTICACION
+  NextAuth 4.24.13
+  JWT (session en cookie httpOnly)
+  Credentials Provider (email/password)
+
+HOSTING
+  Vercel (frontend + serverless functions)
+  Neon (PostgreSQL serverless)
+
+INTEGRACIONES EXTERNAS
+  Mercado Pago SDK 2.12.0 (pagos + suscripciones)
+  WhatsApp Cloud API Meta v21.0 (mensajeria)
+  Resend 6.9.2 (emails transaccionales)
+  Pusher 5.3.2 (WebSockets real-time)
+  Sentry 10.43.0 (error tracking)
+  Google Generative AI 0.24.1 (asistente IA)
+  Web Push (notificaciones browser)
+
+OTRAS HERRAMIENTAS
+  Zod 4.3.5 (validacion de schemas)
+  date-fns 4.1.0 + date-fns-tz 3.2.0 (manejo de fechas)
+  ExcelJS 4.4.0 (exportaciones)
+  Sharp 0.34.5 (procesamiento de imagenes)
+  qrcode.react (QR codes)
+  @ducanh2912/next-pwa (PWA)
+  canvas-confetti (animaciones celebracion)
+
+TESTING
+  Playwright 1.57.0 (E2E)
+  Vitest 4.0.18 (unit tests)
+
+COMUNICACION FRONTEND <-> BACKEND
+----------------------------------
+CourtOps usa Server Actions como capa principal de API, no REST.
+
+Patron tipico en un componente cliente:
+
+  async function handleCreateBooking(data) {
+    const result = await createBooking(data)  // Server Action directo
+    if (result.success) {
+      toast.success("Reserva creada")
+      router.refresh()
+    } else {
+      toast.error(result.error)
+    }
+  }
+
+Los Route Handlers (src/app/api/) se usan solo para:
+  - Webhooks externos (MP, WhatsApp) — necesitan URL publica
+  - Cron jobs — ejecutados por Vercel Cron
+  - Exports de archivos (CSV, Excel) — necesitan streaming de Response
+  - Endpoints de dashboard que React Query llama periodicamente
+
+No hay una API REST tradicional. Todo lo que puede ser Server Action, lo es.
+
+ESTRUCTURA DE CARPETAS
+-----------------------
+courtops/
+  prisma/
+    schema.prisma          # 42 modelos, todos los enums
+    seed.ts                # datos demo para desarrollo
+
+  src/
+    actions/               # 46 archivos — logica de negocio
+      createBooking.ts     # wrapper delgado -> BookingService
+      manageBooking.ts     # 574 LOC: edit/cancel/reschedule
+      public-booking.ts    # 1071 LOC: booking publico + pricing
+      tournaments.ts       # 1194 LOC: torneos completo
+      reports.ts           # 821 LOC: analytics y exports
+      super-admin.ts       # 840 LOC: god mode
+      billing.ts           # 223 LOC: facturacion SaaS
+      subscription.ts      # 461 LOC: suscripciones MP
+      campaigns.ts         # 536 LOC: WhatsApp masivo
+      cash-register.ts     # 225 LOC: caja diaria
+      clients.ts           # 240 LOC: CRM
+      settings.ts          # 275 LOC: configuracion del club
+      dashboard.ts         # 251 LOC: metricas admin
+      memberships.ts       # 236 LOC: planes membresia
+      [28 mas...]
+
+    app/
+      layout.tsx           # Root: fuente, tema, GTM, PWA
+      (protected)/         # Rutas con auth guard
+        layout.tsx         # AppShell + guards + modals globales
+        dashboard/
+        reservas/
+        clientes/
+        caja/
+        torneos/
+        configuracion/
+        reportes/
+        auditoria/
+        check-in/
+      api/
+        auth/[...nextauth]/
+        bookings/
+        cron/              # 9 jobs
+        dashboard/         # 8 endpoints de datos
+        export/            # 4 endpoints de descarga
+        webhooks/          # mercadopago + whatsapp
+        mercadopago/oauth/
+      [slug]/              # Reserva publica white-label
+      p/[slug]/            # Version premium del booking publico
+      pay/[id]/            # Checkout de pago de reserva
+      torneo/[id]/         # Vista publica del torneo
+      check-in/[token]/    # Check-in via QR
+      login/
+      register/
+
+    components/
+      ai/                  # Chat widget IA
+      booking/             # Modales de reserva
+      clients/             # CRM components
+      config/              # Panels de configuracion
+      dashboard/           # Widgets y charts
+      kiosco/              # POS desktop y mobile
+      layout/              # Header, Sidebar, BottomNav, AppShell
+      onboarding/          # Setup wizard
+      public/              # Booking publico components
+      subscription/        # Billing UI
+      super-admin/         # God mode UI
+      tournaments/         # Brackets, fixtures
+      ui/                  # Design system base (Radix wrappers)
+
+    contexts/
+      LanguageContext      # i18n
+      EmployeeContext      # Login local por PIN
+      PerformanceContext   # Feature flags de performance
+
+    hooks/                 # Custom React hooks
+    lib/                   # 45+ utilidades
+      auth.ts              # NextAuth config + impersonation
+      tenant.ts            # getCurrentClubId, pricing engine
+      cache.ts             # LRU + Redis dual-layer
+      payment/             # Adapter pattern MP + Stripe ready
+      whatsapp.ts          # Meta Cloud API client
+      email.ts             # Resend templates
+      pusher.ts            # Real-time broadcaster
+      date-utils.ts        # UTC <-> Argentina timezone
+      safe-action.ts       # HOF para server actions
+      circuit-breaker.ts   # Fault tolerance APIs externas
+      [30+ mas...]
+
+    schemas/               # Zod schemas de validacion
+    services/
+      booking.service.ts   # Logica core de creacion de reservas
+    types/                 # TypeScript type definitions
+
+PATRONES ARQUITECTONICOS
+------------------------
+
+1. SERVER ACTIONS COMO API
+
+  Client Component
+      | import action
+  Server Action (src/actions/*.ts)
+      | getCurrentClubId()       — auth + tenant
+      | enforceActiveSubscription() — billing check
+      | Prisma queries (con clubId filter SIEMPRE)
+      | Side effects (email, WhatsApp, Pusher)
+      | revalidatePath()         — invalidar cache Next.js
+      -> return {success, data} | {success: false, error}
+
+2. SAFE ACTION HOF (src/lib/safe-action.ts)
+
+  Wrapper que extrae session, valida clubId/userId, retorna
+  ActionResponse<T> = {success: true, data: T} | {success: false, error: string}
+  Maneja Next.js redirects sin tratarlos como error.
+
+3. ADAPTER PATTERN PARA PAGOS (src/lib/payment/index.ts)
+
+  Interface PaymentProviderAdapter:
+    - createBookingCheckout()
+    - createSubscriptionCheckout()
+    - getSubscriptionStatus()
+    - cancelSubscription()
+
+  Actualmente implementado: MercadoPago
+  Preparado pero no activo: Stripe
+
+4. CIRCUIT BREAKER (src/lib/circuit-breaker.ts)
+
+  Envuelve llamadas a WhatsApp y MP.
+  Estados: CLOSED (normal) -> OPEN (falla) -> HALF_OPEN (prueba)
+  Evita cascada de errores cuando una API externa esta caida.
+
+5. DUAL-LAYER CACHE (src/lib/cache.ts)
+
+  Request llega
+      | LRU memory? -> retorna inmediatamente
+      | Redis? -> guarda en LRU, retorna
+      | PostgreSQL -> guarda en Redis + LRU, retorna
+  TTL default: 5 minutos
+  Invalidacion: invalidateCachePattern() despues de mutations
+
+PROBLEMAS TECNICOS ACTUALES CONOCIDOS
+--------------------------------------
+1. Vercel + Neon P1002: migrations no pueden correr en build.
+   Deben ejecutarse localmente con "npm run db:migrate".
+2. next/image no usable: URLs de logos/fotos usan <img> nativo con onError.
+3. TypeScript casting "as any" en tournaments.ts: modelos recientes sin
+   tipos generados porque no se regenero el Prisma client.
+4. Shadow database Prisma: historia de migraciones incompleta.
+   Se usa "db push + generate" en lugar de "migrate dev".
+5. Server Actions y "use server": helpers sincronos movidos a archivos
+   separados para arreglar build en Vercel (commit c13b498).
+
+
+================================================================================
+3. MODELOS Y BASE DE DATOS
+================================================================================
+
+42 MODELOS EN SCHEMA PRISMA
+
+CLUB (master tenant)
+--------------------
+Campos core:
+  id                  UUID, primary key
+  name                nombre del club
+  slug                URL unica (ej: "padel-norte") — unico global
+  logoUrl             URL del logo
+  timezone            default "America/Argentina/Buenos_Aires"
+  currency            default "ARS"
+
+Horarios operativos:
+  openTime            "08:00"
+  closeTime           "23:00"
+  slotDuration        minutos entre slots (30, 60, 90)
+  cancelHours         horas antes para poder cancelar gratis
+
+Suscripcion SaaS:
+  plan                BASIC | PREMIUM | ENTERPRISE
+  subscriptionStatus  TRIAL | ACTIVE | EXPIRED | PENDING_VALIDATION | SUSPENDED
+  nextBillingDate     fecha de proxima renovacion
+  subscriptionStart   inicio del periodo actual
+  subscriptionEnd     fin del periodo actual
+  subscriptionMethod  TRANSFER | MERCADOPAGO | STRIPE
+  gracePeriodDays     dias de gracia antes de suspension (default: 3)
+
+Mercado Pago del club (para cobrar a sus clientes):
+  mpAlias             CBU alias del club
+  mpCvu               CVU del club
+  mpAccessToken       token para crear preferencias de pago
+  mpPublicKey         clave publica MP
+  mpRefreshToken      para renovar el access token
+  mpUserId            ID del usuario en MP
+  mpConnectedAt       cuando se conecto MP
+
+Feature flags por plan:
+  hasKiosco           acceso al POS/kiosco
+  hasOnlinePayments   cobro online via MP
+  hasAdvancedReports  reportes avanzados
+  hasWhatsApp         WhatsApp automatizado
+  hasTournaments      modulo de torneos
+  hasWaivers          waivers digitales
+  allowCredit         permitir credito a clientes
+
+Multi-club (branches):
+  parentClubId        si es una sucursal de otro club
+  branches            relacion a sucursales
+
+Relaciones: 20+ one-to-many. Es el nodo central del grafo.
+NOTA CRITICA: mpAccessToken guardado como string. Deberia cifrarse en reposo.
+
+COURT (canchas)
+---------------
+  id          autoincrement
+  clubId      FK a Club
+  name        "Cancha 1", "Pista Central"
+  surface     "cristal", "cemento", "moqueta"
+  isIndoor    cubierta o no
+  isActive    si se puede reservar
+  sortOrder   orden en la grilla
+  sport       PADEL | TENNIS | FOOTBALL
+  duration    override de slotDuration del club (opcional)
+
+Nota: el campo "duration" por cancha permite que en el mismo club,
+una cancha de padel tenga slots de 90min y otra de tenis tenga 60min.
+
+BOOKING (reservas — modelo mas complejo)
+-----------------------------------------
+  id               autoincrement
+  clubId           FK a Club
+  courtId          FK a Court
+  clientId         FK a Client (nullable — puede ser invitado)
+  publicToken      UUID unico para cancelacion publica
+  startTime        DateTime UTC
+  endTime          DateTime UTC
+  status           PENDING | CONFIRMED | CANCELLED | NO_SHOW | COMPLETED | WAITLISTED | CLASS | MATCH
+  paymentStatus    UNPAID | PARTIAL | PAID | REFUNDED | SPLIT
+  price            Float — precio al momento de crear
+  paymentMethod    CASH | TRANSFER | MERCADOPAGO | CARD | FREE
+  paymentReference referencia MP o alias transferencia
+  receiptUrl       URL del comprobante
+  bookingType      NORMAL | CLASS | MATCH
+  teacherId        FK a Teacher (para clases)
+  guestName        si no hay clientId
+  guestPhone       idem
+  isOpenMatch      partido abierto para matchmaking
+  matchLevel       nivel requerido (1.0-7.0)
+  matchGender      M | F | MIXED
+  maxPlayers       maximo de jugadores para partido abierto
+  checkinToken     UUID unico para QR check-in
+  checkedInAt      cuando se hizo check-in
+  canceledAt       cuando se cancelo
+  cancelReason     CANCELLED_BY_CLIENT | CANCELLED_LATE | CANCELLED_BY_ADMIN
+  recurringId      UUID que agrupa reservas semanales recurrentes
+  reminderSent     si ya se envio el recordatorio
+  deletedAt        soft delete
+
+Estado principal (BookingStatus):
+  PENDING     -> creada, esperando pago o confirmacion
+  CONFIRMED   -> pago recibido o confirmada por admin
+  CANCELLED   -> cancelada
+  NO_SHOW     -> vencio sin check-in ni cancelacion
+  COMPLETED   -> marcada manualmente como completada
+  WAITLISTED  -> en lista de espera
+  CLASS       -> reserva de clase
+  MATCH       -> partido abierto (matchmaking)
+
+Estado de pago (PaymentStatus):
+  UNPAID    -> sin pago
+  PARTIAL   -> seña pagada (deposito parcial)
+  PAID      -> pagado completo
+  REFUNDED  -> reembolsado
+  SPLIT     -> pago dividido entre varios jugadores
+
+SLOTHOLD (bloqueo temporal durante checkout)
+--------------------------------------------
+Proposito: previene double-booking durante el gap entre "usuario elige slot"
+y "pago confirmado". Sin esto, dos usuarios pueden reservar el mismo slot
+simultaneamente.
+
+  id          autoincrement
+  clubId      FK a Club
+  courtId     FK a Court
+  startTime   inicio del slot bloqueado
+  endTime     fin del slot bloqueado
+  holdToken   token unico de la sesion de checkout
+  ownerToken  identifica al usuario que inicio el hold
+  status      ACTIVE | CONSUMED | EXPIRED | RELEASED
+  expiresAt   ~10-15 min desde creacion
+  consumedAt  cuando se creo la booking exitosamente
+  releasedAt  cuando se abandono el checkout
+
+Indices: (clubId, courtId, startTime) y (clubId, status, expiresAt)
+
+PRICERULE (motor de precios)
+-----------------------------
+  id          autoincrement
+  clubId      FK a Club
+  courtId     FK a Court (nullable = regla global para todas las canchas)
+  name        descripcion de la regla
+  daysOfWeek  "1,2,3,4,5" (lunes=1 ... domingo=0)
+  startTime   "08:00"
+  endTime     "13:00"
+  price       precio normal
+  memberPrice precio para socios (override)
+  priority    mayor numero = mayor prioridad (gana sobre reglas menores)
+  startDate   valida desde esta fecha
+  endDate     valida hasta esta fecha
+
+Algoritmo de resolucion de precio:
+  1. Filtrar reglas donde clubId matches
+  2. Filtrar donde daysOfWeek incluye el dia del turno
+  3. Filtrar donde startTime <= hora turno < endTime
+  4. Filtrar donde startDate <= fecha <= endDate (si existen)
+  5. Ordenar por priority DESC, courtId DESC (especifico > global)
+  6. Primera regla = precio ganador
+  7. Si isMember y memberPrice existe -> usar memberPrice
+  8. Sin match -> fallback al precio mas alto disponible
+
+PROBLEMA: no hay validacion de overlaps al crear PriceRules.
+Reglas solapadas pueden generar resultados inconsistentes.
+
+TOURNAMENT + MODELOS RELACIONADOS (8 modelos)
+----------------------------------------------
+Jerarquia:
+  Tournament
+    -> TournamentCategory (1 torneo, N categorias: "7ma Masc", "5ta Fem")
+       -> TournamentTeam (pares o individuales)
+       -> TournamentGroup (grupos: Zona A, Zona B)
+       -> TournamentMatch (partidos con score y resultado)
+
+Tournament:
+  type     TOURNAMENT | LEAGUE
+  status   DRAFT | OPEN | IN_PROGRESS | COMPLETED
+  Puntos configurables:
+    pointsVictory    = 3
+    pointsDraw       = 1
+    pointsLossPlayed = 0
+    pointsLossNoShow = 0
+    pointsWalkover   = -1
+
+TournamentCategory:
+  format    ELIMINATION | GROUPS_KNOCKOUT | ROUND_ROBIN | LEAGUE
+  matchType INDIVIDUAL | PAIRS
+  gender    M | F | MIXED
+  price     inscripcion (opcional)
+  teamsToAdvance cuantos pasan de fase de grupos
+  maxTeams  tope de inscripciones
+
+TournamentTeam:
+  player1Id   FK a Client
+  player2Id   FK a Client (null para individual)
+  Estadisticas DENORMALIZADAS (actualizadas en cada partido):
+    points, matchesPlayed, won, lost, draw
+    setsFor, setsAgainst, gamesFor, gamesAgainst
+
+NOTA CRITICA: stats denormalizados. Si hay un bug en updateMatchResult,
+los datos quedan corruptos permanentemente. No hay mecanismo de recalculo.
+
+TournamentMatch:
+  homeTeamId  FK a TournamentTeam
+  awayTeamId  FK a TournamentTeam
+  courtId     FK a Court (nullable)
+  startTime   DateTime programado
+  homeScore   String? — "6-3 7-5"
+  awayScore   String? — "3-6 5-7"
+  winnerId    FK a TournamentTeam
+  status      SCHEDULED | LIVE | COMPLETED
+  isWalkover  Boolean
+  matchOrder  posicion en el bracket
+  matchday    jornada (para ligas)
+
+NOTA CRITICA: score como String. No hay parser. No se pueden calcular
+estadisticas detalladas automaticamente.
+
+BILLING / SUBSCRIPTION (4 modelos)
+------------------------------------
+PlatformPlan:
+  name      unico (BASIC, PREMIUM, ENTERPRISE)
+  price     precio mensual
+  setupFee  costo inicial
+  features  JSON array de features incluidas
+  mpBackUrl URL de retorno del checkout
+
+SubscriptionPayment:
+  status    PENDING_VALIDATION | APPROVED | REJECTED | CANCELLED
+  method    TRANSFER | MERCADOPAGO
+  reference alias/CBU ingresado por el club
+  receiptUrl URL del comprobante subido
+  validatedBy email del superadmin que aprobo
+  validatedAt cuando se aprobo
+
+Invoice:
+  number    INV-2026-0001 (autoincrement por club y ano)
+  amount    Float
+  status    PAID | CANCELLED
+  issuedAt  DateTime
+
+BillingLog:
+  event     TRANSFER_SUBMITTED | PAYMENT_VALIDATED | PAYMENT_REJECTED |
+            SUSPENDED | REACTIVATED | REMINDER_7D | REMINDER_2D | TRIAL_EXPIRED
+  details   JSON con contexto del evento
+  createdAt DateTime
+
+CLIENT (CRM)
+-------------
+  clubId          FK a Club
+  name            nombre completo
+  phone           unico por club — indice principal de busqueda
+  email           opcional
+  notes           notas del admin
+  membershipStatus  NONE | ACTIVE (desnormalizado para performance)
+  membershipExpiresAt DateTime (desnormalizado)
+  category        categoria de torneo ("7ma", "5ta")
+  skillLevel      nivel 1.0 - 7.0
+  position        DRIVE | REVES | AMBOS
+  preferredSchedule horarios preferidos (JSON?)
+  deletedAt       soft delete
+  UNIQUE: (phone, clubId) — misma persona puede ser cliente de dos clubes
+
+MEMBERSHIP / MEMBERSHIPPLAN
+----------------------------
+MembershipPlan:
+  clubId          FK a Club
+  name            nombre del plan
+  price           precio mensual
+  durationDays    duracion en dias
+  discountPercent descuento en % para reservas
+  discountFixed   descuento fijo en ARS para reservas
+  mpPreapprovalPlanId ID del plan de preaprobacion en MP (auto-debito)
+
+Membership:
+  clientId        FK a Client
+  planId          FK a MembershipPlan
+  startDate       inicio
+  endDate         fin (startDate + durationDays)
+  pricePaid       lo que pago en ese ciclo
+  status          ACTIVE | EXPIRED | CANCELLED
+  mpPreapprovalId ID de la preaprobacion activa en MP
+
+CASHREGISTER + TRANSACTION
+---------------------------
+CashRegister:
+  clubId          FK a Club
+  date            fecha del dia
+  status          OPEN | CLOSED
+  startAmount     efectivo inicial en caja
+  endAmountCash   efectivo al cierre (declarado)
+  endAmountTransf transferencias al cierre
+  notes           observaciones del cierre
+  closedAt        cuando se cerro
+  UNIQUE: (clubId, date) — un registro por club por dia
+
+Transaction:
+  clubId      FK a Club
+  registerId  FK a CashRegister
+  type        INCOME | EXPENSE
+  category    BOOKING | PRODUCT | MEMBERSHIP | REFUND | EXPENSE | OTHER
+  method      CASH | TRANSFER | MERCADOPAGO | CARD
+  amount      Float
+  description texto libre
+  clientId    FK a Client (opcional)
+  bookingId   FK a Booking (opcional)
+
+MODELOS ADICIONALES RELEVANTES
+--------------------------------
+WaitingList:
+  Cliente quiere una cancha en horario ocupado. Queda en lista.
+  Si se libera el slot, se notifica automaticamente.
+  status: PENDING | FULFILLED | CANCELED
+
+Waiver (acuerdo de responsabilidad):
+  content     texto HTML del acuerdo
+  isActive    si esta vigente
+  isRequired  si se requiere firma para reservar
+
+WaiverSignature:
+  waiverId    FK a Waiver
+  clientId    FK a Client (nullable)
+  guestName/Phone si no hay client
+  signature   Base64 del trazo dibujado (canvas)
+  signedAt    DateTime
+  ipAddress   para auditoria
+
+Referral (sistema viral):
+  referrerId  FK a Client (quien refiere)
+  referredId  FK a Client (nuevo cliente, nullable hasta que se registre)
+  code        6 caracteres unicos
+  status      PENDING | COMPLETED | REWARDED
+  rewardAmount monto del premio
+
+WebhookQueue (retry de webhooks):
+  payload     JSON del webhook
+  status      PENDING | COMPLETED | FAILED
+  retryCount  intentos realizados
+  maxRetries  5
+  nextRetryAt cuando intentar de nuevo
+  lastError   ultimo error registrado
+
+AuditLog:
+  clubId      FK a Club
+  userId      FK a User (nullable — puede ser sistema)
+  action      CREATE | UPDATE | DELETE | LOGIN
+  entity      BOOKING | CLIENT | SETTINGS | etc.
+  entityId    ID de la entidad afectada
+  details     JSON con el cambio
+  ipAddress   IP del request
+  userAgent   browser/device info
+  createdAt   cuando ocurrio
+  Se purga a los 7 dias (demasiado poco para produccion real)
+
+SystemNotification:
+  Anuncios de plataforma (para todos los clubes o especificos).
+  type: INFO | WARNING | SUCCESS | ERROR
+  target: ALL | ADMINS | SPECIFIC_CLUBS
+  expiresAt: cuando se deja de mostrar
+
+ESTRATEGIA DE BASE DE DATOS
+-----------------------------
+Timezone:      todos los timestamps en UTC, conversion en capa de aplicacion
+Tenancy:       compound FKs (id, clubId) para aislamiento
+Performance:   indices en (clubId, createdAt), (clubId, status), (courtId, startTime)
+Integridad:    cascade deletes desde Club a todas las entidades hijo
+Soft deletes:  deletedAt en Club, User, Client, Booking
+
+
+================================================================================
+4. SISTEMA DE RESERVAS
+================================================================================
+
+FLUJO COMPLETO — RESERVA INTERNA (admin/staff)
+-----------------------------------------------
+1. Admin abre BookingModal
+2. Selecciona cancha -> fecha -> slot de tiempo
+3. Sistema valida disponibilidad:
+   - Busca bookings en (courtId, startTime-endTime) con status no-cancelado
+   - Busca SlotHolds activos en el mismo rango
+   - Si overlap -> error "Horario ocupado"
+4. Sistema calcula precio:
+   - getEffectivePrice(clubId, date, duration, isMember, discount, courtId)
+   - Matches PriceRules por dia/hora/cancha (ver algoritmo en seccion 3)
+5. Admin elige cliente (busca en DB o crea nuevo en el momento)
+6. Admin elige metodo de pago y estado de pago
+7. Se crea la booking dentro de $transaction:
+   - BookingService.create(dto)
+   - Crea Booking
+   - Crea Transaction en CashRegister
+   - Emite Pusher event -> actualiza grilla en tiempo real para otros admins
+   - Envia email de confirmacion (si tiene email)
+   - Dispara matching de waiting list
+8. UI se actualiza via revalidatePath + Pusher
+
+FLUJO COMPLETO — RESERVA PUBLICA (jugador desde /p/[slug])
+-----------------------------------------------------------
+1. Jugador entra a /p/[slug] del club
+2. Ve landing page con info del club, canchas, horarios disponibles
+3. Selecciona fecha y cancha
+4. Sistema llama getAvailableSlots(clubId, date, duration):
+   - Genera todos los slots del dia (openTime -> closeTime cada slotDuration min)
+   - Excluye slots con bookings activas (status != CANCELLED)
+   - Excluye slots con SlotHolds ACTIVE
+   - Retorna lista de slots disponibles con precios
+5. Jugador selecciona slot
+6. Jugador ingresa sus datos (nombre, telefono, email)
+7. Sistema crea SlotHold(courtId, startTime, expiresAt=now+15min)
+   Esto evita que otra persona reserve el mismo slot mientras se procesa el pago
+8. Jugador elige metodo de pago:
+
+   a) PAGO ONLINE (Mercado Pago):
+      - createBookingCheckout() genera Preference en MP
+      - Redirect a MP Checkout (pagina de MP)
+      - MP procesa el pago
+      - Webhook llega a /api/webhooks/mercadopago
+      - Webhook verifica firma HMAC-SHA256
+      - Booking pasa a CONFIRMED + PAID
+      - SlotHold se marca CONSUMED
+      - Email de confirmacion con pago al jugador
+
+   b) PAGO EN CANCHA (si el club lo habilita):
+      - Booking creada en PENDING + UNPAID
+      - SlotHold se marca CONSUMED
+      - Admin recibe notificacion en dashboard
+      - El jugador paga fisicamente al llegar
+
+9. Jugador recibe email con:
+   - Datos completos de la reserva
+   - Link de cancelacion publica (/cancel/[publicToken])
+   - QR de check-in (si el club tiene QR habilitado)
+
+VALIDACION DE DISPONIBILIDAD (query exacto)
+--------------------------------------------
+const conflict = await prisma.booking.findFirst({
+  where: {
+    clubId,
+    courtId,
+    deletedAt: null,
+    status: {
+      in: ['PENDING', 'CONFIRMED', 'CLASS', 'MATCH', 'WAITLISTED']
+    },
+    OR: [
+      {
+        startTime: { lt: endTime },
+        endTime:   { gt: startTime }
+      }
+    ]
+  }
+})
+// Este OR detecta CUALQUIER tipo de solapamiento parcial o total.
+
+CANCELACIONES
+-------------
+Por admin:
+  - Puede cancelar cualquier booking
+  - Elige razon (CANCELLED_BY_ADMIN)
+  - Si hay pago -> puede registrar reembolso manual
+  - Puede cancelar "esta y las futuras" para recurrentes
+
+Por cliente (link publico):
+  - Solo si esta dentro del cancelHours del club
+  - Fuera del plazo -> razon CANCELLED_LATE
+  - No necesita login, usa publicToken
+
+Automatica (cron cancel-unpaid):
+  - Bookings PENDING + UNPAID que superan depositTimeLimitHours
+  - Auto-cancela con razon CANCELLED_LATE
+  - Libera el slot
+
+RESERVAS RECURRENTES
+---------------------
+Al crear con isRecurring: true:
+  - Se genera un recurringId (UUID)
+  - Se crean N bookings identicas (mismo dia de semana, misma hora, semanas consecutivas)
+  - Al editar/cancelar el admin elige "solo esta" o "esta y las futuras"
+
+PROBLEMA: si se elimina una reserva del grupo, el recurringId queda huerfano.
+No hay validacion de integridad del grupo recurrente.
+
+TIPOS DE RESERVA
+-----------------
+Tipo          | Ruta         | Auth        | Visible en calendario
+INTERNA (admin)| Dashboard   | NextAuth    | Si
+PUBLICA (jugador)| /p/[slug] | No auth     | Si (bloqueado para otros)
+CLASE         | bookingType=CLASS | Admin  | Si
+PARTIDO ABIERTO| bookingType=MATCH | Opcional | Si (con info de nivel)
+
+EDGE CASES CONOCIDOS
+---------------------
+1. Race condition en pago: dos usuarios pueden crear SlotHold para el mismo
+   slot con milisegundos de diferencia. El primero que complete el checkout
+   gana. El segundo ve error al intentar consumir su hold.
+
+2. SlotHolds expirados acumulados: si el cron de limpieza no corre, los
+   SlotHolds expired quedan en la tabla. No bloquean slots (se filtra por
+   status=ACTIVE) pero ocupan espacio.
+
+3. Booking sin clientId: si el admin crea reserva con solo guestName/guestPhone,
+   no hay historial en el CRM. No hay forma de vincular retroactivamente.
+
+4. Precio calculado vs almacenado: el precio se calcula al crear la reserva.
+   Si despues cambia la PriceRule, la reserva existente no se actualiza.
+   Correcto comportamiento, pero puede generar confusion.
+
+
+================================================================================
+5. TORNEOS Y LIGAS
+================================================================================
+
+TIPOS SOPORTADOS
+-----------------
+TournamentType:
+  TOURNAMENT  -> evento unico con inicio y fin definidos
+  LEAGUE      -> competicion continuada con multiples jornadas
+
+TournamentFormat (por categoria):
+  ELIMINATION       -> eliminacion directa desde el inicio
+  GROUPS_KNOCKOUT   -> fase de grupos -> eliminacion directa
+  ROUND_ROBIN       -> todos contra todos (una vuelta)
+  LEAGUE            -> todos contra todos (multiples jornadas)
+
+FLUJO DE CREACION DE TORNEO
+-----------------------------
+1. Admin crea Tournament (nombre, fechas, tipo, config de puntos)
+   -> status: DRAFT
+
+2. Admin crea categorias:
+   - "7ma Masculino" -> format: GROUPS_KNOCKOUT, matchType: PAIRS
+   - "5ta Femenino"  -> format: ELIMINATION, matchType: PAIRS
+   Cada categoria tiene su propio formato y parametros
+
+3. Inscripcion de equipos:
+   - Admin registra pares (player1, player2)
+   - O jugadores se inscriben desde pagina publica /torneo/[id]
+   - Status del torneo -> OPEN durante inscripcion
+
+4. Al cerrar inscripcion -> status: IN_PROGRESS
+
+5. Admin asigna equipos a grupos (fase de grupos):
+   - assignTeamsToGroups(categoryId) distribuye equipos
+   - Puede ser automatico (round-robin) o manual
+
+6. Admin genera/programa partidos:
+   - Puede asignar cancha y horario a cada partido
+   - El bracket se construye manualmente (NO es automatico — problema critico)
+
+7. A medida que se juegan partidos:
+   - Admin ingresa scores: "6-3 7-5"
+   - updateMatchResult() calcula winner y actualiza stats del equipo
+   - En GROUPS_KNOCKOUT: cuando termina fase de grupos, admin genera cuadro final
+
+8. Torneo completo -> status: COMPLETED
+
+SISTEMA DE PUNTOS
+------------------
+Configurable por torneo:
+  pointsVictory    = 3  (gano el partido)
+  pointsDraw       = 1  (empate)
+  pointsLossPlayed = 0  (perdio pero jugo)
+  pointsLossNoShow = 0  (perdio por inasistencia)
+  pointsWalkover   = -1 (sancion por no presentarse)
+
+Standings ordenados por:
+  1. points DESC
+  2. ratio sets ganados/perdidos
+  3. ratio games ganados/perdidos
+
+FORMATO DE SCORES
+------------------
+Los scores se guardan como String en TournamentMatch:
+  homeScore: "6-3 7-5"
+  awayScore: "3-6 5-7"
+
+PROBLEMA CRITICO: no hay parser de score. Un admin puede ingresar "ganamos"
+y el sistema lo acepta. No se pueden calcular estadisticas automaticamente.
+Los stats de setsFor/setsAgainst se tienen que ingresar manualmente tambien.
+
+VISTA PUBLICA DE TORNEO
+------------------------
+/torneo/[id] — pagina publica (sin auth) que muestra:
+  - Info del torneo y categorias
+  - Tabla de posiciones (standings)
+  - Bracket visual
+  - Partidos programados con horarios y canchas
+
+QUE ESTA BIEN
+--------------
+  + Estructura de datos solida para la mayoria de formatos de padel
+  + Sistema de puntos configurable es profesional
+  + Separacion en categorias es flexible y correcta
+  + Vista publica sin login es excelente para UX de jugadores
+
+QUE FALTA / ESTA MAL
+---------------------
+1. Sin generacion automatica de bracket de eliminacion:
+   El admin tiene que crear los partidos a mano. Para 32 equipos = 31 partidos
+   manuales. Es impractico y propenso a errores.
+
+2. Sin avance automatico entre fases:
+   Cuando termina la fase de grupos, el sistema NO genera automaticamente
+   los cruces de cuartos con los clasificados. Todo manual.
+
+3. Score como String sin parser:
+   No se puede calcular diferencia de sets/games automaticamente.
+
+4. Sin validacion de integridad del score:
+   Puede ingresarse un resultado donde winner = homeTeam pero
+   homeScore < awayScore (inconsistente).
+
+5. Sin notificaciones automaticas a jugadores:
+   Cuando se programa un partido, los jugadores no reciben WhatsApp ni email.
+
+6. Liga vs Torneo sin logica diferenciada:
+   La distincion TOURNAMENT/LEAGUE existe en el modelo pero ambos tipos
+   usan el mismo flujo en el codigo.
+
+ARQUITECTURA IDEAL (propuesta)
+--------------------------------
+bracket-engine/
+  generators/
+    elimination.ts      # genera bracket completo desde N equipos
+    round-robin.ts      # genera fixture todos vs todos
+    groups-knockout.ts  # combina los dos
+  resolvers/
+    score-parser.ts     # "6-3 7-5" -> {sets: [{home:6,away:3},...]}
+    winner-resolver.ts  # determina ganador automaticamente
+    standings.ts        # recalcula tabla COMPLETA desde cero
+  notifier.ts           # envia WhatsApp/email a jugadores afectados
+
+
+================================================================================
+6. PAGOS Y SUSCRIPCIONES
+================================================================================
+
+MERCADO PAGO — COBRAR RESERVAS (del club a sus clientes)
+---------------------------------------------------------
+1. Club conecta su cuenta MP via OAuth:
+   GET /api/mercadopago/oauth/callback
+   -> recibe access_token + refresh_token
+   -> se guarda en Club.mpAccessToken (DEBE cifrarse)
+
+2. Para cobrar una reserva:
+   createBookingCheckout({
+     bookingId, title, amount,
+     payer: {email, name, phone},
+     redirectPath: "/reservas/[id]/success"
+   })
+   -> crea Preference en MP con:
+      external_reference = "clubId:bookingId"
+   -> retorna checkoutUrl
+   -> usuario paga en MP
+
+3. MP llama /api/webhooks/mercadopago
+   -> verifica firma HMAC-SHA256
+   -> parsea external_reference -> extrae clubId, bookingId
+   -> actualiza Booking.paymentStatus = PAID
+   -> crea Transaction en CashRegister
+   -> emite Pusher event para actualizar UI
+
+External reference format: "clubId:bookingId"
+Permite resolver a que booking pertenece el pago SIN query a DB.
+
+MERCADO PAGO — SUSCRIPCIONES SAAS (CourtOps cobra al club)
+-----------------------------------------------------------
+1. Club elige pagar su plan via MP
+2. createSubscriptionCheckout({
+     clubId, planName, price, payerEmail,
+     frequency: 1, frequencyType: "months"
+   })
+   -> crea PreApproval en MP (suscripcion recurrente mensual)
+3. Club autoriza en MP
+4. MP cobra automaticamente cada mes
+5. Webhook de MP actualiza estado de suscripcion
+6. BillingLog registra el evento
+
+FLUJO DE PAGO POR TRANSFERENCIA
+---------------------------------
+1. Club en /dashboard/suscripcion elige plan y ciclo
+2. submitBillingTransfer(planId, cycle, reference, receiptUrl?)
+   -> SubscriptionPayment.status = PENDING_VALIDATION
+   -> BillingLog: TRANSFER_SUBMITTED
+
+3. Superadmin en god-mode ve lista de pagos pendientes
+4. Revisa comprobante -> validateSubscriptionPayment(paymentId)
+   -> SubscriptionPayment.status = APPROVED
+   -> Club.subscriptionStatus = ACTIVE
+   -> Club.nextBillingDate = now + 30 dias
+   -> Invoice generada: INV-2026-XXXX
+   -> Email al club con confirmacion
+   -> BillingLog: PAYMENT_VALIDATED
+
+5. O rechaza -> rejectSubscriptionPayment(paymentId, reason)
+   -> Club notificado con razon del rechazo
+   -> Puede reenviar otro comprobante
+
+ESTADOS DE SUSCRIPCION Y TRANSICIONES
+---------------------------------------
+TRIAL (7 dias desde creacion)
+  | cron/trial-expiry
+EXPIRED (trial vencio, sin pago)
+  | club paga
+PENDING_VALIDATION
+  | superadmin valida
+ACTIVE
+  | 3 dias sin renovar (cron/subscription-suspend)
+SUSPENDED
+  | club paga y superadmin valida
+ACTIVE
+
+ACTIVE + MP preaprobacion -> renueva automatico via webhook sin intervencion
+
+Grace period: 3 dias (Club.gracePeriodDays) entre vencimiento y suspension.
+
+WEBHOOKS DE MP
+---------------
+Endpoint: POST /api/webhooks/mercadopago
+
+Verificacion de firma:
+  signature header: "ts=1234;v1=abc123def456..."
+  manifest = "id:{paymentId};request-id:{reqId};ts:{ts};"
+  expected = HMAC-SHA256(manifest, MP_WEBHOOK_SECRET)
+  if (expected != v1) -> rechaza con 401
+
+Tipos de payload manejados:
+  "payment"     -> actualiza Booking o suscripcion del club
+  "preapproval" -> actualiza estado de suscripcion SaaS
+
+Si el procesamiento falla -> se encola en WebhookQueue para retry.
+
+INVOICING
+----------
+Numero de factura: INV-{ano}-{secuencia por club y ano}
+Ejemplo: INV-2026-0001, INV-2026-0002 (se resetea el 1 de enero)
+
+La secuencia se calcula como:
+  count(invoices donde clubId = X y year(issuedAt) = anoActual) + 1
+
+PROBLEMA: race condition teorico si dos facturas se generan simultaneamente
+para el mismo club. Sin transaction con FOR UPDATE podrian generarse dos con
+el mismo numero.
+
+PROBLEMAS CONOCIDOS
+--------------------
+1. MP access token potencialmente sin cifrado en reposo:
+   Si la DB se compromete, todos los tokens de MP de todos los clubes
+   quedan expuestos. Riesgo de seguridad critico.
+
+2. Sin refresh automatico del MP token:
+   mpRefreshToken existe en el schema pero no hay logica de auto-refresh.
+   Si el token expira, el club tiene que reconectar MP manualmente.
+
+3. Comision MP pagada por el club:
+   CourtOps no cobra comision del volumen, pero MP si (~2-4%).
+   Puede ser un freno de adopcion para clubes chicos.
+
+4. Sin Stripe activo:
+   El adapter pattern esta preparado para Stripe pero no implementado.
+   Necesario para expansion internacional.
+
+5. Billing por transferencia es manual:
+   El superadmin tiene que revisar y validar cada transferencia.
+   No escala si hay 100+ clubes. Necesita automatizacion (imagen de
+   comprobante -> OCR o validacion automatica).
+
+
+================================================================================
+7. POS / CAJA / NEGOCIO
+================================================================================
+
+CAJA DIARIA
+-----------
+Inicio del dia:
+  openCashRegister(startAmount: 500)
+  -> CashRegister creado con status: OPEN
+  -> getOrCreateTodayCashRegister() garantiza que existe
+
+Durante el dia (movimientos automaticos):
+  Cuando se cobra una reserva en efectivo:
+    -> Transaction(type: INCOME, category: BOOKING, method: CASH)
+  Cuando se vende un producto en el kiosco:
+    -> Transaction(type: INCOME, category: PRODUCT)
+  Cuando admin registra un gasto:
+    -> Transaction(type: EXPENSE, category: EXPENSE)
+
+Cierre del dia:
+  closeCashRegister(registerId, declaredCash, notes)
+  -> Calcula diferencia: declaredCash vs expectedCash
+  -> Si diferencia > 0 -> sobrante (admin puso de mas)
+  -> Si diferencia < 0 -> faltante (dinero sin justificacion)
+  -> CashRegister.status = CLOSED
+  -> Genera reporte imprimible del dia
+
+ARQUEO
+------
+Efectivo esperado = startAmount
+                  + SUM(INCOME donde method=CASH)
+                  - SUM(EXPENSE donde method=CASH)
+                  - SUM(REFUND donde method=CASH)
+
+Efectivo declarado = lo que fisicamente conto el admin al cierre
+
+Diferencia = declarado - esperado
+
+Si diferencia != 0 -> hay que investigar.
+Este reporte es exportable a PDF/Excel.
+
+KIOSCO / POS
+------------
+Feature flag: Club.hasKiosco = true para acceder.
+
+Dos interfaces:
+  DesktopKiosco: para tableta/monitor en el mostrador
+  MobileKiosco:  para smartphone del staff
+
+Funcionalidades:
+  - Listado de productos por categoria
+  - Agregar al carrito
+  - Procesar venta (CASH | TRANSFER | MP)
+  - Imprimir ticket (?)
+  - Descuento automatico para socios (memberPrice en Product)
+  - Gestion de stock (decrementa Product.stock en cada venta)
+  - Alerta cuando stock <= minStock
+
+PRODUCTOS
+---------
+Campos:
+  clubId      FK a Club
+  name        nombre del producto
+  category    "Bebidas", "Equipamiento", "Indumentaria"
+  cost        costo para el club (para calcular margen)
+  price       precio venta normal
+  memberPrice precio para socios
+  stock       unidades disponibles
+  minStock    umbral de alerta de stock bajo
+  isActive    si esta disponible para venta
+
+Margen = price - cost. No hay reporte automatico de margen,
+pero los datos estan disponibles para construirlo.
+
+CATEGORIAS DE TRANSACCIONES
+-----------------------------
+INCOME:
+  BOOKING     -> cobro de reserva
+  PRODUCT     -> venta de producto en kiosco
+  MEMBERSHIP  -> pago de membresia
+  OTHER       -> ingreso generico
+
+EXPENSE:
+  EXPENSE     -> gasto general (limpieza, repuestos, etc.)
+  REFUND      -> devolucion a cliente
+  OTHER       -> egreso generico
+
+REPORTES FINANCIEROS (/reportes)
+----------------------------------
+El admin puede ver:
+  - Revenue por periodo (diario/semanal/mensual/anual)
+  - Breakdown por metodo de pago (efectivo/transferencia/MP)
+  - Ocupacion de canchas (% de slots utilizados)
+  - Clientes mas activos por gasto
+  - Ingresos por tipo (reservas vs. productos vs. membresias)
+  - Exportacion a CSV y Excel
+
+METRICAS VIA API ENDPOINTS (/api/dashboard/*)
+----------------------------------------------
+  daily-financials  -> ingresos del dia por metodo
+  weekly-revenue    -> tendencia 7 dias (Recharts LineChart)
+  heatmap           -> ocupacion por hora/dia de la semana
+  courts            -> utilizacion por cancha
+  debts             -> clientes con saldo pendiente
+  alerts            -> alertas operativas (stock bajo, pagos pendientes)
+  turnero           -> disponibilidad en tiempo real
+
+
+================================================================================
+8. WHATSAPP Y AUTOMATIZACIONES
+================================================================================
+
+INTEGRACION WHATSAPP CLOUD API
+--------------------------------
+Proveedor: Meta WhatsApp Business Cloud API v21.0
+Config:    WHATSAPP_TOKEN + WHATSAPP_PHONE_ID
+Fallback:  si no configurado -> simula y loguea en consola (PELIGROSO en prod)
+
+Normalizacion de telefonos argentinos:
+  011-4567-8901   -> 5491145678901
+  15-4567-8901    -> 5491145678901
+  +54-11-4567-8901 -> 5491145678901
+  normalizePhone() siempre retorna formato E.164
+
+Tipos de mensajes:
+  sendTextMessage(phone, text)
+  -> valido SOLO dentro de 24h desde ultimo mensaje del usuario
+  -> ventana de conversacion abierta por Meta
+
+  sendTemplateMessage(phone, templateName, parameters, language='es_AR')
+  -> siempre valido (no depende de ventana)
+  -> requiere plantilla pre-aprobada por Meta
+
+Circuit breaker: si WhatsApp falla 5 veces -> el breaker abre y
+no se intenta mas durante varios minutos. Evita timeouts en cascada.
+
+AUTOMATIZACIONES ACTIVAS (9 cron jobs)
+----------------------------------------
+
+1. RECORDATORIOS DE RESERVA (/api/cron/reminders)
+   Frecuencia: cada hora (Vercel Cron)
+   - Busca bookings donde startTime = [ahora+23h, ahora+25h]
+   - Para cada booking con reminderSent = false:
+     - Si client.email -> sendBookingReminderEmail()
+     - Si hasWhatsApp y client.phone -> sendTemplateMessage("booking_reminder")
+     - Setea reminderSent = true
+   - Impacto: reduce no-shows, mejora experiencia del jugador
+
+2. NO-SHOW AUTOMATICO (/api/cron/no-show)
+   Frecuencia: cada hora
+   - Bookings: status=CONFIRMED AND endTime < now AND checkedInAt IS NULL
+   - Marca status -> NO_SHOW
+   - Permite metricas reales de asistencia
+
+3. TRIAL EXPIRY (/api/cron/trial-expiry)
+   Frecuencia: diaria
+   - Clubes en TRIAL con createdAt > 7 dias
+   - -> subscriptionStatus = EXPIRED
+   - TrialExpiredGuard bloquea el dashboard del club
+
+4. RECORDATORIOS DE SUSCRIPCION (/api/cron/subscription-reminders)
+   Frecuencia: diaria
+   - nextBillingDate = hoy + 7 dias -> email aviso 7D + BillingLog: REMINDER_7D
+   - nextBillingDate = hoy + 2 dias -> email urgente 2D + BillingLog: REMINDER_2D
+   - Skips clubes con preaprobacion MP (se auto-cobran)
+   - Deduplicacion: no manda dos recordatorios iguales en el mismo ciclo
+
+5. SUSPENSION AUTOMATICA (/api/cron/subscription-suspend)
+   Frecuencia: diaria
+   - Clubes con nextBillingDate + gracePeriodDays < now
+   - AND subscriptionStatus != ACTIVE
+   - -> subscriptionStatus = SUSPENDED
+   - Notifica al club
+   - BillingLog: SUSPENDED
+
+6. MEMBERSHIP EXPIRY (/api/cron/membership-expiry)
+   Frecuencia: diaria (o cada hora?)
+   - Memberships con endDate < now AND status = ACTIVE
+   - -> status = EXPIRED
+   - -> Client.membershipStatus = NONE
+   - -> Client.membershipExpiresAt = null
+
+7. CANCEL UNPAID (/api/cron/cancel-unpaid)
+   Frecuencia: cada hora
+   - Bookings PENDING + UNPAID + (createdAt + depositTimeLimitHours) < now
+   - -> status = CANCELLED, cancelReason = CANCELLED_LATE
+   - Libera el slot para otros
+   - Notifica al cliente (si configurado)
+
+8. WEBHOOK RETRY (/api/cron/webhook-retry)
+   Frecuencia: cada hora
+   - WebhookQueue con status=PENDING AND nextRetryAt <= now
+   - Reintenta HTTP POST del webhook
+   - Backoff exponencial: retry1=5min, retry2=15min, retry3=45min...
+   - Maximo 5 intentos -> status = FAILED
+
+9. AUDIT CLEANUP (/api/cron/audit-cleanup)
+   Frecuencia: diaria
+   - AuditLog con createdAt < 7 dias
+   - deleteMany -> purga logs viejos
+   PROBLEMA: 7 dias es insuficiente para produccion. Deberia ser 90-365 dias.
+
+CAMPANAS DE WHATSAPP MASIVAS (campaigns.ts)
+--------------------------------------------
+WhatsAppCampaign:
+  segment:      ALL_CLIENTS | ACTIVE_MEMBERS | INACTIVE_30D | CUSTOM
+  deliveryType: TEXT | TEMPLATE
+  messageTemplate: "Hola {{name}}, te recordamos que..."
+  dedupeKey:    hash del contenido para evitar duplicados
+  status:       DRAFT -> SENDING -> SENT | PARTIAL | FAILED | BLOCKED_DUPLICATE
+
+Anti-spam: dedupeKey previene enviar la misma campana dos veces.
+Si el hash ya existe en campanas recientes -> BLOCKED_DUPLICATE.
+
+Personalizacion: variables {{name}}, {{phone}}, etc. se reemplazan
+por datos de cada cliente antes del envio.
+
+Track individual: WhatsAppCampaignRecipient por cada destinatario.
+Si una campana falla para 10 de 200 -> status = PARTIAL.
+
+EMAILS TRANSACCIONALES (Resend)
+---------------------------------
+Templates activos:
+  welcome                     -> al registrar el club
+  password_reset              -> resetear contrasena
+  booking_confirmation        -> reserva creada (PENDING)
+  booking_payment_confirmation -> pago confirmado
+  booking_reminder            -> 24h antes de la reserva
+  subscription_payment        -> recibo de pago del plan SaaS
+
+Todos son HTML emails con dark theme y logo del club.
+
+LIMITE: 3000 emails/mes en plan gratuito de Resend.
+Para clubes con alto volumen puede ser limitante.
+
+
+================================================================================
+9. UI/UX
+================================================================================
+
+DISENO GENERAL
+--------------
+- Dark theme por defecto. No hay toggle light/dark para el usuario.
+- Color dinamico: Club.themeColor se inyecta como CSS variable --primary.
+  Cada club tiene su propia identidad visual.
+- Tipografia: Space Grotesk (Google Fonts) — moderna y clara.
+- Bordes: rounded-2xl a rounded-3xl. Estilo suave y moderno.
+- Iconos: Lucide React exclusivamente. Consistente en toda la app.
+
+LAYOUT RESPONSIVE
+------------------
+Desktop (md+):
+  +------------------------------------------+
+  | Header sticky (z-40)                     |
+  +----------+-------------------------------+
+  | Sidebar  | Main content (overflow-y-auto)|
+  | 78px     | padding-left: sidebar-width   |
+  | collapsed|                               |
+  | 272px    | pb-8                          |
+  | expanded |                               |
+  +----------+-------------------------------+
+
+Mobile (<md):
+  +----------------------------+
+  | Header sticky              |
+  +----------------------------+
+  | Main content               |
+  | pb-28 (espacio bottom nav) |
+  +----------------------------+
+  | Bottom Nav (fixed z-80)    |
+  | pb-[safe-area-inset]       |
+  +----------------------------+
+
+Sidebar: auto-colapsa en pantallas < 1280px.
+  Colapsado: 78px (solo iconos).
+  Expandido: 272px.
+  Transicion suave con Framer Motion.
+
+Header: sticky. Breadcrumbs, search bar (hidden en mobile),
+  boton de busqueda mobile, notificaciones, user menu.
+
+MobileBottomNav: 5 items principales.
+  pb-[env(safe-area-inset-bottom)] para iPhone notch.
+
+COMPONENTES UI BASE (src/components/ui/)
+-----------------------------------------
+Wrappers de Radix UI con estilos propios del design system:
+  Button    -> variantes: primary, secondary, ghost, destructive
+  Card      -> bg-card border border-border rounded-2xl
+  Dialog    -> modales
+  Sheet     -> drawers laterales
+  Table     -> con sorting y paginacion
+  Select    -> selectores accesibles
+  Combobox  -> busqueda + seleccion
+  Input     -> formularios con validacion visual
+  Textarea  -> idem
+  Badge     -> estados coloreados
+  Tooltip   -> hover info
+  Popover   -> contextuales
+  Tabs      -> navegacion en paneles
+  Skeleton  -> loading states
+  Switch    -> toggles
+
+EXPERIENCIA MOBILE
+-------------------
+Puntos fuertes:
+  + Bottom nav intuitivo
+  + Cards apilan bien verticalmente
+  + Formularios usables en touch
+  + MobileKiosco es interfaz separada (correcta decision)
+
+Problemas:
+  - Grilla de canchas/heatmap: tablas wide rompen en mobile si no tienen
+    overflow-x-auto. Mencionado como pitfall recurrente en CLAUDE.md.
+  - BookingModal: form complejo en modal. En mobile puede ser incomodo
+    scrollear dentro de un modal dentro de una pagina.
+  - Calendario de reservas: no es claro si hay vista mobile optimizada
+    del calendario o solo la grilla horizontal.
+
+EXPERIENCIA DESKTOP
+--------------------
+  + Sidebar navigation bien implementada
+  + CommandPalette (cmd+K): ~300 comandos — muy productivo para power users
+  + Dashboard: widgets rapidos dan overview de ocupacion, caja, alertas
+  + GlobalModals: permite abrir modales desde cualquier parte de la app
+  + Pusher real-time: la grilla se actualiza sin refrescar la pagina
+
+PERFORMANCE UX
+---------------
+  - Loading states: Skeleton components durante data fetching
+  - Optimistic updates: NO implementado sistematicamente. Las mutations
+    esperan respuesta del server antes de actualizar la UI. En red lenta
+    (comun en Argentina en mobile) se siente lento.
+  - Framer Motion: animaciones en sidebar, modales, toast. Bien usado.
+  - React Query: maneja stale-while-revalidate para dashboard widgets.
+
+DEUDAS TECNICAS DE UI
+----------------------
+1. Sin storybook ni design system documentado. Los componentes en ui/ no
+   tienen documentacion visual. Dificulta onboarding de nuevos devs.
+
+2. Mezcla de estilos: algunos componentes usan className manual y otros
+   usan cva() (Class Variance Authority). Inconsistente.
+
+3. Responsive para heatmap: mencionado como problema recurrente en CLAUDE.md.
+   Indica que no esta completamente resuelto.
+
+4. Dark mode forzado: no hay opcion de light mode. Puede ser un blocker
+   para algunos usuarios.
+
+5. No hay skeleton en todas las vistas: algunas paginas cargan sin feedback
+   visual durante el fetch inicial.
+
+6. Sin lazy loading para componentes pesados: Recharts, ExcelJS, y pdf
+   generation se importan aunque el usuario no los use.
+
+
+================================================================================
+10. PERFORMANCE
+================================================================================
+
+QUERIES POTENCIALMENTE LENTAS
+-------------------------------
+
+1. DISPONIBILIDAD DE SLOTS (problema de N+1)
+   El calendario corre una query por cada slot visible:
+     SELECT * FROM Booking WHERE clubId=X AND courtId=Y
+     AND startTime < slotEnd AND endTime > slotStart AND status IN (...)
+
+   16 horas x 2 slots/hora x 5 canchas = 160 queries por carga del calendario.
+
+   Solucion ideal: una sola query que traiga todas las bookings del dia,
+   y filtrar por cancha/hora en memoria.
+
+2. DASHBOARD METRICS
+   Multiples agregaciones sobre Transaction sin indices claros:
+     SELECT SUM(amount), method FROM Transaction
+     WHERE clubId=X AND createdAt >= today_start GROUP BY method
+
+   Si un club tiene 10,000 transacciones sin indice en (clubId, createdAt),
+   este query puede hacer full scan de la tabla.
+
+3. STANDINGS DE TORNEO
+   Stats en TournamentTeam son denormalizados. Si un campo se desincroniza,
+   no hay forma de recalcular automaticamente sin re-procesar todos los partidos.
+
+CACHE — ESTADO ACTUAL
+----------------------
+Dual-layer (LRU memory + Redis):
+  - TTL: 5 minutos por defecto
+  - Se invalida con invalidateCachePattern() despues de mutations
+  - Hit rate no medido
+
+Problema: no es claro que exactamente se cachea. Si los dashboards no usan
+cache explicitamente, cada carga hace las mismas queries pesadas.
+
+Oportunidades de cache:
+  - getPublicClubBySlug() — cambia raramente (logo, tema, config)
+  - PriceRules del club — cambian raramente
+  - Standings de torneo — solo cambian en updateMatchResult()
+  - Disponibilidad de slots — invalida en create/cancel booking
+
+BUNDLE SIZE
+-----------
+Framer Motion:   ~100KB gzip. Deberia usarse LazyMotion + domAnimation (~30KB).
+Recharts:        ~75KB gzip. Si solo se usa en dashboard, deberia ser lazy.
+ExcelJS:         ~300KB gzip. Solo se usa para exports. DEBE ser completamente
+                  lazy (cargado solo cuando el usuario hace click en Exportar).
+
+COLD STARTS EN VERCEL SERVERLESS
+----------------------------------
+Las Server Actions con Prisma tienen que inicializar la conexion a la DB
+en cada cold start. Sin connection pooling:
+  - Cada invocacion puede tomar 200-500ms extra.
+  - Con alto trafico, se agota el pool de conexiones de Neon.
+
+Solucion: usar @prisma/adapter-neon con PgBouncer (Neon lo ofrece).
+Esto es necesario antes de onboardear 50+ clubes activos.
+
+OPTIMISTIC UPDATES (ausentes)
+-------------------------------
+Cada accion (crear reserva, cancelar, etc.) espera la respuesta del servidor
+antes de actualizar la UI. En red lenta:
+  1. Usuario hace click
+  2. Loading state (500ms - 2s)
+  3. UI se actualiza
+
+Con optimistic updates:
+  1. Usuario hace click
+  2. UI se actualiza INMEDIATAMENTE (con datos optimistas)
+  3. En background se confirma con el servidor
+  4. Si falla, se revierte
+
+React Query v5 tiene useMutation con onMutate para implementar esto.
+
+REACT Y RE-RENDERS
+-------------------
+Server Components: la mayoria de las paginas son Server Components (correcto).
+Client Components: solo los que necesitan interactividad son 'use client'.
+
+Posibles re-renders innecesarios:
+  - LanguageContext proveido en la raiz: cualquier cambio de idioma
+    re-renderiza toda la app
+  - PerformanceContext similar
+
+PAGINACION (ausente en listas largas)
+---------------------------------------
+getClients() y getBookings() probablemente retornan TODOS los registros del club.
+Para un club con 1000 clientes:
+  - Query pesado en DB
+  - Payload grande hacia el cliente
+  - Render lento de la lista
+
+Necesita cursor-based pagination en todos los listados.
+
+
+================================================================================
+11. SEGURIDAD
+================================================================================
+
+AUTENTICACION
+--------------
+NextAuth con JWT y Credentials Provider:
+
+  - Rate limiting: 5 intentos/minuto por email (via Redis)
+    Si Redis no esta disponible, esta proteccion FALLA silenciosamente.
+
+  - Bcrypt para password hashing (correcto)
+
+  - TokenVersion: cada usuario tiene una version numerica.
+    Al hacer logout, se incrementa en DB.
+    El JWT guarda la version del momento del login.
+    Si JWT.tokenVersion < user.tokenVersion -> sesion invalida.
+    Permite logout efectivo sin blacklists de tokens.
+
+  - Impersonation (superadmin -> club admin):
+    Token firmado HMAC-SHA256, expiry 60 segundos, uso unico.
+    Correcto.
+
+  - Master admin bypass (MASTER_ADMIN_EMAIL/PASSWORD):
+    Para emergencias. El password deberia tener politica de rotacion.
+
+MULTI-TENANCY ISOLATION
+------------------------
+Cada server action empieza con getCurrentClubId() que:
+  1. Verifica que hay sesion activa
+  2. Verifica que el Club existe
+  3. Retorna el clubId de la sesion
+
+TODOS los queries filtran por clubId.
+
+RIESGO: si un developer olvida el filtro -> data leak cross-tenant.
+No hay enforcement automatico a nivel ORM.
+
+Solucion enterprise: Row-Level Security (RLS) en PostgreSQL, o middleware
+de Prisma que agregue el filtro automaticamente en todas las queries.
+
+AUTORIZACION POR ROL
+---------------------
+GOD:        acceso total, bypass de cualquier check
+SUPER_ADMIN: god-mode + ver todos los clubes + validar pagos
+ADMIN:       gestion completa del propio club
+STAFF:       operaciones limitadas (reservas, caja, etc.)
+EMPLOYEE:    login por PIN, permisos en JSON (fragil — ver abajo)
+
+PROBLEMA: permisos de EMPLOYEE son un JSON string en DB.
+  Employee.permissions = '{"canCreateBooking": true, "canViewCaja": false}'
+  Si el JSON esta mal formado o falta un campo nuevo ->
+  comportamiento indefinido en la verificacion.
+  Deberia ser una tabla normalizada de permisos o array de enums tipados.
+
+VALIDACION DE INPUTS
+---------------------
+Zod schemas en src/schemas/ para validacion en cliente y servidor.
+
+RIESGO: si una Server Action no usa el schema de Zod antes de pasar
+datos a Prisma, un input malicioso puede causar comportamientos inesperados.
+No esta claro si hay 100% de cobertura de schemas en todas las actions.
+
+WEBHOOKS
+---------
+MercadoPago: usa HMAC-SHA256 con MP_WEBHOOK_SECRET. Correcto.
+WhatsApp: verifica token en handshake inicial. Las notificaciones entrantes
+  no tienen firma criptografica en Meta API v21.0 (Meta no la ofrece en
+  todos los planes).
+
+SECRETOS Y CREDENCIALES
+------------------------
+  - Todas las credenciales en variables de entorno (correcto)
+  - mpAccessToken de clubs en DB: DEBERIA cifrarse con AES-256
+    usando ENCRYPTION_KEY env var. lib/encryption.ts existe pero
+    hay que verificar que se use en TODAS las escrituras del token.
+  - MASTER_ADMIN_PASSWORD: deberia tener politica de rotacion periodica.
+
+CSRF
+----
+Las Server Actions de Next.js son inmunes a CSRF porque:
+  - Se ejecutan via POST con Content-Type: text/plain
+  - El navegador no puede hacer ese POST desde otro origen
+  - Next.js valida el Origin header internamente
+
+SQL INJECTION
+--------------
+Prisma usa queries parametrizadas automaticamente. No hay raw SQL.
+Riesgo de SQL injection: minimo.
+
+XSS
+---
+RIESGO EN WAIVERS: Waiver.content es texto HTML rico. Si se renderiza
+con dangerouslySetInnerHTML sin sanitizar -> XSS potencial.
+Verificar que se usa DOMPurify o equivalente.
+
+RIESGO EN SIGNATURES: firmas en Base64 como data URL en <img src>.
+El contexto de <img> limita el impacto pero deberia validarse que
+el Base64 corresponde a una imagen y no a HTML/JS embebido.
+
+RATE LIMITING EN ENDPOINTS PUBLICOS
+-------------------------------------
+PROBLEMA: /api/bookings y las Server Actions de public booking no tienen
+rate limiting. Un bot puede spamear reservas y bloquear todos los slots.
+
+Solucion: agregar rate limiting por IP usando Redis en las rutas publicas.
+checkRateLimitRedis() ya existe en lib/cache.ts, solo hay que aplicarlo.
+
+AUDITORIA
+----------
+AuditLog registra: usuario, accion, entidad, IP, UserAgent.
+Se purga a los 7 dias (audit-cleanup cron).
+
+7 dias es inaceptable para produccion real.
+En enterprise: minimo 90 dias, idealmente 1 ano.
+Deberia ser configurable por plan (30 dias free, 1 ano premium).
+
+
+================================================================================
+12. ROADMAP
+================================================================================
+
+MODULOS COMPLETOS (production-ready)
+--------------------------------------
+[DONE] Autenticacion y roles
+[DONE] Gestion de canchas (CRUD)
+[DONE] Motor de precios (PriceRules)
+[DONE] Reservas internas (admin)
+[DONE] Reservas publicas basicas (/p/[slug])
+[DONE] Caja diaria y arqueo
+[DONE] CRM de clientes basico
+[DONE] Billing SaaS (transfer + MP preaprobacion)
+[DONE] Invoicing basico
+[DONE] Cron jobs core (reminders, no-show, trial expiry, etc.)
+[DONE] WhatsApp notifications (reminders)
+[DONE] Email transaccional (Resend)
+[DONE] Auditoria de acciones
+[DONE] Pusher real-time
+
+MODULOS FUNCIONALES PERO INCOMPLETOS
+--------------------------------------
+[~75%] Torneos: estructura solida, pero brackets automaticos y avance entre
+       fases son manuales. Score parsing no existe.
+
+[~70%] Kiosco/POS: funcional pero sin gestion de proveedores, sin ordenes
+       pendientes, sin impresion de tickets real.
+
+[~70%] Membresias: plan + inscripcion funcional, pero auto-debito MP tiene
+       complejidad de gestion de estados de error.
+
+[~60%] Campanas WhatsApp: envio funciona, pero analytics de apertura/click
+       no existen.
+
+[~50%] Matchmaking: estructura basica de open matches, pero algoritmo de
+       matching por skill level es rudimentario.
+
+[~60%] Reportes: datos disponibles, visualizaciones basicas. Sin comparativas
+       ano a ano ni proyecciones.
+
+[~50%] AI Assistant: integrado con Google Gemini pero knowledge base del club
+       es limitado.
+
+MODULOS EXPERIMENTALES / PARCIALES
+------------------------------------
+[~40%] Waivers: firmado digital funciona, pero el workflow "requiere waiver
+       firmado para reservar" no esta integrado en el booking flow.
+
+[~30%] Referrals: modelo completo en DB, pero UI de gestion y trigger de
+       reward estan incompletos.
+
+[~40%] Turnero: grilla de espera existe, logica de notificacion cuando se
+       libera cancha esta parcialmente implementada.
+
+[~30%] Player Portal: existe como server action pero no hay UI de app
+       para que jugadores vean su historial.
+
+[~50%] Push Notifications: Service Worker configurado, pero la segmentacion
+       de que notificar y cuando es basica.
+
+MODULOS QUE DEBERIAN REHACERSE
+--------------------------------
+[REWRITE] Score system en torneos:
+  Score como String es incorrecto. Deberia ser campos numericos:
+  homeSet1, awaySet1, homeSet2, awaySet2, tiebreak...
+
+[REWRITE] Bracket generation:
+  Necesita un motor real de generacion de brackets.
+  Creacion completamente manual no escala.
+
+[REWRITE] Permissions system para Employee:
+  JSON string es fragil. Necesita tabla normalizada o enum array.
+
+QUICK WINS (alto impacto, bajo esfuerzo)
+-----------------------------------------
+1. Bracket automatico para eliminacion simple: 1-2 dias. Alto impacto.
+2. Cache explicito para disponibilidad de slots: 1 dia. Reduce N+1 queries.
+3. Cifrado verificado de mpAccessToken: 1 dia. Seguridad critica.
+4. Optimistic updates en BookingModal: 1-2 dias. UX mucho mejor.
+5. Audit log retention configurable: horas de trabajo.
+6. Score parser ("6-3 7-5" -> objeto): 1 dia. Habilita stats automaticas.
+7. Rate limiting en endpoints publicos de booking: horas de trabajo.
+8. Paginacion en listas de clientes/reservas: 2-3 dias.
+
+PARA LLEVAR A NIVEL ENTERPRISE
+--------------------------------
+1. Row-Level Security en PostgreSQL:
+   Elimina riesgo de data leak si developer olvida filtro clubId.
+
+2. PgBouncer / connection pooling:
+   Necesario para escalar a 100+ clubes simultaneos en Vercel serverless.
+
+3. Separacion de read/write DB:
+   Leer de replica, escribir en primaria. Reduce latencia en dashboards.
+
+4. Event sourcing para bookings:
+   En lugar de mutar el estado, guardar eventos (BookingCreated, BookingCancelled...).
+   Permite auditoria perfecta y replay sin corrupcion de datos.
+
+5. Queue system real (BullMQ + Redis):
+   Reemplazar WebhookQueue en DB por queue en Redis con workers dedicados.
+   La DB no es una buena queue para alta frecuencia.
+
+6. Stripe para expansion internacional:
+   El adapter pattern ya esta listo. Solo implementar.
+
+7. Mobile app nativa:
+   React Native o Flutter para app de jugadores.
+   El PWA actual es suficiente para admins.
+
+8. Analytics platform:
+   BigQuery o Metabase para reportes cross-club del propio CourtOps.
+   Permite entender el negocio a escala.
+
+9. Separacion en microservicios (cuando haya escala suficiente):
+   Booking service, Payment service, Notification service, Tournament service.
+
+
+================================================================================
+13. AUDITORIA HONESTA
+================================================================================
+
+LO QUE ESTA MUY BIEN
+----------------------
+
+1. ARQUITECTURA BASE SOLIDA
+   Server Actions + Prisma + NextAuth es la eleccion correcta para 2025.
+   Elimina mucho boilerplate, es type-safe end-to-end, y el deployment
+   en Vercel es trivial. No hay una API layer innecesaria entre frontend
+   y backend.
+
+2. MULTI-TENANCY CORRECTO CONCEPTUALMENTE
+   El uso de clubId en todos los modelos y getCurrentClubId() como guardia
+   de entrada en cada action es un patron correcto. Simple, auditable,
+   y dificil de bypassear accidentalmente.
+
+3. MOTOR DE PRECIOS FLEXIBLE
+   El sistema de PriceRule con prioridades es sofisticado. Permite
+   configuraciones complejas sin hardcodear logica. Es mas avanzado
+   que la mayoria de competidores directos.
+
+4. BILLING CON TRANSFER-FIRST
+   Soportar pago por transferencia bancaria con validacion manual es
+   pragmatico para Argentina. Reduce la barrera de adopcion para
+   clubes que no quieren usar MP para el pago SaaS.
+
+5. SLOTHOLD PARA PREVENIR RACE CONDITIONS
+   Reconocer el problema de double-booking como un problema de concurrencia
+   real y resolverlo con un modelo dedicado es una decision de diseno madura.
+
+6. CIRCUIT BREAKER EN APIs EXTERNAS
+   Usar circuit breaker para WhatsApp es correcto. Una caida de WhatsApp
+   no deberia tumbar el flujo de reservas.
+
+7. FEATURE FLAGS POR CLUB
+   hasKiosco, hasOnlinePayments, etc. permiten un modelo freemium correcto
+   donde se puede activar features por plan.
+
+8. WEBHOOK RETRY CON BACKOFF EXPONENCIAL
+   WebhookQueue con reintentos es un pattern correcto para produccion.
+   Los webhooks de MP pueden fallar por timeouts de Vercel (10s limit).
+
+9. ADAPTER PATTERN PARA PAGOS
+   La interfaz PaymentProviderAdapter con MercadoPago implementado y
+   Stripe preparado muestra vision a futuro. Correcto.
+
+10. BOOKING SERVICE COMO SERVICIO
+    Extraer la logica de creacion de reservas en BookingService.create()
+    en lugar de tenerla en la server action es buena separacion de concerns.
+    Permite testearla aislada.
+
+LO QUE ESTA MAL O INCOMPLETO
+------------------------------
+
+1. SCORE DE TORNEOS COMO STRING [CRITICO]
+   homeScore: "6-3 7-5" como String es incorrecto para cualquier logica
+   que necesite procesar el score. No se puede calcular diferencia de sets,
+   games, ni validar coherencia. Esta deuda va a manifestarse cuando alguien
+   pida estadisticas detalladas.
+
+2. STATS DE TORNEO DENORMALIZADOS SIN RECALCULO [CRITICO]
+   Los campos points, won, lost en TournamentTeam se actualizan
+   incrementalmente. Si hay un bug, los datos quedan corruptos
+   permanentemente. No hay endpoint /recalculate-standings.
+
+3. AUDIT CLEANUP DE 7 DIAS [INACEPTABLE EN PRODUCCION]
+   Un club que quiera auditar "quien cancelo la reserva del 15 de enero"
+   en marzo no podra porque los logs ya se borraron. Deberia ser
+   configurable: 30 dias free, 1 ano premium.
+
+4. mpAccessToken POTENCIALMENTE NO CIFRADO [RIESGO DE SEGURIDAD CRITICO]
+   Si lib/encryption.ts no se usa consistentemente en todas las escrituras
+   del mpAccessToken, cualquier dump de DB expone credenciales de MP
+   de todos los clubes.
+
+5. PERMISSIONS DE EMPLOYEE COMO JSON STRING [FRAGIL]
+   String no tipado para permisos. Deberia ser tabla normalizada o
+   array de enums. Un error de tipeo en el JSON puede crear brechas
+   de seguridad silenciosas.
+
+6. SIN PAGINACION EN LISTAS LARGAS [PERFORMANCE]
+   getClients() y getBookings() probablemente retornan todos los registros.
+   Para 1000 clientes es lento en DB y en render. Necesita cursor-based
+   pagination.
+
+7. INVOICE NUMBER RACE CONDITION [INTEGRIDAD DE DATOS]
+   El numero de factura se calcula como count+1 sin lock.
+   Dos validaciones simultaneas podrian generar el mismo numero.
+   Necesita sequence o SELECT FOR UPDATE.
+
+8. SIN RATE LIMITING EN BOOKING PUBLICO [SEGURIDAD]
+   Un bot puede spamear reservas y bloquear todos los slots del dia.
+   checkRateLimitRedis() ya existe, solo hay que aplicarlo.
+
+9. BRACKET MANUAL [PROBLEMA CRITICO DE UX]
+   Para 8 equipos en grupos = 12 partidos manuales.
+   Para 16 equipos = 24 partidos manuales.
+   Esto es impractico y sera la queja principal de clubs con torneos.
+
+10. SIN OPTIMISTIC UPDATES [UX EN RED LENTA]
+    En Argentina, el mobile tiene latencia alta. Cada mutation espera
+    la respuesta del server antes de actualizar la UI. Se siente lento.
+
+LO QUE ESTA IMPROVISADO
+------------------------
+
+1. CRON JOBS SIN MONITOREO
+   Los 9 cron jobs se ejecutan y si fallan, solo queda en logs de Vercel.
+   No hay alertas si el cron de subscription-suspend falla y clubes
+   no se suspenden cuando deberian.
+
+2. WHATSAPP FALLBACK A SIMULACION (PELIGROSO)
+   Si WHATSAPP_TOKEN no esta configurado, WhatsApp "funciona" pero solo
+   loguea en consola. Si alguien configura mal la variable en produccion,
+   los recordatorios no llegan y nadie se entera.
+
+3. "prismaBase as any" EN TOURNAMENTS
+   const prismaBase = prisma as any
+   await prismaBase.tournamentCategory.create(...)
+   Indica que el Prisma client no se regenero despues de agregar los
+   modelos del torneo. Funciona en runtime pero rompe type safety.
+
+4. MEZCLA DE DATE FORMATS
+   En algunos lugares: Date objects. En otros: strings "HH:MM".
+   En otros: timestamps Unix. date-utils.ts intenta centralizar pero
+   la adopcion no es 100% consistente.
+
+LO QUE PUEDE ROMPERSE EN ESCALA
+---------------------------------
+
+1. DB CONNECTIONS EN SERVERLESS [RIESGO ALTO]
+   Cada invocacion de Vercel Function puede abrir una conexion a Neon.
+   Con 100+ clubes activos simultaneamente -> pool exhaustion.
+   Solucion: PgBouncer connection pooling (Neon lo ofrece, no tiene costo).
+
+2. PUSHER EN ALTA CONCURRENCIA [RIESGO MEDIO]
+   50 admins con calendario abierto + 100 bookings/minuto = 5000 eventos
+   Pusher/minuto. El plan gratuito tiene limites. Puede fallar silenciosamente.
+
+3. WHATSAPP RATE LIMITING [RIESGO MEDIO]
+   Meta permite 1000 conversaciones business-initiated por mes en plan basico.
+   Un club con 500 clientes que hace campanas semanales agota el limite
+   en dos semanas.
+
+4. REDIS COMO PUNTO DE FALLA [RIESGO MEDIO]
+   Si Redis cae, el cache falla al LRU in-memory (aceptable), pero el
+   rate limiting de login TAMBIEN falla. Sin Redis, no hay proteccion
+   contra brute force de contrasenas.
+
+5. WEBHOOK QUEUE SIN CLEANUP [RIESGO BAJO-MEDIO]
+   Las WebhookQueue entries con status=FAILED nunca se eliminan.
+   Un periodo de outage de MP genera miles de webhooks fallidos que
+   quedan en la tabla para siempre.
+
+RESUMEN EJECUTIVO PARA NUEVO DESARROLLADOR
+-------------------------------------------
+CourtOps es un sistema real, en produccion, con logica de negocio compleja
+bien pensada. No es un proyecto de practica. El developer que lo construyo
+tiene buena intuicion arquitectonica.
+
+Los problemas principales son:
+  1. La madurez operacional (monitoreo, alertas, paginacion) esta retrasada
+     respecto a la funcionalidad implementada.
+  2. El modulo de torneos necesita trabajo para ser usable a escala real.
+  3. Algunas decisiones de schema (score como String, stats denormalizados)
+     van a generar trabajo de refactor en el futuro.
+  4. La seguridad en torno a mpAccessToken necesita verificacion urgente.
+  5. Performance en calendarios y listas largas necesita atencion antes
+     de onboardear clubes con muchos datos historicos.
+
+Para llevar CourtOps a 50+ clubes activos, las prioridades tecnicas son:
+  PRIORIDAD 1 (esta semana):
+    - Verificar cifrado de mpAccessToken
+    - Rate limiting en booking publico
+    - PgBouncer en Neon
+
+  PRIORIDAD 2 (este mes):
+    - Paginacion en listas largas
+    - Bracket automatico para torneos
+    - Monitoreo de cron jobs
+    - Audit log retention configurable
+
+  PRIORIDAD 3 (proximo trimestre):
+    - Optimistic updates en UI
+    - Score parser para torneos
+    - Row-Level Security en PostgreSQL
+    - Analytics de WhatsApp campaigns
+
+La base es solida. El camino a escala es claro.
+
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================
+Archivo generado: 2026-05-16
+Codebase analizado: courtops/src
+Branch: codex/premium-public-venue-layout
+Autor del analisis: Claude Sonnet 4.6
+================================================================================

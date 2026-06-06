@@ -30,7 +30,7 @@ export function getPublicBookingStateMeta(
       : isExpiredBookingStatus(normalizedStatus)
         ? 'Vencida'
         : isNoShowBookingStatus(normalizedStatus)
-          ? 'No asistio'
+          ? 'No asistió'
           : isCanceledBookingStatus(normalizedStatus)
             ? 'Cancelada'
             : 'Creada'
@@ -52,7 +52,7 @@ export function getPublicBookingStateMeta(
     : normalizedPayment === 'PARTIAL'
       ? 'Pago parcial'
       : normalizedPayment === 'PENDING_VALIDATION'
-        ? 'Pago en validacion'
+        ? 'Pago en validación'
         : normalizedPayment === 'REFUNDED'
           ? 'Reintegrada'
           : 'Pendiente de pago'
@@ -78,14 +78,14 @@ export function getPublicBookingStateMeta(
       : 'Turno reservado'
 
   const helper = normalizedPayment === 'PAID'
-    ? 'Tu pago se registro y el turno ya quedo asociado a tu reserva.'
+    ? 'Tu pago se registró y el turno ya quedó asociado a tu reserva.'
     : isExpiredBookingStatus(normalizedStatus)
-      ? 'La reserva se libero por falta de pago dentro del tiempo configurado por el club.'
+      ? 'La reserva se liberó por falta de pago dentro del tiempo configurado por el club.'
       : isNoShowBookingStatus(normalizedStatus)
-        ? 'El turno ya paso y quedo marcado como ausente.'
+        ? 'El turno ya pasó y quedó marcado como ausente.'
     : isGuest && normalizedStatus === 'PENDING'
-      ? 'El club debe validar la sena para confirmar definitivamente tu turno.'
-      : 'Ya puedes compartirlo, agregarlo al calendario o volver a reservar.'
+      ? 'El club debe validar la seña para confirmar definitivamente tu turno.'
+      : 'Ya podés compartirlo, agregarlo al calendario o volver a reservar.'
 
   return {
     headline,

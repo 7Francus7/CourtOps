@@ -752,7 +752,7 @@ export async function createPublicBooking(data: PublicBookingInput) {
                             tag: `public-booking-${booking.id}`,
                             actions: [
                                    { action: 'open-bookings', title: 'Ver agenda', url: '/dashboard?view=bookings' },
-                                   { action: 'open-public', title: 'Link publico', url: `/p/${club.slug}` }
+                                   { action: 'open-public', title: 'Link público', url: `/p/${club.slug}` }
                             ],
                             data: {
                                    bookingId: booking.id,
@@ -878,14 +878,14 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
 
               const phoneDigits = clientPhone.replace(/\D/g, '')
               if (phoneDigits.length < 8 || phoneDigits.length > 15) {
-                     return { success: false, error: 'El telÃ©fono ingresado no es vÃ¡lido.' }
+                     return { success: false, error: 'El teléfono ingresado no es válido.' }
               }
 
               const [y, m, d] = data.dateStr.split('-').map(Number)
               const waitingDate = createArgDate(y, m - 1, d, 0, 0)
 
               if (Number.isNaN(waitingDate.getTime())) {
-                     return { success: false, error: 'La fecha seleccionada no es vÃ¡lida.' }
+                     return { success: false, error: 'La fecha seleccionada no es válida.' }
               }
 
               const club = await prisma.club.findUnique({
@@ -922,7 +922,7 @@ export async function createPublicWaitingList(data: PublicWaitingListInput) {
               const duplicateEntry = duplicateCandidates.find((entry) => phoneMatches(clientPhone, entry.phone))
 
               if (duplicateEntry) {
-                     return { success: false, error: 'Ya estÃ¡s anotado en la lista de espera para esta fecha.' }
+                     return { success: false, error: 'Ya estás anotado en la lista de espera para esta fecha.' }
               }
 
               await prisma.waitingList.create({

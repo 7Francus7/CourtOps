@@ -544,11 +544,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 	const venueWhatsappHref = clubWhatsappNumber
 		? `https://wa.me/${clubWhatsappNumber}?text=${encodeURIComponent(
-			`Hola ${club.name}. Vengo desde la reserva online y queria consultar disponibilidad.`
+			`Hola ${club.name}. Vengo desde la reserva online y quería consultar disponibilidad.`
 		)}`
 		: null
 	const venueDepositLabel = useMemo(() => {
-		if ((club.bookingDeposit ?? 0) > 0) return `Sena desde ${formatArs(club.bookingDeposit!)}`
+		if ((club.bookingDeposit ?? 0) > 0) return `Seña desde ${formatArs(club.bookingDeposit!)}`
 		if (canUseOnlinePayments || club.mpAlias || club.mpCvu) return 'Pago online disponible'
 		return 'Reserva directa desde la web'
 	}, [canUseOnlinePayments, club.bookingDeposit, club.mpAlias, club.mpCvu])
@@ -908,11 +908,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 		const whatsappNum = getWhatsappNumber(club.phone)
 		const depositRequired = (club.bookingDeposit ?? 0) > 0
 		const transferCompletionLabel = whatsappNum
-			? 'Ya pague y envie el comprobante'
-			: 'Ya pague, ver mi reserva'
+			? 'Ya pagué y envié el comprobante'
+			: 'Ya pagué, ver mi reserva'
 		const paymentHelper = hasTransfer
-			? 'Paga primero. Si transferis, envia el comprobante y segui para revisar el estado de la reserva.'
-			: 'Paga ahora y te llevamos directo al estado final de la reserva.'
+			? 'Pagá primero. Si transferís, enviá el comprobante y seguí para revisar el estado de la reserva.'
+			: 'Pagá ahora y te llevamos directo al estado final de la reserva.'
 
 		return (
 			<div className="min-h-screen bg-gray-50 dark:bg-zinc-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col overflow-x-hidden transition-colors duration-300">
@@ -943,9 +943,9 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 							<div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 mb-2">
 								<CreditCard size={22} className="text-primary" />
 							</div>
-							<p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Ultimo paso</p>
+							<p className="text-[10px] font-black uppercase tracking-[0.22em] text-primary">Último paso</p>
 							<h2 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
-								{depositRequired ? `Paga la sena de ${formatArs(club.bookingDeposit!)}` : 'Cerra tu reserva'}
+								{depositRequired ? `Pagá la seña de ${formatArs(club.bookingDeposit!)}` : 'Cerrá tu reserva'}
 							</h2>
 							<p className="mx-auto max-w-[22rem] text-sm font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
 								{paymentHelper}
@@ -974,7 +974,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 								</p>
 								{depositRequired && (
 									<p className="mt-1 text-[11px] font-black text-primary">
-										Sena para reservar: {formatArs(club.bookingDeposit!)}
+										Seña para reservar: {formatArs(club.bookingDeposit!)}
 									</p>
 								)}
 							</div>
@@ -989,13 +989,13 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									1
 								</div>
 								<div className="min-w-0">
-									<p className="text-sm font-black text-slate-800 dark:text-white">Paga la sena</p>
+									<p className="text-sm font-black text-slate-800 dark:text-white">Pagá la seña</p>
 									<p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
 										{canUseOnlinePayments && hasTransfer
-											? 'Elegi MercadoPago o transferencia.'
+											? 'Elegí Mercado Pago o transferencia.'
 											: canUseOnlinePayments
-												? 'Con MercadoPago volves directo al estado final.'
-												: 'Usa estos datos para transferir.'}
+												? 'Con Mercado Pago volvés directo al estado final.'
+												: 'Usá estos datos para transferir.'}
 									</p>
 								</div>
 							</div>
@@ -1012,7 +1012,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										) : (
 											<>
 												<CreditCard size={16} />
-												Pagar con MercadoPago
+												Pagar con Mercado Pago
 											</>
 										)}
 									</button>
@@ -1022,7 +1022,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									<div className="flex items-center gap-3">
 										<div className="flex-1 h-px bg-slate-200 dark:bg-zinc-800" />
 										<span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-600">
-											o transferi
+											o transferí
 										</span>
 										<div className="flex-1 h-px bg-slate-200 dark:bg-zinc-800" />
 									</div>
@@ -1085,11 +1085,11 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										2
 									</div>
 									<div className="min-w-0">
-										<p className="text-sm font-black text-slate-800 dark:text-white">Envia el comprobante</p>
+										<p className="text-sm font-black text-slate-800 dark:text-white">Enviá el comprobante</p>
 										<p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-zinc-400">
 											{whatsappNum
-												? 'Abrilo en WhatsApp y mandalo para acelerar la validacion.'
-												: 'Cuando termines de pagar, segui para revisar el estado de la reserva.'}
+												? 'Abrilo en WhatsApp y mandalo para acelerar la validación.'
+												: 'Cuando termines de pagar, seguí para revisar el estado de la reserva.'}
 										</p>
 									</div>
 								</div>
@@ -1098,7 +1098,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									{whatsappNum ? (
 										<a
 											href={`https://wa.me/${whatsappNum}?text=${encodeURIComponent(
-												`Hola! Reserve para el ${format(selectedDate, 'EEEE d/M', { locale: es })} a las ${selectedSlot.time}hs en ${selectedSlot.courtName}. Reserva #${createdBookingId}. Te envio el comprobante de pago.`
+												`Hola! Reservé para el ${format(selectedDate, 'EEEE d/M', { locale: es })} a las ${selectedSlot.time}hs en ${selectedSlot.courtName}. Reserva #${createdBookingId}. Te envío el comprobante de pago.`
 											)}`}
 											target="_blank"
 											rel="noopener noreferrer"
@@ -1109,7 +1109,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 										</a>
 									) : (
 										<div className="rounded-2xl border border-dashed border-slate-200 px-3 py-3 text-[11px] font-semibold leading-relaxed text-slate-500 dark:border-zinc-700 dark:text-zinc-400">
-											El club va a validar la sena manualmente. Cuando quieras, segui para ver el estado actual de tu reserva.
+											El club va a validar la seña manualmente. Cuando quieras, seguí para ver el estado actual de tu reserva.
 										</div>
 									)}
 								</div>
@@ -1129,8 +1129,8 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									<p className="flex items-center justify-center gap-1.5 text-center text-[10px] font-semibold text-slate-500 dark:text-zinc-400">
 										<Lock size={11} className="shrink-0 text-amber-500 dark:text-amber-400" />
 										{depositRequired
-											? 'El club confirma el turno cuando valida la sena.'
-											: 'Podes seguir ahora y resolver el pago con el club despues.'}
+											? 'El club confirma el turno cuando valida la seña.'
+											: 'Podés seguir ahora y resolver el pago con el club después.'}
 									</p>
 								</div>
 							</StickyActionBar>
@@ -1138,7 +1138,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 
 						<div className="hidden">
 
-						{/* MercadoPago button */}
+						{/* Mercado Pago button */}
 						{canUseOnlinePayments && (
 							<div className="space-y-2">
 								<button
@@ -1151,7 +1151,7 @@ export default function PublicBookingWizard({ club, initialDateStr, openMatches 
 									) : (
 										<>
 											<CreditCard size={16} />
-											Pagar con MercadoPago
+											Pagar con Mercado Pago
 										</>
 									)}
 								</button>

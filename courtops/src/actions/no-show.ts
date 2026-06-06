@@ -46,7 +46,7 @@ export async function revertNoShow(bookingId: number) {
               })
 
               if (!booking) return { success: false, error: 'Reserva no encontrada' }
-              if (booking.status !== 'NO_SHOW') return { success: false, error: 'La reserva no estÃ¡ marcada como no-show' }
+              if (booking.status !== 'NO_SHOW') return { success: false, error: 'La reserva no está marcada como no-show' }
 
               for (const item of booking.items) {
                      if (item.productId) {

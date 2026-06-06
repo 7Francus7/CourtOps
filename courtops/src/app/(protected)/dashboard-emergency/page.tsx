@@ -69,7 +69,7 @@ export default async function EmergencyDashboard() {
                                           <h2 className="text-xl font-bold mb-4">Canchas Configuradas</h2>
                                           {courts.length === 0 ? (
                                                  <div className="text-amber-500 bg-amber-500/10 p-4 rounded-lg">
-                                                        âš ï¸ No hay canchas configuradas. Ve a ConfiguraciÃ³n para agregar canchas.
+                                                        No hay canchas configuradas. Ve a Configuración para agregar canchas.
                                                  </div>
                                           ) : (
                                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

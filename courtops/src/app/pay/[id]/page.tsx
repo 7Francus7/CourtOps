@@ -86,7 +86,7 @@ export default function PaymentPage() {
       }
     } else if (paymentMethod === 'TRANSFER') {
       if (!transferRef.trim()) {
-        toast.error('Por favor ingresa el número de referencia del comprobante')
+        toast.error('Por favor ingresá el número de referencia del comprobante')
         paymentLockRef.current = false
         return
       }

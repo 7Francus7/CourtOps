@@ -419,7 +419,7 @@ export default function VenueLayout({
                       className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-[11px] font-black uppercase tracking-[0.16em] text-slate-700 transition-all active:scale-[0.98] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-white"
                     >
                       <MapPin size={15} />
-                      CÃ³mo llegar
+                      Cómo llegar
                     </a>
                   )}
                 </div>
@@ -429,7 +429,7 @@ export default function VenueLayout({
                 {[
                   { icon: Check, label: 'Disponibilidad real' },
                   { icon: ShieldCheck, label: 'Pago seguro' },
-                  { icon: Clock, label: 'ConfirmaciÃ³n al instante' },
+                  { icon: Clock, label: 'Confirmación al instante' },
                 ].map(({ icon: Icon, label }) => (
                   <span
                     key={label}
@@ -635,7 +635,7 @@ export default function VenueLayout({
                         <Phone size={18} />
                       </div>
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Telefono</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Teléfono</p>
                         <p className="text-sm font-black text-slate-800 dark:text-white">{club.phone}</p>
                       </div>
                     </div>
@@ -654,9 +654,9 @@ export default function VenueLayout({
                       <MapPin size={18} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Direccion</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Dirección</p>
                       <p className="text-sm font-black text-slate-800 dark:text-white">
-                        {club.address || 'Abrir ubicacion del club'}
+                        {club.address || 'Abrir ubicación del club'}
                       </p>
                     </div>
                   </div>
@@ -730,7 +730,7 @@ export default function VenueLayout({
                     Siguiente paso
                   </p>
                   <p className="mt-1 text-lg font-black tracking-tight">
-                    Pasa a la agenda y elige el turno
+                    Pasá a la agenda y elegí el turno
                   </p>
                 </div>
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/20 transition-transform group-active:translate-x-1">
@@ -753,7 +753,7 @@ export default function VenueLayout({
                 <p className="truncate text-sm font-black text-slate-800 dark:text-white">
                   {bookingMeta?.firstAvailableTime
                     ? `Primer horario sugerido: ${bookingMeta.firstAvailableTime} hs`
-                    : 'Mira disponibilidad y reserva desde el celular'}
+                    : 'Mirá disponibilidad y reservá desde el celular'}
                 </p>
               </div>
               <button
