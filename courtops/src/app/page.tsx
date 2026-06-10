@@ -8,11 +8,9 @@ import {
   BarChart3,
   CalendarCheck,
   Check,
-  ChevronRight,
   MessageCircle,
   ReceiptText,
   Smartphone,
-  Sparkles,
   Users,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
@@ -21,6 +19,7 @@ import WhatsAppButton from "@/components/WhatsAppButton"
 import MobileNavMenu from "@/components/landing/MobileNavMenu"
 import { CourtOpsLogoAuto } from "@/components/ui/CourtOpsLogo"
 import LandingPricing from "@/components/landing/LandingPricing"
+import CinematicHero from "@/components/landing/CinematicHero"
 import { ScrollReveal, StaggerReveal } from "@/components/landing/ScrollReveal"
 import { AnimatedCounter } from "@/components/landing/AnimatedCounter"
 import { getBaseUrl } from "@/lib/utils"
@@ -35,12 +34,6 @@ const navLinks = [
   { href: "#operacion", label: "Operación" },
   { href: "#impacto", label: "Métricas" },
   { href: "#planes", label: "Planes" },
-]
-
-const liveRows = [
-  { court: "Cancha 1", time: "18:00", client: "Seba + equipo", status: "Seña paga", tone: "emerald" },
-  { court: "Cancha 2", time: "19:30", client: "Partido abierto", status: "2 cupos", tone: "cyan" },
-  { court: "Cancha 3", time: "21:00", client: "Torneo mixto", status: "Confirmado", tone: "amber" },
 ]
 
 const operatingFlow = [
@@ -83,73 +76,6 @@ const metrics = [
 ]
 
 
-
-function BookingBoard() {
-  return (
-    <div className="relative mx-auto w-full max-w-[560px] overflow-hidden rounded-2xl border border-white/12 bg-zinc-950/80 p-3 shadow-[0_30px_120px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-      <div className="flex items-center justify-between border-b border-white/10 px-3 pb-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">Link público en vivo</p>
-          <h2 className="mt-1 text-xl font-bold text-white">Reservas que llegan solas</h2>
-        </div>
-        <div className="flex items-center gap-2 rounded-full bg-emerald-400 px-3 py-1 text-xs font-black text-emerald-950">
-          <span className="h-2 w-2 rounded-full bg-emerald-950" />
-          Vivo
-        </div>
-      </div>
-
-      <div className="grid grid-cols-[76px_1fr] gap-2 px-3 py-4 text-xs text-zinc-400">
-        {["18:00", "19:30", "21:00", "22:30"].map((time) => (
-          <div key={time} className="contents">
-            <div className="py-4 font-mono">{time}</div>
-            <div className="grid grid-cols-3 gap-2">
-              {[0, 1, 2].map((court) => {
-                const active = liveRows.find((row) => row.time === time && row.court === `Cancha ${court + 1}`)
-                return (
-                  <div
-                    key={`${time}-${court}`}
-                    className={`min-h-16 rounded-xl border p-3 ${
-                      active
-                        ? active.tone === "cyan"
-                          ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-50"
-                          : active.tone === "amber"
-                            ? "border-amber-300/35 bg-amber-300/15 text-amber-50"
-                            : "border-emerald-300/35 bg-emerald-300/15 text-emerald-50"
-                        : "border-white/8 bg-white/[0.03]"
-                    }`}
-                  >
-                    {active ? (
-                      <>
-                        <p className="text-[11px] font-black uppercase tracking-[0.12em]">{active.court}</p>
-                        <p className="mt-2 text-sm font-bold leading-tight">{active.client}</p>
-                        <p className="mt-2 text-[11px] text-white/70">{active.status}</p>
-                      </>
-                    ) : (
-                      <span className="text-[11px] text-zinc-600">Libre</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 border-t border-white/10 p-3">
-        {[
-          ["18", "reservas"],
-          ["6", "en espera"],
-          ["31%", "referidos"],
-        ].map(([value, label]) => (
-          <div key={label} className="rounded-xl bg-white/[0.06] p-3">
-            <p className="text-2xl font-black text-white">{value}</p>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">{label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 export default async function Home() {
   const session = await getServerSession(authOptions)
@@ -225,46 +151,11 @@ export default async function Home() {
       </nav>
 
       <main>
-        <section className="relative flex min-h-[100svh] items-end overflow-hidden px-5 pb-10 pt-[calc(7rem+env(safe-area-inset-top))] md:px-10 md:pb-14">
-          <img
-            src="https://images.pexels.com/photos/32474981/pexels-photo-32474981.jpeg?auto=compress&cs=tinysrgb&w=2200"
-            alt="Cancha de pádel indoor con piso azul"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,9,11,0.98)_0%,rgba(7,9,11,0.86)_44%,rgba(7,9,11,0.48)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#07090b] to-transparent" />
+        <CinematicHero />
 
-          <div className="relative z-10 mx-auto grid w-full max-w-[1440px] items-end gap-10 lg:grid-cols-[1fr_560px]">
-            <ScrollReveal direction="up" delay={0.1} distance={40} className="max-w-5xl">
-              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
-                <Sparkles size={14} />
-                Link público, WhatsApp y métricas para clubes
-              </div>
-              <h1 className="max-w-6xl text-5xl font-black leading-[0.92] tracking-tight text-white sm:text-6xl md:text-8xl xl:text-[8.5rem]">
-                Más reservas confirmadas.
-                <span className="block font-serif italic text-emerald-300">Menos agenda por chat.</span>
-              </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300 md:text-xl">
-                CourtOps convierte el link de tu club en un canal de venta: reservas móviles, señas, WhatsApp, lista de espera, referidos y métricas para saber qué está funcionando.
-              </p>
-              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-                <Link href="/register" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-300 px-7 py-4 text-base font-black text-emerald-950 transition hover:bg-emerald-200">
-                  Crear mi link público
-                  <ArrowRight size={19} />
-                </Link>
-                <a href="#experiencia" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/16 bg-white/8 px-7 py-4 text-base font-bold text-white backdrop-blur transition hover:bg-white/12">
-                  Ver cómo vende
-                  <ChevronRight size={19} />
-                </a>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal direction="up" delay={0.3} distance={40}>
-              <BookingBoard />
-            </ScrollReveal>
-          </div>
-        </section>
-
-        <section id="experiencia" className="border-y border-zinc-950/10 bg-white dark:border-white/10 dark:bg-[#0b1014]">
+        {/* Contenido posterior: se desliza por encima del hero fijo (efecto cortina) */}
+        <div className="relative z-10">
+        <section id="experiencia" className="overflow-hidden rounded-t-[2rem] border-b border-zinc-950/10 bg-white shadow-[0_-30px_90px_rgba(0,0,0,0.55)] dark:border-white/10 dark:bg-[#0b1014] md:rounded-t-[2.5rem]">
           <StaggerReveal
             className="mx-auto grid max-w-[1440px] grid-cols-2 gap-px bg-zinc-950/10 dark:bg-white/10 md:grid-cols-4"
             stagger={0.1}
@@ -397,6 +288,7 @@ export default async function Home() {
             </div>
           </ScrollReveal>
         </section>
+        </div>
       </main>
 
       <footer className="border-t border-zinc-950/10 bg-white px-5 py-10 dark:border-white/10 dark:bg-[#07090b] md:px-10">
