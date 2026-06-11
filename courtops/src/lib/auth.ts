@@ -149,8 +149,10 @@ export const authOptions: NextAuthOptions = {
                             }
                      }
 
-                     // Verificar tokenVersion contra DB para permitir revocación server-side
-                     if (token.id && token.tokenVersion !== undefined) {
+                     // Verificar tokenVersion contra DB para permitir revocación server-side.
+                     // El usuario de emergency bypass (god-mode) es sintético y no existe en DB,
+                     // así que se excluye del chequeo o la sesión se invalidaría sola.
+                     if (token.id && token.id !== 'dev-override' && token.tokenVersion !== undefined) {
                             try {
                                    const dbUser = await prisma.user.findUnique({
                                           where: { id: token.id as string },
