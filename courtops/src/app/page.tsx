@@ -80,7 +80,9 @@ const metrics = [
 export default async function Home() {
   const session = await getServerSession(authOptions)
 
-  if (session?.user) {
+  // Los usuarios de club logueados saltan la landing y van al panel.
+  // GOD (emergency bypass, sin club real) sí puede ver la landing.
+  if (session?.user && session.user.role !== 'GOD' && session.user.clubId !== 'GOD_MODE_ACTIVE') {
     redirect("/dashboard")
   }
 
