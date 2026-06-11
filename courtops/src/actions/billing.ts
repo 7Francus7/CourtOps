@@ -152,8 +152,12 @@ export async function getSubscriptionDaysRemaining(): Promise<number | null> {
   const now = new Date()
 
   if (club.subscriptionStatus === 'TRIAL') {
-    const trialEnd = new Date(club.createdAt)
-    trialEnd.setDate(trialEnd.getDate() + 7)
+    // nextBillingDate es la fecha de fin del trial (registro la setea a +14 días)
+    const trialEnd = club.nextBillingDate ?? (() => {
+      const d = new Date(club.createdAt)
+      d.setDate(d.getDate() + 14)
+      return d
+    })()
     return Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / 86400000))
   }
 

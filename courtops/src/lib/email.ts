@@ -427,3 +427,150 @@ export const sendSubscriptionPaymentEmail = async (
     return { success: false, error: err };
   }
 };
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://courtops.net';
+
+function baseEmailShell(headline: string, bodyHtml: string, ctaLabel: string, ctaHref: string) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #030712; color: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b;">
+      <div style="background: #020617; padding: 28px 24px; border-bottom: 1px solid #1e293b; text-align: center;">
+        <h1 style="margin:0; font-size:22px; color:#fff;">COURT<span style="color:#10b981;">OPS</span></h1>
+        <p style="margin:8px 0 0; color:#94a3b8; font-size:13px;">${headline}</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        ${bodyHtml}
+        <div style="text-align:center; margin-top:28px;">
+          <a href="${ctaHref}" style="display:inline-block; background:#10b981; color:#000; padding:14px 28px; text-decoration:none; border-radius:30px; font-weight:800; font-size:14px;">
+            ${ctaLabel}
+          </a>
+        </div>
+      </div>
+      <div style="background:#020617; padding:20px; text-align:center; border-top:1px solid #1e293b;">
+        <p style="color:#64748b; font-size:12px; margin:0;">&copy; ${new Date().getFullYear()} CourtOps</p>
+      </div>
+    </div>
+  `;
+}
+
+export const sendTrialReminderEmail = async (
+  toEmail: string,
+  clubName: string,
+  daysLeft: number,
+) => {
+  const daysText = daysLeft === 1 ? 'mañana' : `en ${daysLeft} días`;
+  const subject = daysLeft === 1
+    ? `${clubName}: tu prueba de CourtOps termina mañana`
+    : `${clubName}: te quedan ${daysLeft} días de prueba en CourtOps`;
+
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[EMAIL SIM] Trial reminder:', { toEmail, clubName, daysLeft });
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      replyTo: 'courtops.saas@gmail.com',
+      to: [toEmail],
+      subject,
+      html: baseEmailShell(
+        'Tu prueba está por terminar',
+        `
+          <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0 0 16px;">
+            Hola, la prueba gratis de <strong>${clubName}</strong> termina <strong>${daysText}</strong>.
+          </p>
+          <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0 0 16px;">
+            Para seguir recibiendo reservas online sin cortes, elegí tu plan ahora.
+            Podés pagar por <strong>transferencia bancaria</strong> (sin comisión) o con MercadoPago.
+          </p>
+          <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:0;">
+            Tus datos, reservas y clientes quedan guardados aunque venza la prueba.
+          </p>
+        `,
+        'Elegir mi plan',
+        `${APP_URL}/dashboard/suscripcion`,
+      ),
+    });
+    if (error) return { success: false, error };
+    return { success: true, data };
+  } catch (err) {
+    console.error('Exception sending trial reminder email:', err);
+    return { success: false, error: err };
+  }
+};
+
+export const sendTrialExpiredEmail = async (toEmail: string, clubName: string) => {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[EMAIL SIM] Trial expired:', { toEmail, clubName });
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      replyTo: 'courtops.saas@gmail.com',
+      to: [toEmail],
+      subject: `${clubName}: tu prueba de CourtOps terminó — tus datos siguen guardados`,
+      html: baseEmailShell(
+        'Tu prueba terminó',
+        `
+          <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0 0 16px;">
+            La prueba gratis de <strong>${clubName}</strong> terminó. Tu cuenta quedó pausada,
+            pero <strong>no perdiste nada</strong>: reservas, clientes y configuración siguen intactos.
+          </p>
+          <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0;">
+            Activá un plan y todo vuelve a funcionar al instante. Transferencia bancaria sin comisión o MercadoPago.
+          </p>
+        `,
+        'Reactivar mi club',
+        `${APP_URL}/dashboard/suscripcion`,
+      ),
+    });
+    if (error) return { success: false, error };
+    return { success: true, data };
+  } catch (err) {
+    console.error('Exception sending trial expired email:', err);
+    return { success: false, error: err };
+  }
+};
+
+export const sendSubscriptionActivatedEmail = async (
+  toEmail: string,
+  clubName: string,
+  planName: string,
+  periodEnd: Date,
+) => {
+  const endStr = periodEnd.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[EMAIL SIM] Subscription activated:', { toEmail, clubName, planName });
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      replyTo: 'courtops.saas@gmail.com',
+      to: [toEmail],
+      subject: `¡Listo! Plan ${planName} activado para ${clubName}`,
+      html: baseEmailShell(
+        'Pago confirmado',
+        `
+          <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0 0 16px;">
+            Validamos tu pago y el plan <strong>${planName}</strong> de <strong>${clubName}</strong> ya está activo.
+          </p>
+          <p style="color:#cbd5e1; font-size:15px; line-height:1.6; margin:0;">
+            Tu suscripción vence el <strong>${endStr}</strong>. Te vamos a avisar antes para que renueves sin cortes.
+          </p>
+        `,
+        'Ir a mi dashboard',
+        `${APP_URL}/dashboard`,
+      ),
+    });
+    if (error) return { success: false, error };
+    return { success: true, data };
+  } catch (err) {
+    console.error('Exception sending subscription activated email:', err);
+    return { success: false, error: err };
+  }
+};

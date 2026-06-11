@@ -85,7 +85,8 @@ function StatusBanner({
   const isTrial = status === 'TRIAL'
   const isPending = status === 'PENDING_VALIDATION'
   const isSuspended = status === 'SUSPENDED'
-  const isCancelled = ['cancelled', 'expired', 'EXPIRED'].includes(status ?? '')
+  const isExpiredTrial = ['expired', 'EXPIRED'].includes(status ?? '')
+  const isCancelled = status === 'cancelled'
   const isExpiringSoon = isActive && daysRemaining != null && daysRemaining <= 7 && daysRemaining > 0
   const endDateStr = subscriptionEnd
     ? new Date(subscriptionEnd).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -124,6 +125,20 @@ function StatusBanner({
           <p className="text-xs text-blue-300/60">• Tu acceso se activa cuando validamos la transferencia.</p>
           <p className="text-xs text-blue-300/60">• Si ya transferiste, no hace falta volver a pagar.</p>
           <p className="text-xs text-blue-300/60">• ¿Dudas? Escribinos por WhatsApp y lo resolvemos en minutos.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (isExpiredTrial) {
+    return (
+      <div className="flex items-start gap-4 rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+        <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+        <div>
+          <p className="font-bold text-red-400">Tu prueba gratuita terminó</p>
+          <p className="text-sm text-red-400/70 mt-0.5">
+            Tus datos están guardados. Activá un plan y todo vuelve a funcionar al instante.
+          </p>
         </div>
       </div>
     )
@@ -182,10 +197,10 @@ function StatusBanner({
           <TrendingUp className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <p className="font-bold text-primary">Trial gratuito</p>
+          <p className="font-bold text-primary">Prueba gratis activa</p>
           <p className="text-xs text-primary/60">
             {daysRemaining != null
-              ? daysRemaining > 0 ? `Quedan ${daysRemaining} días de prueba` : 'Tu trial venció hoy'
+              ? daysRemaining > 0 ? `Te quedan ${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'} de prueba` : 'Tu prueba vence hoy'
               : 'Probando CourtOps sin costo'}
           </p>
         </div>
@@ -670,7 +685,7 @@ export default function SubscriptionManager({
                         isRecommended ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-muted text-foreground hover:bg-muted/70',
                       )}
                     >
-                      Activar con transferencia
+                      Elegir este plan
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   )}

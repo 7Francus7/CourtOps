@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
+import { sendTrialReminderEmail, sendTrialExpiredEmail } from '@/lib/email'
 
-const TRIAL_DAYS = 7
+// La fuente de verdad del fin del trial es club.nextBillingDate
+// (la setea el registro a +14 días). createdAt ya no se usa para esto.
+
+async function alreadyLogged(clubId: string, event: string, withinHours: number) {
+  const cutoff = new Date(Date.now() - withinHours * 3600000)
+  const entry = await prisma.billingLog.findFirst({
+    where: { clubId, event, createdAt: { gte: cutoff } },
+    select: { id: true },
+  })
+  return !!entry
+}
 
 export async function GET(request: Request) {
   try {
@@ -10,37 +21,93 @@ export async function GET(request: Request) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - TRIAL_DAYS)
+    const now = new Date()
 
-    // Encontrar clubes en TRIAL cuyo trial ya expiró
-    const expiredClubs = await prisma.club.findMany({
+    const trialClubs = await prisma.club.findMany({
       where: {
         subscriptionStatus: 'TRIAL',
-        createdAt: { lt: cutoff },
         deletedAt: null,
+        nextBillingDate: { not: null },
       },
-      select: { id: true, name: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        nextBillingDate: true,
+        users: {
+          where: { role: 'ADMIN' },
+          take: 1,
+          select: { email: true },
+        },
+      },
     })
 
-    if (expiredClubs.length === 0) {
-      return NextResponse.json({ success: true, expired: 0 })
+    let expired = 0
+    let reminded = 0
+    let skipped = 0
+
+    for (const club of trialClubs) {
+      const trialEnd = club.nextBillingDate!
+      const daysLeft = Math.ceil((trialEnd.getTime() - now.getTime()) / 86400000)
+      const adminEmail = club.users[0]?.email
+
+      // ── Trial vencido → EXPIRED + email de despedida elegante ──
+      if (daysLeft <= 0) {
+        await prisma.$transaction([
+          prisma.club.update({
+            where: { id: club.id },
+            data: { subscriptionStatus: 'EXPIRED' },
+          }),
+          prisma.billingLog.create({
+            data: {
+              clubId: club.id,
+              event: 'TRIAL_EXPIRED',
+              details: JSON.stringify({ trialEnd: trialEnd.toISOString() }),
+            },
+          }),
+        ])
+        if (adminEmail) {
+          try {
+            await sendTrialExpiredEmail(adminEmail, club.name)
+          } catch {
+            // non-fatal
+          }
+        }
+        expired++
+        continue
+      }
+
+      // ── Recordatorios D-3 y D-1 (dedupe por billingLog) ──
+      let eventName: string | null = null
+      if (daysLeft === 3) eventName = 'TRIAL_REMINDER_3D'
+      else if (daysLeft === 1) eventName = 'TRIAL_REMINDER_1D'
+
+      if (!eventName || !adminEmail) {
+        skipped++
+        continue
+      }
+
+      if (await alreadyLogged(club.id, eventName, 48)) {
+        skipped++
+        continue
+      }
+
+      try {
+        await sendTrialReminderEmail(adminEmail, club.name, daysLeft)
+        await prisma.billingLog.create({
+          data: {
+            clubId: club.id,
+            event: eventName,
+            details: JSON.stringify({ daysLeft, email: adminEmail }),
+          },
+        })
+        reminded++
+      } catch (err) {
+        console.error(`[Cron trial-expiry] Email failed for ${club.id}:`, err)
+        skipped++
+      }
     }
 
-    const ids = expiredClubs.map((c) => c.id)
-
-    await prisma.club.updateMany({
-      where: { id: { in: ids } },
-      data: { subscriptionStatus: 'EXPIRED' },
-    })
-
-    console.log(`[Cron trial-expiry] ${ids.length} club(s) expirados:`, ids)
-
-    return NextResponse.json({
-      success: true,
-      expired: ids.length,
-      clubs: expiredClubs.map((c) => ({ id: c.id, name: c.name })),
-    })
+    return NextResponse.json({ success: true, expired, reminded, skipped })
   } catch (error: unknown) {
     console.error('[Cron trial-expiry] Error:', error)
     return NextResponse.json(

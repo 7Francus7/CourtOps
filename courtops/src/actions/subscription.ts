@@ -36,8 +36,12 @@ export async function getSubscriptionDetails() {
 	const now = new Date()
 	let daysRemaining: number | null = null
 	if (club.subscriptionStatus === 'TRIAL') {
-		const trialEnd = new Date(club.createdAt)
-		trialEnd.setDate(trialEnd.getDate() + 7)
+		// nextBillingDate es la fecha de fin del trial (la setea el registro a +14 días)
+		const trialEnd = club.nextBillingDate ?? (() => {
+			const d = new Date(club.createdAt)
+			d.setDate(d.getDate() + 14)
+			return d
+		})()
 		daysRemaining = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / 86400000))
 	} else {
 		const endDate = club.subscriptionEnd || club.nextBillingDate
@@ -382,13 +386,20 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 			const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
 			const features = plan ? getPlanFeatures(plan.name) : {}
 
+			const devPeriodEnd = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
 			await prisma.club.update({
 				where: { id: clubId },
 				data: {
 					mpPreapprovalId: preapprovalId,
 					platformPlanId: refPlanId,
 					subscriptionStatus: 'authorized',
-					nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+					subscriptionMethod: 'MERCADOPAGO',
+					subscriptionStart: new Date(),
+					subscriptionEnd: devPeriodEnd,
+					nextBillingDate: devPeriodEnd,
+					suspendedAt: null,
+					pendingPlanId: null,
+					pendingBillingCycle: null,
 					...features
 				}
 			})
@@ -422,13 +433,20 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 		const features = getPlanFeatures(plan.name)
 
 		log.info("Activando plan para el club", { clubId, planName: plan.name })
+		const nextPayment = subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined
 		await prisma.club.update({
 			where: { id: clubId },
 			data: {
 				mpPreapprovalId: preapprovalId,
 				platformPlanId: refPlanId,
 				subscriptionStatus: subscription.status,
-				nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined,
+				subscriptionMethod: 'MERCADOPAGO',
+				subscriptionStart: new Date(),
+				subscriptionEnd: nextPayment,
+				nextBillingDate: nextPayment,
+				suspendedAt: null,
+				pendingPlanId: null,
+				pendingBillingCycle: null,
 				...features
 			}
 		})

@@ -3,48 +3,59 @@
 import React from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { ShieldX, CreditCard, Lock } from 'lucide-react'
+import { ShieldX, CreditCard, Lock, Ban } from 'lucide-react'
+
+export type BlockReason = 'TRIAL_EXPIRED' | 'SUSPENDED' | null
 
 interface TrialExpiredGuardProps {
-       isTrialExpired: boolean
+       blockReason: BlockReason
        children: React.ReactNode
 }
 
+// Rutas accesibles aun con la cuenta bloqueada: el usuario SIEMPRE
+// tiene que poder llegar a pagar.
 const ALLOWED_PATHS = ['/dashboard/suscripcion']
 
-export function TrialExpiredGuard({ isTrialExpired, children }: TrialExpiredGuardProps) {
+const COPY = {
+       TRIAL_EXPIRED: {
+              icon: ShieldX,
+              title: 'Tu prueba gratuita terminó',
+              body: 'Probaste CourtOps 14 días. Para seguir operando, elegí un plan: transferencia bancaria sin comisión o MercadoPago.',
+       },
+       SUSPENDED: {
+              icon: Ban,
+              title: 'Tu cuenta está suspendida',
+              body: 'Tu suscripción venció y el período de gracia terminó. Renovala y tu acceso vuelve al instante.',
+       },
+} as const
+
+export function TrialExpiredGuard({ blockReason, children }: TrialExpiredGuardProps) {
        const pathname = usePathname()
 
-       if (!isTrialExpired) return <>{children}</>
+       if (!blockReason) return <>{children}</>
 
-       // Allow subscription pages
        const isAllowed = ALLOWED_PATHS.some(p => pathname.startsWith(p))
        if (isAllowed) return <>{children}</>
+
+       const copy = COPY[blockReason]
+       const Icon = copy.icon
 
        return (
               <div className="flex-1 flex items-center justify-center p-6">
                      <div className="max-w-lg w-full text-center space-y-6">
-                            {/* Icon */}
                             <div className="mx-auto w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                                   <ShieldX className="w-10 h-10 text-red-500" />
+                                   <Icon className="w-10 h-10 text-red-500" />
                             </div>
 
-                            {/* Title */}
                             <div className="space-y-2">
-                                   <h1 className="text-2xl font-bold text-foreground">
-                                          Tu prueba gratuita ha expirado
-                                   </h1>
-                                   <p className="text-muted-foreground text-base">
-                                          El período de prueba de tu cuenta ha finalizado. Para continuar utilizando CourtOps,
-                                          elegí un plan y activá tu suscripción.
-                                   </p>
+                                   <h1 className="text-2xl font-bold text-foreground">{copy.title}</h1>
+                                   <p className="text-muted-foreground text-base">{copy.body}</p>
                             </div>
 
-                            {/* Blocked features */}
                             <div className="bg-muted/50 rounded-xl p-4 space-y-3">
                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                           <Lock className="w-4 h-4" />
-                                          <span>Funciones bloqueadas temporalmente:</span>
+                                          <span>Funciones pausadas temporalmente:</span>
                                    </div>
                                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
                                           <span>• Reservas</span>
@@ -56,17 +67,16 @@ export function TrialExpiredGuard({ isTrialExpired, children }: TrialExpiredGuar
                                    </div>
                             </div>
 
-                            {/* CTA */}
                             <Link
                                    href="/dashboard/suscripcion"
-                                   className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold text-base transition-colors shadow-lg shadow-indigo-500/25"
+                                   className="inline-flex items-center gap-2 bg-primary hover:brightness-110 text-primary-foreground px-8 py-3 rounded-xl font-semibold text-base transition-all shadow-lg"
                             >
                                    <CreditCard className="w-5 h-5" />
-                                   Ver Planes y Suscribirme
+                                   {blockReason === 'SUSPENDED' ? 'Renovar mi plan' : 'Elegir mi plan'}
                             </Link>
 
                             <p className="text-xs text-muted-foreground">
-                                   Tus datos están seguros. Una vez que actives tu suscripción, todo volverá a funcionar normalmente.
+                                   Tus reservas, clientes y configuración están guardados. Al activar el plan, todo vuelve exactamente como estaba.
                             </p>
                      </div>
               </div>

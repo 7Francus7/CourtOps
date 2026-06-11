@@ -67,13 +67,19 @@ export default async function ProtectedLayout({ children }: { children: React.Re
               isSubscribed: !!club.mpPreapprovalId
        } : null
 
-       // Check if trial has expired
-       const isTrialExpired = !!(
+       // Bloqueo de acceso por estado de suscripción.
+       // PENDING_VALIDATION NO bloquea: el club ya pagó y está esperando validación.
+       const status = club?.subscriptionStatus
+       const trialTimedOut = !!(
               club &&
-              club.subscriptionStatus === 'TRIAL' &&
+              status === 'TRIAL' &&
               club.nextBillingDate &&
               new Date(club.nextBillingDate) < new Date()
        )
+       const blockReason: 'TRIAL_EXPIRED' | 'SUSPENDED' | null =
+              status === 'SUSPENDED' ? 'SUSPENDED'
+              : (status === 'EXPIRED' || trialTimedOut) ? 'TRIAL_EXPIRED'
+              : null
 
        return (
               <TourProvider>
@@ -87,7 +93,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                             <AppShell club={serializedClub}>
                                    <div className="flex-1 w-full flex flex-col min-h-0">
                                           <SystemAlerts />
-                                          <TrialExpiredGuard isTrialExpired={isTrialExpired}>
+                                          <TrialExpiredGuard blockReason={blockReason}>
                                                  {children}
                                           </TrialExpiredGuard>
                                    </div>

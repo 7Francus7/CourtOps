@@ -745,6 +745,24 @@ export async function validateSaaSTransfer(clubId: string, action: 'approve' | '
 					},
 				}),
 			])
+
+			// Avisar al club que el comprobante fue rechazado — no fatal
+			try {
+				const rejectedClub = await prisma.club.findUnique({
+					where: { id: clubId },
+					select: { name: true, phone: true },
+				})
+				if (rejectedClub?.phone) {
+					const { sendTextMessage, normalizePhone } = await import('@/lib/whatsapp')
+					await sendTextMessage(
+						normalizePhone(rejectedClub.phone),
+						`⚠️ *CourtOps — Comprobante rechazado*\n\nHola *${rejectedClub.name}*, no pudimos validar tu transferencia.\nMotivo: ${reason || 'datos del comprobante no coinciden'}.\n\nVolvé a *Dashboard → Suscripción* para reintentarlo, o escribinos y lo resolvemos juntos.`
+					)
+				}
+			} catch (notifyError) {
+				console.error("Reject transfer: notification failed (non-fatal):", notifyError)
+			}
+
 			revalidatePath('/god-mode')
 			return { success: true, message: 'Transferencia rechazada' }
 		}
@@ -830,6 +848,27 @@ export async function validateSaaSTransfer(clubId: string, action: 'approve' | '
 				},
 			}),
 		])
+
+		// Notificar al club que su plan quedó activo — email + WhatsApp, no fatal
+		try {
+			const adminUser = await prisma.user.findFirst({
+				where: { clubId, role: 'ADMIN' },
+				select: { email: true },
+			})
+			if (adminUser?.email) {
+				const { sendSubscriptionActivatedEmail } = await import('@/lib/email')
+				await sendSubscriptionActivatedEmail(adminUser.email, club.name, plan.name, periodEnd)
+			}
+			if (club.phone) {
+				const { sendTextMessage, normalizePhone } = await import('@/lib/whatsapp')
+				await sendTextMessage(
+					normalizePhone(club.phone),
+					`✅ *CourtOps — Pago confirmado*\n\nHola *${club.name}*, validamos tu transferencia y tu plan *${plan.name}* ya está activo hasta el *${periodEnd.toLocaleDateString('es-AR')}*.\n\n¡A seguir operando! 🎾`
+				)
+			}
+		} catch (notifyError) {
+			console.error("Validate SaaS Transfer: notification failed (non-fatal):", notifyError)
+		}
 
 		revalidatePath('/god-mode')
 		return { success: true, message: `Plan ${plan.name} activado hasta ${periodEnd.toLocaleDateString('es-AR')}` }

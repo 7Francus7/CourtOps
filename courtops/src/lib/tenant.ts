@@ -40,18 +40,24 @@ export async function enforceActiveSubscription(clubId: string): Promise<void> {
 
        if (!club) return
 
-       // Suscripción explícitamente expirada por el cron de trial-expiry
+       // Trial expirado por el cron de trial-expiry
        if (club.subscriptionStatus === 'EXPIRED') {
-              throw new Error('Tu suscripción ha expirado. Renovate desde Configuración → Plan.')
+              throw new Error('Tu prueba terminó. Activá un plan desde Suscripción para continuar.')
        }
 
-       // Trial expirado por tiempo (nextBillingDate = fecha fin del trial)
+       // Suspendido por falta de pago (cron subscription-suspend)
+       if (club.subscriptionStatus === 'SUSPENDED') {
+              throw new Error('Tu cuenta está suspendida por falta de pago. Renovala desde Suscripción.')
+       }
+
+       // Trial expirado por tiempo (nextBillingDate = fecha fin del trial),
+       // por si el cron todavía no corrió hoy
        if (
               club.subscriptionStatus === 'TRIAL' &&
               club.nextBillingDate &&
               new Date(club.nextBillingDate) < new Date()
        ) {
-              throw new Error('Tu prueba gratuita ha expirado. Suscribite a un plan para continuar.')
+              throw new Error('Tu prueba gratuita terminó. Activá un plan desde Suscripción para continuar.')
        }
 }
 
