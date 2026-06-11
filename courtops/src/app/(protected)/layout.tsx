@@ -26,7 +26,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
 
        const isSuperAdmin = session.user?.role === 'SUPER_ADMIN' || session.user?.role === 'GOD'
 
-       if (!session.user?.clubId) {
+       if (!session.user?.clubId || session.user.clubId === 'GOD_MODE_ACTIVE') {
               if (isSuperAdmin) {
                      redirect('/god-mode')
               }
