@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from 'next-themes'
 
@@ -134,27 +134,53 @@ export default function DashboardClient({
        }, [])
 
        // Load Courts for Global Creation Modal via API endpoint (client-side)
-       useEffect(() => {
-              ; (async () => {
-                     const controller = new AbortController()
-                     const timeout = setTimeout(() => controller.abort(), 6000)
-                     try {
-                            setInitialLoading(true)
-                            const res = await fetch('/api/dashboard/courts', { signal: controller.signal })
-                            if (!res.ok) throw new Error('Failed to load courts')
-                            const data = await res.json()
-                            setCourts(data || [])
-                     } catch (err) {
-                            if (!(err instanceof DOMException && err.name === 'AbortError')) {
-                                   console.error('Error loading courts:', err)
-                            }
-                            setCourts([])
-                     } finally {
-                            clearTimeout(timeout)
-                            setInitialLoading(false)
+       // silent: true evita re-activar initialLoading — el early-return del
+       // skeleton desmontaría TODO el árbol (incluido el OnboardingWizard).
+       const loadCourts = useCallback(async (opts?: { silent?: boolean }) => {
+              const controller = new AbortController()
+              const timeout = setTimeout(() => controller.abort(), 6000)
+              try {
+                     if (!opts?.silent) setInitialLoading(true)
+                     const res = await fetch('/api/dashboard/courts', { signal: controller.signal })
+                     if (!res.ok) throw new Error('Failed to load courts')
+                     const data = await res.json()
+                     setCourts(data || [])
+              } catch (err) {
+                     if (!(err instanceof DOMException && err.name === 'AbortError')) {
+                            console.error('Error loading courts:', err)
                      }
-              })()
+                     if (!opts?.silent) setCourts([])
+              } finally {
+                     clearTimeout(timeout)
+                     if (!opts?.silent) setInitialLoading(false)
+              }
        }, [])
+
+       useEffect(() => {
+              loadCourts()
+       }, [loadCourts])
+
+       // El wizard crea canchas DESPUÉS de que este componente cargó la lista
+       // (vacía). Sin esto, el turnero queda sin canchas hasta un F5.
+       const handleOnboardingFinished = useCallback(() => {
+              loadCourts({ silent: true })
+              queryClient.invalidateQueries()
+       }, [loadCourts, queryClient])
+
+       // Montaje sticky del wizard: una vez abierto, solo se cierra cuando el
+       // usuario termina (onClose). Si dependiera de courts.length o de props
+       // del server, cualquier re-render a mitad de flujo lo desmontaría antes
+       // del paso de MercadoPago.
+       const [wizardActive, setWizardActive] = useState(false)
+       const wizardClosedRef = useRef(false)
+       useEffect(() => {
+              // wizardClosedRef evita reabrirlo: al salir, el prop del server
+              // (showOnboarding) sigue true hasta que el router.refresh llega.
+              if (wizardClosedRef.current) return
+              if (showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) {
+                     setWizardActive(true)
+              }
+       }, [showOnboarding, onboardingDismissed, initialLoading, courts.length])
 
        const handleOpenNewBooking = useCallback((data: {
               courtId?: number
@@ -514,8 +540,13 @@ export default function DashboardClient({
                             slug={slug}
                      />
 
-                     {(showOnboarding || (!onboardingDismissed && !initialLoading && courts.length === 0)) && (
-                            <OnboardingWizard clubName={clubName} slug={slug} />
+                     {wizardActive && (
+                            <OnboardingWizard
+                                   clubName={clubName}
+                                   slug={slug}
+                                   onFinished={handleOnboardingFinished}
+                                   onClose={() => { wizardClosedRef.current = true; setWizardActive(false) }}
+                            />
                      )}
 
               </>

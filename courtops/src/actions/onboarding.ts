@@ -1,7 +1,6 @@
 'use server'
 
 import prisma from '@/lib/db'
-import { revalidatePath } from 'next/cache'
 import { createSafeAction } from '@/lib/safe-action'
 
 export type OnboardingCourt = {
@@ -80,6 +79,9 @@ export const finishOnboarding = createSafeAction(async ({ clubId }, data: Onboar
               })
        }
 
-       revalidatePath('/')
+       // OJO: NO llamar revalidatePath acá. Re-renderiza el dashboard con
+       // showOnboarding=false a mitad del wizard y puede desmontar el overlay
+       // antes del paso de MercadoPago. El router.refresh() del botón de
+       // salida del wizard ya revalida la ruta al terminar.
        return true
 })

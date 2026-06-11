@@ -33,9 +33,13 @@ const TOTAL_STEPS = 5
 interface OnboardingWizardProps {
 	clubName?: string
 	slug?: string
+	/** Llamado cuando canchas y precios quedaron creados (para refrescar datos del dashboard de fondo). */
+	onFinished?: () => void
+	/** Llamado cuando el usuario sale del wizard (cierra el overlay). */
+	onClose?: () => void
 }
 
-export default function OnboardingWizard({ clubName = 'tu club', slug }: OnboardingWizardProps) {
+export default function OnboardingWizard({ clubName = 'tu club', slug, onFinished, onClose }: OnboardingWizardProps) {
 	const router = useRouter()
 	const { resetAndStartTour } = useTour()
 	const [step, setStep] = useState(1)
@@ -125,6 +129,9 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 				price,
 			})
 			if (res.success) {
+				// Canchas y precios ya existen en DB: avisar al dashboard de
+				// fondo para que recargue su lista (la cargó vacía al montar).
+				onFinished?.()
 				setStep(4)
 				setLoading(false)
 			} else {
@@ -180,15 +187,17 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 
 	const handleGoToDashboard = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
+		onClose?.()
 		router.push('/dashboard?welcome=1')
 		router.refresh()
-	}, [router])
+	}, [router, onClose])
 
 	const handleOpenChannels = useCallback(() => {
 		localStorage.setItem('courtops_onboarding_complete', 'true')
+		onClose?.()
 		router.push('/dashboard?welcome=1&modal=growth')
 		router.refresh()
-	}, [router])
+	}, [router, onClose])
 
 	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Cobros', 'Listo']
 
