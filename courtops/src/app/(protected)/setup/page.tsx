@@ -1,14 +1,8 @@
-'use server'
-
-import { checkSetupStatus } from "@/actions/setup"
 import { redirect } from "next/navigation"
-import { SetupWizard } from "@/components/setup/SetupWizard"
 
-export default async function SetupPage() {
-       const status = await checkSetupStatus()
-       if (status.isSetup) {
-              redirect('/dashboard')
-       }
-
-       return <SetupWizard initialData={status} />
+// El setup inicial ahora vive en el OnboardingWizard del dashboard
+// (se muestra automáticamente cuando el club no tiene canchas o precios).
+// Esta ruta queda solo para no romper links viejos.
+export default function SetupPage() {
+       redirect('/dashboard')
 }

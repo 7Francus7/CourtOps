@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, ImageIcon, Instagram, Lock, Mail, MapPin, Phone, Store, User } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import { ArrowRight, Check, Eye, EyeOff, Lock, Mail, Store, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 import { registerClub } from '@/actions/auth/register'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -13,535 +13,216 @@ import { useFormValidation } from '@/hooks/useFormValidation'
 import { cn } from '@/lib/utils'
 import { CourtOpsLogoFull, CourtOpsLogoAuto } from '@/components/ui/CourtOpsLogo'
 
-const PLANS = [
-  {
-    id: 'FREE',
-    name: 'Prueba gratis',
-    eyebrow: '7 días',
-    price: 0,
-    period: '',
-    description: 'Probá reservas, caja, clientes y reportes con datos reales.',
-    features: ['Todas las funciones', 'Hasta 2 canchas', 'Sin tarjeta', 'Soporte inicial'],
-    cta: 'Comenzar gratis',
-  },
-  {
-    id: 'Base',
-    name: 'Base',
-    eyebrow: 'Base',
-    price: 69000,
-    period: '/mes',
-    description: 'Para ordenar agenda y caja sin complejidad.',
-    features: ['Hasta 2 canchas', 'Turnero digital', 'Caja básica', 'Setup incluido'],
-    cta: 'Seleccionar',
-  },
-  {
-    id: 'Pro',
-    name: 'Pro',
-    eyebrow: 'Recomendado',
-    price: 99000,
-    period: '/mes',
-    description: 'Para clubes con alto movimiento, POS, torneos y métricas.',
-    features: ['Hasta 8 canchas', 'POS / kiosco full', 'Gestión de torneos', 'Analítica avanzada'],
-    cta: 'Seleccionar',
-    featured: true,
-  },
-  {
-    id: 'Max',
-    name: 'Max',
-    eyebrow: 'Escala',
-    price: 149000,
-    period: '/mes',
-    description: 'Para complejos grandes con varias sedes e integraciones.',
-    features: ['Canchas ilimitadas', 'Multi-sede central', 'Dominio propio', 'Ejecutivo dedicado'],
-    cta: 'Seleccionar',
-  },
-]
-
-
-function PlanPrice({ plan, isYearly }: { plan: (typeof PLANS)[number]; isYearly: boolean }) {
-  if (plan.price === 0)
-    return <span className="text-4xl font-bold tracking-tight text-emerald-500">Gratis</span>
-  const price = isYearly ? Math.round(plan.price * 0.8) : plan.price
-  const annualTotal = Math.round(plan.price * 0.8) * 12
-  return (
-    <div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-4xl font-bold tracking-tight">${new Intl.NumberFormat('es-AR').format(price)}</span>
-        <span className="text-sm text-zinc-400">{plan.period}</span>
-      </div>
-      {isYearly && (
-        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
-          Facturado ${new Intl.NumberFormat('es-AR').format(annualTotal)} al año
-        </p>
-      )}
-    </div>
-  )
-}
-
 const inputBase = 'h-11 w-full rounded-xl border bg-zinc-50 pl-10 pr-4 text-sm outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-emerald-500/20 dark:bg-zinc-800/60 dark:text-white dark:focus:bg-zinc-800'
 const inputBorder = 'border-zinc-200 focus:border-emerald-400 dark:border-zinc-700'
 const inputBorderError = 'border-red-400 focus:border-red-400'
 
+const TRIAL_BENEFITS = [
+	'14 días gratis con todas las funciones',
+	'Sin tarjeta de crédito',
+	'Link público de reservas desde el primer minuto',
+	'Cobros online con MercadoPago',
+	'Elegís tu plan cuando quieras, dentro del sistema',
+]
+
 export default function RegisterPage() {
-  const router = useRouter()
-  const [step, setStep] = useState<'PLANS' | 'FORM'>('PLANS')
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [isYearly, setIsYearly] = useState(false)
-  const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', phone: '+54 ', address: '', instagram: '', logoUrl: '', password: '' })
-  const [logoFromIg, setLogoFromIg] = useState(false)
-  const igDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const router = useRouter()
+	const [loading, setLoading] = useState(false)
+	const [showPassword, setShowPassword] = useState(false)
+	const [formData, setFormData] = useState({ clubName: '', userName: '', email: '', password: '' })
 
-  const handleInstagramChange = (raw: string) => {
-    const handle = raw.replace('@', '')
-    setFormData(prev => ({ ...prev, instagram: handle }))
-    setLogoFromIg(false)
+	const validationRules = useMemo(
+		() => ({
+			clubName: (v: string) => (v.trim().length < 2 ? 'El nombre del club es obligatorio' : null),
+			userName: (v: string) => (v.trim().length < 2 ? 'Tu nombre es obligatorio' : null),
+			email: (v: string) => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresá un email válido' : null),
+			password: (v: string) => (v.length < 6 ? 'Mínimo 6 caracteres' : null),
+		}),
+		[]
+	)
 
-    if (igDebounce.current) clearTimeout(igDebounce.current)
-    if (handle.length < 3) return
+	const { errors, validate, validateAll } = useFormValidation(validationRules)
 
-    igDebounce.current = setTimeout(() => {
-      setFormData(prev => ({ ...prev, logoUrl: `https://unavatar.io/instagram/${handle}` }))
-      setLogoFromIg(true)
-    }, 700)
-  }
-  const selectedPlanData = PLANS.find((plan) => plan.id === selectedPlan)
+	const handleRegister = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!validateAll(formData)) return
+		setLoading(true)
 
-  const validationRules = useMemo(
-    () => ({
-      clubName: (v: string) => (v.trim().length < 2 ? 'El nombre del club es obligatorio' : null),
-      userName: (v: string) => (v.trim().length < 2 ? 'Tu nombre es obligatorio' : null),
-      email: (v: string) => (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Ingresá un email válido' : null),
-      phone: (v: string) => (v && v.replace(/\D/g, '').length < 8 ? 'Teléfono inválido' : null),
-      address: (_v: string) => null,
-      instagram: (_v: string) => null,
-      logoUrl: (_v: string) => null,
-      password: (v: string) => (v.length < 6 ? 'Mínimo 6 caracteres' : null),
-    }),
-    []
-  )
+		const data = new FormData()
+		data.append('clubName', formData.clubName)
+		data.append('userName', formData.userName)
+		data.append('email', formData.email)
+		data.append('password', formData.password)
 
-  const { errors, validate, validateAll } = useFormValidation(validationRules)
+		const res = await registerClub(data)
 
-  const handlePlanSelect = (planId: string) => {
-    setSelectedPlan(planId)
-    setStep('FORM')
-  }
+		if (!res.success) {
+			setLoading(false)
+			toast.error(res.error || 'Error al registrarse')
+			return
+		}
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedPlan || !validateAll(formData)) return
-    setLoading(true)
+		// Auto-login: el usuario nunca debería ver una pantalla de login
+		// inmediatamente después de crear su cuenta.
+		const login = await signIn('credentials', {
+			email: formData.email,
+			password: formData.password,
+			redirect: false,
+		})
 
-    const data = new FormData()
-    data.append('clubName', formData.clubName)
-    data.append('userName', formData.userName)
-    data.append('email', formData.email)
-    data.append('phone', formData.phone)
-    data.append('address', formData.address)
-    data.append('instagram', formData.instagram)
-    data.append('logoUrl', formData.logoUrl)
-    data.append('password', formData.password)
-    data.append('plan', isYearly && selectedPlan !== 'FREE' ? `${selectedPlan}_ANUAL` : selectedPlan)
+		if (login?.error) {
+			setLoading(false)
+			router.push('/login?registered=true')
+			return
+		}
 
-    const res = await registerClub(data)
-    setLoading(false)
+		toast.success('¡Cuenta creada! Configuremos tu club.')
+		router.push('/dashboard')
+		router.refresh()
+	}
 
-    if (res.success) {
-      toast.success('Cuenta creada con éxito')
-      router.push(selectedPlan === 'FREE' ? '/setup' : '/login?registered=true')
-    } else {
-      toast.error(res.error || 'Error al registrarse')
-    }
-  }
+	return (
+		<div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-white">
+			<header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 px-6 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
+				<div className="mx-auto flex max-w-5xl items-center justify-between">
+					<Link href="/" aria-label="CourtOps inicio" className="hover:opacity-80 transition-opacity inline-flex">
+						<CourtOpsLogoAuto className="h-8 w-auto" />
+					</Link>
+					<div className="flex items-center gap-5">
+						<span className="hidden text-sm text-zinc-500 dark:text-zinc-400 sm:block">
+							¿Ya sos cliente?{' '}
+							<Link href="/login" className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-white">
+								Iniciar sesión
+							</Link>
+						</span>
+						<ThemeToggle />
+					</div>
+				</div>
+			</header>
 
-  return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-white">
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-zinc-50/95 px-6 pb-4 pt-[max(env(safe-area-inset-top),1rem)] backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" aria-label="CourtOps inicio" className="hover:opacity-80 transition-opacity inline-flex">
-            <CourtOpsLogoAuto className="h-8 w-auto" />
-          </Link>
-          <div className="flex items-center gap-5">
-            <span className="hidden text-sm text-zinc-500 dark:text-zinc-400 sm:block">
-              ¿Ya sos cliente?{' '}
-              <Link href="/login" className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-white">
-                Iniciar sesión
-              </Link>
-            </span>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+			<main className="mx-auto grid w-full max-w-5xl gap-5 px-6 py-14 md:py-20 lg:grid-cols-[1fr_1.2fr]">
+				{/* Left panel: value prop */}
+				<aside className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-white flex flex-col">
+					<CourtOpsLogoFull className="h-8 w-auto" darkBg />
+					<h1 className="mt-7 text-3xl font-bold tracking-tight">Probá CourtOps gratis.</h1>
+					<p className="mt-2 text-sm leading-relaxed text-zinc-400">
+						En menos de 10 minutos tu club recibe reservas online.
+					</p>
 
-      <main className="mx-auto w-full max-w-7xl px-6 py-14 md:py-20">
-        <AnimatePresence mode="wait">
-          {step === 'PLANS' ? (
-            <motion.section
-              key="plans"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="w-full"
-            >
-              <div className="mx-auto mb-14 max-w-2xl text-center">
-                <p className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                  Sin tarjeta para empezar
-                </p>
-                <h1 className="text-5xl font-bold tracking-tight md:text-6xl">Elegí tu plan</h1>
-                <p className="mx-auto mt-5 max-w-md text-base text-zinc-500 dark:text-zinc-400">
-                  Sin setup fee ni costos de instalación. Solo pagás la mensualidad, con todo incluido desde el primer día.
-                </p>
+					<div className="mt-6 space-y-3">
+						{TRIAL_BENEFITS.map((item) => (
+							<div key={item} className="flex items-start gap-3">
+								<Check size={16} className="mt-0.5 shrink-0 text-emerald-400" />
+								<span className="text-sm text-zinc-300">{item}</span>
+							</div>
+						))}
+					</div>
 
-                <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-zinc-200 bg-white p-1 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/60">
-                  <button
-                    type="button"
-                    onClick={() => setIsYearly(false)}
-                    className={cn(
-                      'rounded-full px-5 py-2 text-sm font-medium transition-all',
-                      !isYearly
-                        ? 'bg-zinc-900 text-white shadow dark:bg-zinc-100 dark:text-zinc-900'
-                        : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
-                    )}
-                  >
-                    Mensual
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsYearly(true)}
-                    className={cn(
-                      'flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-all',
-                      isYearly
-                        ? 'bg-zinc-900 text-white shadow dark:bg-zinc-100 dark:text-zinc-900'
-                        : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
-                    )}
-                  >
-                    Anual
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                      −20%
-                    </span>
-                  </button>
-                </div>
-              </div>
+					<div className="mt-auto pt-8">
+						<div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4">
+							<p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Después del registro</p>
+							<p className="mt-2 text-sm text-zinc-300">
+								Te guiamos paso a paso: canchas, horarios, precio y tu link público listo para compartir.
+							</p>
+						</div>
+					</div>
+				</aside>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {PLANS.map((plan, index) => (
-                  <motion.article
-                    key={plan.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.06 }}
-                    className={cn(
-                      'relative flex flex-col rounded-2xl border p-7 transition-all hover:shadow-lg',
-                      plan.featured
-                        ? 'border-emerald-500/30 bg-zinc-900 text-white shadow-md shadow-zinc-900/20'
-                        : 'border-zinc-200 bg-white shadow-sm hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700'
-                    )}
-                  >
-                    {plan.featured && (
-                      <div className="absolute -top-px left-1/2 -translate-x-1/2">
-                        <div className="rounded-b-lg bg-emerald-500 px-4 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
-                          Recomendado
-                        </div>
-                      </div>
-                    )}
+				{/* Form panel */}
+				<div className="rounded-2xl border border-zinc-200 bg-white px-8 py-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+					<h2 className="text-xl font-bold tracking-tight">Creá tu cuenta</h2>
+					<p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+						Solo 4 datos. El resto lo configurás adentro.
+					</p>
 
-                    <p className={cn('text-[11px] font-semibold uppercase tracking-widest', plan.featured ? 'text-emerald-400' : 'text-zinc-400')}>
-                      {plan.eyebrow}
-                    </p>
+					<form onSubmit={handleRegister} className="mt-6 space-y-4">
+						<FormField label="Nombre del club" error={errors.clubName}>
+							<div className="relative">
+								<Store className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+								<input
+									type="text"
+									required
+									autoFocus
+									className={cn(inputBase, errors.clubName ? inputBorderError : inputBorder)}
+									placeholder="Ej: Arena Padel"
+									value={formData.clubName}
+									onChange={(e) => setFormData({ ...formData, clubName: e.target.value })}
+									onBlur={() => validate('clubName', formData.clubName)}
+								/>
+							</div>
+						</FormField>
 
-                    <h2 className="mt-1 text-xl font-semibold">{plan.name}</h2>
+						<FormField label="Tu nombre" error={errors.userName}>
+							<div className="relative">
+								<User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+								<input
+									type="text"
+									required
+									className={cn(inputBase, errors.userName ? inputBorderError : inputBorder)}
+									placeholder="Franco Rossi"
+									value={formData.userName}
+									onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+									onBlur={() => validate('userName', formData.userName)}
+								/>
+							</div>
+						</FormField>
 
-                    <div className="mt-6">
-                      <PlanPrice plan={plan} isYearly={isYearly} />
-                    </div>
-                    <p className={cn('mt-2 text-xs font-medium', plan.featured ? 'text-emerald-400' : 'text-emerald-600 dark:text-emerald-500')}>
-                      Sin costo de instalación · Setup incluido
-                    </p>
+						<FormField label="Email" error={errors.email}>
+							<div className="relative">
+								<Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+								<input
+									type="email"
+									required
+									className={cn(inputBase, errors.email ? inputBorderError : inputBorder)}
+									placeholder="admin@tuclub.com"
+									value={formData.email}
+									onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+									onBlur={() => validate('email', formData.email)}
+								/>
+							</div>
+						</FormField>
 
-                    <p className={cn('mt-4 text-sm leading-relaxed', plan.featured ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-400')}>
-                      {plan.description}
-                    </p>
+						<FormField label="Contraseña" error={errors.password}>
+							<div className="relative">
+								<Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+								<input
+									type={showPassword ? 'text' : 'password'}
+									required
+									className={cn(inputBase, 'pr-10', errors.password ? inputBorderError : inputBorder)}
+									placeholder="••••••••"
+									value={formData.password}
+									onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+									onBlur={() => validate('password', formData.password)}
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)}
+									className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
+									aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+								>
+									{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+								</button>
+							</div>
+						</FormField>
 
-                    <button
-                      type="button"
-                      onClick={() => handlePlanSelect(plan.id)}
-                      className={cn(
-                        'mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all active:scale-[0.98]',
-                        plan.id === 'FREE' || plan.featured
-                          ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                          : 'border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700'
-                      )}
-                    >
-                      {plan.cta}
-                      <ArrowRight size={15} />
-                    </button>
+						<button
+							type="submit"
+							disabled={loading}
+							className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 text-sm font-semibold text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+						>
+							{loading ? (
+								<span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+							) : (
+								<>Crear mi club gratis <ArrowRight size={15} /></>
+							)}
+						</button>
 
-                    <div className={cn('mt-6 space-y-3 border-t pt-6', plan.featured ? 'border-zinc-700/60' : 'border-zinc-100 dark:border-zinc-800')}>
-                      {plan.features.map((feature) => (
-                        <div key={feature} className="flex items-center gap-2.5 text-sm">
-                          <Check size={13} className="shrink-0 text-emerald-500" />
-                          <span className={plan.featured ? 'text-zinc-300' : 'text-zinc-600 dark:text-zinc-400'}>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-            </motion.section>
-          ) : (
-            <motion.section
-              key="form"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[1fr_1.5fr]"
-            >
-              {/* Left panel */}
-              <aside className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-white flex flex-col">
-                <button
-                  type="button"
-                  onClick={() => setStep('PLANS')}
-                  className="mb-8 inline-flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-300"
-                >
-                  <ArrowLeft size={13} />
-                  Volver a planes
-                </button>
-                <CourtOpsLogoFull className="h-8 w-auto" darkBg />
-                <h1 className="mt-7 text-3xl font-bold tracking-tight">Activá tu club.</h1>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                  En minutos tenés todo listo para operar.
-                </p>
-
-                {/* What gets created */}
-                <div className="mt-6 space-y-2.5">
-                  {[
-                    { icon: '🔗', text: 'Link público de reservas activo' },
-                    { icon: '📅', text: 'Agenda y canchas configurables' },
-                    { icon: '💰', text: 'Precio base pre-cargado' },
-                    { icon: '📊', text: 'Dashboard operativo al instante' },
-                    { icon: '📱', text: 'Perfil público con tus datos' },
-                  ].map((item) => (
-                    <div key={item.text} className="flex items-center gap-3">
-                      <span className="text-base">{item.icon}</span>
-                      <span className="text-sm text-zinc-300">{item.text}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Plan badge */}
-                <div className="mt-auto pt-8">
-                  <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/50 p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Plan elegido</p>
-                    <div className="mt-2 flex items-end justify-between gap-4">
-                      <span className="text-lg font-semibold">{selectedPlanData?.name}</span>
-                      {selectedPlanData && <PlanPrice plan={selectedPlanData} isYearly={isYearly} />}
-                    </div>
-                    {selectedPlanData && selectedPlanData.price > 0 && (
-                      <p className="mt-2 text-xs text-emerald-400/80">Sin costo de instalación. Acceso inmediato.</p>
-                    )}
-                  </div>
-                </div>
-              </aside>
-
-              {/* Form panel */}
-              <div className="rounded-2xl border border-zinc-200 bg-white px-8 py-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                <h2 className="text-xl font-bold tracking-tight">Creá tu cuenta</h2>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  Completá los datos del club y tu acceso.
-                </p>
-
-                <form onSubmit={handleRegister} className="mt-6 space-y-5">
-
-                  {/* Section: Club */}
-                  <div>
-                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Datos del club</p>
-                    <div className="space-y-3">
-                      <FormField label="Nombre del club" error={errors.clubName}>
-                        <div className="relative">
-                          <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                          <input
-                            type="text"
-                            required
-                            className={cn(inputBase, errors.clubName ? inputBorderError : inputBorder)}
-                            placeholder="Ej: Arena Padel"
-                            value={formData.clubName}
-                            onChange={(e) => setFormData({ ...formData, clubName: e.target.value })}
-                            onBlur={() => validate('clubName', formData.clubName)}
-                          />
-                        </div>
-                      </FormField>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <FormField label="Teléfono" error={errors.phone}>
-                          <div className="relative">
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                            <input
-                              type="tel"
-                              className={cn(inputBase, errors.phone ? inputBorderError : inputBorder)}
-                              placeholder="+54 351 123-4567"
-                              value={formData.phone}
-                              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                              onBlur={() => validate('phone', formData.phone)}
-                            />
-                          </div>
-                        </FormField>
-                        <FormField label="Dirección" error={errors.address}>
-                          <div className="relative">
-                            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                            <input
-                              type="text"
-                              className={cn(inputBase, inputBorder)}
-                              placeholder="Av. Colón 1234, Cba"
-                              value={formData.address}
-                              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                            />
-                          </div>
-                        </FormField>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <FormField label="Instagram" error={errors.instagram}>
-                          <div className="relative">
-                            <Instagram className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                            <input
-                              type="text"
-                              className={cn(inputBase, inputBorder)}
-                              placeholder="tuclub"
-                              value={formData.instagram}
-                              onChange={(e) => handleInstagramChange(e.target.value)}
-                            />
-                          </div>
-                          {logoFromIg && (
-                            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-emerald-500">
-                              <Instagram size={10} /> Foto de perfil detectada
-                            </p>
-                          )}
-                        </FormField>
-                        <FormField label="Logo (URL)" error={errors.logoUrl}>
-                          <div className="flex items-center gap-2">
-                            <div className="relative flex-1 min-w-0">
-                              <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                              <input
-                                type="url"
-                                className={cn(inputBase, inputBorder)}
-                                placeholder="https://…/logo.png"
-                                value={formData.logoUrl}
-                                onChange={(e) => {
-                                  setFormData(prev => ({ ...prev, logoUrl: e.target.value }))
-                                  setLogoFromIg(false)
-                                }}
-                              />
-                            </div>
-                            <div className={cn(
-                              'relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border flex items-center justify-center',
-                              logoFromIg
-                                ? 'border-pink-500/40 ring-2 ring-pink-500/20'
-                                : 'border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800'
-                            )}>
-                              {formData.logoUrl ? (
-                                <img src={formData.logoUrl} alt="preview" className="h-full w-full object-cover"
-                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                              ) : (
-                                <span className="text-base font-bold text-zinc-400">
-                                  {formData.clubName?.[0]?.toUpperCase() || 'C'}
-                                </span>
-                              )}
-                              {logoFromIg && (
-                                <div className="absolute -bottom-1 -right-1 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-[3px]">
-                                  <Instagram size={8} className="text-white" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </FormField>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="flex items-center gap-3">
-                    <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Tu acceso</p>
-                    <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-                  </div>
-
-                  {/* Section: Account */}
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField label="Tu nombre" error={errors.userName}>
-                        <div className="relative">
-                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                          <input
-                            type="text"
-                            required
-                            className={cn(inputBase, errors.userName ? inputBorderError : inputBorder)}
-                            placeholder="Franco Rossi"
-                            value={formData.userName}
-                            onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-                            onBlur={() => validate('userName', formData.userName)}
-                          />
-                        </div>
-                      </FormField>
-                      <FormField label="Email" error={errors.email}>
-                        <div className="relative">
-                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                          <input
-                            type="email"
-                            required
-                            className={cn(inputBase, errors.email ? inputBorderError : inputBorder)}
-                            placeholder="admin@tuclub.com"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            onBlur={() => validate('email', formData.email)}
-                          />
-                        </div>
-                      </FormField>
-                    </div>
-                    <FormField label="Contraseña" error={errors.password}>
-                      <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          className={cn(inputBase, 'pr-10', errors.password ? inputBorderError : inputBorder)}
-                          placeholder="••••••••"
-                          value={formData.password}
-                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                          onBlur={() => validate('password', formData.password)}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-300"
-                          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                        >
-                          {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                        </button>
-                      </div>
-                    </FormField>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 text-sm font-medium text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {loading ? (
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    ) : (
-                      <>Finalizar registro <ArrowRight size={15} /></>
-                    )}
-                  </button>
-                </form>
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
-      </main>
-    </div>
-  )
+						<p className="text-center text-xs text-zinc-400 dark:text-zinc-500">
+							14 días gratis · Sin tarjeta · Cancelás cuando quieras
+						</p>
+					</form>
+				</div>
+			</main>
+		</div>
+	)
 }

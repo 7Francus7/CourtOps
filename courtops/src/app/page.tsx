@@ -108,7 +108,6 @@ export default async function Home() {
       url: base,
       description: "Sistema de gestión para clubes de pádel: reservas online, caja, kiosco, torneos y métricas.",
       offers: { "@type": "Offer", priceCurrency: "ARS", availability: "https://schema.org/InStock" },
-      aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "1" },
     },
     {
       "@context": "https://schema.org",
@@ -211,7 +210,7 @@ export default async function Home() {
             <ScrollReveal direction="left" delay={0}>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-700">Crecimiento operativo</p>
               <h2 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-6xl">
-                Lo que CourtReserve instaló como estándar, CourtOps lo lleva al día a día del club.
+                Todo lo que tu club necesita para operar, en un solo sistema pensado para el día a día.
               </h2>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-700">
                 La prioridad es simple: que reservar desde el celular sea fácil, que WhatsApp deje de ser una planilla improvisada y que cada canal de adquisición se pueda medir.

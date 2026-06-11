@@ -8,6 +8,8 @@ import {
 	Check,
 	Clock,
 	Copy,
+	CreditCard,
+	ExternalLink,
 	LayoutGrid,
 	Loader2,
 	Plus,
@@ -19,13 +21,14 @@ import {
 import { cn } from '@/lib/utils'
 import { finishOnboarding } from '@/actions/onboarding'
 import type { OnboardingCourt } from '@/actions/onboarding'
+import { getMPOAuthUrl } from '@/actions/mercadopago-oauth'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { useTour } from '@/hooks/useTour'
 
-const PADEL_SLOT_MINUTES = 90
+const SLOT_OPTIONS = [60, 90, 120] as const
 
-const TOTAL_STEPS = 4
+const TOTAL_STEPS = 5
 
 interface OnboardingWizardProps {
 	clubName?: string
@@ -44,8 +47,10 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 	const [courtName, setCourtName] = useState('')
 	const [openTime, setOpenTime] = useState('08:00')
 	const [closeTime, setCloseTime] = useState('23:00')
-	const slotDuration = PADEL_SLOT_MINUTES
+	const [slotDuration, setSlotDuration] = useState<number>(90)
 	const [price, setPrice] = useState(15000)
+	const [mpLoading, setMpLoading] = useState(false)
+	const [mpOpened, setMpOpened] = useState(false)
 
 	const publicUrl = slug
 		? `courtops.net/p/${slug}`
@@ -121,7 +126,6 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 			})
 			if (res.success) {
 				setStep(4)
-				setIsCelebration(true)
 				setLoading(false)
 			} else {
 				toast.error('Error al configurar: ' + res.error)
@@ -132,6 +136,30 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 			setLoading(false)
 		}
 	}
+
+	const handleConnectMP = useCallback(async () => {
+		setMpLoading(true)
+		try {
+			const res = await getMPOAuthUrl()
+			if (res.success && res.url) {
+				// Nueva pestaña: el OAuth de MP redirige a /configuracion al volver,
+				// y así el wizard sigue vivo en esta pestaña.
+				window.open(res.url, '_blank')
+				setMpOpened(true)
+			} else {
+				toast.error(res.error || 'No se pudo iniciar la conexión con MercadoPago')
+			}
+		} catch {
+			toast.error('Error de conexión')
+		} finally {
+			setMpLoading(false)
+		}
+	}, [])
+
+	const handleMPDone = useCallback(() => {
+		setStep(5)
+		setIsCelebration(true)
+	}, [])
 
 	const handleCopyLink = useCallback(() => {
 		const url = `https://${publicUrl}`
@@ -162,7 +190,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 		router.refresh()
 	}, [router])
 
-	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Listo']
+	const stepTitles = ['', 'Bienvenido', 'Canchas', 'Horarios', 'Cobros', 'Listo']
 
 	return (
 		<div className="fixed inset-0 z-[100] bg-background/98 backdrop-blur-2xl">
@@ -220,7 +248,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 										</h2>
 
 										<p className="text-muted-foreground text-[15px] leading-relaxed max-w-xs mx-auto">
-											Configura tu club en <span className="text-foreground font-semibold">3 pasos</span> y empieza a recibir reservas online.
+											Configura tu club en <span className="text-foreground font-semibold">4 pasos</span> y empieza a recibir reservas online hoy.
 										</p>
 									</div>
 
@@ -229,7 +257,8 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 										{[
 											{ icon: LayoutGrid, label: 'Agrega tus canchas', num: 1 },
 											{ icon: Clock, label: 'Configura horarios y precio', num: 2 },
-											{ icon: Share2, label: 'Comparte tu link de reservas', num: 3 },
+											{ icon: CreditCard, label: 'Conecta cobros online', num: 3 },
+											{ icon: Share2, label: 'Comparte tu link de reservas', num: 4 },
 										].map(({ icon: Icon, label, num }, i) => (
 											<motion.div
 												key={num}
@@ -243,7 +272,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 												</div>
 												<span className="text-sm text-foreground/80 font-medium">{label}</span>
 												<span className="ml-auto text-[10px] font-black text-muted-foreground bg-muted dark:bg-secondary px-2 py-0.5 rounded-md">
-													{num}/{3}
+													{num}/{4}
 												</span>
 											</motion.div>
 										))}
@@ -302,7 +331,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 									{/* Court list */}
 									<div className="space-y-1.5 min-h-[120px] max-h-[40vh] overflow-y-auto pr-1">
 										<div className="rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-xs font-medium text-muted-foreground">
-											Todas las canchas se crean como <span className="text-foreground font-semibold">Padel</span> con turnos de <span className="text-foreground font-semibold">90 minutos</span>.
+											Todas las canchas se crean como <span className="text-foreground font-semibold">Padel</span>. La duración del turno la elegís en el paso siguiente.
 										</div>
 										{courts.length === 0 ? (
 											<div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
@@ -324,7 +353,7 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 													</div>
 													<div className="flex-1 min-w-0">
 														<span className="text-sm text-foreground font-medium block truncate">{court.name}</span>
-														<span className="text-[10px] text-muted-foreground uppercase tracking-wider">Padel · 90 min</span>
+														<span className="text-[10px] text-muted-foreground uppercase tracking-wider">Padel</span>
 													</div>
 													<button
 														onClick={() => removeCourt(i)}
@@ -418,17 +447,27 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 										<label className="section-label pl-0.5">
 											Duracion del turno
 										</label>
-										<div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-4">
-											<div className="flex items-center justify-between gap-4">
-												<div>
-													<p className="text-sm font-bold text-foreground">Padel estandar</p>
-													<p className="text-[11px] text-muted-foreground">La agenda queda configurada en bloques fijos de 90 minutos.</p>
-												</div>
-												<span className="rounded-xl bg-primary/10 px-3 py-2 text-sm font-black text-primary">
-													90 min
-												</span>
-											</div>
+										<div className="grid grid-cols-3 gap-2">
+											{SLOT_OPTIONS.map((mins) => (
+												<button
+													key={mins}
+													type="button"
+													onClick={() => setSlotDuration(mins)}
+													className={cn(
+														'rounded-xl border px-3 py-3 text-center transition-all active:scale-[0.97]',
+														slotDuration === mins
+															? 'border-primary bg-primary/10 text-primary'
+															: 'border-border bg-muted text-muted-foreground hover:border-primary/40'
+													)}
+												>
+													<span className="block text-lg font-black">{mins}</span>
+													<span className="block text-[10px] font-bold uppercase tracking-wider">min</span>
+												</button>
+											))}
 										</div>
+										<p className="text-[11px] text-muted-foreground/70 pl-0.5">
+											90 min es el estandar de padel. Podes cambiarlo despues.
+										</p>
 									</div>
 
 									{/* Price */}
@@ -476,10 +515,78 @@ export default function OnboardingWizard({ clubName = 'tu club', slug }: Onboard
 								</motion.div>
 							)}
 
-							{/* ====== STEP 4: Done ====== */}
-							{step === 4 && isCelebration && (
+							{/* ====== STEP 4: MercadoPago (opcional) ====== */}
+							{step === 4 && (
 								<motion.div
-									key="step4"
+									key="step4-mp"
+									initial={{ opacity: 0, y: 16 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -16 }}
+									transition={{ duration: 0.3 }}
+									className="space-y-5"
+								>
+									<div className="space-y-1">
+										<h2 className="text-2xl font-black text-foreground tracking-tight">
+											Cobra online
+										</h2>
+										<p className="text-muted-foreground text-sm">
+											Conecta MercadoPago y tus clientes pagan la seña al reservar. Menos ausencias, plata asegurada.
+										</p>
+									</div>
+
+									<div className="space-y-2.5">
+										{[
+											{ icon: CreditCard, label: 'Senas cobradas automaticamente al reservar' },
+											{ icon: Check, label: 'El dinero va directo a tu cuenta de MercadoPago' },
+											{ icon: Clock, label: 'Toma 2 minutos. Solo necesitas tu usuario de MP' },
+										].map(({ icon: Icon, label }) => (
+											<div key={label} className="flex items-center gap-3.5 bg-muted/50 dark:bg-secondary/50 border border-border/50 rounded-xl px-4 py-3">
+												<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+													<Icon size={15} className="text-primary" />
+												</div>
+												<span className="text-sm text-foreground/80 font-medium">{label}</span>
+											</div>
+										))}
+									</div>
+
+									{mpOpened && (
+										<div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs font-medium text-muted-foreground">
+											Se abrio MercadoPago en otra pestana. Cuando termines de autorizar, volve aca y continua.
+										</div>
+									)}
+
+									<button
+										onClick={handleConnectMP}
+										disabled={mpLoading}
+										className="w-full bg-[#009EE3] hover:brightness-110 active:scale-[0.98] disabled:opacity-60 transition-all text-white h-12 rounded-xl flex items-center justify-center gap-2.5 font-bold text-sm shadow-md"
+									>
+										{mpLoading ? (
+											<Loader2 className="animate-spin" size={18} />
+										) : (
+											<>
+												<CreditCard size={16} /> Conectar MercadoPago <ExternalLink size={13} />
+											</>
+										)}
+									</button>
+									<button
+										onClick={handleMPDone}
+										className="w-full border border-border hover:bg-muted active:scale-[0.98] transition-all text-foreground h-11 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm"
+									>
+										{mpOpened ? 'Ya autorice, continuar' : 'Lo hago despues'}
+										<ArrowRight size={14} />
+									</button>
+									{!mpOpened && (
+										<p className="text-[11px] text-muted-foreground/70 text-center">
+											Lo encontras despues en Configuracion → Integraciones.
+										</p>
+									)}
+								</motion.div>
+							)}
+
+							{/* ====== STEP 5: Done ====== */}
+							{step === 5 && isCelebration && (
+								<motion.div
+									key="step5"
 									initial={{ opacity: 0, scale: 0.95 }}
 									animate={{ opacity: 1, scale: 1 }}
 									transition={{ duration: 0.4, ease: 'easeOut' }}

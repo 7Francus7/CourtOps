@@ -81,12 +81,20 @@ return (
               console.error("Dashboard Page Error:", error)
               return (
                      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-                            <div className="text-center space-y-4 max-w-2xl">
-                                   <h1 className="text-2xl font-bold text-foreground">Error de Conexión</h1>
-                                   <p className="text-muted-foreground">No se pudo cargar la información del club.</p>
-                                   <pre className="text-xs text-muted-foreground bg-secondary p-4 rounded-lg overflow-auto">
-                                          {error instanceof Error ? error.message : 'Unknown error'}
-                                   </pre>
+                            <div className="text-center space-y-4 max-w-md">
+                                   <h1 className="text-2xl font-bold text-foreground">No pudimos cargar tu club</h1>
+                                   <p className="text-muted-foreground">
+                                          Es un problema temporal de conexión. Tus datos y reservas están seguros.
+                                   </p>
+                                   <a
+                                          href="/dashboard"
+                                          className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+                                   >
+                                          Reintentar
+                                   </a>
+                                   <p className="text-xs text-muted-foreground/60">
+                                          Si el problema sigue, escribinos a soporte@courtops.net
+                                   </p>
                             </div>
                      </div>
               )

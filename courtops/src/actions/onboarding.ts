@@ -18,13 +18,15 @@ export type OnboardingData = {
 }
 
 export const finishOnboarding = createSafeAction(async ({ clubId }, data: OnboardingData) => {
+       const slotDuration = [60, 90, 120].includes(data.slotDuration) ? data.slotDuration : 90
+
        // 1. Update Club Settings
        await prisma.club.update({
               where: { id: clubId },
               data: {
                      openTime: data.openTime,
                      closeTime: data.closeTime,
-                     slotDuration: 90,
+                     slotDuration,
               }
        })
 
@@ -46,7 +48,7 @@ export const finishOnboarding = createSafeAction(async ({ clubId }, data: Onboar
                                    clubId,
                                    sport: 'PADEL',
                                    sortOrder: i,
-                                   duration: 90,
+                                   duration: slotDuration,
                             }))
                      })
               }

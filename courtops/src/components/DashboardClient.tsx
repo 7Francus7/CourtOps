@@ -362,7 +362,7 @@ export default function DashboardClient({
                                            </div>
                                            <span className="flex items-center gap-2 text-amber-100">
                                                   <Settings size={14} />
-                                                  <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/setup')} className="underline hover:text-white">Completar setup</button></span>
+                                                  <span className="font-medium">Configura tus canchas para comenzar. <button onClick={() => router.push('/configuracion?tab=CANCHAS')} className="underline hover:text-white">Ir a canchas</button></span>
                                            </span>
                                     </div>
                              )}

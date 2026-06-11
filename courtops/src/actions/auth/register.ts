@@ -2,19 +2,15 @@
 
 import prisma from '@/lib/db'
 import bcrypt from 'bcryptjs'
-import { getPlanFeatures } from '@/lib/plan-features'
+
+const TRIAL_DAYS = 14
 
 export async function registerClub(formData: FormData) {
 	try {
-		const clubName = formData.get('clubName') as string
-		const email = formData.get('email') as string
+		const clubName = (formData.get('clubName') as string)?.trim()
+		const email = (formData.get('email') as string)?.trim().toLowerCase()
 		const password = formData.get('password') as string
-		const userName = formData.get('userName') as string
-		const phone = (formData.get('phone') as string)?.trim() || undefined
-		const address = (formData.get('address') as string)?.trim() || undefined
-		const instagram = (formData.get('instagram') as string)?.trim().replace('@', '') || undefined
-		const logoUrl = (formData.get('logoUrl') as string)?.trim() || undefined
-		const plan = (formData.get('plan') as string)?.replace(/_ANUAL$/, '')
+		const userName = (formData.get('userName') as string)?.trim()
 
 		if (!clubName || !email || !password || !userName) {
 			return { success: false, error: 'Faltan campos requeridos.' }
@@ -28,74 +24,31 @@ export async function registerClub(formData: FormData) {
 		const slug = clubName.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '') + '-' + Math.floor(Math.random() * 1000)
 
 		const nextBillingDate = new Date()
-		nextBillingDate.setDate(nextBillingDate.getDate() + 7)
-
-		let platformPlanId: string | undefined = undefined
-		let maxCourts = 2
-		let maxUsers = 3
-		let hasKiosco = false
-		let hasOnlinePayments = false
-		let hasAdvancedReports = false
-		let hasTournaments = false
-		let hasWhatsApp = false
-		let hasWaivers = false
-		let hasCustomDomain = false
-
-		const isFreePlan = plan === 'FREE'
-
-		if (isFreePlan) {
-			maxCourts = 2
-			maxUsers = 3
-			hasKiosco = true
-			hasOnlinePayments = false
-			hasAdvancedReports = true
-			hasTournaments = true
-			hasWhatsApp = false
-			hasWaivers = true
-		} else {
-			const platformPlan = await prisma.platformPlan.findFirst({
-				where: { name: { equals: plan, mode: 'insensitive' } }
-			})
-
-			if (platformPlan) {
-				platformPlanId = platformPlan.id
-				const features = getPlanFeatures(platformPlan.name)
-				maxCourts = features.maxCourts
-				maxUsers = features.maxUsers
-				hasKiosco = features.hasKiosco
-				hasOnlinePayments = features.hasOnlinePayments
-				hasAdvancedReports = features.hasAdvancedReports
-				hasTournaments = features.hasTournaments
-				hasWhatsApp = features.hasWhatsApp
-				hasWaivers = features.hasWaivers
-				hasCustomDomain = features.hasCustomDomain
-			}
-		}
+		nextBillingDate.setDate(nextBillingDate.getDate() + TRIAL_DAYS)
 
 		const hashedPassword = await bcrypt.hash(password, 12)
 
+		// El trial arranca con todas las funciones habilitadas (nivel Pro):
+		// el usuario tiene que ver el valor completo antes de elegir plan.
+		// Canchas y precios los crea el OnboardingWizard, no el registro —
+		// así el wizard es la única fuente de configuración inicial.
 		await prisma.$transaction(async (tx) => {
 			const club = await tx.club.create({
 				data: {
 					name: clubName,
 					slug: slug,
-					phone: phone,
-					address: address,
-					socialInstagram: instagram,
-					logoUrl: logoUrl,
 					plan: 'BASIC',
-					platformPlanId: platformPlanId,
 					subscriptionStatus: 'TRIAL',
 					nextBillingDate: nextBillingDate,
-					maxCourts,
-					maxUsers,
-					hasKiosco,
-					hasOnlinePayments,
-					hasAdvancedReports,
-					hasTournaments,
-					hasWhatsApp,
-					hasWaivers,
-					hasCustomDomain,
+					maxCourts: 8,
+					maxUsers: 5,
+					hasKiosco: true,
+					hasOnlinePayments: true,
+					hasAdvancedReports: true,
+					hasTournaments: true,
+					hasWhatsApp: false,
+					hasWaivers: true,
+					hasCustomDomain: false,
 					openTime: '08:00',
 					closeTime: '23:00',
 					slotDuration: 90,
@@ -110,29 +63,6 @@ export async function registerClub(formData: FormData) {
 					password: hashedPassword,
 					role: 'ADMIN',
 					clubId: club.id
-				}
-			})
-
-			await tx.priceRule.create({
-				data: {
-					clubId: club.id,
-					name: 'Precio Base',
-					price: 10000,
-					daysOfWeek: '0,1,2,3,4,5,6',
-					startTime: '00:00',
-					endTime: '23:59',
-					priority: 0
-				}
-			})
-
-			await tx.court.create({
-				data: {
-					clubId: club.id,
-					name: 'Cancha 1',
-					sport: 'PADEL',
-					sortOrder: 0,
-					duration: 90,
-					isActive: true,
 				}
 			})
 		})
