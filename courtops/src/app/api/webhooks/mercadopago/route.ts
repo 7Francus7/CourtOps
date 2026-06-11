@@ -82,7 +82,10 @@ export async function POST(request: Request) {
        // This handles status changes like cancellation or pausing
        if (type === 'subscription_preapproval') {
               if (!clubId) {
-                     // CASE A: Platform (SaaS) subscription status change
+                     // CASE A: Platform (SaaS) subscription status change.
+                     // Esta es la FUENTE DE VERDAD de activación: si el usuario nunca
+                     // vuelve al back_url (cierra pestaña, cambia de dispositivo),
+                     // el plan se activa igual por acá.
                      try {
                             const platformAccessToken = process.env.MP_ACCESS_TOKEN
                             if (!platformAccessToken) return NextResponse.json({ status: 'ignored', reason: 'no platform token' })
@@ -92,17 +95,55 @@ export async function POST(request: Request) {
                             const subscription = await preapproval.get({ id: data.id })
 
                             if (subscription && subscription.external_reference) {
+                                   // external_reference: "clubId:planId[:billingCycle[:changeType]]"
                                    const parts = subscription.external_reference.split(':')
-                                   if (parts.length === 2) {
-                                          const [refClubId] = parts
-                                          await prisma.club.update({
-                                                 where: { id: refClubId },
-                                                 data: {
-                                                        subscriptionStatus: subscription.status,
-                                                        nextBillingDate: subscription.next_payment_date ? new Date(subscription.next_payment_date) : undefined
-                                                 }
-                                          })
+                                   const refClubId = parts[0]
+                                   const refPlanId = parts[1]
+
+                                   const club = refClubId ? await prisma.club.findUnique({ where: { id: refClubId } }) : null
+
+                                   if (club && subscription.status === 'authorized' && refPlanId) {
+                                          // Activación completa — espejo de handleSubscriptionSuccess.
+                                          // Idempotente: re-ejecutarla deja el mismo estado.
+                                          const plan = await prisma.platformPlan.findUnique({ where: { id: refPlanId } })
+                                          if (plan) {
+                                                 const features = getPlanFeatures(plan.name)
+                                                 const nextPayment = subscription.next_payment_date
+                                                        ? new Date(subscription.next_payment_date)
+                                                        : undefined
+
+                                                 await prisma.club.update({
+                                                        where: { id: refClubId },
+                                                        data: {
+                                                               mpPreapprovalId: String(data.id),
+                                                               platformPlanId: refPlanId,
+                                                               subscriptionStatus: 'authorized',
+                                                               subscriptionMethod: 'MERCADOPAGO',
+                                                               subscriptionStart: new Date(),
+                                                               subscriptionEnd: nextPayment,
+                                                               nextBillingDate: nextPayment,
+                                                               suspendedAt: null,
+                                                               pendingPlanId: null,
+                                                               pendingBillingCycle: null,
+                                                               ...features
+                                                        }
+                                                 })
+                                                 console.log(`✅ [webhook] Preapproval authorized for club ${refClubId}: ${plan.name}`)
+                                          }
+                                   } else if (club && (subscription.status === 'cancelled' || subscription.status === 'paused')) {
+                                          // Solo degradar clubes que estaban activos por MP.
+                                          // Nunca pisar TRIAL/PENDING_VALIDATION/transfer con un preapproval viejo.
+                                          const isActiveMP = ['authorized', 'active'].includes(club.subscriptionStatus?.toLowerCase() ?? '')
+                                                 && club.subscriptionMethod !== 'TRANSFER'
+                                          if (isActiveMP) {
+                                                 await prisma.club.update({
+                                                        where: { id: refClubId },
+                                                        data: { subscriptionStatus: subscription.status }
+                                                 })
+                                          }
                                    }
+                                   // status 'pending' se ignora a propósito: el usuario está
+                                   // en medio del checkout y no hay que tocar su estado actual.
                             }
                      } catch (e) {
                             console.error("Error processing platform preapproval webhook:", e)
@@ -207,17 +248,22 @@ export async function POST(request: Request) {
                                            const daysToAdd = cycle === 'yearly' ? 365 : 30
                                            const features = getPlanFeatures(plan.name)
 
+                                           const periodEnd = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000)
                                            const updateData: any = {
                                                   platformPlanId: refPlanId,
                                                   subscriptionStatus: 'authorized',
+                                                  subscriptionMethod: 'MERCADOPAGO',
+                                                  subscriptionEnd: periodEnd,
+                                                  suspendedAt: null,
                                                   mpPreapprovalId: String(paymentInfo.order?.id || club.mpPreapprovalId),
-                                                  nextBillingDate: new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000),
+                                                  nextBillingDate: periodEnd,
                                                   ...features
                                            }
 
                                            if (changeType === 'downgrade') {
                                                   updateData.subscriptionStatus = 'authorized'
                                                   updateData.nextBillingDate = club.nextBillingDate
+                                                  updateData.subscriptionEnd = club.nextBillingDate
                                            }
 
                                            updateData.pendingPlanId = null

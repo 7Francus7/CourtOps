@@ -337,7 +337,44 @@ function ReceiptForm({
   loading: boolean
 }) {
   const [reference, setReference] = useState('')
+  const [file, setFile] = useState<File | null>(null)
   const [receiptUrl, setReceiptUrl] = useState('')
+  const [showUrlFallback, setShowUrlFallback] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const handleSubmit = async () => {
+    if (!reference.trim()) {
+      toast.error('Ingresá el número de operación o alias')
+      return
+    }
+
+    let finalUrl = receiptUrl.trim()
+
+    if (file) {
+      setUploading(true)
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await fetch('/api/upload/receipt', { method: 'POST', body: formData })
+        const data = await res.json()
+        if (!res.ok) {
+          toast.error(data.error || 'Error al subir el comprobante')
+          if (res.status === 501) setShowUrlFallback(true)
+          setUploading(false)
+          return
+        }
+        finalUrl = data.url
+      } catch {
+        toast.error('Error de conexión al subir el archivo')
+        setUploading(false)
+        return
+      }
+      setUploading(false)
+    }
+
+    onSubmit(reference.trim(), finalUrl)
+  }
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -367,35 +404,71 @@ function ReceiptForm({
 
           <div>
             <label className="text-xs font-semibold text-foreground mb-1.5 block">
-              URL del comprobante <span className="text-muted-foreground font-normal">(opcional)</span>
+              Comprobante <span className="text-muted-foreground font-normal">(opcional, acelera la validación)</span>
             </label>
             <input
-              type="url"
-              placeholder="https://drive.google.com/..."
-              value={receiptUrl}
-              onChange={(e) => setReceiptUrl(e.target.value)}
-              className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null
+                if (f && f.size > 5 * 1024 * 1024) {
+                  toast.error('El archivo supera los 5MB')
+                  return
+                }
+                setFile(f)
+              }}
             />
-            <p className="text-[11px] text-muted-foreground mt-1">
-              Podés subir la captura a Google Drive, Dropbox, etc. y pegar el link.
-            </p>
+            {file ? (
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <BadgeCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span className="text-sm text-foreground truncate">{file.name}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
+                </div>
+                <button
+                  onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+                  className="text-muted-foreground hover:text-red-500 transition-colors shrink-0"
+                  aria-label="Quitar archivo"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full rounded-xl border border-dashed border-border bg-background px-4 py-5 text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors flex flex-col items-center gap-1.5"
+              >
+                <Copy className="w-4 h-4 opacity-50" />
+                <span className="font-medium">Adjuntar captura o PDF</span>
+                <span className="text-[11px] opacity-60">JPG, PNG o PDF · máx. 5MB</span>
+              </button>
+            )}
+
+            {showUrlFallback && (
+              <div className="mt-2">
+                <input
+                  type="url"
+                  placeholder="Pegá un link al comprobante (Drive, Dropbox...)"
+                  value={receiptUrl}
+                  onChange={(e) => setReceiptUrl(e.target.value)}
+                  className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <button
-        onClick={() => {
-          if (!reference.trim()) {
-            toast.error('Ingresá el número de operación o alias')
-            return
-          }
-          onSubmit(reference.trim(), receiptUrl.trim())
-        }}
-        disabled={loading || !reference.trim()}
+        onClick={handleSubmit}
+        disabled={loading || uploading || !reference.trim()}
         className="w-full py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
       >
-        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        Enviar comprobante
+        {(loading || uploading) && <Loader2 className="w-4 h-4 animate-spin" />}
+        {uploading ? 'Subiendo comprobante...' : 'Enviar comprobante'}
       </button>
     </div>
   )

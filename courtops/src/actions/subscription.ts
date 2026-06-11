@@ -415,6 +415,13 @@ export async function handleSubscriptionSuccess(preapprovalId: string) {
 			throw new Error("No se pudo verificar la suscripción")
 		}
 
+		if (subscription.status === 'pending') {
+			// El usuario volvió antes de que MP confirme. El webhook de
+			// preapproval activará el plan solo cuando llegue la autorización.
+			log.info("Suscripción aún pendiente en MP, el webhook la activará", { preapprovalId })
+			return { success: false, pending: true }
+		}
+
 		if (subscription.status !== 'authorized') {
 			log.warn("Suscripción no autorizada en MercadoPago", { preapprovalId, status: subscription.status })
 			throw new Error("Suscripción no autorizada")

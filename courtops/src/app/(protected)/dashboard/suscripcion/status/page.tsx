@@ -33,9 +33,14 @@ export default async function SubscriptionStatusPage({
 
        if (status === 'authorized') {
               try {
-                     await handleSubscriptionSuccess(preapprovalId)
-                     isSuccess = true
-                     message = "¡Tu suscripción ha sido activada correctamente!"
+                     const res = await handleSubscriptionSuccess(preapprovalId)
+                     if (res && 'pending' in res && res.pending) {
+                            isSuccess = false
+                            message = "Tu pago se está procesando. El plan se activará automáticamente en unos minutos — no hace falta que hagas nada más."
+                     } else {
+                            isSuccess = true
+                            message = "¡Tu suscripción ha sido activada correctamente!"
+                     }
               } catch (error: unknown) {
                      console.error("Error confirming subscription:", error)
                      isSuccess = false

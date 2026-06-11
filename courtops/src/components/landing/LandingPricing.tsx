@@ -16,8 +16,14 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { OFFICIAL_PLATFORM_PLANS } from '@/lib/platform-plans'
 
 /* ─── Plan data ─────────────────────────────────────────────────────────────── */
+
+// Los PRECIOS salen de OFFICIAL_PLATFORM_PLANS (la misma fuente que se
+// sincroniza a la DB y usa el checkout). Acá solo vive el copy de marketing.
+const priceOf = (name: string) =>
+  OFFICIAL_PLATFORM_PLANS.find((p) => p.name === name)?.price ?? 0
 
 const planes = [
   {
@@ -25,7 +31,7 @@ const planes = [
     nombre: 'Base',
     badge: null,
     subtitulo: 'Para clubes que quieren empezar ordenados sin complejidad.',
-    precio: 69000,
+    precio: priceOf('Base'),
     cta: 'Empezar con Base',
     destacado: false,
     funciones: [
@@ -45,7 +51,7 @@ const planes = [
     nombre: 'Pro',
     badge: 'Más popular',
     subtitulo: 'La operación completa para vender, cobrar y automatizar.',
-    precio: 99000,
+    precio: priceOf('Pro'),
     cta: 'Empezar con Pro',
     destacado: true,
     funciones: [
@@ -67,7 +73,7 @@ const planes = [
     nombre: 'Max',
     badge: null,
     subtitulo: 'Para complejos premium que necesitan escala total.',
-    precio: 149000,
+    precio: priceOf('Max'),
     cta: 'Empezar con Max',
     destacado: false,
     funciones: [
