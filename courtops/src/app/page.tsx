@@ -82,7 +82,10 @@ export default async function Home() {
 
   // Los usuarios de club logueados saltan la landing y van al panel.
   // GOD (emergency bypass, sin club real) sí puede ver la landing.
-  if (session?.user && session.user.role !== 'GOD' && session.user.clubId !== 'GOD_MODE_ACTIVE') {
+  // Requiere un clubId real: una sesión sin club no debe rebotar a /dashboard
+  // (el layout protegido la mandaría a /login, generando ping-pong → /login).
+  const hasRealClub = !!session?.user?.clubId && session.user.clubId !== 'GOD_MODE_ACTIVE'
+  if (session?.user && session.user.role !== 'GOD' && hasRealClub) {
     redirect("/dashboard")
   }
 
